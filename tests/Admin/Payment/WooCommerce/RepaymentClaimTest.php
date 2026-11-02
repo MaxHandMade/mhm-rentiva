@@ -1384,4 +1384,127 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertSame(0, $announced, 'No second status notification.');
 		$this->assertSame(array( 'completed' ), $this->rows($booking_id, '_mhmrentiva_status'));
 	}
+
+	// ------------------------------------ Codex/Fable delta6
+
+	/**
+	 * Codex delta6 H: the unlocked path opens no transaction. Inside one that is
+	 * already open -- here the test case's own, as an integration's
+	 * wc_transaction_query('start') would be -- a START TRANSACTION would
+	 * commit it implicitly. setUp() records every START TRANSACTION / COMMIT /
+	 * ROLLBACK through the query filter.
+	 */
+	public function test_the_unlocked_path_opens_and_commits_no_transaction(): void
+	{
+		$booking_id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
+		add_post_meta($booking_id, '_mhmrentiva_status', 'confirmed');
+		add_post_meta($booking_id, '_mhmrentiva_payment_status', 'pending');
+		$this->transactions = array();
+
+		$result = $this->bridge('mark_paid_unlocked', $booking_id, Status::COMPLETED, Status::CONFIRMED);
+
+		$this->assertNull($result);
+		$this->assertSame(array(), $this->transactions, 'No START TRANSACTION, no COMMIT, no ROLLBACK.');
+		$this->assertSame(array( 'paid' ), $this->rows($booking_id, '_mhmrentiva_payment_status'));
+		$this->assertSame(array( 'completed' ), $this->rows($booking_id, '_mhmrentiva_status'));
+	}
+
+	/**
+	 * Fable delta6 F1: inside a transaction a plain SELECT may answer from an
+	 * older snapshot than the locked check. One connection cannot show two
+	 * snapshots, so the order of statements is the test: every read of the
+	 * key after the write is a locking read.
+	 */
+	public function test_the_read_back_after_a_write_is_a_locking_read(): void
+	{
+		$booking_id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
+		add_post_meta($booking_id, '_mhmrentiva_status', 'pending');
+		$log    = array();
+		$listen = static function ($query) use (&$log, $booking_id) {
+			$sql = (string) $query;
+			if (str_contains($sql, '_mhmrentiva_status') && str_contains($sql, (string) $booking_id)) {
+				$log[] = $sql;
+			}
+			return $query;
+		};
+		add_filter('query', $listen);
+		$held = $this->bridge('write_booking_meta', $booking_id, '_mhmrentiva_status', 'confirmed', 'pending');
+		remove_filter('query', $listen);
+
+		$this->assertSame('written', $held);
+		$write = null;
+		foreach ($log as $i => $sql) {
+			if (preg_match('/^\s*UPDATE/i', $sql)) {
+				$write = $i;
+			}
+		}
+		$this->assertNotNull($write, 'Sanity: the write ran.');
+		$reads_after = array_filter(array_slice($log, (int) $write + 1), static fn($sql) => (bool) preg_match('/^\s*SELECT meta_value FROM/i', $sql));
+		$this->assertNotEmpty($reads_after, 'Sanity: it is read back.');
+		foreach ($reads_after as $sql) {
+			$this->assertMatchesRegularExpression('/FOR UPDATE\s*$/i', $sql, 'The read-back is a locking read.');
+		}
+	}
+
+	/**
+	 * Another writer takes the cancelled booking back between this attempt's
+	 * plain read and its locked status write: the write finds `pending`
+	 * already there.
+	 */
+	private function status_revived_meanwhile(int $booking_id): callable
+	{
+		$fired = false;
+
+		return static function ($query) use (&$fired, $booking_id) {
+			global $wpdb;
+			$sql = (string) $query;
+			if (! $fired && preg_match('/^\s*SELECT meta_id, meta_value FROM/i', $sql) && str_contains($sql, '_mhmrentiva_status') && str_contains($sql, 'post_id = ' . $booking_id . ' ')) {
+				$fired = true;
+				$wpdb->update($wpdb->postmeta, array( 'meta_value' => 'pending' ), array( 'post_id' => $booking_id, 'meta_key' => '_mhmrentiva_status' ));
+			}
+			return $query;
+		};
+	}
+
+	/**
+	 * Fable delta6 F2: a status that was already back when this attempt wrote
+	 * it is not this attempt's revival, and its change is not announced again.
+	 */
+	public function test_a_revival_whose_status_already_held_is_not_announced_again(): void
+	{
+		list($order, $booking_id) = $this->failed_order();
+		$changes                  = array();
+		$count                    = static function ($id, $from, $to) use (&$changes): void {
+			$changes[] = array( (int) $id, (string) $from, (string) $to );
+		};
+		add_action('mhmrentiva_booking_status_changed', $count, 10, 3);
+		$meanwhile = $this->status_revived_meanwhile($booking_id);
+		add_filter('query', $meanwhile);
+
+		WooCommerceBridge::claim_before_pay($order);
+
+		remove_filter('query', $meanwhile);
+		remove_action('mhmrentiva_booking_status_changed', $count, 10);
+
+		$this->assertSame(0, wc_notice_count('error'), 'The booking holds its dates.');
+		$this->assertSame(array( 'pending' ), $this->rows($booking_id, '_mhmrentiva_status'));
+		$this->assertSame(array(), array_filter($changes, static fn($c) => $booking_id === $c[0]), 'No second cancelled -> pending announcement.');
+	}
+
+	/**
+	 * Fable delta6 F2: nor is it undone -- putting it back would cancel a
+	 * revival somebody else made.
+	 */
+	public function test_a_revival_whose_status_already_held_is_not_undone(): void
+	{
+		list($order, $ids) = $this->two_rental_failed_order();
+		$meanwhile         = $this->status_revived_meanwhile($ids[0]);
+		add_filter('query', $meanwhile);
+
+		WooCommerceBridge::claim_before_pay($order);
+
+		remove_filter('query', $meanwhile);
+		$this->assertSame(1, wc_notice_count('error'), 'The second booking is refused.');
+		$this->assertSame(array( 'pending' ), $this->rows($ids[0], '_mhmrentiva_status'), 'Not put back to cancelled: that revival was not ours.');
+	}
 }

@@ -69,6 +69,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// No cash on delivery for a rental: the classic checkout, its validation,
 		// the order-pay form and the Store API all read this list.
 		add_filter('woocommerce_available_payment_gateways', array( self::class, 'without_cash_on_delivery' ), 10, 1);
+		// Store API POST /checkout/{id} pays an existing order: that order, not
+		// the session's cart, decides (Codex PR K delta6 2).
+		add_filter('rest_request_before_callbacks', array( self::class, 'note_store_api_pay_order' ), 10, 3);
+		add_filter('rest_request_after_callbacks', array( self::class, 'forget_store_api_pay_order' ), 10, 1);
+		add_filter('woocommerce_no_available_payment_methods_message', array( self::class, 'no_payment_methods_message' ), 10, 1);
 		// Classic checkout: billing field labels in the error notices.
 		add_action('woocommerce_checkout_process', array( self::class, 'open_field_label_window' ), 5, 0);
 		add_action('woocommerce_after_checkout_validation', array( self::class, 'close_field_label_window' ), 10, 0);
@@ -1519,31 +1524,6 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		return $rows[0] ?? '';
 	}
 
-	/**
-	 * Every row of one booking meta key, oldest first, from the database.
-	 *
-	 * @return list<string>
-	 * @throws \RuntimeException When the read failed ('mhmrentiva_booking_read_failed').
-	 */
-	private static function read_booking_meta_rows(int $booking_id, string $key): array
-	{
-		global $wpdb;
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A locked decision must not trust the object cache (Codex PR K delta3 H1).
-		$values = $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s ORDER BY meta_id ASC",
-				$booking_id,
-				$key
-			)
-		);
-		if ('' !== (string) $wpdb->last_error || ! is_array($values)) {
-			throw new \RuntimeException('mhmrentiva_booking_read_failed');
-		}
-
-		return array_values(array_map('strval', $values));
-	}
-
 	/** A write_booking_meta() answer: the value was written and every row holds it. */
 	private const META_WRITTEN = 'written';
 
@@ -1554,21 +1534,64 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	private const META_NOT_HELD = 'not_held';
 
 	/**
+	 * Every row of one booking meta key, oldest first, from the database.
+	 *
+	 * @param bool $lock A locking read (`FOR UPDATE`): the latest committed rows
+	 *                   (and this transaction's own writes), not the
+	 *                   transaction's snapshot, and the rows stay locked until
+	 *                   the transaction ends (Fable PR K delta6 F1).
+	 * @return list<string>
+	 * @throws \RuntimeException When the read failed ('mhmrentiva_booking_read_failed').
+	 */
+	private static function read_booking_meta_rows(int $booking_id, string $key, bool $lock = false): array
+	{
+		global $wpdb;
+
+		$sql = $wpdb->prepare(
+			"SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s ORDER BY meta_id ASC",
+			$booking_id,
+			$key
+		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- A locked decision must not trust the object cache (Codex PR K delta3 H1); $sql is prepared above.
+		$values = $wpdb->get_col($lock ? $sql . ' FOR UPDATE' : $sql);
+		if ('' !== (string) $wpdb->last_error || ! is_array($values)) {
+			throw new \RuntimeException('mhmrentiva_booking_read_failed');
+		}
+
+		return array_values(array_map('strval', $values));
+	}
+
+	/**
 	 * Write one booking meta, only over the value it is expected to replace,
 	 * with the key's rows locked from the check to the write.
 	 *
-	 * Must run inside a transaction (Locker::withLock(), or
-	 * write_booking_meta_alone() outside one): `SELECT … FOR UPDATE` locks the
-	 * key's rows -- or, for a missing row, the gap it would go in (InnoDB
-	 * next-key lock) -- until COMMIT, so no other writer can change the value
-	 * between the check and the write. That is what makes it conditional for
-	 * every expected value, '' and '0' included (Codex PR K delta4 2).
+	 * `SELECT … FOR UPDATE` reads the latest committed rows and locks them.
+	 * Inside a transaction -- Locker::withLock()'s, or a caller's own -- they
+	 * stay locked until it ends, so no other writer can change an existing
+	 * row between the check and the write; that makes the write conditional
+	 * for every expected value, '' and '0' included (Codex PR K delta4 2).
+	 * Outside a transaction (autocommit) the lock lasts one statement: the
+	 * check and the write are not covered against an unlocked writer that
+	 * lands in between -- the same pre-existing class as every other unlocked
+	 * booking writer; the locking read-back still reports what holds.
+	 *
+	 * A missing row has no row to lock: the read takes a gap (next-key) lock,
+	 * and gap locks do not exclude each other. Two writers that both find the
+	 * row missing can both pass the check; their inserts then wait on each
+	 * other and InnoDB rolls one back as a deadlock (Fable PR K delta6 F3).
+	 * The locked booking paths do not meet there -- they serialize on the
+	 * vehicle's lock first -- and a write that fails in the database answers
+	 * "not held" at once (a deadlock victim's transaction is gone, so nothing
+	 * after it may be read as confirmation). It fails closed.
 	 *
 	 * The write itself is WordPress's own (update_post_meta() for an existing
 	 * row, add_post_meta(..., true) for a missing one): every core hook,
 	 * wp_unslash(), sanitize_meta() and the meta cache are core's (Codex PR K
-	 * delta5). Every row is then read back from the database: a value a
-	 * sanitize filter changed is not held either.
+	 * delta5). Every row is then read back with a locking read, not a
+	 * snapshot read: inside a transaction a plain SELECT may answer from an
+	 * older snapshot than the locked check, and would report a write core
+	 * skipped as held (Fable delta6 F1). A value a sanitize filter changed is
+	 * not held either.
 	 *
 	 * Order of the answers: rows that disagree, or a failed read, throw
 	 * (read failure); a value every row already holds is "already" -- whatever
@@ -1615,53 +1638,53 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// update_metadata() compares with the cached value first; a stale entry
 		// equal to $value would skip the write.
 		wp_cache_delete($booking_id, 'post_meta');
-		if (array() === $rows) {
-			add_post_meta($booking_id, $key, $value, true);
-		} else {
-			update_post_meta($booking_id, $key, $value);
-		}
+		$written = array() === $rows
+			? add_post_meta($booking_id, $key, $value, true)
+			: update_post_meta($booking_id, $key, $value);
+		$failed  = false === $written && self::last_query_failed();
 		wp_cache_delete($booking_id, 'post_meta');
+		if ($failed) {
+			// A database error (a deadlock victim among them): nothing that
+			// follows on this connection confirms anything.
+			return self::META_NOT_HELD;
+		}
 
-		$after = self::read_booking_meta_rows($booking_id, $key);
+		$after = self::read_booking_meta_rows($booking_id, $key, true);
 
 		return array() !== $after && array( $value ) === array_values(array_unique($after)) ? self::META_WRITTEN : self::META_NOT_HELD;
 	}
 
 	/**
-	 * The same as write_booking_meta(), outside a Locker transaction: its own short one,
-	 * around the row lock, the check and the write -- nothing else. Not
-	 * Locker::withLock(): that needs a vehicle (this path also serves bookings
-	 * without one) and would hold the whole vehicle for one booking's key.
-	 * Committed when the value holds or already held, rolled back otherwise
-	 * (a changed or failed write is not kept); a Throwable rolls back and
-	 * reaches the caller.
+	 * Did the statement just run fail? wpdb clears last_error before each query.
+	 *
+	 * @phpstan-impure It reads the state the latest query left.
+	 */
+	private static function last_query_failed(): bool
+	{
+		global $wpdb;
+
+		return '' !== (string) $wpdb->last_error;
+	}
+
+	/**
+	 * The same as write_booking_meta(), outside a Locker transaction. It opens
+	 * no transaction of its own: on a connection where WooCommerce or another
+	 * plugin already has one open (wc_transaction_query()), a START TRANSACTION
+	 * would commit that one implicitly (Codex PR K delta6 H). The locking reads
+	 * (write_booking_meta()) still read the latest committed rows; inside the
+	 * caller's transaction they hold their locks until it ends, under
+	 * autocommit for one statement -- see write_booking_meta().
 	 *
 	 * @return string One of META_WRITTEN, META_ALREADY, META_NOT_HELD.
 	 * @throws \RuntimeException When a read failed or the rows disagree ('mhmrentiva_booking_read_failed').
 	 */
 	private static function write_booking_meta_alone(int $booking_id, string $key, string $value, ?string $expected = null): string
 	{
-		global $wpdb;
-
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery -- Transaction control around one row-locked write (Codex PR K delta5), as Locker does.
-		if (false === $wpdb->query('START TRANSACTION')) {
-			throw new \RuntimeException('mhmrentiva_booking_read_failed');
-		}
 		try {
-			$result = self::write_booking_meta($booking_id, $key, $value, $expected);
-		} catch (\Throwable $e) {
-			$wpdb->query('ROLLBACK');
+			return self::write_booking_meta($booking_id, $key, $value, $expected);
+		} finally {
 			wp_cache_delete($booking_id, 'post_meta');
-			throw $e;
 		}
-		if (self::META_NOT_HELD === $result || false === $wpdb->query('COMMIT')) {
-			$wpdb->query('ROLLBACK');
-			$result = self::META_NOT_HELD;
-		}
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery
-		wp_cache_delete($booking_id, 'post_meta');
-
-		return $result;
 	}
 
 	/**
@@ -1733,10 +1756,14 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * not hold refuses.
 	 *
 	 * What it revived is added to $revived (status and deadline before and
-	 * after); the caller announces it (announce_revivals()) or puts it back
-	 * (undo_revivals()).
+	 * after, and which of the two this attempt wrote); the caller announces it
+	 * (announce_revivals()) or puts it back (undo_revivals()). A value that
+	 * already held is not this attempt's (Fable PR K delta6 F2): its status
+	 * change is not announced a second time, and it is not undone -- undoing it
+	 * would put back a revival somebody else made and announced. Both already
+	 * holding is no revival at all.
 	 *
-	 * @param list<array{id: int, status: string, deadline: string, wrote_status: string, wrote_deadline: string, vehicle: int}> $revived
+	 * @param list<array{id: int, status: string, deadline: string, wrote_status: string, wrote_deadline: string, status_written: bool, deadline_written: bool, vehicle: int}> $revived
 	 * @return string '' when it holds its dates; else the customer's message.
 	 */
 	private static function claim_booking(int $booking_id, bool $remaining, array &$revived): string
@@ -1774,14 +1801,19 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					return array( 'taken' );
 				}
 
-				$from     = self::read_booking_meta($booking_id, '_mhmrentiva_status');
-				$deadline = self::read_booking_meta($booking_id, '_mhmrentiva_payment_deadline');
-				$to       = Status::CANCELLED === $from ? Status::PENDING : $from;
-				$fresh    = self::get_payment_deadline();
-				self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_status', $to, $from);
-				self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_payment_deadline', $fresh, $deadline);
+				$from           = self::read_booking_meta($booking_id, '_mhmrentiva_status');
+				$deadline       = self::read_booking_meta($booking_id, '_mhmrentiva_payment_deadline');
+				$to             = Status::CANCELLED === $from ? Status::PENDING : $from;
+				$fresh          = self::get_payment_deadline();
+				$wrote_status   = self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_status', $to, $from);
+				$wrote_deadline = self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_payment_deadline', $fresh, $deadline);
+				if (self::META_WRITTEN !== $wrote_status && self::META_WRITTEN !== $wrote_deadline) {
+					// Both already held: someone else took the dates back for
+					// it. Nothing of this attempt to announce or to undo.
+					return array( 'held' );
+				}
 
-				return array( 'revived', array( $from, $deadline ), array( $to, $fresh ) );
+				return array( 'revived', array( $from, $deadline ), array( $to, $fresh ), array( self::META_WRITTEN === $wrote_status, self::META_WRITTEN === $wrote_deadline ) );
 			}
 		);
 
@@ -1795,13 +1827,16 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			case 'revived':
 				$before    = (array) ( $claimed[1] ?? array() );
 				$after     = (array) ( $claimed[2] ?? array() );
+				$ours      = (array) ( $claimed[3] ?? array() );
 				$revived[] = array(
-					'id'             => $booking_id,
-					'status'         => (string) ( $before[0] ?? '' ),
-					'deadline'       => (string) ( $before[1] ?? '' ),
-					'wrote_status'   => (string) ( $after[0] ?? '' ),
-					'wrote_deadline' => (string) ( $after[1] ?? '' ),
-					'vehicle'        => $vehicle_id,
+					'id'               => $booking_id,
+					'status'           => (string) ( $before[0] ?? '' ),
+					'deadline'         => (string) ( $before[1] ?? '' ),
+					'wrote_status'     => (string) ( $after[0] ?? '' ),
+					'wrote_deadline'   => (string) ( $after[1] ?? '' ),
+					'status_written'   => true === ( $ours[0] ?? false ),
+					'deadline_written' => true === ( $ours[1] ?? false ),
+					'vehicle'          => $vehicle_id,
 				);
 				return '';
 		}
@@ -1813,7 +1848,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * Tell everyone about the revivals that stand. Outside the transaction, like
 	 * every hook of the booking path.
 	 *
-	 * @param list<array{id: int, status: string, deadline: string, wrote_status: string, wrote_deadline: string, vehicle: int}> $revived
+	 * @param list<array{id: int, status: string, deadline: string, wrote_status: string, wrote_deadline: string, status_written: bool, deadline_written: bool, vehicle: int}> $revived
 	 */
 	private static function announce_revivals(array $revived): void
 	{
@@ -1828,7 +1863,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					'system'
 				);
 			}
-			if (Status::CANCELLED === $revival['status']) {
+			if (Status::CANCELLED === $revival['status'] && $revival['status_written']) {
 				do_action('mhmrentiva_booking_status_changed', $revival['id'], Status::CANCELLED, Status::PENDING);
 			}
 		}
@@ -1846,7 +1881,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * pending until its fresh deadline, which holds nothing longer than any
 	 * unpaid booking does.
 	 *
-	 * @param list<array{id: int, status: string, deadline: string, wrote_status: string, wrote_deadline: string, vehicle: int}> $revived
+	 * @param list<array{id: int, status: string, deadline: string, wrote_status: string, wrote_deadline: string, status_written: bool, deadline_written: bool, vehicle: int}> $revived
 	 */
 	private static function undo_revivals(array $revived): void
 	{
@@ -1865,8 +1900,13 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					if (! $still_ours) {
 						return array( 'kept' );
 					}
-					self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_status', $revival['status'], $revival['wrote_status']);
-					self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_payment_deadline', $revival['deadline'], $revival['wrote_deadline']);
+					// Only what this attempt wrote (Fable delta6 F2).
+					if ($revival['status_written']) {
+						self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_status', $revival['status'], $revival['wrote_status']);
+					}
+					if ($revival['deadline_written']) {
+						self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_payment_deadline', $revival['deadline'], $revival['wrote_deadline']);
+					}
 
 					return array( 'undone' );
 				}
@@ -2218,15 +2258,110 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		if (function_exists('is_checkout_pay_page') && is_checkout_pay_page()) {
 			$order  = CheckoutJourney::pay_page_order();
 			$rental = null !== $order && self::order_has_booking($order);
+		} elseif (self::$store_api_pay_order_id > 0) {
+			// Store API POST /checkout/{id} pays that order, not the cart
+			// (Codex PR K delta6 2): its verified order decides.
+			$order  = wc_get_order(self::$store_api_pay_order_id);
+			$rental = $order instanceof \WC_Order && self::order_has_booking($order);
 		} else {
 			$rental = self::cart_has_booking();
 		}
 
+		self::$cod_was_the_only_gateway = false;
 		if ($rental) {
 			unset($gateways['cod']);
+			self::$cod_was_the_only_gateway = array() === $gateways;
 		}
 
 		return $gateways;
+	}
+
+	/**
+	 * The order a Store API `POST /wc/store/v1/checkout/{id}` request pays,
+	 * once verified as CheckoutOrder's own authorization does; 0 otherwise.
+	 */
+	private static int $store_api_pay_order_id = 0;
+
+	/**
+	 * The last without_cash_on_delivery() call removed cash on delivery from a
+	 * rental's list, and nothing was left.
+	 */
+	private static bool $cod_was_the_only_gateway = false;
+
+	/**
+	 * Remember the order a Store API order-pay request pays (rest_request_before_callbacks,
+	 * which runs before the route's permission callback): CheckoutOrder asks
+	 * the gateway list with the session's cart, so without_cash_on_delivery()
+	 * would decide for the cart, not for the order paid (Codex PR K delta6 2).
+	 * Only an order this request may pay counts -- the owner's, or a guest
+	 * order with its key and billing e-mail -- the same test as WooCommerce's
+	 * OrderAuthorizationTrait::is_authorized(); anything else leaves the cart
+	 * rule, and the route refuses the request itself.
+	 *
+	 * @param mixed $response The response so far.
+	 * @param mixed $handler  The route handler.
+	 * @param mixed $request  The request.
+	 * @return mixed The response, untouched.
+	 */
+	public static function note_store_api_pay_order($response, $handler, $request)
+	{
+		self::$store_api_pay_order_id = 0;
+		if (! $request instanceof \WP_REST_Request || 'POST' !== $request->get_method()) {
+			return $response;
+		}
+		if (! preg_match('#^/wc/store(?:/v1)?/checkout/(\d+)/?$#', (string) $request->get_route(), $m)) {
+			return $response;
+		}
+
+		$order = function_exists('wc_get_order') ? wc_get_order( (int) $m[1]) : false;
+		if (! $order instanceof \WC_Order) {
+			return $response;
+		}
+		$owner = (int) $order->get_customer_id();
+		if ($owner > 0) {
+			$may = get_current_user_id() === $owner;
+		} else {
+			$key   = sanitize_text_field(wp_unslash( (string) $request->get_param('key')));
+			$email = sanitize_text_field(wp_unslash( (string) $request->get_param('billing_email')));
+			$may   = '' !== $key && hash_equals( (string) $order->get_order_key(), $key )
+				&& 0 === strcasecmp( (string) $order->get_billing_email(), $email );
+		}
+		if ($may) {
+			self::$store_api_pay_order_id = (int) $order->get_id();
+		}
+
+		return $response;
+	}
+
+	/**
+	 * The request is over: its order no longer decides the gateway list.
+	 *
+	 * @param mixed $response The response.
+	 * @return mixed The response, untouched.
+	 */
+	public static function forget_store_api_pay_order($response)
+	{
+		self::$store_api_pay_order_id = 0;
+
+		return $response;
+	}
+
+	/**
+	 * A rental whose only gateway was cash on delivery would read WooCommerce's
+	 * generic "no available payment methods" (Fable PR K delta6 F4). The classic
+	 * checkout and order-pay templates print this filter's answer through
+	 * wc_print_notice(); the Checkout block has its own message.
+	 *
+	 * @param mixed $message WooCommerce's message, escaped.
+	 * @return mixed
+	 */
+	public static function no_payment_methods_message($message)
+	{
+		if (! self::$cod_was_the_only_gateway) {
+			return $message;
+		}
+
+		return esc_html__('Cash on delivery is not offered for rentals, and no other payment method is set up yet. Please contact us to complete your booking.', 'mhm-rentiva');
 	}
 
 	/**

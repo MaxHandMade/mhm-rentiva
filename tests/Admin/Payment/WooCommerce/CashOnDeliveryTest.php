@@ -412,4 +412,154 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 		$this->assertSame(400, $response->get_status(), (string) wp_json_encode($data));
 		$this->assertSame('woocommerce_rest_checkout_payment_method_disabled', $data['code'] ?? '');
 	}
+
+	// ------------------------------------- Store API order-pay (delta6)
+
+	/**
+	 * POST /wc/store/v1/checkout/{id} for a guest order, paid with COD.
+	 *
+	 * @return array{0: int, 1: array<string, mixed>}
+	 */
+	private function pay_order_on_the_route(\WC_Order $order): array
+	{
+		update_option('woocommerce_cod_settings', array( 'enabled' => 'yes', 'title' => 'Cash on delivery', 'enable_for_virtual' => 'yes' ));
+		WC()->payment_gateways()->init();
+		$this->hook('rest_request_before_callbacks', array( WooCommerceBridge::class, 'note_store_api_pay_order' ), 10, 3);
+		$this->hook('rest_request_after_callbacks', array( WooCommerceBridge::class, 'forget_store_api_pay_order' ), 10, 1);
+
+		add_filter('woocommerce_store_api_disable_nonce_check', '__return_true');
+		$address = array(
+			'first_name' => 'Jane',
+			'last_name'  => 'Customer',
+			'address_1'  => 'Street 1',
+			'city'       => 'Istanbul',
+			'postcode'   => '34000',
+			'country'    => 'TR',
+			'state'      => 'TR34',
+			'email'      => 'jane@example.com',
+			'phone'      => '5551234567',
+		);
+		$request = new \WP_REST_Request('POST', '/wc/store/v1/checkout/' . $order->get_id());
+		$request->set_header('Content-Type', 'application/json');
+		$request->set_body(
+			(string) wp_json_encode(
+				array(
+					'key'              => $order->get_order_key(),
+					'billing_email'    => 'jane@example.com',
+					'billing_address'  => $address,
+					'shipping_address' => $address,
+					'payment_method'   => 'cod',
+				)
+			)
+		);
+		$response = rest_get_server()->dispatch($request);
+		remove_filter('woocommerce_store_api_disable_nonce_check', '__return_true');
+
+		return array( $response->get_status(), (array) $response->get_data() );
+	}
+
+	/**
+	 * A guest order: a shop product (null), or a rental line waiting for its booking.
+	 *
+	 * @param array<string, mixed>|null $line
+	 */
+	private function guest_order(?array $line): \WC_Order
+	{
+		$order = wc_create_order();
+		$item  = new \WC_Order_Item_Product();
+		if (null === $line) {
+			$product = new \WC_Product_Simple();
+			$product->set_name('Sunglasses');
+			$product->set_regular_price('25');
+			$product->save();
+			$item->set_product($product);
+			$item->set_total(25.0);
+		} else {
+			$item->set_product($this->product);
+			$item->set_total(200.0);
+			$item->add_meta_data('_mhmrentiva_booking_data', $line);
+			$item->add_meta_data('_mhmrentiva_booking_pending', true);
+		}
+		$item->set_quantity(1);
+		$order->add_item($item);
+		$order->set_billing_email('jane@example.com');
+		$order->set_customer_id(0);
+		$order->calculate_totals();
+		$order->set_status('pending');
+		$order->save();
+
+		return $order;
+	}
+
+	/**
+	 * Codex delta6 2: a shop order paid on the route keeps COD, whatever the
+	 * session's cart holds -- the route pays that order, not the cart.
+	 *
+	 * Its own process: the route defines WOOCOMMERCE_CHECKOUT (StoreApi\Legacy).
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_the_order_pay_route_keeps_cash_on_delivery_for_a_shop_order_with_a_rental_cart(): void
+	{
+		$order = $this->guest_order(null);
+		$this->add_rental();
+
+		list($status, $data) = $this->pay_order_on_the_route($order);
+
+		$this->assertNotSame('woocommerce_rest_checkout_payment_method_disabled', $data['code'] ?? '', (string) wp_json_encode($data));
+		$this->assertSame(200, $status, (string) wp_json_encode($data));
+		$this->assertSame('cod', wc_get_order($order->get_id())->get_payment_method());
+	}
+
+	/**
+	 * And a rental order paid on the route with COD is refused, whatever the
+	 * cart holds.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_the_order_pay_route_refuses_cash_on_delivery_for_a_rental_order_with_a_shop_cart(): void
+	{
+		// A payable rental order: the remaining payment of a booking (an order
+		// whose booking line still waits is not payable at all).
+		$booking = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ));
+		$order   = $this->guest_order(null);
+		$order->update_meta_data('_mhmrentiva_is_remaining_payment', '1');
+		$order->update_meta_data('_mhmrentiva_booking_id', $booking);
+		$order->save();
+		$this->add_product();
+
+		list($status, $data) = $this->pay_order_on_the_route($order);
+
+		$this->assertSame(400, $status, (string) wp_json_encode($data));
+		$this->assertSame('woocommerce_rest_checkout_payment_method_disabled', $data['code'] ?? '', 'The verified order decides: a rental, so no COD.');
+		$this->assertNotSame('processing', wc_get_order($order->get_id())->get_status());
+	}
+
+	/**
+	 * Fable delta6 F4: a store whose only gateway is COD tells a rental
+	 * customer why there is nothing to choose, not WooCommerce's generic line.
+	 */
+	public function test_a_rental_with_cash_on_delivery_as_the_only_gateway_says_why(): void
+	{
+		$this->hook('woocommerce_no_available_payment_methods_message', array( WooCommerceBridge::class, 'no_payment_methods_message' ), 10, 1);
+		$generic = 'Sorry, it seems that there are no available payment methods.';
+		$this->add_rental();
+
+		$left = WooCommerceBridge::without_cash_on_delivery(array( 'cod' => $this->gateways()['cod'] ));
+		$this->assertSame(array(), $left);
+		$this->assertSame(
+			'Cash on delivery is not offered for rentals, and no other payment method is set up yet. Please contact us to complete your booking.',
+			apply_filters('woocommerce_no_available_payment_methods_message', $generic)
+		);
+
+		// Another gateway left, or a shop cart: WooCommerce's own message.
+		WooCommerceBridge::without_cash_on_delivery($this->gateways());
+		$this->assertSame($generic, apply_filters('woocommerce_no_available_payment_methods_message', $generic));
+		WC()->cart->empty_cart();
+		$this->add_product();
+		WooCommerceBridge::without_cash_on_delivery(array( 'cod' => $this->gateways()['cod'] ));
+		$this->assertSame($generic, apply_filters('woocommerce_no_available_payment_methods_message', $generic));
+	}
 }
