@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-11-02T17:28:52+00:00\n"
+"POT-Creation-Date: 2026-11-02T18:10:11+00:00\n"
 "PO-Revision-Date: 2026-10-24 18:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -1064,8 +1064,8 @@ msgstr "%s hizmetini sil"
 #: src/Admin/Frontend/Account/AccountController.php:764
 #: src/Admin/Frontend/Account/AccountController.php:1076
 #: src/Admin/Frontend/Account/AccountController.php:1306
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4257
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4316
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4380
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4439
 msgid "Invalid booking ID."
 msgstr "Geçersiz rezervasyon kimliği."
 
@@ -1766,7 +1766,7 @@ msgstr "Müşteri"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:276
 #: src/Admin/Booking/ListTable/BookingColumns.php:1737
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:512
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:518
 msgid "Booking ID"
 msgstr "Rezervasyon kimliği"
 
@@ -1775,9 +1775,9 @@ msgstr "Rezervasyon kimliği"
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:222
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:882
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:207
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:485
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:539
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:907
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:491
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:545
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:913
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:211
 #: src/Admin/Vehicle/PostType/Vehicle.php:26
 #: templates/account/booking-summary.php:64
@@ -1811,9 +1811,9 @@ msgstr "Kapora tutarı"
 #: src/Admin/Booking/ListTable/BookingColumns.php:281
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:246
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:341
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:530
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:601
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:934
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:536
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:607
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:940
 msgid "Remaining Amount"
 msgstr "Kalan tutar"
 
@@ -2186,9 +2186,9 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:209
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:471
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:521
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:592
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:928
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:527
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:598
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:934
 msgid "Payment Type"
 msgstr "Ödeme türü"
 
@@ -2211,10 +2211,10 @@ msgstr "Kapora"
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:214
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:501
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:473
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:518
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:589
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:927
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3308
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:524
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:595
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:933
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3431
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:240
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:276
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:381
@@ -2530,7 +2530,7 @@ msgstr "Bu rezervasyon için özel notlar veya müşteri talepleri ekleyin."
 #. translators: %s: vehicle title.
 #. translators: %s: vehicle title
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:511
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2589
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2707
 #, php-format
 msgid "Booking - %s"
 msgstr "Rezervasyon - %s"
@@ -3179,7 +3179,7 @@ msgid "Vehicle Total"
 msgstr "Araç toplamı"
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:226
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3706
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3829
 msgid "Add-ons"
 msgstr "Ek hizmetler"
 
@@ -10643,57 +10643,57 @@ msgstr "Teslimde ödenecek kapora:"
 msgid "Due at pickup:"
 msgstr "Teslimde ödenecek:"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:358
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:439
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:364
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:445
 msgid "Vehicle Rental Booking"
 msgstr "Araç kiralama rezervasyonu"
 
 #. translators: %s: vehicle name
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:442
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:448
 #, php-format
 msgid "%s rental"
 msgstr "%s kiralama"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:502
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:566
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:916
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:508
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:572
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:922
 msgid "Pickup Date & Time"
 msgstr "Alış tarihi ve saati"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:507
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:573
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:919
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:513
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:579
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:925
 msgid "Return Date & Time"
 msgstr "Dönüş tarihi ve saati"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:518
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:589
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:926
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3288
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:524
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:595
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:932
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3411
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:275
 msgid "Deposit Payment"
 msgstr "Kapora ödemesi"
 
 #. translators: %d: the WooCommerce order id with no items.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:997
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1003
 #, php-format
 msgid "No items found in order #%d"
 msgstr "Sipariş #%d içinde ürün bulunamadı"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1051
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1057
 msgid ""
 "Your booking could not be created and no payment was taken. Please try again."
 msgstr ""
 "Rezervasyonunuz oluşturulamadı ve ödeme alınmadı. Lütfen yeniden deneyin."
 
 #. translators: %s: why the booking was refused, as the customer read it.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1147
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2246
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1153
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2252
 #, php-format
 msgid "Booking refused, no payment taken: %s"
 msgstr "Rezervasyon reddedildi, ödeme alınmadı: %s"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1477
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1483
 msgid ""
 "This booking was cancelled and can no longer be paid. Please make a new "
 "booking."
@@ -10701,7 +10701,7 @@ msgstr ""
 "Bu rezervasyon iptal edildi ve artık ödenemez. Lütfen yeni bir rezervasyon "
 "yapın."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1486
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1492
 msgid ""
 "The availability of this booking could not be checked, so no payment was "
 "taken. Please try again in a moment."
@@ -10709,7 +10709,7 @@ msgstr ""
 "Bu rezervasyonun müsaitliği denetlenemedi, ödeme alınmadı. Lütfen birazdan "
 "yeniden deneyin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1494
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1500
 msgid ""
 "The booking could not be updated, so nothing was changed. Please try again "
 "in a moment."
@@ -10717,7 +10717,7 @@ msgstr ""
 "Rezervasyon güncellenemedi, hiçbir şey değiştirilmedi. Lütfen birazdan "
 "yeniden deneyin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1876
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1882
 msgid ""
 "The dates were still free when the order was paid again; the booking holds "
 "them again."
@@ -10726,7 +10726,7 @@ msgstr ""
 "yeniden tutuyor."
 
 #. translators: %d: booking id.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1933
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1939
 #, php-format
 msgid ""
 "Booking #%d was revived for a payment that was then refused, and could not "
@@ -10737,7 +10737,7 @@ msgstr ""
 "beklemede kalır."
 
 #. translators: %d: booking id.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2070
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2076
 #, php-format
 msgid ""
 "Payment recorded on the order, but booking #%d could not be read back "
@@ -10749,7 +10749,7 @@ msgstr ""
 "kontrol edin."
 
 #. translators: 1: booking id, 2: the booking's payment status as stored, 3: the booking status.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2077
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2083
 #, php-format
 msgid ""
 "Payment recorded on the order, but booking #%1$d is not marked paid: its "
@@ -10760,7 +10760,7 @@ msgstr ""
 "edin."
 
 #. translators: 1: booking id, 2: the booking status.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2086
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2092
 #, php-format
 msgid ""
 "Payment recorded and booking #%1$d is marked paid, but its status is %2$s, "
@@ -10772,7 +10772,7 @@ msgstr ""
 "rezervasyona tarihlerini geri verin ya da ödemeyi iade edin."
 
 #. translators: 1: booking id, 2: the booking status it should have moved to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2094
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2100
 #, php-format
 msgid ""
 "Payment recorded and booking #%1$d marked paid, but it could not be moved to "
@@ -10782,7 +10782,7 @@ msgstr ""
 "ancak %2$s durumuna geçirilemedi. Rezervasyonu kontrol edin."
 
 #. translators: 1: booking id, 2: the booking status now, 3: the booking status it should have moved to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2102
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2108
 #, php-format
 msgid ""
 "Payment recorded and booking #%1$d marked paid, but it is %2$s instead of "
@@ -10792,7 +10792,7 @@ msgstr ""
 "ancak durumu %3$s yerine %2$s. Rezervasyonu kontrol edin."
 
 #. translators: 1: booking id, 2: why, as the customer would have read it.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2274
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2280
 #, php-format
 msgid ""
 "Order on hold, but booking #%1$d was not confirmed: it no longer holds its "
@@ -10803,7 +10803,7 @@ msgstr ""
 "rezervasyonu taşıyın."
 
 #. translators: 1: booking id, 2: why, as the customer would have read it.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2280
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2286
 #, php-format
 msgid ""
 "Payment recorded, but booking #%1$d was not confirmed: it no longer holds "
@@ -10813,7 +10813,9 @@ msgstr ""
 "artık tutmuyor (%2$s). Ödemeyi WooCommerce üzerinden iade edin ya da "
 "rezervasyonu taşıyın."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2320
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2331
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2494
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2521
 msgid ""
 "Cash on delivery is not available for a booking. Please choose another "
 "payment method."
@@ -10821,7 +10823,7 @@ msgstr ""
 "Rezervasyonlarda kapıda ödeme kullanılamaz. Lütfen başka bir ödeme yöntemi "
 "seçin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2322
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2333
 msgid ""
 "Payment method refused: cash on delivery is not available for a booking. No "
 "booking was made and no payment was taken."
@@ -10829,7 +10831,7 @@ msgstr ""
 "Ödeme yöntemi reddedildi: rezervasyonlarda kapıda ödeme kullanılamaz. "
 "Rezervasyon oluşturulmadı ve ödeme alınmadı."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2346
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2357
 msgid ""
 "Rentiva booking created from the block checkout. The customer could not "
 "change the payment type there."
@@ -10837,7 +10839,7 @@ msgstr ""
 "Rentiva rezervasyonu blok ödeme sayfasından oluşturuldu. Müşteri ödeme "
 "türünü orada değiştiremedi."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2428
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2546
 msgid ""
 "Cash on delivery is not offered for rentals, and no other payment method is "
 "set up yet. Please contact us to complete your booking."
@@ -10846,13 +10848,13 @@ msgstr ""
 "tanımlanmadı. Rezervasyonunuzu tamamlamak için lütfen bizimle iletişime "
 "geçin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2476
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3863
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2594
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3986
 msgid "Invalid booking dates. Please try again."
 msgstr "Geçersiz rezervasyon tarihleri. Lütfen yeniden deneyin."
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2493
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2611
 #, php-format
 msgid ""
 "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates "
@@ -10863,21 +10865,21 @@ msgstr ""
 "Araç başka bir müşteri tarafından rezerve edilmiş olabilir. Lütfen farklı "
 "tarihler veya başka bir araç seçin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2573
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2691
 msgid "Booking cancelled: Vehicle is not available for rental."
 msgstr "Rezervasyon iptal edildi: Araç kiralanamaz."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2743
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2861
 msgid "Booking created from WooCommerce order"
 msgstr "WooCommerce siparişinden oluşturulan rezervasyon"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2774
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2892
 msgid "Booking cancelled: Vehicle already booked for selected dates."
 msgstr ""
 "Rezervasyon iptal edildi: Araç seçilen tarihlerde zaten rezerve edilmiş."
 
 #. translators: 1: the WooCommerce order id that was cancelled/failed, 2: the booking id it belongs to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2928
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3051
 #, php-format
 msgid ""
 "Order #%1$d was cancelled/failed on booking #%2$d while a sibling order "
@@ -10889,31 +10891,31 @@ msgstr ""
 "gönderilemedi -- yeni bir ödeme bağlantısına ihtiyaç duyulabileceği "
 "konusunda kimseye haber verilmedi."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3052
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3175
 msgid "Booking completed — rental period ended."
 msgstr "Rezervasyon tamamlandı — kiralama süresi sona erdi."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3077
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3200
 msgid "Booking cancelled by customer."
 msgstr "Rezervasyon müşteri tarafından iptal edildi."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3276
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3399
 msgid "Payment Options"
 msgstr "Ödeme seçenekleri"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3290
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3413
 msgid "Pay deposit for booking, pay remaining amount at vehicle delivery"
 msgstr "Rezervasyon için kapora ödeyin, kalan tutarı araç tesliminde ödeyin"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3292
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3415
 msgid "Remaining:"
 msgstr "Kalan:"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3309
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3432
 msgid "Pay full amount now"
 msgstr "Tam tutarı şimdi ödeyin"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3409
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3532
 #: src/Admin/Settings/APIKeysPage.php:81
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:29
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:52
@@ -10937,20 +10939,20 @@ msgstr "Tam tutarı şimdi ödeyin"
 msgid "Invalid security nonce."
 msgstr "Geçersiz güvenlik geçici anahtarı."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3418
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3541
 msgid "Cart not available"
 msgstr "Sepet kullanılamıyor"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3509
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3632
 msgid "Booking not found in cart"
 msgstr "Sepette rezervasyon bulunamadı"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3525
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3648
 msgid "Payment type updated"
 msgstr "Ödeme türü güncellendi"
 
 #. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3713
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3836
 #, php-format
 msgid ""
 "Sorry, the vehicle \"%s\" is not available for rental. Please select another "
@@ -10958,7 +10960,7 @@ msgid ""
 msgstr "Üzgünüz, \"%s\" aracı kiralanamaz. Lütfen başka bir araç seçin."
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3767
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3890
 #, php-format
 msgid ""
 "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates "
@@ -10968,8 +10970,8 @@ msgstr ""
 "Lütfen farklı tarihler veya başka bir araç seçin."
 
 #. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3816
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3913
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3939
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4036
 #, php-format
 msgid ""
 "Sorry, booking for vehicle \"%s\" has been cancelled. Please select another "
@@ -10978,44 +10980,44 @@ msgstr ""
 "Üzgünüz, \"%s\" aracı için yapılan rezervasyon iptal edilmiştir. Lütfen "
 "başka bir araç seçin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4212
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4335
 #: src/Admin/Setup/SetupWizard.php:885
 msgid "WooCommerce"
 msgstr "WooCommerce"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4268
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4391
 msgid "Payment already processed by WooCommerce."
 msgstr "Ödeme WooCommerce tarafından işlenmiştir."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4286
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4409
 msgid "Redirecting to checkout..."
 msgstr "Ödeme sayfasına yönlendiriliyor..."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4293
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4416
 msgid "Failed to add booking to cart."
 msgstr "Rezervasyon sepete eklenemedi."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4309
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4432
 msgid "WooCommerce is not installed or activated."
 msgstr "WooCommerce kurulmamış veya etkinleştirilmemiş."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4324
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4447
 msgid "Invalid payment amount."
 msgstr "Geçersiz ödeme tutarı."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4419
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4542
 msgid "City"
 msgstr "Şehir"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4420
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4543
 msgid "District / Neighborhood"
 msgstr "İlçe / mahalle"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4557
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4680
 msgid "Return to Cart"
 msgstr "Sepete dön"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4590
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4713
 msgid "(incl. tax)"
 msgstr "(vergi dahil)"
 

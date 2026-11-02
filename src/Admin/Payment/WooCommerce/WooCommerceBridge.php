@@ -69,6 +69,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// No cash on delivery for a rental: the classic checkout, its validation,
 		// the order-pay form and the Store API all read this list.
 		add_filter('woocommerce_available_payment_gateways', array( self::class, 'without_cash_on_delivery' ), 10, 1);
+		// The list is only what is shown; these refuse on every classic entry.
+		add_action('woocommerce_after_checkout_validation', array( self::class, 'refuse_cash_on_delivery_at_checkout' ), 20, 2);
+		add_action('woocommerce_before_pay_action', array( self::class, 'refuse_cash_on_delivery_on_pay' ), 5, 1);
+		// REST: only the Store API order-pay route leaves the list alone.
+		add_filter('rest_request_before_callbacks', array( self::class, 'enter_rest_request' ), 10, 3);
+		add_filter('rest_request_after_callbacks', array( self::class, 'leave_rest_request' ), 10, 1);
 		add_filter('woocommerce_no_available_payment_methods_message', array( self::class, 'no_payment_methods_message' ), 10, 1);
 		// Classic checkout: billing field labels in the error notices.
 		add_action('woocommerce_checkout_process', array( self::class, 'open_field_label_window' ), 5, 0);
@@ -2077,7 +2083,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				__('Payment recorded on the order, but booking #%1$d is not marked paid: its payment status is "%2$s" and its status %3$s. Check the booking.', 'mhm-rentiva'),
 				$booking_id,
 				'' !== $payment ? $payment : '-',
-				Status::get_label($status)
+				'' === $status ? '-' : Status::get_label($status)
 			);
 		}
 		if (in_array($status, self::RELEASED, true)) {
@@ -2101,7 +2107,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			/* translators: 1: booking id, 2: the booking status now, 3: the booking status it should have moved to. */
 			__('Payment recorded and booking #%1$d marked paid, but it is %2$s instead of %3$s. Check the booking.', 'mhm-rentiva'),
 			$booking_id,
-			Status::get_label($status),
+			'' === $status ? '-' : Status::get_label($status),
 			Status::get_label($target)
 		);
 	}
@@ -2316,6 +2322,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// here. A rental order paid with COD is stopped before any booking or
 		// payment (Codex PR K delta7).
 		if ('cod' === $order->get_payment_method() && self::order_has_booking($order)) {
+			// Not left on the order: RentalMoneyLabels would read a refused
+			// order as "pay at pickup" (Fable PR K delta8 3).
+			$order->set_payment_method('');
+			$order->set_payment_method_title('');
+			$order->save();
 			self::halt_checkout(
 				__('Cash on delivery is not available for a booking. Please choose another payment method.', 'mhm-rentiva'),
 				$order->get_id(),
@@ -2359,13 +2370,14 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * cart; with a wrong key the list is WooCommerce's, which refuses the page.
 	 * Existing COD orders keep their labels (RentalMoneyLabels::order_state()).
 	 *
-	 * A REST request (the Store API) is left alone: there the list is built
-	 * from the session's cart even when the request pays another order (POST
-	 * /checkout/{id}), so the cart cannot decide (Codex PR K delta7 1-2). The
-	 * Store API's one rule is the order hook, on both routes, for the order
-	 * actually paid: a rental order with cash on delivery is refused there
-	 * before any booking or payment (store_api_order_processed()). A shop order
-	 * is never touched in REST, whatever the cart holds.
+	 * The list only shapes what is shown; refusals on every entry decide
+	 * (refuse_cash_on_delivery_at_checkout(), refuse_cash_on_delivery_on_pay(),
+	 * store_api_order_processed()). In REST the cart rule holds on every route
+	 * except the Store API order-pay route (serving_store_api_order_pay()):
+	 * that one pays an existing order with a list built from the session's
+	 * cart, so its order hook decides for the order actually paid, and a shop
+	 * order there is never touched, whatever the cart holds (Codex PR K
+	 * delta7, Fable delta8 1).
 	 *
 	 * @param mixed $gateways The available gateways, by id.
 	 * @return mixed
@@ -2378,7 +2390,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		if (! is_array($gateways) || ! isset($gateways['cod'])) {
 			return $gateways;
 		}
-		if (function_exists('wp_is_rest_endpoint') && wp_is_rest_endpoint()) {
+		if (self::serving_store_api_order_pay()) {
 			return $gateways;
 		}
 
@@ -2402,6 +2414,112 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * rental's list, and nothing was left.
 	 */
 	private static bool $cod_was_the_only_gateway = false;
+
+	/**
+	 * One entry per REST request being served, innermost last: is it the Store
+	 * API order-pay route? Pushed on rest_request_before_callbacks, popped on
+	 * rest_request_after_callbacks, so nested requests stack.
+	 *
+	 * @var list<bool>
+	 */
+	private static array $rest_order_pay = array();
+
+	/**
+	 * Is the request being served the Store API order-pay route, POST
+	 * /wc/store(/v1)/checkout/{id}? Only there is the gateway list left alone:
+	 * that route pays an existing order but builds the list from the session's
+	 * cart, and the order hook decides for the order actually paid
+	 * (store_api_order_processed()). Every other REST route -- the Checkout
+	 * block's cart refreshes among them -- keeps the cart rule (Fable PR K
+	 * delta8 1). The route is recognised, never its id. A stale entry left by
+	 * an exception only loosens the list; the refusals on every entry
+	 * (refuse_cash_on_delivery_at_checkout(), refuse_cash_on_delivery_on_pay(),
+	 * the order hook) still decide.
+	 */
+	private static function serving_store_api_order_pay(): bool
+	{
+		if (array() === self::$rest_order_pay || ! function_exists('wp_is_rest_endpoint') || ! wp_is_rest_endpoint()) {
+			return false;
+		}
+
+		return true === end(self::$rest_order_pay);
+	}
+
+	/**
+	 * On rest_request_before_callbacks, push whether this request is the Store API
+	 * order-pay route.
+	 *
+	 * @param mixed $response The response so far.
+	 * @param mixed $handler  The route handler.
+	 * @param mixed $request  The request.
+	 * @return mixed The response, untouched.
+	 */
+	public static function enter_rest_request($response, $handler, $request)
+	{
+		self::$rest_order_pay[] = $request instanceof \WP_REST_Request
+			&& 'POST' === $request->get_method()
+			&& 1 === preg_match('#^/wc/store(?:/v1)?/checkout/\d+/?$#', (string) $request->get_route());
+
+		return $response;
+	}
+
+	/**
+	 * On rest_request_after_callbacks, pop what enter_rest_request() pushed.
+	 *
+	 * @param mixed $response The response.
+	 * @return mixed The response, untouched.
+	 */
+	public static function leave_rest_request($response)
+	{
+		array_pop(self::$rest_order_pay);
+
+		return $response;
+	}
+
+	/**
+	 * Classic checkout, whatever the gateway list says: a rental cart paid
+	 * with cash on delivery is refused in validation, before WooCommerce calls
+	 * any gateway (Codex PR K delta8: the list is only what is shown; an
+	 * integration's caught REST exception can leave it with COD).
+	 *
+	 * @param mixed $data   The posted checkout data.
+	 * @param mixed $errors The validation errors.
+	 */
+	public static function refuse_cash_on_delivery_at_checkout($data, $errors): void
+	{
+		if (! $errors instanceof \WP_Error || ! is_array($data) || 'cod' !== (string) ( $data['payment_method'] ?? '' )) {
+			return;
+		}
+		if (self::cart_has_booking()) {
+			$errors->add('payment', __('Cash on delivery is not available for a booking. Please choose another payment method.', 'mhm-rentiva'));
+		}
+	}
+
+	/**
+	 * Classic order-pay form, whatever the gateway list says: a rental order
+	 * paid with cash on delivery gets an error notice, and
+	 * WC_Form_Handler::pay_action() calls the gateway only while there is none.
+	 * woocommerce_before_pay_action runs after WooCommerce checked the nonce
+	 * and the order key.
+	 *
+	 * @param mixed $order The order being paid.
+	 */
+	public static function refuse_cash_on_delivery_on_pay($order): void
+	{
+		// The same nonce WC_Form_Handler::pay_action() checked before this action.
+		$nonce = isset($_REQUEST['woocommerce-pay-nonce']) ? sanitize_text_field(wp_unslash( (string) $_REQUEST['woocommerce-pay-nonce'])) : '';
+		if ('' === $nonce && isset($_REQUEST['_wpnonce'])) {
+			$nonce = sanitize_text_field(wp_unslash( (string) $_REQUEST['_wpnonce']));
+		}
+		if (! wp_verify_nonce($nonce, 'woocommerce-pay')) {
+			return;
+		}
+		$method = isset($_POST['payment_method']) ? sanitize_text_field(wp_unslash( (string) $_POST['payment_method'])) : '';
+		if ('cod' !== $method || ! $order instanceof \WC_Order || ! self::order_has_booking($order)) {
+			return;
+		}
+		wc_add_notice(__('Cash on delivery is not available for a booking. Please choose another payment method.', 'mhm-rentiva'), 'error');
+	}
 
 	/**
 	 * A rental whose only gateway was cash on delivery would read WooCommerce's
@@ -2804,11 +2922,16 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					$target  = 'completed' === $new_status && \MHMRentiva\Admin\Booking\Helpers\Util::rental_has_ended($booking_id) ? Status::COMPLETED : Status::CONFIRMED;
 					$refusal = self::confirm_paid_booking($booking_id, $is_remaining, $target);
 					if (self::UNLOCKED_NOT_HELD === $refusal) {
-						// The payment is recorded and the booking holds its dates;
-						// only its status did not move (Fable F1). The rest of the
-						// mapping below still applies to a recorded payment.
-						self::report_unclaimed_payment($order, $booking_id, '', (string) $new_status, 'unlocked_write', self::$unlocked_outcome);
+						// An unlocked write did not hold: the note says what the
+						// booking holds now. Only a paid mark that held reaches the
+						// mapping below, which may clear the remaining balance
+						// (Fable PR K delta8 2).
+						$outcome                = self::$unlocked_outcome;
 						self::$unlocked_outcome = array();
+						self::report_unclaimed_payment($order, $booking_id, '', (string) $new_status, 'unlocked_write', $outcome);
+						if ('paid' !== ( $outcome['payment'] ?? null )) {
+							continue;
+						}
 					} elseif (null !== $refusal) {
 						self::report_unclaimed_payment($order, $booking_id, $refusal, (string) $new_status);
 						continue;

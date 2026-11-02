@@ -1563,4 +1563,39 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertSame(array(), array_filter($notes, static fn($n) => str_contains($n, 'could not be moved') || str_contains($n, 'nothing was changed')));
 		$this->assertCount(0, $changes, 'No false confirmed -> completed status hook.');
 	}
+	/**
+	 * Fable delta8 2: a paid mark that did not hold (Codex's paid -> failed
+	 * probe) does not reach the status mapping, so a full payment's
+	 * remaining balance is not cleared.
+	 */
+	public function test_a_paid_mark_that_did_not_hold_does_not_clear_the_remaining_balance(): void
+	{
+		$order = $this->pending_order();
+		$this->store_api($order);
+		$order      = wc_get_order($order->get_id());
+		$booking_id = (int) $order->get_meta('_mhmrentiva_booking_id');
+		update_post_meta($booking_id, '_mhmrentiva_status', 'confirmed');
+		update_post_meta($booking_id, '_mhmrentiva_payment_status', 'pending');
+		update_post_meta($booking_id, '_mhmrentiva_payment_type', 'full');
+		update_post_meta($booking_id, '_mhmrentiva_remaining_amount', '800');
+		$sanitize = static fn() => 'failed';
+		add_filter('sanitize_post_meta__mhmrentiva_payment_status', $sanitize);
+
+		WooCommerceBridge::handle_order_status_change($order->get_id(), 'on-hold', 'processing', $order);
+
+		remove_filter('sanitize_post_meta__mhmrentiva_payment_status', $sanitize);
+		$this->assertSame(array( 'failed' ), $this->rows($booking_id, '_mhmrentiva_payment_status'), 'Sanity: the paid mark did not hold.');
+		$this->assertSame(array( '800' ), $this->rows($booking_id, '_mhmrentiva_remaining_amount'), 'The remaining balance stays.');
+		$this->assertNotEmpty(array_filter($this->notes(wc_get_order($order->get_id())), static fn($n) => str_contains($n, 'is not marked paid')));
+	}
+
+	/**
+	 * Fable delta8 4: an empty status reads "-", never "status .".
+	 */
+	public function test_an_empty_status_in_the_note_reads_as_a_dash(): void
+	{
+		$note = $this->bridge('unlocked_write_note', 42, array( 'payment' => 'failed', 'status' => '', 'from' => '', 'target' => Status::COMPLETED ));
+
+		$this->assertSame('Payment recorded on the order, but booking #42 is not marked paid: its payment status is "failed" and its status -. Check the booking.', $note);
+	}
 }

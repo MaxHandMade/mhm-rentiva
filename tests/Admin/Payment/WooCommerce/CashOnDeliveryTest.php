@@ -322,6 +322,8 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 		$order = wc_get_order($order->get_id());
 		$this->assertSame('pending', $order->get_status());
 		$this->assertSame('', $order->get_meta('_mhmrentiva_booking_id'), 'No booking was made.');
+		$this->assertSame('', $order->get_payment_method(), 'Fable delta8 3: the refused order keeps no COD method.');
+		$this->assertSame('', $order->get_payment_method_title());
 	}
 
 	/**
@@ -405,12 +407,13 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 				)
 			)
 		);
+		$this->rest_stack();
 		$response = rest_get_server()->dispatch($request);
 		remove_filter('woocommerce_store_api_disable_nonce_check', '__return_true');
 
 		$data = (array) $response->get_data();
 		$this->assertSame(400, $response->get_status(), (string) wp_json_encode($data));
-		$this->assertSame('mhmrentiva_booking_refused', $data['code'] ?? '');
+		$this->assertContains($data['code'] ?? '', array( 'woocommerce_rest_checkout_payment_method_disabled', 'mhmrentiva_booking_refused' ), 'The cart rule holds on /checkout (Fable delta8 1); the order hook backs it.');
 		$this->assertSame(0, (int) ( new \WP_Query(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'any', 'fields' => 'ids' )) )->found_posts, 'No booking was made.');
 	}
 
@@ -425,6 +428,7 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 	{
 		update_option('woocommerce_cod_settings', array( 'enabled' => 'yes', 'title' => 'Cash on delivery', 'enable_for_virtual' => 'yes' ));
 		WC()->payment_gateways()->init();
+		$this->rest_stack();
 
 		add_filter('woocommerce_store_api_disable_nonce_check', '__return_true');
 		$address = array(
@@ -625,5 +629,109 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 		WooCommerceBridge::without_cash_on_delivery(array( 'cod' => $this->gateways()['cod'] ));
 
 		$this->assertSame($fill, apply_filters('woocommerce_no_available_payment_methods_message', $fill));
+	}
+	/**
+	 * The REST route stack, as the plugin registers it.
+	 */
+	private function rest_stack(): void
+	{
+		$this->hook('rest_request_before_callbacks', array( WooCommerceBridge::class, 'enter_rest_request' ), 10, 3);
+		$this->hook('rest_request_after_callbacks', array( WooCommerceBridge::class, 'leave_rest_request' ), 10, 1);
+	}
+
+	/**
+	 * Fable delta8 1: the Checkout block's cart refreshes are REST too, and
+	 * keep the cart rule: GET /wc/store/v1/cart on a rental cart offers no COD.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_the_store_api_cart_route_offers_no_cash_on_delivery_for_a_rental_cart(): void
+	{
+		update_option('woocommerce_cod_settings', array( 'enabled' => 'yes', 'title' => 'Cash on delivery', 'enable_for_virtual' => 'yes' ));
+		WC()->payment_gateways()->init();
+		$this->rest_stack();
+		$this->add_rental();
+
+		$response = rest_get_server()->dispatch(new \WP_REST_Request('GET', '/wc/store/v1/cart'));
+		$data     = (array) $response->get_data();
+
+		$this->assertSame(200, $response->get_status(), (string) wp_json_encode($data));
+		$this->assertArrayHasKey('payment_methods', $data);
+		$this->assertNotContains('cod', (array) $data['payment_methods'], 'No COD for a rental cart on the cart route.');
+	}
+
+	/**
+	 * A stale REST state, as an integration's caught exception inside
+	 * rest_do_request() leaves it: wp_is_rest_endpoint() stays true, and the
+	 * innermost entry says order-pay. The list keeps COD; the classic checkout
+	 * still refuses it in validation (Codex delta8).
+	 */
+	public function test_with_a_stale_rest_state_the_classic_checkout_still_refuses_cash_on_delivery(): void
+	{
+		$this->hook('woocommerce_after_checkout_validation', array( WooCommerceBridge::class, 'refuse_cash_on_delivery_at_checkout' ), 20, 2);
+		add_filter('wp_is_rest_endpoint', '__return_true');
+		WooCommerceBridge::enter_rest_request(null, null, new \WP_REST_Request('POST', '/wc/store/v1/checkout/123'));
+		try {
+			$this->add_rental();
+			$this->assertContains('cod', $this->offered(), 'Sanity: the stale state loosens the list.');
+
+			$errors = new \WP_Error();
+			do_action('woocommerce_after_checkout_validation', array( 'payment_method' => 'cod' ), $errors);
+
+			$this->assertContains('payment', $errors->get_error_codes(), 'Refused in validation, before WooCommerce calls any gateway.');
+			$this->assertStringContainsString('Cash on delivery is not available for a booking', $errors->get_error_message('payment'));
+
+			$shop = new \WP_Error();
+			WC()->cart->empty_cart();
+			$this->add_product();
+			do_action('woocommerce_after_checkout_validation', array( 'payment_method' => 'cod' ), $shop);
+			$this->assertFalse($shop->has_errors(), 'A shop cart keeps COD.');
+		} finally {
+			WooCommerceBridge::leave_rest_request(null);
+			remove_filter('wp_is_rest_endpoint', '__return_true');
+		}
+	}
+
+	/**
+	 * The same stale state on the classic order-pay form: WC_Form_Handler::
+	 * pay_action() itself, with COD in the list. The refusal's error notice
+	 * stops it before process_payment(): the order is not paid.
+	 *
+	 * Its own process: a payment that went through would redirect and exit.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_with_a_stale_rest_state_the_classic_order_pay_still_refuses_cash_on_delivery(): void
+	{
+		update_option('woocommerce_cod_settings', array( 'enabled' => 'yes', 'title' => 'Cash on delivery', 'enable_for_virtual' => 'yes' ));
+		WC()->payment_gateways()->init();
+		$this->hook('woocommerce_before_pay_action', array( WooCommerceBridge::class, 'refuse_cash_on_delivery_on_pay' ), 5, 1);
+		$booking = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ));
+		$order   = $this->order_with(array( '_mhmrentiva_is_remaining_payment' => '1', '_mhmrentiva_booking_id' => $booking ), null);
+		add_filter('wp_is_rest_endpoint', '__return_true');
+		WooCommerceBridge::enter_rest_request(null, null, new \WP_REST_Request('POST', '/wc/store/v1/checkout/123'));
+		$this->assertArrayHasKey('cod', WC()->payment_gateways()->get_available_payment_gateways(), 'Sanity: the stale state leaves COD in the list.');
+
+		$GLOBALS['wp']->query_vars['order-pay'] = (string) $order->get_id();
+		$_GET['key']                            = $order->get_order_key();
+		$_POST['woocommerce_pay']               = '1';
+		$_POST['payment_method']                = 'cod';
+		$_REQUEST['woocommerce-pay-nonce']      = wp_create_nonce('woocommerce-pay');
+		wc_clear_notices();
+
+		\WC_Form_Handler::pay_action();
+		while (ob_get_level() > 1) {
+			ob_end_clean();
+		}
+
+		WooCommerceBridge::leave_rest_request(null);
+		remove_filter('wp_is_rest_endpoint', '__return_true');
+		unset($_POST['woocommerce_pay'], $_POST['payment_method'], $_REQUEST['woocommerce-pay-nonce']);
+
+		$this->assertGreaterThan(0, wc_notice_count('error'), 'The form shows the refusal.');
+		$this->assertStringContainsString('Cash on delivery is not available for a booking', (string) ( wc_get_notices('error')[0]['notice'] ?? '' ));
+		$this->assertSame('pending', wc_get_order($order->get_id())->get_status(), 'The COD gateway never processed the payment.');
 	}
 }
