@@ -145,7 +145,21 @@ final class ReviewSpamTrapTest extends WP_Ajax_UnitTestCase
 		remove_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);
 
 		$this->assertSame(1, preg_match('/name="rvs_rendered" value="([^"]+)"/', $html, $m));
-		$this->assertNotNull(RenderStamp::age(html_entity_decode($m[1], ENT_QUOTES), RenderStamp::FORM_REVIEW));
+		// age() measures from the submit's arrival (REQUEST_TIME). Here the stamp is
+		// read in the request that drew it, and REQUEST_TIME is this process's start
+		// or an earlier test's submit -- a second before the stamp's time() and the
+		// age is -1, null (multisite canary flake, #152). Arrive now, as a submit would.
+		$saved                   = $_SERVER['REQUEST_TIME'] ?? null;
+		$_SERVER['REQUEST_TIME'] = time();
+		try {
+			$this->assertNotNull(RenderStamp::age(html_entity_decode($m[1], ENT_QUOTES), RenderStamp::FORM_REVIEW));
+		} finally {
+			if (null === $saved) {
+				unset($_SERVER['REQUEST_TIME']);
+			} else {
+				$_SERVER['REQUEST_TIME'] = $saved;
+			}
+		}
 		$this->assertMatchesRegularExpression('#<div class="rvs-sr-only" inert>\s*<label[^>]*>[^<]*</label>\s*<input type="text"[^>]*name="rvs_leave_blank"#', $html);
 	}
 }
