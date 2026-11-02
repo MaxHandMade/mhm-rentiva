@@ -2454,6 +2454,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 */
 	public static function refuse_cash_on_delivery_on_pay($order): void
 	{
+		self::$cod_refused_pay_order = 0;
 		// The same nonce WC_Form_Handler::pay_action() checked before this action.
 		$nonce = isset($_REQUEST['woocommerce-pay-nonce']) ? sanitize_text_field(wp_unslash( (string) $_REQUEST['woocommerce-pay-nonce'])) : '';
 		if ('' === $nonce && isset($_REQUEST['_wpnonce'])) {
@@ -2480,7 +2481,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * WC_Form_Handler::pay_action() reaches when no payment went through):
 	 * WooCommerce set the order's method to COD and saved it before it counted
 	 * the notices, and RentalMoneyLabels would read it as "pay at pickup". That
-	 * order only gets its method and title cleared (Codex PR K delta9 3).
+	 * order only gets its method and title cleared (Codex PR K delta9 3), and
+	 * only while COD is what WooCommerce wrote: a tampered post it refused
+	 * before set_payment_method() keeps the order's own method (Fable delta10 1).
 	 *
 	 * @param mixed $order The order the form was for.
 	 */
@@ -2488,7 +2491,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	{
 		$refused                     = self::$cod_refused_pay_order;
 		self::$cod_refused_pay_order = 0;
-		if (0 === $refused || ! $order instanceof \WC_Order || $refused !== (int) $order->get_id()) {
+		if (0 === $refused || ! $order instanceof \WC_Order || $refused !== (int) $order->get_id() || 'cod' !== $order->get_payment_method()) {
 			return;
 		}
 		$order->set_payment_method('');

@@ -705,6 +705,60 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * Fable delta10 1: with COD out of the list, WooCommerce refuses a tampered
+	 * `payment_method=cod` before it writes the method -- the order keeps the
+	 * method it was placed with, the cleanup does not blank it.
+	 */
+	public function test_a_tampered_order_pay_post_keeps_the_orders_own_method(): void
+	{
+		update_option('woocommerce_cod_settings', array( 'enabled' => 'yes', 'title' => 'Cash on delivery', 'enable_for_virtual' => 'yes' ));
+		WC()->payment_gateways()->init();
+		$this->hook('woocommerce_available_payment_gateways', array( WooCommerceBridge::class, 'without_cash_on_delivery' ), 10, 1);
+		$this->hook('woocommerce_before_pay_action', array( WooCommerceBridge::class, 'refuse_cash_on_delivery_on_pay' ), 5, 1);
+		$this->hook('woocommerce_after_pay_action', array( WooCommerceBridge::class, 'forget_refused_cash_on_delivery' ), 10, 1);
+		$booking = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ));
+		$order   = $this->order_with(array( '_mhmrentiva_is_remaining_payment' => '1', '_mhmrentiva_booking_id' => $booking ), null, 'bacs');
+		$this->pay_page($order);
+		$this->assertNotContains('cod', $this->offered(), 'Sanity: on the pay page COD is out of the list.');
+
+		$_POST['woocommerce_pay']               = '1';
+		$_POST['payment_method']                = 'cod';
+		$_REQUEST['woocommerce-pay-nonce']      = wp_create_nonce('woocommerce-pay');
+		wc_clear_notices();
+
+		\WC_Form_Handler::pay_action();
+		while (ob_get_level() > 1) {
+			ob_end_clean();
+		}
+
+		unset($_POST['woocommerce_pay'], $_POST['payment_method'], $_REQUEST['woocommerce-pay-nonce']);
+
+		$this->assertGreaterThan(0, wc_notice_count('error'), 'Sanity: the post was refused.');
+		$this->assertSame('bacs', wc_get_order($order->get_id())->get_payment_method(), 'The order keeps the method it was placed with.');
+	}
+
+	/**
+	 * Every COD refusal and the cleanup are wired by register(), not only by
+	 * the tests' own hook() calls (Fable delta10 2).
+	 */
+	public function test_register_wires_the_cash_on_delivery_hooks(): void
+	{
+		$wired = array(
+			array( 'woocommerce_available_payment_gateways', 'without_cash_on_delivery', 10 ),
+			array( 'woocommerce_after_checkout_validation', 'refuse_cash_on_delivery_at_checkout', 20 ),
+			array( 'woocommerce_before_pay_action', 'refuse_cash_on_delivery_on_pay', 5 ),
+			array( 'woocommerce_after_pay_action', 'forget_refused_cash_on_delivery', 10 ),
+			array( 'woocommerce_store_api_checkout_order_processed', 'store_api_order_processed', 10 ),
+		);
+		// WP_UnitTestCase restores $wp_filter after the test.
+		WooCommerceBridge::register();
+
+		foreach ($wired as [ $name, $method, $priority ]) {
+			$this->assertSame($priority, has_filter($name, array( WooCommerceBridge::class, $method )), $name . ' -> ' . $method);
+		}
+	}
+
+	/**
 	 * Fable delta9 2: a tampered `payment_method=cod` on the classic checkout
 	 * of a rental cart reads one payment error -- ours, not WooCommerce's
 	 * "Invalid payment method." next to it.
