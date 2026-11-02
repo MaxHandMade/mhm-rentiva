@@ -57,6 +57,7 @@ final class CheckoutJourney {
 		add_filter('pre_render_block', array( self::class, 'pre_render_block' ), 10, 2);
 		add_filter('wp_resource_hints', array( self::class, 'resource_hints' ), 11, 2);
 		RentalMoneyLabels::register();
+		RentalCheckoutLook::register();
 	}
 
 	/**
@@ -280,6 +281,7 @@ final class CheckoutJourney {
 		if (self::journey_request() || self::is_rental_request()) {
 			AssetManager::enqueue_rvs_journey();
 		}
+		RentalCheckoutLook::enqueue_assets();
 	}
 
 	/**
@@ -460,7 +462,7 @@ final class CheckoutJourney {
 	 * The booking the order created: the order's own meta, else its line's;
 	 * 0 when none exists yet.
 	 */
-	private static function booking_id_of(\WC_Order $order): int
+	public static function booking_id_of(\WC_Order $order): int
 	{
 		$booking_id = (int) $order->get_meta('_mhmrentiva_booking_id', true);
 		if ($booking_id > 0) {
@@ -493,7 +495,7 @@ final class CheckoutJourney {
 	 *
 	 * @return array<string, mixed>|null
 	 */
-	private static function order_rental_data(\WC_Order $order): ?array
+	public static function order_rental_data(\WC_Order $order): ?array
 	{
 		$items = $order->get_items();
 		if (1 !== count($items)) {

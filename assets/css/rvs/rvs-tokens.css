@@ -26,13 +26,19 @@
  * background or type reaches the theme's body from this rule. CheckoutJourney
  * sets the class, and never for the shop's own orders.
  *
+ * And a Rentiva line of WooCommerce's cart, checkout review and mini-cart
+ * (`.rvs-cart-line`, RentalCheckoutLook::line_class()): on a mixed or transfer
+ * cart the page is the theme's, yet the line's meta and thumbnail are drawn
+ * from these tokens. The class sits on that row only.
+ *
  * Product-specific file: the palette is Rentiva's. The shell and primitives
  * that read it (rvs-shell.css, rvs-primitives.css) are generic.
  */
 
 .rvs-shell,
 .woocommerce-account .woocommerce,
-body.rvs-rental {
+body.rvs-rental,
+.rvs-cart-line {
 	/* Surfaces and text */
 	--rvs-bg: #f0f6fc;
 	--rvs-surface: #ffffff;

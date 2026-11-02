@@ -76,6 +76,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 		// Checkout custom fields
 		add_filter('woocommerce_checkout_fields', array( self::class, 'reorder_checkout_fields' ), 20, 1);
+		add_filter('woocommerce_get_country_locale', array( self::class, 'booking_address_locale' ), 20, 1);
+		add_filter('woocommerce_get_country_locale_default', array( self::class, 'booking_address_locale' ), 20, 1);
 		add_filter('woocommerce_checkout_fields', array( self::class, 'add_checkout_payment_type_field' ), 10, 1);
 		add_action('woocommerce_checkout_update_order_meta', array( self::class, 'save_checkout_payment_type' ), 10, 2);
 		add_action('woocommerce_review_order_before_payment', array( self::class, 'display_payment_type_field' ), 10);
@@ -93,6 +95,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 		// ⭐ Add "Return to Cart" link at checkout
 		add_action('woocommerce_checkout_before_order_review', array( self::class, 'add_return_to_cart_link' ), 10);
+		add_action('woocommerce_checkout_order_review', array( self::class, 'add_return_to_cart_link_in_review' ), 5);
 
 		// ⭐ Inject Custom VAT Row
 		add_action('woocommerce_review_order_before_order_total', array( self::class, 'add_custom_tax_row_checkout' ));
@@ -109,76 +112,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 */
 	public static function enqueue_checkout_styles(): void
 	{
-		// Cart page - enqueue Cart Block image injector
-		// Use multiple detection methods for WooCommerce Blocks Cart
-		$is_cart_page = false;
-
-		// Method 1: Classic is_cart() function
-		if (function_exists('is_cart') && \is_cart()) {
-			$is_cart_page = true;
-		}
-
-		// Method 2: Check for Cart Block in page content
-		if (! $is_cart_page && function_exists('has_block')) {
-			global $post;
-			if ($post && has_block('woocommerce/cart', $post)) {
-				$is_cart_page = true;
-			}
-		}
-
-		// Method 3: Check WooCommerce cart page ID
-		if (! $is_cart_page && function_exists('wc_get_page_id')) {
-			$cart_page_id = wc_get_page_id('cart');
-			if ($cart_page_id && is_page($cart_page_id)) {
-				$is_cart_page = true;
-			}
-		}
-
-		// Enqueue globally on frontend for Mini-Cart support
-		if (! is_admin()) {
-			wp_enqueue_script(
-				'mhm-rentiva-woocommerce-cart-block',
-				MHMRENTIVA_PLUGIN_URL . 'assets/js/payment/woocommerce-cart-block.js',
-				array(),
-				MHMRENTIVA_VERSION,
-				true
-			);
-
-			// Pass vehicle images to JavaScript
-			$cart_images = self::get_cart_vehicle_images();
-			wp_localize_script('mhm-rentiva-woocommerce-cart-block', 'mhmRentivaCartImages', $cart_images);
-		}
-
-		// Cart page
-		if ($is_cart_page && null !== self::rental_cart_data()) {
-			wp_enqueue_style(
-				'mhm-rentiva-woocommerce-cart',
-				MHMRENTIVA_PLUGIN_URL . 'assets/css/payment/woocommerce-cart.css',
-				array(),
-				MHMRENTIVA_VERSION
-			);
-		}
-
-		// Checkout, thank-you and remaining-payment pages of a rental. A shop
-		// order, a mixed cart and a transfer keep the theme's checkout.
-		if (CheckoutJourney::is_rental_request()) {
-			wp_enqueue_style(
-				'mhm-rentiva-woocommerce-checkout',
-				MHMRENTIVA_PLUGIN_URL . 'assets/css/payment/woocommerce-checkout.css',
-				array( 'mhm-rentiva-css-variables' ),
-				MHMRENTIVA_VERSION
-			);
-
-			wp_enqueue_script(
-				'mhm-rentiva-woocommerce-checkout-js',
-				MHMRENTIVA_PLUGIN_URL . 'assets/js/payment/woocommerce-checkout.js',
-				array( 'jquery' ),
-				MHMRENTIVA_VERSION,
-				true
-			);
-		}
-
-		// The journey's styles go in the head, before the hooks that draw it.
+		// The journey's styles and rvs-checkout.css go in the head, before the
+		// hooks that draw. The Cart and Mini-Cart blocks' image script is
+		// enqueued as they render (RentalCheckoutLook::with_block_image_injector()).
 		CheckoutJourney::enqueue_assets();
 	}
 
@@ -187,7 +123,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 *
 	 * @return array Vehicle images keyed by cart item key
 	 */
-	private static function get_cart_vehicle_images(): array
+	public static function cart_vehicle_images(): array
 	{
 		$images = array();
 
@@ -709,17 +645,17 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		if ($vehicle_id) {
 			$thumbnail_id = get_post_thumbnail_id($vehicle_id);
 			if ($thumbnail_id) {
+				// Sized by rvs-checkout.css (`.rvs-cart-thumb`), the theme elsewhere.
 				return wp_get_attachment_image($thumbnail_id, 'woocommerce_thumbnail', false, array(
-					'class' => 'mhm-vehicle-thumbnail attachment-woocommerce_thumbnail size-woocommerce_thumbnail',
-					'style' => 'width: 80px; height: 80px; object-fit: cover; border-radius: 8px; background: #f1f5f9; display: block;',
+					'class' => 'mhm-vehicle-thumbnail rvs-cart-thumb attachment-woocommerce_thumbnail size-woocommerce_thumbnail',
 					'alt'   => esc_attr(get_the_title($vehicle_id)),
 				));
 			}
 		}
 
 		// Priority 2: Universal fallback with professional SVG icon
-		return '<div class="mhm-vehicle-placeholder" style="width: 80px; height: 80px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
-					<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		return '<div class="mhm-vehicle-placeholder rvs-cart-thumb rvs-cart-thumb--empty">
+					<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
 						<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
 						<circle cx="7" cy="17" r="2"/>
 						<path d="M9 17h6"/>
@@ -791,8 +727,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 							$thumbnail_id = get_post_thumbnail_id($vehicle_id);
 							if ($thumbnail_id) {
 								return wp_get_attachment_image($thumbnail_id, $size, false, array(
-									'class' => 'mhm-vehicle-thumbnail attachment-' . self::image_size_class($size) . ' size-' . self::image_size_class($size),
-									'style' => 'width: 80px; height: 80px; object-fit: cover; border-radius: 8px;',
+									'class' => 'mhm-vehicle-thumbnail rvs-cart-thumb attachment-' . self::image_size_class($size) . ' size-' . self::image_size_class($size),
 									'alt'   => esc_attr(get_the_title($vehicle_id)),
 								));
 							}
@@ -3156,6 +3091,77 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
+	 * The billing grid of a booking's checkout (canvas `Odeme`): name, country
+	 * and city, district and postcode, street, phone and email. Priority and
+	 * column of each field; reorder_checkout_fields() writes the same values.
+	 */
+	private const BOOKING_ADDRESS_LAYOUT = array(
+		'first_name' => array( 10, 'form-row-first' ),
+		'last_name'  => array( 11, 'form-row-last' ),
+		'country'    => array( 20, 'form-row-first' ),
+		'state'      => array( 21, 'form-row-last' ),
+		'city'       => array( 30, 'form-row-first' ),
+		'postcode'   => array( 31, 'form-row-last' ),
+		'address_1'  => array( 40, 'form-row-wide' ),
+		'phone'      => array( 50, 'form-row-first' ),
+		'email'      => array( 51, 'form-row-last' ),
+	);
+
+	/**
+	 * WooCommerce's address-i18n.js re-sorts and re-columns the address fields
+	 * from the country locale as soon as the country is known, which undid the
+	 * order reorder_checkout_fields() prints (the email landed between street
+	 * and postcode). The locale of a booking's checkout carries the same order.
+	 *
+	 * @param mixed $locale One locale (default) or all of them, keyed by country.
+	 * @return mixed
+	 */
+	public static function booking_address_locale($locale)
+	{
+		if (! is_array($locale) || ! function_exists('is_checkout') || ! is_checkout() || ! self::cart_has_booking()) {
+			return $locale;
+		}
+
+		$is_one = isset($locale['first_name']) || isset($locale['address_1']) || isset($locale['country']);
+		if ($is_one) {
+			return self::with_booking_layout($locale, true);
+		}
+
+		foreach ($locale as $country => $fields) {
+			if (is_array($fields)) {
+				$locale[ $country ] = self::with_booking_layout($fields, false);
+			}
+		}
+
+		return $locale;
+	}
+
+	/**
+	 * @param array<string, mixed> $fields A locale's fields.
+	 * @param bool                 $all    Add the fields a locale leaves out (the default locale).
+	 * @return array<string, mixed>
+	 */
+	private static function with_booking_layout(array $fields, bool $all): array
+	{
+		foreach (self::BOOKING_ADDRESS_LAYOUT as $key => $layout) {
+			if (! isset($fields[ $key ]) && ! $all) {
+				continue;
+			}
+			$field             = isset($fields[ $key ]) && is_array($fields[ $key ]) ? $fields[ $key ] : array();
+			$field['priority'] = $layout[0];
+			$field['class']    = array( $layout[1] );
+			// The booking's phone is required (reorder_checkout_fields()); the
+			// locale must not mark it optional when the country changes.
+			if ('phone' === $key) {
+				$field['required'] = true;
+			}
+			$fields[ $key ] = $field;
+		}
+
+		return $fields;
+	}
+
+	/**
 	 * Reorder and modify checkout fields for a better UX
 	 *
 	 * @param array $fields
@@ -3236,17 +3242,27 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 */
 	public static function add_return_to_cart_link(): void
 	{
-		if (! self::cart_has_booking()) {
-			return;
+		// One rental: beside the "Your order" heading, placed by rvs-checkout.css.
+		if (null !== self::rental_cart_data()) {
+			self::print_return_to_cart_link();
 		}
+	}
 
-		$cart_url = wc_get_cart_url();
-		// Changed text to "Return to Cart" and ensured container is ready for JS move
-		echo '<div class="mhm-return-cart-wrapper" style="text-align: right; margin-bottom: 15px;">
-				<a href="' . esc_url($cart_url) . '" class="mhm-return-cart-link" style="font-size: 13px; text-decoration: none; color: #718096; font-weight: 500; display: inline-flex; align-items: center;">
-					<span style="margin-right: 4px;">&larr;</span> ' . esc_html__('Return to Cart', 'mhm-rentiva') . '
-				</a>
-			  </div>';
+	/**
+	 * A mixed or transfer cart keeps the theme's checkout, which frames the
+	 * heading and the order review as one box: the link goes inside the review,
+	 * above its table, where no fragment refresh replaces it.
+	 */
+	public static function add_return_to_cart_link_in_review(): void
+	{
+		if (self::cart_has_booking() && null === self::rental_cart_data()) {
+			self::print_return_to_cart_link();
+		}
+	}
+
+	private static function print_return_to_cart_link(): void
+	{
+		echo '<div class="mhm-return-cart-wrapper"><a href="' . esc_url(wc_get_cart_url()) . '" class="mhm-return-cart-link"><span aria-hidden="true">&lsaquo;</span> ' . esc_html__('Return to Cart', 'mhm-rentiva') . '</a></div>';
 	}
 	/**
 	 * 1. Inject a Custom VAT Row before the Order Total

@@ -242,9 +242,9 @@ final class RentalScopeTest extends WP_UnitTestCase
 
 	public function test_tokens_reach_the_rental_body_scope(): void
 	{
-		$css = (string) file_get_contents(MHMRENTIVA_PLUGIN_DIR . 'assets/css/rvs/rvs-tokens.css');
+		$css = (string) file_get_contents(MHMRENTIVA_PLUGIN_PATH . 'assets/css/rvs/rvs-tokens.css');
 
-		$this->assertMatchesRegularExpression('/\.woocommerce-account \.woocommerce,\s*body\.rvs-rental\s*\{/', $css);
+		$this->assertMatchesRegularExpression('/\.woocommerce-account \.woocommerce,\s*body\.rvs-rental,\s*\.rvs-cart-line\s*\{/', $css);
 	}
 
 	// ------------------------------------------------------- field rules (R3)
@@ -276,9 +276,11 @@ final class RentalScopeTest extends WP_UnitTestCase
 	{
 		$links = $this->ask(
 			static function () {
+				// Beside the heading for one rental, inside the review otherwise (Task 3).
 				ob_start();
 				WooCommerceBridge::add_return_to_cart_link();
-				return str_contains((string) ob_get_clean(), 'mhm-return-cart-link');
+				WooCommerceBridge::add_return_to_cart_link_in_review();
+				return 1 === substr_count((string) ob_get_clean(), 'mhm-return-cart-link');
 			}
 		);
 
@@ -359,7 +361,13 @@ final class RentalScopeTest extends WP_UnitTestCase
 
 	// ---------------------------------------------------------- assets (R3)
 
-	public function test_old_checkout_assets_load_only_for_exactly_one_rental(): void
+	/**
+	 * R16: rvs-checkout.css reaches every checkout that holds a Rentiva line
+	 * (the whole page for one rental, Rentiva's own parts on a mixed or transfer
+	 * cart); the shop's own order never gets it. The old stylesheets and the
+	 * old checkout script are gone.
+	 */
+	public function test_checkout_stylesheet_follows_any_rentiva_line_and_old_assets_are_gone(): void
 	{
 		add_filter('woocommerce_is_checkout', '__return_true');
 
@@ -370,29 +378,33 @@ final class RentalScopeTest extends WP_UnitTestCase
 				WooCommerceBridge::enqueue_checkout_styles();
 
 				return array(
-					'css' => wp_style_is('mhm-rentiva-woocommerce-checkout', 'enqueued'),
-					'js'  => wp_script_is('mhm-rentiva-woocommerce-checkout-js', 'enqueued'),
+					'css'    => wp_style_is('mhm-rentiva-rvs-checkout', 'enqueued'),
+					'old'    => wp_style_is('mhm-rentiva-woocommerce-checkout', 'registered') || wp_style_is('mhm-rentiva-woocommerce-cart', 'registered'),
+					'old_js' => wp_script_is('mhm-rentiva-woocommerce-checkout-js', 'registered') || wp_script_is('mhm-rentiva-woocommerce-cart-block', 'enqueued'),
 				);
 			}
 		);
 
-		$yes = array( 'css' => true, 'js' => true );
-		$no  = array( 'css' => false, 'js' => false );
-		$this->assertSame(array( 'rental' => $yes, 'product' => $no, 'mixed' => $no, 'transfer' => $no ), $answers);
+		$yes = array( 'css' => true, 'old' => false, 'old_js' => false );
+		$no  = array( 'css' => false, 'old' => false, 'old_js' => false );
+		$this->assertSame(array( 'rental' => $yes, 'product' => $no, 'mixed' => $yes, 'transfer' => $yes ), $answers);
+		$this->assertFileDoesNotExist(MHMRENTIVA_PLUGIN_PATH . 'assets/css/payment/woocommerce-checkout.css');
+		$this->assertFileDoesNotExist(MHMRENTIVA_PLUGIN_PATH . 'assets/css/payment/woocommerce-cart.css');
+		$this->assertFileDoesNotExist(MHMRENTIVA_PLUGIN_PATH . 'assets/js/payment/woocommerce-checkout.js');
 	}
 
-	public function test_cart_css_loads_only_for_exactly_one_rental(): void
+	public function test_cart_stylesheet_follows_any_rentiva_line(): void
 	{
 		add_filter('woocommerce_is_cart', '__return_true');
 
 		$this->assertSame(
-			array( 'rental' => true, 'product' => false, 'mixed' => false, 'transfer' => false ),
+			array( 'rental' => true, 'product' => false, 'mixed' => true, 'transfer' => true ),
 			$this->ask(
 				static function () {
 					$GLOBALS['wp_styles'] = null;
 					WooCommerceBridge::enqueue_checkout_styles();
 
-					return wp_style_is('mhm-rentiva-woocommerce-cart', 'enqueued');
+					return wp_style_is('mhm-rentiva-rvs-checkout', 'enqueued');
 				}
 			)
 		);
@@ -405,12 +417,12 @@ final class RentalScopeTest extends WP_UnitTestCase
 		$GLOBALS['wp']->query_vars['order-pay'] = (string) $this->order_with(array( '_mhmrentiva_is_remaining_payment' => '1' ), null)->get_id();
 		WooCommerceBridge::enqueue_checkout_styles();
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-tokens', 'enqueued') || wp_style_is('mhm-rentiva-rvs-booking', 'enqueued'), 'The tokens reach the page.');
-		$this->assertTrue(wp_style_is('mhm-rentiva-woocommerce-checkout', 'enqueued'));
+		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-checkout', 'enqueued'));
 
 		$GLOBALS['wp_styles'] = null;
 		$GLOBALS['wp']->query_vars['order-pay'] = (string) $this->order_with(array(), null)->get_id();
 		WooCommerceBridge::enqueue_checkout_styles();
-		$this->assertFalse(wp_style_is('mhm-rentiva-woocommerce-checkout', 'enqueued'));
+		$this->assertFalse(wp_style_is('mhm-rentiva-rvs-checkout', 'enqueued'));
 	}
 
 	// ------------------------------------------------------- block swap (R4)
