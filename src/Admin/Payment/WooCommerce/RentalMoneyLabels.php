@@ -25,8 +25,17 @@ if (! defined('ABSPATH')) {
 final class RentalMoneyLabels {
 
 	/**
-	 * How an order's money stands. The method comes first: a cash order is
-	 * `processing` and counts as paid for WooCommerce, though nobody has paid.
+	 * How an order's money stands, in this order: a failed, cancelled or refunded
+	 * order is due; money that arrived (WooCommerce wrote a paid date) is paid,
+	 * whatever the method -- a card order, a bank order the shop confirmed, a
+	 * cash order completed at pickup; an offline method without that date is
+	 * still to send or to pay at pickup; anything else is due.
+	 *
+	 * One exception to the paid date: the cash gateway puts its order straight
+	 * into `processing`, and WooCommerce writes the paid date on reaching that
+	 * status (WC_Order::maybe_set_date_paid(); the booking product is virtual
+	 * but not downloadable, so it "needs processing"). A cash order still in
+	 * `processing` has not been paid.
 	 */
 	public const STATE_DUE       = 'due';
 	public const STATE_PAID      = 'paid';
@@ -38,6 +47,8 @@ final class RentalMoneyLabels {
 	private static string $to = '';
 
 	private static string $order_total_label = '';
+
+	private static int $order_total_id = 0;
 
 	public static function register(): void
 	{
@@ -53,6 +64,16 @@ final class RentalMoneyLabels {
 
 		add_action('woocommerce_order_details_before_order_table', array( self::class, 'open_order_details_window' ), 10, 1);
 		add_action('woocommerce_order_details_after_order_table', array( self::class, 'close_order_details_window' ), 10, 0);
+
+		// A theme's own template may leave out a closing hook: no label outlives the page.
+		add_action('wp_footer', array( self::class, 'close_all' ), 0, 0);
+		add_action('shutdown', array( self::class, 'close_all' ), 0, 0);
+	}
+
+	public static function close_all(): void
+	{
+		self::close_window();
+		self::close_order_details_window();
 	}
 
 	/**
@@ -118,8 +139,9 @@ final class RentalMoneyLabels {
 		}
 
 		self::$order_total_label = self::thankyou_total_label($order->get_id());
+		self::$order_total_id    = $order->get_id();
 		if ('' !== self::$order_total_label) {
-			add_filter('woocommerce_get_order_item_totals', array( self::class, 'relabel_order_total' ), 10, 1);
+			add_filter('woocommerce_get_order_item_totals', array( self::class, 'relabel_order_total' ), 10, 2);
 		}
 	}
 
@@ -127,14 +149,21 @@ final class RentalMoneyLabels {
 	{
 		remove_filter('woocommerce_get_order_item_totals', array( self::class, 'relabel_order_total' ), 10);
 		self::$order_total_label = '';
+		self::$order_total_id    = 0;
 	}
 
 	/**
-	 * @param mixed $rows WooCommerce's order total rows.
+	 * Only the order whose table is being drawn.
+	 *
+	 * @param mixed $rows  WooCommerce's order total rows.
+	 * @param mixed $order The order the rows belong to.
 	 * @return mixed
 	 */
-	public static function relabel_order_total($rows)
+	public static function relabel_order_total($rows, $order = null)
 	{
+		if (! ( $order instanceof \WC_Order ) || $order->get_id() !== self::$order_total_id) {
+			return $rows;
+		}
 		if (is_array($rows) && isset($rows['order_total']) && is_array($rows['order_total'])) {
 			$rows['order_total']['label'] = self::$order_total_label;
 		}
@@ -169,6 +198,10 @@ final class RentalMoneyLabels {
 		}
 
 		$method = $order->get_payment_method();
+		if (null !== $order->get_date_paid() && ! ( 'cod' === $method && $order->has_status('processing') )) {
+			return self::STATE_PAID;
+		}
+
 		if (in_array($method, array( 'bacs', 'cheque' ), true)) {
 			return self::STATE_TO_SEND;
 		}
@@ -176,7 +209,7 @@ final class RentalMoneyLabels {
 			return self::STATE_AT_PICKUP;
 		}
 
-		return $order->is_paid() ? self::STATE_PAID : self::STATE_DUE;
+		return self::STATE_DUE;
 	}
 
 	/**

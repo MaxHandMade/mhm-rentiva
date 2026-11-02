@@ -217,91 +217,116 @@ final class RentalMoneyParityTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * @return array<string, array{0: string, 1: string, 2: int, 3: string, 4: bool}>
+	 * Every figure written out, not derived. 1000 a day, 3 days, 20% VAT,
+	 * deposit 10% of the total; the add-on is a flat 25 taken twice.
+	 * "Shown" is what the customer reads in the cart and checkout display mode;
+	 * "charged" is WooCommerce's order total (always with tax).
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: int, 3: string, 4: bool, 5: string, 6: array{total: float, now: float, remaining: ?float, addon: ?float, charged: float, pay: ?float}}>
 	 */
 	public static function stores(): array
 	{
 		return array(
-			'net prices, shown with tax, deposit'     => array( 'no', 'incl', 10, 'deposit', false ),
-			'net prices, shown without tax, deposit'  => array( 'no', 'excl', 10, 'deposit', false ),
-			'gross prices, shown with tax, deposit'   => array( 'yes', 'incl', 10, 'deposit', false ),
-			'gross prices, shown without tax, deposit' => array( 'yes', 'excl', 10, 'deposit', false ),
-			'gross prices, shown with tax, full'      => array( 'yes', 'incl', 10, 'full', false ),
-			'net prices, shown without tax, full'     => array( 'no', 'excl', 10, 'full', false ),
-			'no deposit'                              => array( 'yes', 'incl', 0, 'deposit', false ),
-			'add-on with quantity, gross'             => array( 'yes', 'incl', 10, 'deposit', true ),
-			'add-on with quantity, net, excl'         => array( 'no', 'excl', 10, 'deposit', true ),
+			'net prices, shown with tax, deposit'          => array( 'no', 'incl', 10, 'deposit', false, '', array( 'total' => 3600.0, 'now' => 360.0, 'remaining' => 3240.0, 'addon' => null, 'charged' => 360.0, 'pay' => 3240.0 ) ),
+			'net prices, shown without tax, deposit'       => array( 'no', 'excl', 10, 'deposit', false, '', array( 'total' => 3000.0, 'now' => 300.0, 'remaining' => 2700.0, 'addon' => null, 'charged' => 360.0, 'pay' => 2700.0 ) ),
+			'gross prices, shown with tax, deposit'        => array( 'yes', 'incl', 10, 'deposit', false, '', array( 'total' => 3000.0, 'now' => 300.0, 'remaining' => 2700.0, 'addon' => null, 'charged' => 300.0, 'pay' => 2700.0 ) ),
+			'gross prices, shown without tax, deposit'     => array( 'yes', 'excl', 10, 'deposit', false, '', array( 'total' => 2500.0, 'now' => 250.0, 'remaining' => 2250.0, 'addon' => null, 'charged' => 300.0, 'pay' => 2250.0 ) ),
+			'gross prices, shown with tax, full'           => array( 'yes', 'incl', 10, 'full', false, '', array( 'total' => 3000.0, 'now' => 3000.0, 'remaining' => null, 'addon' => null, 'charged' => 3000.0, 'pay' => null ) ),
+			'net prices, shown without tax, full'          => array( 'no', 'excl', 10, 'full', false, '', array( 'total' => 3000.0, 'now' => 3000.0, 'remaining' => null, 'addon' => null, 'charged' => 3600.0, 'pay' => null ) ),
+			'no deposit'                                   => array( 'yes', 'incl', 0, 'deposit', false, '', array( 'total' => 3000.0, 'now' => 3000.0, 'remaining' => null, 'addon' => null, 'charged' => 3000.0, 'pay' => null ) ),
+			'add-on with quantity, gross'                  => array( 'yes', 'incl', 10, 'deposit', true, '', array( 'total' => 3050.0, 'now' => 305.0, 'remaining' => 2745.0, 'addon' => 50.0, 'charged' => 305.0, 'pay' => 2745.0 ) ),
+			'add-on with quantity, net, excl'              => array( 'no', 'excl', 10, 'deposit', true, '', array( 'total' => 3050.0, 'now' => 305.0, 'remaining' => 2745.0, 'addon' => 50.0, 'charged' => 366.0, 'pay' => 2745.0 ) ),
+			'suffix, net prices, shown without tax'        => array( 'no', 'excl', 10, 'deposit', false, 'VAT excl.', array( 'total' => 3000.0, 'now' => 300.0, 'remaining' => 2700.0, 'addon' => null, 'charged' => 360.0, 'pay' => 2700.0 ) ),
+			'suffix, gross prices, shown with tax'         => array( 'yes', 'incl', 10, 'deposit', false, 'VAT incl.', array( 'total' => 3000.0, 'now' => 300.0, 'remaining' => 2700.0, 'addon' => null, 'charged' => 300.0, 'pay' => 2700.0 ) ),
 		);
+	}
+
+	private function dollars(float $amount): string
+	{
+		return '$' . number_format($amount, 2, '.', ',');
 	}
 
 	/**
 	 * @dataProvider stores
+	 * @param array{total: float, now: float, remaining: ?float, addon: ?float, charged: float, pay: ?float} $want
 	 */
-	public function test_one_figure_from_the_form_to_the_customer_email(string $includes, string $display, int $rate, string $type, bool $with_addon): void
+	public function test_one_figure_from_the_form_to_the_customer_email(string $includes, string $display, int $rate, string $type, bool $with_addon, string $suffix, array $want): void
 	{
 		$this->set_store($includes, $display, $rate);
+		if ('' !== $suffix) {
+			update_option('woocommerce_price_display_suffix', $suffix);
+		}
 		$addons     = $with_addon ? $this->addon(25.0) : array();
 		$quantities = $with_addon ? array( $addons[0] => 2 ) : array();
+		$is_split   = null !== $want['remaining'];
 
 		list( $snapshot, $charge ) = $this->booking($type, $addons, $quantities);
-		$is_split  = 'deposit' === $snapshot['payment_type'];
-		$remaining = (float) $snapshot['remaining_amount'];
-		$now       = $this->money($charge);
-		$total     = $this->money( (float) $snapshot['total_price']);
 
-		if ($with_addon) {
-			$this->assertSame(3050.0, (float) $snapshot['total_price'], 'The add-on is in the total, quantity included.');
+		// Form: the quote and what it displays.
+		$this->assertSame($is_split ? 'deposit' : 'full', $snapshot['payment_type']);
+		$this->assertSame($want['total'], PriceDisplay::for_cart( (float) $snapshot['total_price'])['amount'], 'Form total.');
+		$this->assertSame($want['now'], PriceDisplay::for_cart($charge)['amount'], 'Form, due now.');
+		if ($is_split) {
+			$this->assertSame($want['remaining'], PriceDisplay::for_cart( (float) $snapshot['remaining_amount'])['amount'], 'Form, at pickup.');
 		}
 
 		// Cart.
 		$this->assertTrue(WooCommerceBridge::add_booking_data_to_cart($snapshot, $charge));
 		WC()->cart->calculate_totals();
-		$charged = (float) WC()->cart->get_total('edit');
+		$this->assertSame($want['charged'], (float) WC()->cart->get_total('edit'), 'Cart total.');
 		$line_shown = 'excl' === $display ? (float) WC()->cart->get_subtotal() : (float) WC()->cart->get_subtotal() + (float) WC()->cart->get_subtotal_tax();
-		$this->assertSame(PriceDisplay::for_cart($charge)['amount'], round($line_shown, 2), 'What the cart shows for the line is the figure the form quoted.');
+		$this->assertSame($want['now'], round($line_shown, 2), 'Cart line.');
 
 		$card = $this->plain($this->capture(array( RentalMoneyLabels::class, 'render_cart_card' )));
-		$this->assertStringContainsString($total, $card);
+		$this->assertStringContainsString('Total ' . $this->dollars($want['total']), $card);
 		if ($is_split) {
-			$this->assertStringContainsString($now, $card);
-			$this->assertStringContainsString($this->money($remaining), $card);
-			$this->assertStringContainsString('Deposit (' . \MHMRentiva\Admin\Core\CurrencyHelper::format_percentage( (float) $rate) . ')', $card);
+			$this->assertStringContainsString('Deposit (10%) ' . $this->dollars($want['now']), $card);
+			$this->assertStringContainsString('Due at pickup ' . $this->dollars($want['remaining']), $card);
 		} else {
 			$this->assertStringNotContainsString('Deposit', $card);
 			$this->assertStringNotContainsString('Due at pickup', $card);
 		}
 		if ($with_addon) {
-			$this->assertStringContainsString('Child seat × 2', $card);
-			$this->assertStringContainsString($this->money(50.0), $card);
+			$this->assertStringContainsString('Child seat × 2 ' . $this->dollars( (float) $want['addon']), $card);
+		}
+		if ('' !== $suffix) {
+			$this->assertSame(1, substr_count($card, $suffix), 'The suffix sits under the total once.');
+		}
+		if ('excl' === $display) {
+			$this->assertStringContainsString(wp_strip_all_tags( (string) WC()->countries->ex_tax_or_vat()), $card, 'A figure without tax says so.');
 		}
 
-		$cart_item = current(WC()->cart->get_cart());
-		$rows      = $this->plain( (string) wp_json_encode(WooCommerceBridge::get_item_data(array(), $cart_item), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+		$rows = $this->plain( (string) wp_json_encode(WooCommerceBridge::get_item_data(array(), current(WC()->cart->get_cart())), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 		if ($is_split) {
-			$this->assertStringContainsString($this->money($remaining), $rows, 'The cart line remaining goes through PriceDisplay.');
+			$this->assertStringContainsString($this->dollars($want['remaining']), $rows, 'Cart line, remaining.');
+		}
+		if ($with_addon) {
+			$this->assertStringContainsString($this->dollars( (float) $want['addon']), $rows, 'Cart line, add-on.');
 		}
 
 		// Checkout.
 		$options = $this->plain($this->capture(array( WooCommerceBridge::class, 'display_payment_type_field' )));
-		$this->assertStringContainsString($total, $options);
+		$this->assertStringContainsString('Pay full amount now ' . $this->dollars($want['total']), $options);
 		if ($is_split) {
-			$this->assertStringContainsString($now, $options);
-			$this->assertStringContainsString($this->money($remaining), $options);
+			$this->assertStringContainsString('Remaining: ' . $this->dollars($want['remaining']), $options);
+			$this->assertStringContainsString($this->dollars($want['now']), $options);
+		} else {
+			$this->assertStringNotContainsString('value="deposit"', $options);
 		}
 		$journey = $this->plain($this->capture(array( CheckoutJourney::class, 'render_checkout' )));
-		$this->assertStringContainsString($total, $journey);
-		$this->assertSame($is_split, str_contains($journey, 'Due at pickup'));
+		$this->assertStringContainsString('Total ' . $this->dollars($want['total']), $journey);
+		$this->assertSame($is_split, str_contains($journey, 'Due at pickup ' . $this->dollars( (float) $want['remaining'])));
 
-		// Order. Both routes meet here: Store API books the same order.
+		// Order, and the Store API hook on that order.
 		$order = $this->classic_order();
-		$this->assertSame($charged, (float) $order->get_total(), 'The order total is the cart total.');
+		$this->assertSame($want['charged'], (float) $order->get_total(), 'Order total.');
 
 		do_action('woocommerce_store_api_checkout_order_processed', $order);
 		$order      = wc_get_order($order->get_id());
 		$booking_id = (int) $order->get_meta('_mhmrentiva_booking_id');
 		$this->assertGreaterThan(0, $booking_id);
-		$this->assertSame($charged, (float) $order->get_total(), 'Store API order: nothing moved.');
-		$this->assertSame($remaining, (float) get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true));
+		$this->assertSame($want['charged'], (float) $order->get_total(), 'Store API hook: nothing moved.');
+		$this->assertSame( (float) $snapshot['remaining_amount'], (float) get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true));
 		$this->assertSame( (float) $snapshot['total_price'], (float) get_post_meta($booking_id, '_mhmrentiva_total_price', true));
 
 		// Thank-you.
@@ -310,11 +335,11 @@ final class RentalMoneyParityTest extends WP_UnitTestCase
 		add_filter('woocommerce_is_order_received_page', '__return_true');
 		$thanks = $this->plain($this->capture(static fn() => wc_get_template('checkout/thankyou.php', array( 'order' => $order ))));
 		remove_filter('woocommerce_is_order_received_page', '__return_true');
-		$this->assertStringContainsString($total, $thanks);
-		$this->assertStringContainsString($this->plain(wc_price($charged)), $thanks);
+		$this->assertStringContainsString('Total ' . $this->dollars($want['total']), $thanks);
+		$this->assertMatchesRegularExpression('/(To send|Deposit to send): ' . preg_quote($this->dollars($want['charged']), '/') . '/', $thanks, 'Overview figure.');
 		if ($is_split) {
-			$this->assertStringContainsString($now, $thanks);
-			$this->assertStringContainsString($this->money($remaining), $thanks);
+			$this->assertStringContainsString('Deposit to send (10%) ' . $this->dollars($want['now']), $thanks);
+			$this->assertStringContainsString('Due at pickup ' . $this->dollars($want['remaining']), $thanks);
 		}
 
 		// Customer email.
@@ -329,18 +354,78 @@ final class RentalMoneyParityTest extends WP_UnitTestCase
 				)
 			)
 		);
-		$this->assertStringContainsString($this->plain(wc_price($charged)), $body);
+		$this->assertStringContainsString('Total: ' . $this->dollars($want['charged']), $body);
 		if ($is_split) {
-			$this->assertStringContainsString($this->money($remaining), $body, 'The order line remaining in the email.');
+			$this->assertStringContainsString($this->dollars($want['remaining']), $body, 'Email, remaining.');
 		}
 
-		// Order-pay of the remaining amount.
+		// Order-pay of the remaining amount: what is charged is what was shown.
 		if ($is_split) {
 			$pay = RemainingPaymentHandler::get_or_create_remaining_order($booking_id);
 			$this->assertInstanceOf(\WC_Order::class, $pay);
 			$pay_shown = 'excl' === $display ? (float) $pay->get_subtotal() : (float) $pay->get_total();
-			$this->assertEqualsWithDelta(PriceDisplay::for_cart($remaining)['amount'], $pay_shown, 0.001, 'The remaining payment charges the figure shown.');
+			$this->assertSame($want['pay'], round($pay_shown, 2), 'Order-pay.');
 		}
+	}
+
+	/**
+	 * The Store API route itself, not only its hook: POST /wc/store/v1/checkout
+	 * on the cart a booking form filled.
+	 *
+	 * Its own process: the route defines WOOCOMMERCE_CHECKOUT
+	 * (StoreApi\Legacy), and a constant would make is_checkout() true for
+	 * every later test.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_a_store_api_checkout_through_the_route_charges_the_deposit_and_books(): void
+	{
+		$this->set_store('yes', 'incl', 10);
+		$this->sandbox_option('woocommerce_bacs_settings', array( 'enabled' => 'yes', 'title' => 'Bank transfer' ));
+		WC()->payment_gateways()->init();
+		$this->hook('woocommerce_store_api_cart_errors', array( WooCommerceBridge::class, 'store_api_cart_errors' ), 10, 2);
+
+		list( $snapshot, $charge ) = $this->booking('deposit');
+		$this->assertTrue(WooCommerceBridge::add_booking_data_to_cart($snapshot, $charge));
+		WC()->cart->calculate_totals();
+
+		add_filter('woocommerce_store_api_disable_nonce_check', '__return_true');
+		$address = array(
+			'first_name' => 'Jane',
+			'last_name'  => 'Customer',
+			'address_1'  => 'Street 1',
+			'city'       => 'Istanbul',
+			'postcode'   => '34000',
+			'country'    => 'TR',
+			'state'      => 'TR34',
+			'email'      => 'jane@example.com',
+			'phone'      => '5551234567',
+		);
+		$request = new \WP_REST_Request('POST', '/wc/store/v1/checkout');
+		$request->set_header('Content-Type', 'application/json');
+		$request->set_body(
+			(string) wp_json_encode(
+				array(
+					'billing_address'  => $address,
+					'shipping_address' => $address,
+					'payment_method'   => 'bacs',
+				)
+			)
+		);
+		$response = rest_get_server()->dispatch($request);
+		remove_filter('woocommerce_store_api_disable_nonce_check', '__return_true');
+
+		$this->assertSame(200, $response->get_status(), (string) wp_json_encode($response->get_data()));
+		$data  = (array) $response->get_data();
+		$order = wc_get_order( (int) $data['order_id']);
+		$this->assertInstanceOf(\WC_Order::class, $order);
+		$this->assertSame(300.0, (float) $order->get_total(), 'The route charges the deposit.');
+		$booking_id = (int) $order->get_meta('_mhmrentiva_booking_id');
+		$this->assertGreaterThan(0, $booking_id, 'The route books.');
+		$this->assertSame('deposit', get_post_meta($booking_id, '_mhmrentiva_payment_type', true));
+		$this->assertSame(2700.0, (float) get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true));
+		$this->assertSame(3000.0, (float) get_post_meta($booking_id, '_mhmrentiva_total_price', true));
 	}
 
 	public function test_a_price_suffix_stays_on_the_total_and_the_cart_card_shows_it(): void

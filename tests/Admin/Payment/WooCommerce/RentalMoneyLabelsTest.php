@@ -36,6 +36,9 @@ final class RentalMoneyLabelsTest extends WP_UnitTestCase
 
 		$this->require_woocommerce();
 		$this->product    = $this->ensure_booking_product('100');
+		// As get_booking_product_id() creates it: WooCommerce's paid date depends on it.
+		$this->product->set_virtual(true);
+		$this->product->save();
 		$this->vehicle_id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish', 'post_title' => 'Fiat Egea' ));
 
 		wc_load_cart();
@@ -51,6 +54,7 @@ final class RentalMoneyLabelsTest extends WP_UnitTestCase
 		$this->hook('woocommerce_thankyou', array( RentalMoneyLabels::class, 'close_window' ), 0, 0);
 		$this->hook('woocommerce_order_details_before_order_table', array( RentalMoneyLabels::class, 'open_order_details_window' ), 10, 1);
 		$this->hook('woocommerce_order_details_after_order_table', array( RentalMoneyLabels::class, 'close_order_details_window' ), 10, 0);
+		$this->hook('wp_footer', array( RentalMoneyLabels::class, 'close_all' ), 0, 0);
 	}
 
 	public function tearDown(): void
@@ -145,8 +149,12 @@ final class RentalMoneyLabelsTest extends WP_UnitTestCase
 		$order->set_billing_email('jane@example.com');
 		$order->set_payment_method($method);
 		$order->calculate_totals();
-		$order->set_status($status);
+		$order->set_status('paid' === $status ? 'pending' : $status);
 		$order->save();
+		if ('paid' === $status) {
+			// What a card gateway and its webhook do.
+			$order->payment_complete('prk-test');
+		}
 
 		return wc_get_order($order->get_id());
 	}
@@ -249,6 +257,9 @@ final class RentalMoneyLabelsTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * Status 'paid' runs payment_complete(), as a card gateway does; any other
+	 * status is set as an admin or an offline gateway sets it.
+	 *
 	 * @return array<string, array{0: string, 1: string, 2: string, 3: string, 4: string, 5: bool}>
 	 */
 	public static function thankyou_matrix(): array
@@ -256,16 +267,118 @@ final class RentalMoneyLabelsTest extends WP_UnitTestCase
 		$card = 'mhm_polar_sandbox';
 
 		return array(
-			'bacs on hold, deposit'    => array( 'bacs', 'on-hold', 'deposit', 'Deposit to send (%s)', 'Deposit to send:', false ),
-			'cheque on hold, deposit'  => array( 'cheque', 'on-hold', 'deposit', 'Deposit to send (%s)', 'Deposit to send:', false ),
-			'cod processing, deposit'  => array( 'cod', 'processing', 'deposit', 'Deposit due at pickup (%s)', 'Deposit due at pickup:', false ),
-			'card processing, deposit' => array( $card, 'processing', 'deposit', 'Deposit paid (%s)', 'Paid:', true ),
-			'card pending, deposit'    => array( $card, 'pending', 'deposit', 'Deposit (%s)', 'Total:', false ),
-			'bacs on hold, full'       => array( 'bacs', 'on-hold', 'full', '', 'To send:', false ),
-			'cod processing, full'     => array( 'cod', 'processing', 'full', '', 'Due at pickup:', false ),
-			'card processing, full'    => array( $card, 'processing', 'full', '', 'Paid:', true ),
-			'card pending, full'       => array( $card, 'pending', 'full', '', 'Total:', false ),
+			'bacs on hold, deposit'           => array( 'bacs', 'on-hold', 'deposit', 'Deposit to send (%s)', 'Deposit to send:', false ),
+			'cheque on hold, deposit'         => array( 'cheque', 'on-hold', 'deposit', 'Deposit to send (%s)', 'Deposit to send:', false ),
+			'cod processing, deposit'         => array( 'cod', 'processing', 'deposit', 'Deposit due at pickup (%s)', 'Deposit due at pickup:', false ),
+			'card paid, deposit'              => array( $card, 'paid', 'deposit', 'Deposit paid (%s)', 'Paid:', true ),
+			'card pending, deposit'           => array( $card, 'pending', 'deposit', 'Deposit (%s)', 'Total:', false ),
+			'bacs on hold, full'              => array( 'bacs', 'on-hold', 'full', '', 'To send:', false ),
+			'cod processing, full'            => array( 'cod', 'processing', 'full', '', 'Due at pickup:', false ),
+			'card paid, full'                 => array( $card, 'paid', 'full', '', 'Paid:', true ),
+			'card pending, full'              => array( $card, 'pending', 'full', '', 'Total:', false ),
+			'bacs confirmed, deposit'         => array( 'bacs', 'paid', 'deposit', 'Deposit paid (%s)', 'Paid:', true ),
+			'bacs completed, deposit'         => array( 'bacs', 'completed', 'deposit', 'Deposit paid (%s)', 'Paid:', true ),
+			'cod completed, deposit'          => array( 'cod', 'completed', 'deposit', 'Deposit paid (%s)', 'Paid:', true ),
+			'cod completed, full'             => array( 'cod', 'completed', 'full', '', 'Paid:', true ),
+			// The shop marks a received transfer "processing": WooCommerce writes
+			// the paid date then (maybe_set_date_paid()).
+			'bacs processing, deposit'        => array( 'bacs', 'processing', 'deposit', 'Deposit paid (%s)', 'Paid:', true ),
+			'bacs processing, full'           => array( 'bacs', 'processing', 'full', '', 'Paid:', true ),
 		);
+	}
+
+	public function test_a_paid_date_wins_over_the_method_and_a_failure_over_both(): void
+	{
+		foreach (array( 'bacs', 'cheque', 'cod', 'mhm_polar_sandbox' ) as $method) {
+			$order = $this->order($this->snapshot(), $method, 'on-hold');
+			$order->set_date_paid(time());
+			$order->save();
+			$this->assertSame(RentalMoneyLabels::STATE_PAID, RentalMoneyLabels::order_state($order), $method);
+
+			foreach (array( 'failed', 'cancelled', 'refunded' ) as $status) {
+				$order->set_status($status);
+				$order->save();
+				$this->assertSame(RentalMoneyLabels::STATE_DUE, RentalMoneyLabels::order_state(wc_get_order($order->get_id())), $method . ' ' . $status);
+			}
+		}
+	}
+
+	public function test_the_order_table_filter_touches_only_the_order_being_drawn(): void
+	{
+		$rental = $this->order($this->snapshot(), 'bacs', 'on-hold');
+		$other  = $this->order($this->snapshot(), 'bacs', 'on-hold');
+		add_filter('woocommerce_is_order_received_page', '__return_true');
+
+		RentalMoneyLabels::open_order_details_window($rental);
+		$this->assertSame('Deposit to send:', $rental->get_order_item_totals()['order_total']['label']);
+		$this->assertSame('Total:', $other->get_order_item_totals()['order_total']['label']);
+		RentalMoneyLabels::close_order_details_window();
+	}
+
+	public function test_a_cash_order_in_processing_has_a_paid_date_and_is_not_paid(): void
+	{
+		$order = $this->order($this->snapshot(), 'cod', 'processing');
+
+		$this->assertNotNull($order->get_date_paid(), 'WooCommerce writes the paid date on processing.');
+		$this->assertSame(RentalMoneyLabels::STATE_AT_PICKUP, RentalMoneyLabels::order_state($order));
+	}
+
+	public function test_a_template_that_skips_the_closing_hook_is_closed_in_the_footer_or_at_shutdown(): void
+	{
+		RentalMoneyLabels::register();
+		$this->assertSame(0, has_action('wp_footer', array( RentalMoneyLabels::class, 'close_all' )));
+		$this->assertSame(0, has_action('shutdown', array( RentalMoneyLabels::class, 'close_all' )));
+		foreach (array( 'woocommerce_before_cart_totals', 'woocommerce_cart_totals_before_order_total', 'woocommerce_cart_totals_after_order_total', 'woocommerce_review_order_before_order_total', 'woocommerce_review_order_after_order_total', 'woocommerce_before_thankyou', 'woocommerce_thankyou', 'woocommerce_order_details_before_order_table', 'woocommerce_order_details_after_order_table', 'wp_footer', 'shutdown' ) as $hook) {
+			foreach (array( 'render_cart_card', 'open_cart_window', 'close_window', 'open_thankyou_window', 'open_order_details_window', 'close_order_details_window', 'close_all' ) as $method) {
+				foreach (array( 0, 10, 20 ) as $priority) {
+					remove_action($hook, array( RentalMoneyLabels::class, $method ), $priority);
+				}
+			}
+		}
+
+		$this->add_rental($this->snapshot());
+		RentalMoneyLabels::open_cart_window();
+		add_filter('woocommerce_is_order_received_page', '__return_true');
+		RentalMoneyLabels::open_order_details_window($this->order($this->snapshot(), 'bacs', 'on-hold'));
+		$this->assertSame('Due now', __('Total', 'woocommerce'));
+
+		RentalMoneyLabels::close_all();
+
+		$this->assert_no_window_left();
+	}
+
+	/**
+	 * Snapshots written without a rate: a booking added by its id
+	 * (WooCommerceBridge::process_payment()), one from before the rate was
+	 * stored. The Pro transfer snapshot has no journey or card at all.
+	 */
+	public function test_a_snapshot_without_a_rate_still_labels_every_state(): void
+	{
+		$snapshot = $this->snapshot();
+		unset($snapshot['deposit_percentage']);
+
+		foreach (
+			array(
+				RentalMoneyLabels::STATE_DUE       => 'Deposit',
+				RentalMoneyLabels::STATE_PAID      => 'Deposit paid',
+				RentalMoneyLabels::STATE_TO_SEND   => 'Deposit to send',
+				RentalMoneyLabels::STATE_AT_PICKUP => 'Deposit due at pickup',
+			) as $state => $label
+		) {
+			$this->assertSame($label, CheckoutJourney::breakdown_of($snapshot, $state)['deposit']['label']);
+		}
+
+		$by_id = array(
+			'booking_id'   => 1,
+			'vehicle_id'   => $this->vehicle_id,
+			'pickup_date'  => '2031-03-10',
+			'dropoff_date' => '2031-03-13',
+			'payment_type' => 'deposit',
+		);
+		$this->assertNull(CheckoutJourney::breakdown_of($by_id)['deposit'], 'No deposit amount, no deposit row.');
+
+		$this->add_rental(array( 'booking_type' => 'transfer', 'transfer_origin_id' => 7 ) + $snapshot);
+		$this->assertStringNotContainsString('rvs-cart-totals-card', $this->cart_totals());
 	}
 
 	/**
