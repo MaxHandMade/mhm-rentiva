@@ -14,7 +14,6 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
  * The caller saves such a message marked as spam and answers as usual, so a bot learns
  * nothing and a wrongly caught person can still be found by the site owner.
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- The repeat claim must be one atomic statement: get_option()/add_option() read first, and INSERT ... ON DUPLICATE KEY in add_option() overwrites. No cache is involved on purpose. Every value is bound through $wpdb->prepare().
 final class SpamCheck {
 
 	public const REASON_HONEYPOT   = 'honeypot';
@@ -130,6 +129,7 @@ final class SpamCheck {
 	{
 		global $wpdb;
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- The claim must be one atomic statement: get_option()/add_option() read first, and add_option()'s ON DUPLICATE KEY overwrites. No cache may answer it.
 		$now     = time();
 		$expiry  = (string) ( $now + self::DUPLICATE_WINDOW );
 		$created = $wpdb->query($wpdb->prepare("INSERT IGNORE INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'off')", $key, $expiry));
@@ -142,12 +142,20 @@ final class SpamCheck {
 			return true;
 		}
 
-		$held = (string) $wpdb->get_var($wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $key));
+		$held = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $key));
+		// The row went between the two statements (another request's clean-up): nobody
+		// holds this window, and a real message must not be called a repeat for it.
+		if (null === $held) {
+			return true;
+		}
 		if ( (int) $held > $now) {
 			return false;
 		}
 
-		return 1 === $wpdb->query($wpdb->prepare("UPDATE {$wpdb->options} SET option_value = %s WHERE option_name = %s AND option_value = %s", $expiry, $key, $held));
+		$taken = 1 === $wpdb->query($wpdb->prepare("UPDATE {$wpdb->options} SET option_value = %s WHERE option_name = %s AND option_value = %s", $expiry, $key, $held));
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		return $taken;
 	}
 
 	/**
@@ -157,9 +165,11 @@ final class SpamCheck {
 	{
 		global $wpdb;
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Releases the row claim() wrote directly; no cache holds it.
 		if ('' !== $claim) {
 			$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name = %s", $claim));
 		}
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	}
 
 	/**

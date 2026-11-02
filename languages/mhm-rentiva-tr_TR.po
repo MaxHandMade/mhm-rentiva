@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-11-02T04:00:09+00:00\n"
+"POT-Creation-Date: 2026-11-02T04:27:07+00:00\n"
 "PO-Revision-Date: 2026-10-24 18:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -3446,15 +3446,20 @@ msgid "The hidden trap field was filled in"
 msgstr "Gizli tuzak alanı doldurulmuş"
 
 #: src/Admin/ContactMessages/ContactStatus.php:59
-msgid "Sent too soon after the form opened, or not from the form"
-msgstr "Form açıldıktan çok kısa süre sonra veya formun dışından gönderilmiş"
+msgid ""
+"Sent too soon after the form opened, or with a form stamp this site did not "
+"sign"
+msgstr "Form açıldıktan çok kısa süre sonra veya bu sitenin imzalamadığı bir form damgasıyla gönderilmiş"
 
 #: src/Admin/ContactMessages/ContactStatus.php:60
 msgid ""
 "Matches the Disallowed Comment Keys list (Settings > Discussion). WordPress "
 "checks the name, e-mail, message, IP address and browser, and part of a word "
 "counts."
-msgstr "İzin verilmeyen yorum anahtarları listesiyle eşleşiyor (Ayarlar > Tartışma). WordPress adı, e-postayı, mesajı, IP adresini ve tarayıcıyı denetler; kelimenin bir parçası da eşleşir."
+msgstr ""
+"İzin verilmeyen yorum anahtarları listesiyle eşleşiyor (Ayarlar > Tartışma). "
+"WordPress adı, e-postayı, mesajı, IP adresini ve tarayıcıyı denetler; "
+"kelimenin bir parçası da eşleşir."
 
 #: src/Admin/ContactMessages/ContactStatus.php:61
 msgid "Holds too many links"
@@ -12156,7 +12161,10 @@ msgstr "Göndermeden önce en az süre (saniye)"
 msgid ""
 "A contact form or new review sent sooner after the page opened counts as a "
 "bot. 0 turns this off; left empty, the default applies."
-msgstr "Sayfa açıldıktan sonra bundan önce gönderilen iletişim formu veya yeni değerlendirme bot sayılır. 0 bu denetimi kapatır; boş bırakılırsa varsayılan geçerlidir."
+msgstr ""
+"Sayfa açıldıktan sonra bundan önce gönderilen iletişim formu veya yeni "
+"değerlendirme bot sayılır. 0 bu denetimi kapatır; boş bırakılırsa varsayılan "
+"geçerlidir."
 
 #: src/Admin/Settings/Groups/GeneralSettings.php:211
 msgid "Maximum Links in a Message"
@@ -12166,7 +12174,9 @@ msgstr "Bir mesajda en fazla bağlantı"
 msgid ""
 "A contact message with more links than this goes to Spam. With 0, any link "
 "does; left empty, the default applies."
-msgstr "Bundan fazla bağlantı içeren iletişim mesajı Spam'e gider. 0 ise bağlantı içeren her mesaj gider; boş bırakılırsa varsayılan geçerlidir."
+msgstr ""
+"Bundan fazla bağlantı içeren iletişim mesajı Spam'e gider. 0 ise bağlantı "
+"içeren her mesaj gider; boş bırakılırsa varsayılan geçerlidir."
 
 #: src/Admin/Settings/Groups/GeneralSettings.php:225
 #: src/Admin/Setup/SetupWizard.php:372 src/Admin/Setup/SetupWizard.php:404
@@ -17812,6 +17822,10 @@ msgstr "Araç listesi"
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste yerleşiminde görüntüleyin."
+
+#~ msgid "Sent too soon after the form opened, or not from the form"
+#~ msgstr ""
+#~ "Form açıldıktan çok kısa süre sonra veya formun dışından gönderilmiş"
 
 #~ msgid "Matches the Disallowed Comment Keys list (Settings > Discussion)"
 #~ msgstr ""

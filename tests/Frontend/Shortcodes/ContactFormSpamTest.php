@@ -386,6 +386,22 @@ final class ContactFormSpamTest extends WP_Ajax_UnitTestCase
 		$this->assert_spam($this->submit(array( 'message' => $message )), SpamCheck::REASON_DUPLICATE, 'And held again.');
 	}
 
+	public function test_a_row_gone_between_insert_and_select_counts_as_claimed(): void
+	{
+		// INSERT IGNORE finds the row (0 rows), then another request's clean-up removes it.
+		global $wpdb;
+		$gone = static function (string $query) use ($wpdb): string {
+			return str_starts_with($query, 'INSERT IGNORE') && str_contains($query, 'mhmrentiva_contact_dup_')
+				? "UPDATE {$wpdb->options} SET option_value = option_value WHERE option_name = 'mhmrentiva_no_such_row'"
+				: $query;
+		};
+		add_filter('query', $gone);
+		$verdict = SpamCheck::verdict(array( 'stamp' => null, 'email' => 'ada@example.com', 'message' => 'Row gone', 'context' => array() ));
+		remove_filter('query', $gone);
+
+		$this->assertSame('', $verdict['reason'], 'Never a repeat.');
+	}
+
 	public function test_expired_claims_are_cleared_on_the_way(): void
 	{
 		global $wpdb;
