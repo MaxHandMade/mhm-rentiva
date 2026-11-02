@@ -2,7 +2,7 @@ import { __, _x, sprintf } from '@wordpress/i18n';
 import Button from '../../../../vendor/mhm/ui-core/src-react/components/Button';
 import StatusBadge from '../../../../vendor/mhm/ui-core/src-react/components/StatusBadge';
 
-const TONE = { new: 'warning', read: 'neutral', replied: 'success' };
+const TONE = { new: 'warning', read: 'neutral', replied: 'success', spam: 'danger' };
 
 // A plain left click opens the message in place; a modified or middle click
 // keeps the browser's own link behaviour (new tab).

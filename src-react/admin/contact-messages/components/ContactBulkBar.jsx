@@ -3,7 +3,7 @@ import Button from '../../../../vendor/mhm/ui-core/src-react/components/Button';
 import ConfirmButton from '../../../../vendor/mhm/ui-core/src-react/components/ConfirmButton';
 import { isTrashEnabled } from '../trash';
 
-export default function ContactBulkBar( { count, inTrash, busy, onAction, onClear } ) {
+export default function ContactBulkBar( { count, inTrash, inSpam, busy, onAction, onClear } ) {
 	// Read inside the component (house pattern, ContactMessagesList.jsx:18): a
 	// module-level read runs before a test can set the global.
 	const trashEnabled = isTrashEnabled();
@@ -36,12 +36,19 @@ export default function ContactBulkBar( { count, inTrash, busy, onAction, onClea
 				) }
 			</strong>
 			<span className="mhm-contact-messages__bulk-sep" aria-hidden="true" />
-			{ inTrash ? (
+			{ inTrash && (
 				<>
 					<Button disabled={ busy } onClick={ () => onAction( 'restore' ) }>{ __( 'Restore', 'mhm-rentiva' ) }</Button>
 					{ permanentDelete( 'delete' ) }
 				</>
-			) : (
+			) }
+			{ inSpam && (
+				<>
+					<Button disabled={ busy } onClick={ () => onAction( 'not_spam' ) }>{ __( 'Not spam', 'mhm-rentiva' ) }</Button>
+					{ permanentDelete( 'delete' ) }
+				</>
+			) }
+			{ ! inTrash && ! inSpam && (
 				<>
 					<Button disabled={ busy } onClick={ () => onAction( 'read' ) }>{ __( 'Mark as read', 'mhm-rentiva' ) }</Button>
 					<Button disabled={ busy } onClick={ () => onAction( 'replied' ) }>{ __( 'Mark as replied', 'mhm-rentiva' ) }</Button>

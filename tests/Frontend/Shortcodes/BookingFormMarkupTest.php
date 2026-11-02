@@ -98,7 +98,7 @@ final class BookingFormMarkupTest extends WP_UnitTestCase
 			return $located;
 		};
 		add_filter('pre_option', $spy, 10, 2);
-		add_action('setted_transient', $writes);
+		add_action('set_transient', $writes);
 		add_filter('mhmrentiva_locate_template', $count, 10, 2);
 		try {
 			$vehicle = (string) ShortcodeFixtures::vehicle();
@@ -106,7 +106,7 @@ final class BookingFormMarkupTest extends WP_UnitTestCase
 			$this->render(array( 'vehicle_id' => $vehicle ), false);
 		} finally {
 			remove_filter('pre_option', $spy, 10);
-			remove_action('setted_transient', $writes);
+			remove_action('set_transient', $writes);
 			remove_filter('mhmrentiva_locate_template', $count, 10);
 			remove_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_true', 999);
 		}

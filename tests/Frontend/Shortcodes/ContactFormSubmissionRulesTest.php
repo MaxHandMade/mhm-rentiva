@@ -6,6 +6,7 @@ namespace MHMRentiva\Tests\Frontend\Shortcodes;
 use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Frontend\Account\AccountBookingsQuery;
 use MHMRentiva\Admin\Frontend\Shortcodes\Contact\RecipientToken;
+use MHMRentiva\Admin\Frontend\Shortcodes\Contact\RenderStamp;
 use MHMRentiva\Admin\Frontend\Shortcodes\ContactForm;
 use MHMRentiva\Admin\Frontend\Shortcodes\ContactFormView;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
@@ -20,6 +21,8 @@ final class ContactFormSubmissionRulesTest extends WP_Ajax_UnitTestCase
 {
 	/** @var list<array<string,mixed>> */
 	private array $mails = array();
+
+	private int $sent = 0;
 
 	public function setUp(): void
 	{
@@ -63,7 +66,8 @@ final class ContactFormSubmissionRulesTest extends WP_Ajax_UnitTestCase
 				'type'    => 'general',
 				'name'    => 'Ada Visitor',
 				'email'   => 'ada@example.com',
-				'message' => 'Hello there',
+				'message' => 'Hello there ' . ( ++$this->sent ),
+				RenderStamp::FIELD => RenderStamp::issue(RenderStamp::FORM_CONTACT, time() - 60),
 			),
 			$fields
 		);
@@ -212,10 +216,10 @@ final class ContactFormSubmissionRulesTest extends WP_Ajax_UnitTestCase
 		$this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', (string) get_post_meta((int) $ok['data']['message_id'], MetaKeys::CONTACT_CONSENT, true));
 	}
 
-	public function test_honeypot_answers_success_and_stores_nothing(): void
+	public function test_honeypot_on_an_unreadable_message_answers_success_and_stores_nothing(): void
 	{
 		$before   = $this->contact_count();
-		$response = $this->submit(array( ContactFormView::HONEYPOT_FIELD => 'http://spam.example' ));
+		$response = $this->submit(array( ContactFormView::HONEYPOT_FIELD => 'http://spam.example', 'message' => '' ));
 
 		$this->assertTrue($response['success'], 'The bot learns nothing.');
 		$this->assertSame($before, $this->contact_count());

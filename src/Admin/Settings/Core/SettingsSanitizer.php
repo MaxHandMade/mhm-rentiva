@@ -7,6 +7,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Frontend\Shortcodes\Contact\RenderStamp;
+use MHMRentiva\Admin\Frontend\Shortcodes\Contact\SpamCheck;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
 use MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings;
 
@@ -349,6 +351,14 @@ final class SettingsSanitizer {
 	 */
 	private static function get_int( array $input, string $key, int $default, int $min, int $max ): int {
 		return isset( $input[ $key ] ) ? self::clamp_value( (int) $input[ $key ], $min, $max ) : $default;
+	}
+
+	/**
+	 * As get_int(), except that text is the default and not 0: for these two a stray
+	 * word must not switch a protection off.
+	 */
+	private static function numeric_or_default( array $input, string $key, int $default, int $min, int $max ): int {
+		return isset( $input[ $key ] ) && is_numeric( $input[ $key ] ) ? self::clamp_value( (int) $input[ $key ], $min, $max ) : $default;
 	}
 
 	/**
@@ -826,6 +836,8 @@ final class SettingsSanitizer {
 			'mhmrentiva_contact_phone_note'      => self::safe_text( $input['mhmrentiva_contact_phone_note'] ?? '' ),
 			'mhmrentiva_contact_response_note'   => self::safe_text( $input['mhmrentiva_contact_response_note'] ?? '' ),
 			'mhmrentiva_contact_consent_enabled' => self::validate_enum( (string) ( $input['mhmrentiva_contact_consent_enabled'] ?? '0' ), array( '0', '1' ), '0' ),
+			'mhmrentiva_contact_min_seconds'     => self::numeric_or_default( $input, 'mhmrentiva_contact_min_seconds', RenderStamp::DEFAULT_MIN_SECONDS, 0, 300 ),
+			'mhmrentiva_contact_max_links'       => self::numeric_or_default( $input, 'mhmrentiva_contact_max_links', SpamCheck::DEFAULT_MAX_LINKS, 0, 100 ),
 		);
 	}
 

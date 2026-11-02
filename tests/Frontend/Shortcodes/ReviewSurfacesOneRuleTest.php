@@ -32,6 +32,8 @@ final class ReviewSurfacesOneRuleTest extends WP_Ajax_UnitTestCase
 	public function setUp(): void
 	{
 		parent::setUp();
+		// The time trap has its own tests; these post without a drawn form.
+		add_filter('mhmrentiva_contact_min_seconds', '__return_zero');
 		add_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);
 		$this->vehicle = (int) self::factory()->post->create(
 			array(

@@ -7,6 +7,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Frontend\Shortcodes\Contact\RenderStamp;
+use MHMRentiva\Admin\Frontend\Shortcodes\Contact\SpamCheck;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Settings\Core\SettingsHelper;
 
@@ -52,6 +54,8 @@ final class GeneralSettings {
 			'mhmrentiva_contact_phone_note'      => '',
 			'mhmrentiva_contact_response_note'   => '',
 			'mhmrentiva_contact_consent_enabled' => '0',
+			'mhmrentiva_contact_min_seconds'     => RenderStamp::DEFAULT_MIN_SECONDS,
+			'mhmrentiva_contact_max_links'       => SpamCheck::DEFAULT_MAX_LINKS,
 		);
 	}
 
@@ -188,6 +192,28 @@ final class GeneralSettings {
 			__( 'Privacy Notice Consent', 'mhm-rentiva' ),
 			$consent_help,
 			self::SECTION_SITE_INFO
+		);
+
+		SettingsHelper::number_field(
+			$page_slug,
+			'mhmrentiva_contact_min_seconds',
+			__( 'Minimum Seconds Before Sending', 'mhm-rentiva' ),
+			0,
+			300,
+			__( 'A contact form or new review sent sooner after the page opened counts as a bot. 0 turns this off.', 'mhm-rentiva' ),
+			self::SECTION_SITE_INFO,
+			1
+		);
+
+		SettingsHelper::number_field(
+			$page_slug,
+			'mhmrentiva_contact_max_links',
+			__( 'Maximum Links in a Message', 'mhm-rentiva' ),
+			0,
+			100,
+			__( 'A contact message with more links than this goes to Spam. With 0, any link does.', 'mhm-rentiva' ),
+			self::SECTION_SITE_INFO,
+			1
 		);
 	}
 

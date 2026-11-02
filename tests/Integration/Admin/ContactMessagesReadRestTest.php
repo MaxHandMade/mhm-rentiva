@@ -84,7 +84,7 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 		$data = $this->get('/contact-messages')->get_data();
 
 		$this->assertSame(2, $data['total']);
-		$this->assertSame(array( 'all' => 2, 'new' => 1, 'read' => 0, 'replied' => 1, 'trash' => 0 ), $data['counts']);
+		$this->assertSame(array( 'all' => 2, 'new' => 1, 'read' => 0, 'replied' => 1, 'spam' => 0, 'trash' => 0 ), $data['counts']);
 		$this->assertSame(1, $data['stats']['new']);
 		$this->assertSame(1, $data['stats']['awaiting']);
 		$this->assertSame('General', $data['items'][0]['type_label']);
@@ -210,7 +210,7 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 		$id = $this->contact(array( 'status' => 'New' ));
 
 		$counts = $this->get('/contact-messages')->get_data()['counts'];
-		$this->assertSame(array( 'all' => 1, 'new' => 0, 'read' => 1, 'replied' => 0, 'trash' => 0 ), $counts);
+		$this->assertSame(array( 'all' => 1, 'new' => 0, 'read' => 1, 'replied' => 0, 'spam' => 0, 'trash' => 0 ), $counts);
 
 		$this->assertSame(1, $this->get('/contact-messages', array( 'status' => 'read' ))->get_data()['total']);
 		$this->assertSame(0, $this->get('/contact-messages', array( 'status' => 'new' ))->get_data()['total']);

@@ -425,6 +425,66 @@ final class SettingsReachTheirReadersTest extends WP_UnitTestCase
 		$this->assertSame('0', $this->save_tab('general', array( 'mhmrentiva_contact_consent_enabled' => 'yes' ))['mhmrentiva_contact_consent_enabled']);
 	}
 
+	// ---------------------------------------------------------------- spam settings
+
+	public function test_spam_settings_saved_on_the_general_tab_reach_their_readers(): void
+	{
+		$saved = $this->save_tab('general', array( 'mhmrentiva_contact_min_seconds' => '20', 'mhmrentiva_contact_max_links' => '1' ));
+		$this->assertSame(20, $saved['mhmrentiva_contact_min_seconds']);
+		$this->assertSame(1, $saved['mhmrentiva_contact_max_links']);
+
+		$this->assertSame(20, \MHMRentiva\Admin\Frontend\Shortcodes\Contact\RenderStamp::min_seconds());
+		$this->assertSame(1, \MHMRentiva\Admin\Frontend\Shortcodes\Contact\SpamCheck::max_links());
+	}
+
+	public function test_spam_settings_default_when_never_saved(): void
+	{
+		$this->assertSame(3, \MHMRentiva\Admin\Frontend\Shortcodes\Contact\RenderStamp::min_seconds());
+		$this->assertSame(3, \MHMRentiva\Admin\Frontend\Shortcodes\Contact\SpamCheck::max_links());
+	}
+
+	public function test_spam_settings_are_integers_within_their_range(): void
+	{
+		$saved = $this->save_tab('general', array( 'mhmrentiva_contact_min_seconds' => '-5', 'mhmrentiva_contact_max_links' => '99999' ));
+		$this->assertSame(0, $saved['mhmrentiva_contact_min_seconds']);
+		$this->assertSame(100, $saved['mhmrentiva_contact_max_links']);
+
+		$saved = $this->save_tab('general', array( 'mhmrentiva_contact_min_seconds' => '7.9', 'mhmrentiva_contact_max_links' => '2' ));
+		$this->assertSame(7, $saved['mhmrentiva_contact_min_seconds']);
+
+		// A stray word must not switch a protection off.
+		$saved = $this->save_tab('general', array( 'mhmrentiva_contact_min_seconds' => 'soon', 'mhmrentiva_contact_max_links' => '<b>' ));
+		$this->assertSame(3, $saved['mhmrentiva_contact_min_seconds']);
+		$this->assertSame(3, $saved['mhmrentiva_contact_max_links']);
+	}
+
+	public function test_spam_settings_are_not_taken_for_pollution_and_survive_another_tab(): void
+	{
+		$saved = $this->save_tab('general', array( 'mhmrentiva_contact_min_seconds' => '1', 'mhmrentiva_contact_max_links' => '0' ));
+		$this->assertSame(1, $saved['mhmrentiva_contact_min_seconds']);
+		$this->assertSame(0, $saved['mhmrentiva_contact_max_links']);
+
+		// The dirty list drops free-text keys holding a stray 0/1: a number may hold both.
+		add_filter(
+			'pre_update_option_mhmrentiva_settings',
+			function ($value) {
+				$this->stored = $value;
+				return $value;
+			}
+		);
+		$this->stored['mhmrentiva_contact_address'] = '1';
+		$cleanup = new \ReflectionMethod(SettingsCore::class, 'strip_pollution_fingerprint');
+		$cleanup->setAccessible(true);
+		$cleanup->invoke(null);
+		$this->assertArrayNotHasKey('mhmrentiva_contact_address', $this->stored, 'Negative control: the cleanup ran.');
+		$this->assertSame(1, $this->stored['mhmrentiva_contact_min_seconds']);
+		$this->assertSame(0, $this->stored['mhmrentiva_contact_max_links']);
+
+		$after = $this->save_tab('vehicle', array( 'mhmrentiva_default_rental_location' => '' ));
+		$this->assertSame(1, $after['mhmrentiva_contact_min_seconds']);
+		$this->assertSame(0, $after['mhmrentiva_contact_max_links']);
+	}
+
 	// ---------------------------------------------------------------- M5
 
 	public function test_m5_the_header_image_field_is_drawn_in_the_email_section(): void
