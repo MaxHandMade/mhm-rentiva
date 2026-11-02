@@ -15,7 +15,7 @@ import { contactApi } from './api';
 import { buildMailto } from './mailto';
 import { isTrashEnabled } from './trash';
 
-const TONE = { new: 'warning', read: 'neutral', replied: 'success' };
+const TONE = { new: 'warning', read: 'neutral', replied: 'success', spam: 'danger' };
 const IMAGE_EXT = /.(jpe?g|png|gif|webp|avif|bmp|svg)$/i;
 
 const svgProps = { 'aria-hidden': 'true', focusable: 'false', fill: 'none', stroke: 'currentColor', strokeLinecap: 'round', strokeLinejoin: 'round' };
@@ -97,6 +97,22 @@ export default function ContactMessageDetail( { id, onBack } ) {
 		}
 	};
 
+	const notSpam = async () => {
+		setRestoring( true );
+		try {
+			const { results } = await contactApi.bulk( [ id ], 'not_spam' );
+			if ( ! results?.[ 0 ]?.ok ) {
+				setError( __( 'The message could not be changed.', 'mhm-rentiva' ) );
+				return;
+			}
+			onBack();
+		} catch {
+			setError( __( 'The message could not be changed.', 'mhm-rentiva' ) );
+		} finally {
+			setRestoring( false );
+		}
+	};
+
 	const restore = async () => {
 		setRestoring( true );
 		try {
@@ -166,6 +182,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 	const attachmentMeta = msg.attachment ? [ msg.attachment.type_label, msg.attachment.size_label ].filter( Boolean ).join( ' · ' ) : '';
 
 	const trashed = Boolean( msg.trashed );
+	const spam = msg.status === 'spam' && ! trashed;
 	// Side cards collapse; narrow containers start them closed, wide ones open.
 	const cardProps = ( card ) => ( {
 		collapsible: true,
@@ -177,11 +194,15 @@ export default function ContactMessageDetail( { id, onBack } ) {
 		<>
 			<SenderWidget msg={ msg } layout={ layout } />
 			<TechnicalWidget id={ id } />
-			{ trashed ? (
-				<Widget level={ 2 } variant="plain" title={ __( 'Trashed message', 'mhm-rentiva' ) } { ...cardProps( 'delete' ) }>
-					<p>{ __( 'This message is in the trash. Restore it, or delete it permanently.', 'mhm-rentiva' ) }</p>
+			{ trashed || spam ? (
+				<Widget level={ 2 } variant="plain" title={ spam ? __( 'Spam message', 'mhm-rentiva' ) : __( 'Trashed message', 'mhm-rentiva' ) } { ...cardProps( 'delete' ) }>
+					<p>{ spam
+						? __( 'No notification or automatic reply went out for this message. If it is not spam, it becomes a normal new message; nothing is e-mailed now.', 'mhm-rentiva' )
+						: __( 'This message is in the trash. Restore it, or delete it permanently.', 'mhm-rentiva' ) }</p>
 					<div className="mhm-contact-messages__actions">
-						<Button size="sm" disabled={ restoring } onClick={ restore }>{ __( 'Restore', 'mhm-rentiva' ) }</Button>
+						{ spam
+							? <Button size="sm" disabled={ restoring } onClick={ notSpam }>{ __( 'Not spam', 'mhm-rentiva' ) }</Button>
+							: <Button size="sm" disabled={ restoring } onClick={ restore }>{ __( 'Restore', 'mhm-rentiva' ) }</Button> }
 						<ConfirmButton
 							label={ __( 'Delete permanently', 'mhm-rentiva' ) }
 							confirmText={ sprintf(
@@ -278,7 +299,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 					level={ 2 }
 					title={ __( 'Message', 'mhm-rentiva' ) }
 					actions={
-						trashed ? null : (
+						trashed || spam ? null : (
 							<div className="mhm-contact-messages__actions">
 								<Button variant="plain" onClick={ () => setStatus( 'new' ) }>{ __( 'Mark unread', 'mhm-rentiva' ) }</Button>
 								{ msg.status !== 'replied' && (

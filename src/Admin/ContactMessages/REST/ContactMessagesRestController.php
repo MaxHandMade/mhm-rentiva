@@ -42,7 +42,7 @@ final class ContactMessagesRestController {
 			'args'                => array(
 				'status'   => array(
 					'type'    => 'string',
-					'enum'    => array( '', 'new', 'read', 'replied', 'trash' ),
+					'enum'    => array( '', 'new', 'read', 'replied', 'spam', 'trash' ),
 					'default' => '',
 				),
 				'type'     => array(
@@ -136,7 +136,7 @@ final class ContactMessagesRestController {
 				),
 				'action' => array(
 					'type'     => 'string',
-					'enum'     => array( 'read', 'replied', 'trash', 'restore', 'delete' ),
+					'enum'     => array( 'read', 'replied', 'not_spam', 'trash', 'restore', 'delete' ),
 					'required' => true,
 				),
 			),
@@ -208,6 +208,9 @@ final class ContactMessagesRestController {
 				case 'replied':
 					$ok = ContactStatus::set($id, $action);
 					break;
+				case 'not_spam':
+					$ok = self::not_spam($id);
+					break;
 				case 'trash':
 					$ok = 'trash' !== $post->post_status && wp_trash_post($id) instanceof \WP_Post;
 					break;
@@ -215,7 +218,7 @@ final class ContactMessagesRestController {
 					$ok = self::untrash($id);
 					break;
 				default: // delete
-					$ok = 'trash' === $post->post_status && wp_delete_post($id, true) instanceof \WP_Post;
+					$ok = self::deletable($post) && wp_delete_post($id, true) instanceof \WP_Post;
 			}
 
 			// A site with EMPTY_TRASH_DAYS = 0 makes wp_trash_post() delete the
@@ -255,8 +258,8 @@ final class ContactMessagesRestController {
 		}
 
 		if ( (bool) $request['force']) {
-			if ('trash' !== $post->post_status) {
-				return new \WP_Error('rest_not_in_trash', __('Only a message in the trash can be deleted permanently.', 'mhm-rentiva'), array( 'status' => 400 ));
+			if (! self::deletable($post)) {
+				return new \WP_Error('rest_not_in_trash', __('Only a message in the trash or in spam can be deleted permanently.', 'mhm-rentiva'), array( 'status' => 400 ));
 			}
 			$deleted = wp_delete_post($post->ID, true) instanceof \WP_Post;
 			ContactStatus::forget_badge();
@@ -286,6 +289,29 @@ final class ContactMessagesRestController {
 			'trashed' => $trashed,
 			'deleted' => false,
 		));
+	}
+
+	/**
+	 * Spam needs no stop in the trash: nothing was promised to anyone.
+	 */
+	private static function deletable(\WP_Post $post): bool
+	{
+		return 'trash' === $post->post_status || ContactStatus::STATUS_SPAM === ContactStatus::get($post->ID);
+	}
+
+	/**
+	 * A caught message becomes an ordinary new one. No mail goes out now: the owner is
+	 * the one looking at it, and the sender was told it had arrived.
+	 */
+	private static function not_spam(int $id): bool
+	{
+		if (ContactStatus::STATUS_SPAM !== ContactStatus::get($id) || ! ContactStatus::set($id, ContactStatus::STATUS_NEW)) {
+			return false;
+		}
+
+		delete_post_meta($id, MetaKeys::CONTACT_SPAM_REASON);
+
+		return true;
 	}
 
 	/**
@@ -440,6 +466,9 @@ final class ContactMessagesRestController {
 		$add('company', __('Company', 'mhm-rentiva'), $meta('company'));
 		$add('consent', __('Privacy notice accepted', 'mhm-rentiva'), '' !== $meta('consent') ? (string) mysql2date(get_option('date_format') . ' ' . get_option('time_format'), $meta('consent')) : '');
 		$add('rating', __('Rating', 'mhm-rentiva'), $row['rating'] > 0 ? sprintf('%d/5', $row['rating']) : '');
+		if (ContactStatus::STATUS_SPAM === $row['status']) {
+			$add('spam_reason', __('Why it is here', 'mhm-rentiva'), ContactStatus::spam_reason_label( (string) get_post_meta($post->ID, MetaKeys::CONTACT_SPAM_REASON, true)));
+		}
 
 		$attachment = null;
 		$record     = ContactAttachmentStore::record($post->ID);

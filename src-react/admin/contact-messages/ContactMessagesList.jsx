@@ -134,7 +134,7 @@ export default function ContactMessagesList( { status, initialPage = 1, initialS
 		}
 	};
 
-	const counts = data?.counts ?? { all: 0, new: 0, read: 0, replied: 0, trash: 0 };
+	const counts = data?.counts ?? { all: 0, new: 0, read: 0, replied: 0, spam: 0, trash: 0 };
 	const href = ( s ) => ( s ? `${ pageUrl }&status=${ s }` : pageUrl );
 	const tabs = [
 		{ id: 'all', label: __( 'All', 'mhm-rentiva' ), href: href( '' ), badge: counts.all },
@@ -143,9 +143,10 @@ export default function ContactMessagesList( { status, initialPage = 1, initialS
 			badgeLabel: sprintf( __( '%d new', 'mhm-rentiva' ), counts.new ) },
 		{ id: 'read', label: __( 'Read', 'mhm-rentiva' ), href: href( 'read' ), badge: counts.read },
 		{ id: 'replied', label: __( 'Replied', 'mhm-rentiva' ), href: href( 'replied' ), badge: counts.replied },
+		{ id: 'spam', label: __( 'Spam', 'mhm-rentiva' ), href: href( 'spam' ), badge: counts.spam },
 	];
 
-	const firstRun = counts.all === 0 && status !== 'trash';
+	const firstRun = counts.all === 0 && status !== 'trash' && status !== 'spam';
 	const shortcodePagesUrl = window.mhmRentivaContactMessages?.shortcodePagesUrl ?? '';
 	const total = data?.total ?? 0;
 	const from = total === 0 ? 0 : ( page - 1 ) * PER_PAGE + 1;
@@ -205,6 +206,7 @@ export default function ContactMessagesList( { status, initialPage = 1, initialS
 				<ContactBulkBar
 					count={ selected.length }
 					inTrash={ status === 'trash' }
+					inSpam={ status === 'spam' }
 					busy={ busy }
 					onAction={ runBulk }
 					onClear={ () => setSelected( [] ) }

@@ -22,6 +22,8 @@ final class ContactFormSettingsTest extends WP_Ajax_UnitTestCase
 	public function setUp(): void
 	{
 		parent::setUp();
+		// The spam rules have their own tests; these post without a drawn form, and repeat.
+		add_filter('mhmrentiva_contact_spam_reason', '__return_empty_string');
 		ContactForm::register();
 		RequestSimulator::new_request();
 		add_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);

@@ -239,6 +239,11 @@ class VehicleDataHelper {
 	}
 
 	/**
+	 * The keys service_meta_query() reads.
+	 */
+	public const SERVICE_META_KEYS = array( MetaKeys::VEHICLE_SERVICE_TYPE, MetaKeys::VEHICLE_SERVICE_TYPE_LEGACY );
+
+	/**
 	 * A WP_Query meta_query clause selecting the vehicles allows_service() admits.
 	 *
 	 * Mirrors get_service_type() in SQL, including its two fallbacks, so a
@@ -350,6 +355,63 @@ class VehicleDataHelper {
 
 		$existing['mhmrentiva_service_type'] = $clause;
 		$args['meta_query']                  = $existing;
+
+		return $args;
+	}
+
+	/**
+	 * Answers the service clause first and hands the query its IDs.
+	 *
+	 * The rental clause's NOT IN, != and NOT EXISTS branches join postmeta on post_id
+	 * alone, so beside the active-vehicle clause the rows multiply by every meta row a
+	 * vehicle has: seconds on a five-car fleet. Each clause alone is milliseconds.
+	 * Call it last, on the args the query will run with (after
+	 * `mhmrentiva_vehicle_query_args`), so extensions still see the clause.
+	 *
+	 * WP_Query ignores post__not_in beside post__in, so a query that only had an
+	 * exclusion gets it applied here; one that had both keeps ignoring it, as before.
+	 * A top-level OR means the clause does not narrow the query: it stays.
+	 *
+	 * @param array<string, mixed> $args WP_Query arguments.
+	 * @return array<string, mixed>
+	 */
+	public static function prefilter_service_clause(array $args): array
+	{
+		$meta_query = $args['meta_query'] ?? null;
+		if (! is_array($meta_query) || ! isset($meta_query['mhmrentiva_service_type'])) {
+			return $args;
+		}
+		if ('OR' === strtoupper( (string) ( $meta_query['relation'] ?? 'AND' ))) {
+			return $args;
+		}
+
+		$admitted = array_map(
+			'intval',
+			get_posts(
+				array(
+					'post_type'              => $args['post_type'] ?? 'mhmrentiva_vehicle',
+					'post_status'            => $args['post_status'] ?? 'publish',
+					'posts_per_page'         => -1,
+					'fields'                 => 'ids',
+					'orderby'                => 'none',
+					'update_post_meta_cache' => false,
+					'update_post_term_cache' => false,
+					'meta_query'             => array( $meta_query['mhmrentiva_service_type'] ), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- The house rule for a vehicle's service.
+				)
+			)
+		);
+
+		$given = isset($args['post__in']) && is_array($args['post__in']) && array() !== $args['post__in'] ? array_map('intval', $args['post__in']) : null;
+		if (null === $given) {
+			$ids = array_diff($admitted, array_map('intval', (array) ( $args['post__not_in'] ?? array() )));
+		} else {
+			$ids = array_intersect($given, $admitted);
+		}
+
+		unset($meta_query['mhmrentiva_service_type']);
+		$args['meta_query'] = $meta_query;
+		// An empty post__in means "no restriction" to WP_Query.
+		$args['post__in'] = array() === $ids ? array( 0 ) : array_values($ids);
 
 		return $args;
 	}

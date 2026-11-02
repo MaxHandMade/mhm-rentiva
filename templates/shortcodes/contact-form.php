@@ -13,6 +13,7 @@
  * @var array         $vehicles        Vehicle list for the selector.
  * @var array         $priorities      Priority options.
  * @var string        $recipient_token Encrypted payload, '' when unset.
+ * @var string        $render_stamp    Signed render time, '' in a preview.
  * @var string        $redirect_url    Validated same-site redirect, '' for none.
  * @var WP_User|null  $current_user    Current user.
  * @var array         $view            ContactFormView::build().
@@ -23,6 +24,7 @@ if (! defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
+use MHMRentiva\Admin\Frontend\Shortcodes\Contact\RenderStamp;
 use MHMRentiva\Frontend\RenderContext;
 use MHMRentiva\Helpers\Icons;
 
@@ -30,6 +32,7 @@ $atts            = isset($atts) && is_array($atts) ? $atts : array();
 $vehicles        = isset($vehicles) && is_array($vehicles) ? $vehicles : array();
 $priorities      = isset($priorities) && is_array($priorities) ? $priorities : array();
 $recipient_token = isset($recipient_token) ? (string) $recipient_token : '';
+$render_stamp    = isset($render_stamp) ? (string) $render_stamp : '';
 $redirect_url    = isset($redirect_url) ? (string) $redirect_url : '';
 $current_user    = $current_user ?? null;
 $view            = isset($view) && is_array($view) ? $view : array();
@@ -114,6 +117,9 @@ $wrapper_classes   = trim('rvs-contact rvs-contact--' . $theme . ' ' . $extra_cl
 			<form id="<?php echo esc_attr($ids['form'] ?? ''); ?>" class="rvs-contact__form" enctype="multipart/form-data" novalidate aria-label="<?php echo esc_attr__('Contact form', 'mhm-rentiva'); ?>">
 				<?php if ('' !== $recipient_token) : ?>
 					<input type="hidden" name="recipient_token" value="<?php echo esc_attr($recipient_token); ?>">
+				<?php endif; ?>
+				<?php if ('' !== $render_stamp) : ?>
+					<input type="hidden" name="<?php echo esc_attr(RenderStamp::FIELD); ?>" value="<?php echo esc_attr($render_stamp); ?>">
 				<?php endif; ?>
 
 				<?php if (! empty($view['selector'])) : ?>

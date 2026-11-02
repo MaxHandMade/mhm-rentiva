@@ -37,6 +37,8 @@ class VehicleRatingNoticeTest extends WP_UnitTestCase
 	public function setUp(): void
 	{
 		parent::setUp();
+		// The time trap has its own tests; these post without a drawn form.
+		add_filter('mhmrentiva_contact_min_seconds', '__return_zero');
 
 		// The suite runs with backupGlobals="false" and SecurityHelperTest
 		// unsets $_SERVER['REMOTE_ADDR'] without restoring it, so whether this

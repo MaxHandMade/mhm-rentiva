@@ -179,7 +179,7 @@ final class CalendarView {
 	 * @return array<string, mixed>
 	 */
 	private static function offered_query( array $args ): array {
-		return VehicleDataHelper::restrict_query_to_service(
+		$query = VehicleDataHelper::restrict_query_to_service(
 			$args + array(
 				'post_type'    => 'mhmrentiva_vehicle',
 				'post_status'  => 'publish',
@@ -188,6 +188,8 @@ final class CalendarView {
 			),
 			'rental'
 		);
+
+		return VehicleDataHelper::prefilter_service_clause( $query );
 	}
 
 	/**

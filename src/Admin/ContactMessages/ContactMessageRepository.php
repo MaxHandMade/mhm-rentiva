@@ -27,7 +27,7 @@ final class ContactMessageRepository {
 	 * in_array() -- the bare `BINARY` operator does the same thing but is deprecated
 	 * as of MySQL 8.0.27 (warning 1287).
 	 */
-	private const STATUS_SQL = "CASE WHEN CAST(st.meta_value AS BINARY) = 'new' THEN 'new' WHEN CAST(st.meta_value AS BINARY) = 'replied' THEN 'replied' ELSE 'read' END";
+	private const STATUS_SQL = "CASE WHEN CAST(st.meta_value AS BINARY) = 'new' THEN 'new' WHEN CAST(st.meta_value AS BINARY) = 'replied' THEN 'replied' WHEN CAST(st.meta_value AS BINARY) = 'spam' THEN 'spam' ELSE 'read' END";
 
 	/**
 	 * The filters below (status/type/period/search) are never conditionally
@@ -62,6 +62,8 @@ final class ContactMessageRepository {
 		$page       = max(1, (int) ( $args['page'] ?? 1 ));
 
 		$post_status = 'trash' === $status_raw ? 'trash' : 'private';
+		// Spam has its own list and is on no other; the trash shows whatever was thrown in it.
+		$is_spam = ContactStatus::STATUS_SPAM === $status_raw ? 1 : 0;
 		// Only new|read|replied ever filter rows; anything else (including
 		// 'trash', already consumed above) means "no status filter", same as
 		// the pre-rewrite `in_array($status, ContactStatus::ALL, true)` gate.
@@ -87,6 +89,8 @@ final class ContactMessageRepository {
 		$params = array(
 			self::TYPE,
 			$post_status,
+			$post_status,
+			$is_spam,
 			$status,
 			$status,
 			$type,
@@ -102,7 +106,7 @@ final class ContactMessageRepository {
 			strtolower($search),
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- the sniff counts $params as one replacement because it's a variable, not a literal array() expression; it holds exactly 15, one per %s above, in the fixed order documented on this method's docblock.
+		// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- the sniff counts $params as one replacement because it's a variable, not a literal array() expression; it holds exactly 17, one per %s/%d above, in the fixed order documented on this method's docblock.
 		$total = (int) $wpdb->get_var($wpdb->prepare(
 			"SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p
 			LEFT JOIN {$wpdb->postmeta} st ON st.post_id = p.ID AND st.meta_key = '_mhmrentiva_contact_status'
@@ -111,6 +115,7 @@ final class ContactMessageRepository {
 			LEFT JOIN {$wpdb->postmeta} em ON em.post_id = p.ID AND em.meta_key = '_mhmrentiva_contact_email'
 			WHERE p.post_type = %s
 			AND p.post_status = %s
+			AND (%s = 'trash' OR (CASE WHEN CAST(st.meta_value AS BINARY) = 'spam' THEN 1 ELSE 0 END) = %d)
 			AND (%s = '' OR CASE WHEN CAST(st.meta_value AS BINARY) = 'new' THEN 'new' WHEN CAST(st.meta_value AS BINARY) = 'replied' THEN 'replied' ELSE 'read' END = %s)
 			AND (%s = '' OR (%s = 'general' AND (ty.meta_value IS NULL OR ty.meta_value NOT IN ('booking','support','feedback'))) OR (%s <> 'general' AND ty.meta_value = %s))
 			AND p.post_date >= %s
@@ -122,7 +127,7 @@ final class ContactMessageRepository {
 		$page_params   = $params;
 		$page_params[] = $per_page;
 		$page_params[] = ( $page - 1 ) * $per_page;
-		// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- as above; $page_params is $params (15) plus the LIMIT/OFFSET pair appended just above (17 total), one per %s/%d.
+		// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- as above; $page_params is $params (17) plus the LIMIT/OFFSET pair appended just above (19 total), one per %s/%d.
 		$ids = $wpdb->get_col($wpdb->prepare(
 			"SELECT DISTINCT p.ID FROM {$wpdb->posts} p
 			LEFT JOIN {$wpdb->postmeta} st ON st.post_id = p.ID AND st.meta_key = '_mhmrentiva_contact_status'
@@ -131,6 +136,7 @@ final class ContactMessageRepository {
 			LEFT JOIN {$wpdb->postmeta} em ON em.post_id = p.ID AND em.meta_key = '_mhmrentiva_contact_email'
 			WHERE p.post_type = %s
 			AND p.post_status = %s
+			AND (%s = 'trash' OR (CASE WHEN CAST(st.meta_value AS BINARY) = 'spam' THEN 1 ELSE 0 END) = %d)
 			AND (%s = '' OR CASE WHEN CAST(st.meta_value AS BINARY) = 'new' THEN 'new' WHEN CAST(st.meta_value AS BINARY) = 'replied' THEN 'replied' ELSE 'read' END = %s)
 			AND (%s = '' OR (%s = 'general' AND (ty.meta_value IS NULL OR ty.meta_value NOT IN ('booking','support','feedback'))) OR (%s <> 'general' AND ty.meta_value = %s))
 			AND p.post_date >= %s
@@ -153,7 +159,7 @@ final class ContactMessageRepository {
 		);
 	}
 
-	/** @return array{all:int,new:int,read:int,replied:int,trash:int} */
+	/** @return array{all:int,new:int,read:int,replied:int,spam:int,trash:int} */
 	public static function counts(): array
 	{
 		global $wpdb;
@@ -174,6 +180,7 @@ final class ContactMessageRepository {
 			'new'     => 0,
 			'read'    => 0,
 			'replied' => 0,
+			'spam'    => 0,
 			'trash'   => 0,
 		);
 		foreach ( (array) $rows as $row) {
@@ -182,7 +189,10 @@ final class ContactMessageRepository {
 				$out['trash'] += $n;
 				continue;
 			}
-			$out['all']       += $n;
+			// Spam counts only as spam: not in "all", not as awaiting an answer.
+			if ('spam' !== $row['s']) {
+				$out['all'] += $n;
+			}
 			$out[ $row['s'] ] += $n;
 		}
 
@@ -196,7 +206,9 @@ final class ContactMessageRepository {
 
 		$c    = self::counts();
 		$week = (int) $wpdb->get_var($wpdb->prepare(
-			"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = 'private' AND post_date >= %s",
+			"SELECT COUNT(*) FROM {$wpdb->posts} p
+			 LEFT JOIN {$wpdb->postmeta} st ON st.post_id = p.ID AND st.meta_key = '_mhmrentiva_contact_status'
+			 WHERE p.post_type = %s AND p.post_status = 'private' AND (st.meta_value IS NULL OR CAST(st.meta_value AS BINARY) <> 'spam') AND p.post_date >= %s",
 			self::TYPE,
 			// phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- gmdate() formats this local timestamp to match post_date, which WordPress also stores in local time; both sides of the comparison must use the same clock.
 			gmdate('Y-m-d H:i:s', (int) current_time('timestamp') - 7 * DAY_IN_SECONDS)
@@ -224,9 +236,10 @@ final class ContactMessageRepository {
 		global $wpdb;
 
 		$rows = $wpdb->get_results($wpdb->prepare(
-			"SELECT YEAR(post_date) AS y, MONTH(post_date) AS m FROM {$wpdb->posts}
-			 WHERE post_type = %s AND post_status = 'private'
-			 GROUP BY YEAR(post_date), MONTH(post_date)
+			"SELECT YEAR(p.post_date) AS y, MONTH(p.post_date) AS m FROM {$wpdb->posts} p
+			 LEFT JOIN {$wpdb->postmeta} st ON st.post_id = p.ID AND st.meta_key = '_mhmrentiva_contact_status'
+			 WHERE p.post_type = %s AND p.post_status = 'private' AND (st.meta_value IS NULL OR CAST(st.meta_value AS BINARY) <> 'spam')
+			 GROUP BY YEAR(p.post_date), MONTH(p.post_date)
 			 ORDER BY y DESC, m DESC
 			 LIMIT %d",
 			self::TYPE,
@@ -261,7 +274,8 @@ final class ContactMessageRepository {
 		return (int) $wpdb->get_var($wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->posts} p
 			 INNER JOIN {$wpdb->postmeta} em ON em.post_id = p.ID AND em.meta_key = '_mhmrentiva_contact_email'
-			 WHERE p.post_type = %s AND p.post_status = 'private' AND p.ID <> %d AND LOWER(em.meta_value) = %s",
+			 LEFT JOIN {$wpdb->postmeta} st ON st.post_id = p.ID AND st.meta_key = '_mhmrentiva_contact_status'
+			 WHERE p.post_type = %s AND p.post_status = 'private' AND (st.meta_value IS NULL OR CAST(st.meta_value AS BINARY) <> 'spam') AND p.ID <> %d AND LOWER(em.meta_value) = %s",
 			self::TYPE,
 			$exclude_id,
 			strtolower($email)

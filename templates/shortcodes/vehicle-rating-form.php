@@ -30,6 +30,8 @@
  */
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
+use MHMRentiva\Admin\Frontend\Shortcodes\Contact\RenderStamp;
+use MHMRentiva\Admin\Frontend\Shortcodes\ContactFormView;
 use MHMRentiva\Admin\Frontend\Shortcodes\ReviewsView;
 use MHMRentiva\Frontend\RenderContext;
 
@@ -108,6 +110,14 @@ $classes = trim('rvs-reviews' . ( $nested ? ' rvs-reviews--nested' : '' ) . ' ' 
 			<?php endif; ?>
 
 			<?php RenderContext::the_nonce_input_line('mhmrentiva_rating_nonce', 'nonce'); ?>
+
+			<?php if (! empty($render_stamp)) : ?>
+				<input type="hidden" name="<?php echo esc_attr(RenderStamp::FIELD); ?>" value="<?php echo esc_attr( (string) $render_stamp); ?>">
+			<?php endif; ?>
+			<div class="rvs-sr-only" inert>
+				<label for="<?php echo esc_attr($uid . '-trap'); ?>"><?php esc_html_e('Leave this field blank', 'mhm-rentiva'); ?></label>
+				<input type="text" id="<?php echo esc_attr($uid . '-trap'); ?>" name="<?php echo esc_attr(ContactFormView::HONEYPOT_FIELD); ?>" tabindex="-1" autocomplete="off">
+			</div>
 
 			<?php if (! empty($guest_fields)) : ?>
 				<div class="rvs-reviews__guest">

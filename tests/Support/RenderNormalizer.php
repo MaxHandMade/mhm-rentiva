@@ -27,6 +27,7 @@ final class RenderNormalizer
 	public static function normalize(string $html): string
 	{
 		$html = (string) preg_replace('/data-render-time="[^"]*"/', 'data-render-time="T"', $html);
+		$html = (string) preg_replace('/(name="rvs_rendered" value=")[^"]*"/', '$1STAMP"', $html);
 		$html = (string) preg_replace('/rvsr-\d+/', 'rvsr-N', $html);
 		// The vehicle page, its calendar months and the booking form (wp_unique_id) -- in hrefs too.
 		$html = (string) preg_replace('/\b(rvs-vd|rvs-cal|rvs-bf|rvs-contact|rvs-reviews)-\d+/', '$1-N', $html);
@@ -48,6 +49,9 @@ final class RenderNormalizer
 	public static function golden(string $html): string
 	{
 		$html = self::normalize($html);
+		// WooCommerce 11.2 prints dir="auto" on the currency symbol; older versions (the
+		// supported range, and the goldens' recording) do not.
+		$html = (string) str_replace('woocommerce-Price-currencySymbol" dir="auto"', 'woocommerce-Price-currencySymbol"', $html);
 		$html = (string) preg_replace('#/uploads/\d{4}/\d{2}/#', '/uploads/Y/M/', $html);
 		// Templates print `<!-- Debug: ... -->` comments only when WP_DEBUG is on (CI);
 		// the goldens were recorded with it off.

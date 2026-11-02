@@ -10,6 +10,7 @@ if (! defined('ABSPATH')) {
 use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\ContactMessages\ContactAttachmentStore;
 use MHMRentiva\Admin\ContactMessages\ContactAttachmentValidator;
+use MHMRentiva\Admin\ContactMessages\ContactStatus;
 use MHMRentiva\Admin\ContactMessages\REST\ContactMessagesRestController;
 use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Admin\Core\Assets\DatepickerAssets;
@@ -17,6 +18,8 @@ use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Customers\CustomerIdentity;
 use MHMRentiva\Admin\Frontend\Account\AccountBookingsQuery;
 use MHMRentiva\Admin\Frontend\Shortcodes\Contact\RecipientToken;
+use MHMRentiva\Admin\Frontend\Shortcodes\Contact\RenderStamp;
+use MHMRentiva\Admin\Frontend\Shortcodes\Contact\SpamCheck;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Frontend\RenderContext;
@@ -191,6 +194,8 @@ final class ContactForm extends AbstractShortcode {
 			'vehicles'        => $vehicles,
 			'priorities'      => $priorities,
 			'recipient_token' => $recipient_token,
+			// A preview prints no stamp: nothing can be sent from it.
+			'render_stamp'    => RenderContext::current()->is_preview() ? '' : RenderStamp::issue(RenderStamp::FORM_CONTACT),
 			'redirect_url'    => $redirect_url,
 			'current_user'    => wp_get_current_user(),
 			'view'            => ContactFormView::build(
@@ -507,6 +512,9 @@ final class ContactForm extends AbstractShortcode {
 				'consent'                       => isset($_POST['consent']) ? sanitize_text_field(wp_unslash( (string) $_POST['consent'])) : '',
 				// The trap field: never stored, only tested for a value.
 				ContactFormView::HONEYPOT_FIELD => isset($_POST[ ContactFormView::HONEYPOT_FIELD ]) ? sanitize_text_field(wp_unslash( (string) $_POST[ ContactFormView::HONEYPOT_FIELD ])) : '',
+				// Opaque: only RenderStamp gives it meaning.
+				// Null, not '': no field at all is a stale cached form, not a forged stamp.
+				RenderStamp::FIELD              => isset($_POST[ RenderStamp::FIELD ]) ? sanitize_text_field(wp_unslash( (string) $_POST[ RenderStamp::FIELD ])) : null,
 			);
 
 			$attachment_file = null;
@@ -559,18 +567,19 @@ final class ContactForm extends AbstractShortcode {
 	 */
 	private static function process_submission(array $post_data, ?array $file, ?callable $handler = null): array
 	{
-		// A filled trap field: answer as if it worked, so the bot learns nothing (R10).
-		if ('' !== (string) ( $post_data[ ContactFormView::HONEYPOT_FIELD ] ?? '' )) {
-			return array(
-				'ok'         => true,
-				'message_id' => 0,
-				'email_sent' => true,
-			);
-		}
-
+		$honeypot   = (string) ( $post_data[ ContactFormView::HONEYPOT_FIELD ] ?? '' );
 		$form_data  = self::sanitize_contact_form_data($post_data);
 		$validation = self::validate_form_data($form_data);
 		if (! $validation['valid']) {
+			// A filled trap field: answer as if it worked, so the bot learns nothing (R10).
+			// Nothing to keep either: such a record could not be read.
+			if ('' !== $honeypot) {
+				return array(
+					'ok'         => true,
+					'message_id' => 0,
+					'email_sent' => true,
+				);
+			}
 			return array(
 				'ok'      => false,
 				'message' => $validation['message'],
@@ -578,19 +587,52 @@ final class ContactForm extends AbstractShortcode {
 			);
 		}
 
+		// Linked only to the signed-in renter's own booking. The answer to the
+		// visitor is the same either way, so the field reveals nothing.
+		$form_data['linked_booking_id'] = self::own_booking_id($form_data['booking_id']);
+
 		// After sanitization, so the payload is checked against the normalized type.
 		$form_data['recipient'] = '' !== $form_data['recipient_token']
 			? (string) RecipientToken::resolve($form_data['recipient_token'], $form_data['type'])
 			: '';
 
-		// Linked only to the signed-in renter's own booking. The answer to the
-		// visitor is the same either way, so the field reveals nothing.
-		$form_data['linked_booking_id'] = self::own_booking_id($form_data['booking_id']);
+		$verdict = SpamCheck::verdict(
+			array(
+				'honeypot'   => $honeypot,
+				'stamp'      => $post_data[ RenderStamp::FIELD ] ?? null,
+				'name'       => $form_data['name'],
+				'email'      => $form_data['email'],
+				'message'    => $form_data['message'],
+				'ip'         => $form_data['ip_address'],
+				'user_agent' => $form_data['user_agent'],
+				'context'    => array(
+					$form_data['type'],
+					$form_data['vehicle_id'],
+					$form_data['preferred_date'],
+					$form_data['booking_id'],
+					$form_data['recipient'],
+					null !== $file,
+				),
+			)
+		);
+
+		$form_data['spam_reason'] = $verdict['reason'];
+
+		// Spam is kept for the owner to check, without its file and without any mail.
+		// The answer is the normal one, down to the record number: no hint to a bot.
+		if ('' !== $form_data['spam_reason']) {
+			return array(
+				'ok'         => true,
+				'message_id' => self::save_contact_message($form_data),
+				'email_sent' => true,
+			);
+		}
 
 		$record = null;
 		if (null !== $file) {
 			$upload = self::handle_file_upload($file, $handler);
 			if (! $upload['success']) {
+				SpamCheck::release($verdict['claim']);
 				return array(
 					'ok'      => false,
 					'message' => $upload['message'],
@@ -604,6 +646,7 @@ final class ContactForm extends AbstractShortcode {
 		try {
 			$message_id = self::save_contact_message($form_data);
 		} catch (Exception $e) {
+			SpamCheck::release($verdict['claim']);
 			if (null !== $record) {
 				ContactAttachmentStore::discard($record);
 			}
@@ -882,6 +925,11 @@ final class ContactForm extends AbstractShortcode {
 
 		if (( $data['linked_booking_id'] ?? 0 ) > 0) {
 			$post_data['meta_input']['_mhmrentiva_contact_booking_id'] = (int) $data['linked_booking_id'];
+		}
+
+		if ('' !== (string) ( $data['spam_reason'] ?? '' )) {
+			$post_data['meta_input'][ ContactStatus::META_KEY ] = ContactStatus::STATUS_SPAM;
+			$post_data['meta_input'][ MetaKeys::CONTACT_SPAM_REASON ] = $data['spam_reason'];
 		}
 
 		// Only while the setting asks for it: with it off a posted field records nothing.

@@ -32,6 +32,116 @@ final class FeaturedVehicles extends AbstractShortcode {
 
 	public const SHORTCODE = 'rentiva_featured_vehicles';
 
+	/** How long an empty list is remembered, in seconds. */
+	private const EMPTY_LIST_TTL = 300;
+
+	/**
+	 * The meta keys that decide whether a vehicle is on a cached list.
+	 */
+	private const LIST_META_KEYS = array(
+		MetaKeys::VEHICLE_FEATURED,
+		MetaKeys::VEHICLE_LIFECYCLE_STATUS,
+		MetaKeys::VEHICLE_STATUS,
+		...\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::SERVICE_META_KEYS,
+	);
+
+	/**
+	 * The list's cache follows every change that decides membership, whichever path
+	 * makes it (bulk action, REST, import, lifecycle job), not only the edit screen.
+	 */
+	public static function register(): void
+	{
+		parent::register();
+
+		add_action('transition_post_status', array( self::class, 'forget_list_on_status' ), 10, 3);
+		add_action('deleted_post', array( self::class, 'forget_list_on_delete' ), 10, 2);
+		add_action('post_updated', array( self::class, 'forget_list_on_update' ), 10, 3);
+		add_action('set_object_terms', array( self::class, 'forget_list_on_terms' ), 10, 4);
+		foreach (array( 'added_post_meta', 'updated_post_meta', 'deleted_post_meta' ) as $hook) {
+			add_action($hook, array( self::class, 'forget_list_on_meta' ), 10, 3);
+		}
+	}
+
+	/**
+	 * Both caches: the IDs and the HTML drawn from them. The HTML version goes whatever
+	 * this request's own cache conditions are (cleanup() asks those, and a logged-in or
+	 * cron request would leave the guests' HTML standing). A new version is made on
+	 * the next render.
+	 */
+	private static function forget_list(): void
+	{
+		\MHMRentiva\Admin\Core\Utilities\CacheManager::invalidate_type('vehicle_list');
+		delete_transient('mhmrentiva_rv_cache_v_' . self::SHORTCODE);
+	}
+
+	/**
+	 * A title, date or order change reorders a cached list.
+	 *
+	 * @param int      $post_id The post.
+	 * @param \WP_Post $after   After the update.
+	 * @param \WP_Post $before  Before the update.
+	 */
+	public static function forget_list_on_update($post_id, $after, $before): void
+	{
+		unset($post_id, $before);
+		if ($after instanceof \WP_Post && PT_Vehicle::POST_TYPE === $after->post_type) {
+			self::forget_list();
+		}
+	}
+
+	/**
+	 * The `category` attribute reads this taxonomy.
+	 *
+	 * @param int          $object_id The post.
+	 * @param array<mixed> $terms     Terms.
+	 * @param array<mixed> $tt_ids    Term taxonomy IDs.
+	 * @param string       $taxonomy  The taxonomy.
+	 */
+	public static function forget_list_on_terms($object_id, $terms, $tt_ids, $taxonomy): void
+	{
+		unset($terms, $tt_ids);
+		if ('mhmrentiva_vehicle_category' === $taxonomy && PT_Vehicle::POST_TYPE === get_post_type( (int) $object_id)) {
+			self::forget_list();
+		}
+	}
+
+	/**
+	 * @param string   $new_status New status.
+	 * @param string   $old_status Old status.
+	 * @param \WP_Post $post       The post.
+	 */
+	public static function forget_list_on_status($new_status, $old_status, $post): void
+	{
+		if ($new_status !== $old_status && $post instanceof \WP_Post && PT_Vehicle::POST_TYPE === $post->post_type) {
+			self::forget_list();
+		}
+	}
+
+	/**
+	 * @param int           $post_id The deleted post.
+	 * @param \WP_Post|null $post    The post.
+	 */
+	public static function forget_list_on_delete($post_id, $post = null): void
+	{
+		unset($post_id);
+		if ($post instanceof \WP_Post && PT_Vehicle::POST_TYPE === $post->post_type) {
+			self::forget_list();
+		}
+	}
+
+	/**
+	 * @param int|array<int> $meta_id  Meta row ID (an array when deleting).
+	 * @param int            $post_id  The post.
+	 * @param string         $meta_key The key.
+	 */
+	public static function forget_list_on_meta($meta_id, $post_id, $meta_key): void
+	{
+		unset($meta_id);
+		if (in_array($meta_key, self::LIST_META_KEYS, true) && PT_Vehicle::POST_TYPE === get_post_type( (int) $post_id)) {
+			self::forget_list();
+		}
+	}
+
 	/**
 	 * Tracks which layout variants have already had their assets enqueued.
 	 * Allows slider/carousel assets to load even if a grid variant was rendered first.
@@ -180,12 +290,23 @@ final class FeaturedVehicles extends AbstractShortcode {
 		$vehicle_ids = \MHMRentiva\Admin\Core\Utilities\CacheManager::get_cache('vehicle_list', $cache_key);
 
 		if (false === $vehicle_ids) {
-			$query       = new WP_Query($args);
+			// No total is read, and the batch priming below fills the caches.
+			$query       = new WP_Query(
+				array_merge(
+					\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::prefilter_service_clause($args),
+					array(
+						'no_found_rows'          => true,
+						'update_post_meta_cache' => false,
+						'update_post_term_cache' => false,
+					)
+				)
+			);
 			$vehicle_ids = $query->posts;
 
-			if (! empty($vehicle_ids)) {
-				\MHMRentiva\Admin\Core\Utilities\CacheManager::set_cache('vehicle_list', $cache_key, $vehicle_ids, 3600);
-			}
+			// An empty answer is an answer: without this every render on a site with no
+			// featured vehicle asks again. Shorter, as a safety net for writes that
+			// bypass the hooks in register().
+			\MHMRentiva\Admin\Core\Utilities\CacheManager::set_cache('vehicle_list', $cache_key, $vehicle_ids, array() === $vehicle_ids ? self::EMPTY_LIST_TTL : 3600);
 		}
 
 		// Performance: Prime caches for all retrieved vehicle IDs (Batch execution to solve N+1)

@@ -249,7 +249,7 @@ final class VehiclesList extends AbstractShortcode {
 		// the grid, featured and search-results queries.
 		$args     = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::restrict_query_to_service($args, 'rental');
 		$args     = apply_filters('mhmrentiva_vehicle_query_args', $args, 'vehicles_list', array(), $atts);
-		$posts    = get_posts($args);
+		$posts    = get_posts(\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::prefilter_service_clause($args));
 		$post_ids = wp_list_pluck($posts, 'ID');
 
 		// Performance: Prime the covers (attachments, their meta and uploaders) for all

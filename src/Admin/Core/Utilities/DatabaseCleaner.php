@@ -554,6 +554,7 @@ final class DatabaseCleaner {
 			'_mhmrentiva_contact_preferred_date',
 			'_mhmrentiva_contact_priority',
 			'_mhmrentiva_contact_rating',
+			'_mhmrentiva_contact_spam_reason',
 			'_mhmrentiva_contact_status',
 			'_mhmrentiva_contact_timestamp',
 			'_mhmrentiva_contact_type',

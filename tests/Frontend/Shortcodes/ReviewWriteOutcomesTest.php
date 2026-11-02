@@ -33,6 +33,8 @@ final class ReviewWriteOutcomesTest extends WP_Ajax_UnitTestCase
 	public function setUp(): void
 	{
 		parent::setUp();
+		// The time trap has its own tests; these post without a drawn form.
+		add_filter('mhmrentiva_contact_min_seconds', '__return_zero');
 		ReviewEnforcer::register();
 		add_action('wp_ajax_mhmrentiva_submit_rating', array( VehicleRatingForm::class, 'ajax_submit_rating' ));
 		add_action('wp_ajax_nopriv_mhmrentiva_submit_rating', array( VehicleRatingForm::class, 'ajax_submit_rating' ));

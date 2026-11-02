@@ -231,6 +231,12 @@
 				comment: this.comment.value,
 				nonce: this.nonce(),
 			};
+			// The trap and the render time travel with the review; the server reads them on a new one.
+			[ 'rvs_rendered', 'rvs_leave_blank' ].forEach( ( name ) => {
+				if ( this.form.elements[ name ] ) {
+					data[ name ] = this.form.elements[ name ].value;
+				}
+			} );
 			if ( this.form.elements.guest_name ) {
 				data.guest_name = this.form.elements.guest_name.value;
 				data.guest_email = this.form.elements.guest_email.value;

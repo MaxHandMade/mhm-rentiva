@@ -2,10 +2,10 @@ import { useState, useEffect } from '@wordpress/element';
 import ContactMessagesList from './ContactMessagesList';
 import ContactMessageDetail from './ContactMessageDetail';
 
-// The five statuses ContactMessagesList/the REST route actually understand.
+// The six statuses ContactMessagesList/the REST route actually understand.
 // Anything else in the URL (typo'd, stale, hand-edited) falls back to '' (All)
 // rather than reaching contactApi.list() as an unrecognised filter value.
-const VALID_STATUSES = new Set( [ '', 'new', 'read', 'replied', 'trash' ] );
+const VALID_STATUSES = new Set( [ '', 'new', 'read', 'replied', 'spam', 'trash' ] );
 const normalizeStatus = ( value ) => ( VALID_STATUSES.has( value ) ? value : '' );
 
 const readUrl = () => {

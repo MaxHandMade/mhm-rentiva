@@ -82,6 +82,11 @@
 <form class="rvs-reviews__form" data-rvs-rating-form novalidate aria-labelledby="X">
 <h3 class="rvs-reviews__box-title" id="X" data-rvs-rating-title>Rate this vehicle</h3>
 <input type="hidden" name="nonce" value="NONCE">
+<input type="hidden" name="rvs_rendered" value="STAMP">
+<div class="rvs-sr-only" inert>
+<label for="X">Leave this field blank</label>
+<input type="text" id="X" name="rvs_leave_blank" tabindex="-1" autocomplete="off">
+</div>
 <fieldset class="rvs-field" id="X" data-rvs-field data-rvs-rating-stars>
 <legend>Your rating</legend>
 <div class="rvs-stars">

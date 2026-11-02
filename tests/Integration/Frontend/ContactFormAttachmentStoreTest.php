@@ -41,7 +41,7 @@ final class ContactFormAttachmentStoreTest extends WP_UnitTestCase
 		}
 		$m = new \ReflectionMethod(ContactForm::class, 'process_submission');
 		$m->setAccessible(true);
-		return $m->invoke(null, array_merge(array( 'type' => 'general', 'name' => 'Ada', 'email' => 'ada@example.com', 'message' => 'Hi', 'auto_reply' => '0' ), $post), $file, $this->sideload());
+		return $m->invoke(null, array_merge(array( 'type' => 'general', 'name' => 'Ada', 'email' => 'ada@example.com', 'message' => 'Hi', 'auto_reply' => '0', \MHMRentiva\Admin\Frontend\Shortcodes\Contact\RenderStamp::FIELD => \MHMRentiva\Admin\Frontend\Shortcodes\Contact\RenderStamp::issue(\MHMRentiva\Admin\Frontend\Shortcodes\Contact\RenderStamp::FORM_CONTACT, time() - 60) ), $post), $file, $this->sideload());
 	}
 
 	private function stored_files(): array

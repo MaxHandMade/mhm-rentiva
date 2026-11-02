@@ -27,6 +27,8 @@ final class RatingTargetMustBeVehicleTest extends WP_Ajax_UnitTestCase
 	public function setUp(): void
 	{
 		parent::setUp();
+		// The time trap has its own tests; these post without a drawn form.
+		add_filter('mhmrentiva_contact_min_seconds', '__return_zero');
 
 		VehicleRatingForm::register();
 
