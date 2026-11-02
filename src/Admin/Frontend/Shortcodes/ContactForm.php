@@ -513,7 +513,8 @@ final class ContactForm extends AbstractShortcode {
 				// The trap field: never stored, only tested for a value.
 				ContactFormView::HONEYPOT_FIELD => isset($_POST[ ContactFormView::HONEYPOT_FIELD ]) ? sanitize_text_field(wp_unslash( (string) $_POST[ ContactFormView::HONEYPOT_FIELD ])) : '',
 				// Opaque: only RenderStamp gives it meaning.
-				RenderStamp::FIELD              => isset($_POST[ RenderStamp::FIELD ]) ? sanitize_text_field(wp_unslash( (string) $_POST[ RenderStamp::FIELD ])) : '',
+				// Null, not '': no field at all is a stale cached form, not a forged stamp.
+				RenderStamp::FIELD              => isset($_POST[ RenderStamp::FIELD ]) ? sanitize_text_field(wp_unslash( (string) $_POST[ RenderStamp::FIELD ])) : null,
 			);
 
 			$attachment_file = null;
@@ -590,17 +591,32 @@ final class ContactForm extends AbstractShortcode {
 		// visitor is the same either way, so the field reveals nothing.
 		$form_data['linked_booking_id'] = self::own_booking_id($form_data['booking_id']);
 
-		$form_data['spam_reason'] = SpamCheck::reason(
+		// After sanitization, so the payload is checked against the normalized type.
+		$form_data['recipient'] = '' !== $form_data['recipient_token']
+			? (string) RecipientToken::resolve($form_data['recipient_token'], $form_data['type'])
+			: '';
+
+		$verdict = SpamCheck::verdict(
 			array(
 				'honeypot'   => $honeypot,
-				'stamp'      => (string) ( $post_data[ RenderStamp::FIELD ] ?? '' ),
+				'stamp'      => $post_data[ RenderStamp::FIELD ] ?? null,
 				'name'       => $form_data['name'],
 				'email'      => $form_data['email'],
 				'message'    => $form_data['message'],
 				'ip'         => $form_data['ip_address'],
 				'user_agent' => $form_data['user_agent'],
+				'context'    => array(
+					$form_data['type'],
+					$form_data['vehicle_id'],
+					$form_data['preferred_date'],
+					$form_data['booking_id'],
+					$form_data['recipient'],
+					null !== $file,
+				),
 			)
 		);
+
+		$form_data['spam_reason'] = $verdict['reason'];
 
 		// Spam is kept for the owner to check, without its file and without any mail.
 		// The answer is the normal one, down to the record number: no hint to a bot.
@@ -612,15 +628,11 @@ final class ContactForm extends AbstractShortcode {
 			);
 		}
 
-		// After sanitization, so the payload is checked against the normalized type.
-		$form_data['recipient'] = '' !== $form_data['recipient_token']
-			? (string) RecipientToken::resolve($form_data['recipient_token'], $form_data['type'])
-			: '';
-
 		$record = null;
 		if (null !== $file) {
 			$upload = self::handle_file_upload($file, $handler);
 			if (! $upload['success']) {
+				SpamCheck::release($verdict['claim']);
 				return array(
 					'ok'      => false,
 					'message' => $upload['message'],
@@ -634,13 +646,12 @@ final class ContactForm extends AbstractShortcode {
 		try {
 			$message_id = self::save_contact_message($form_data);
 		} catch (Exception $e) {
+			SpamCheck::release($verdict['claim']);
 			if (null !== $record) {
 				ContactAttachmentStore::discard($record);
 			}
 			throw $e;
 		}
-
-		SpamCheck::remember($form_data['email'], $form_data['message']);
 
 		$email_sent = self::send_contact_email($form_data, $message_id);
 		if (RecipientToken::allows_auto_reply($form_data['recipient_token'], $form_data['type']) && self::claim_auto_reply_slot($form_data['email'])) {

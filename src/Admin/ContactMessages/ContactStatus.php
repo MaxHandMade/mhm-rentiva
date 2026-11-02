@@ -57,7 +57,7 @@ final class ContactStatus {
 		$labels = array(
 			'honeypot'   => __('The hidden trap field was filled in', 'mhm-rentiva'),
 			'time'       => __('Sent too soon after the form opened, or not from the form', 'mhm-rentiva'),
-			'disallowed' => __('Matches the Disallowed Comment Keys list (Settings > Discussion)', 'mhm-rentiva'),
+			'disallowed' => __('Matches the Disallowed Comment Keys list (Settings > Discussion). WordPress checks the name, e-mail, message, IP address and browser, and part of a word counts.', 'mhm-rentiva'),
 			'links'      => __('Holds too many links', 'mhm-rentiva'),
 			'duplicate'  => __('The same message from the same address, within 10 minutes', 'mhm-rentiva'),
 			'akismet'    => __('Marked as spam by Akismet', 'mhm-rentiva'),

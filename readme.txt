@@ -45,9 +45,9 @@ Everything described below works in full. There are no vehicle, booking or listi
 
 = External services =
 
-This plugin does not send your data anywhere. It makes no requests to any third-party service: no analytics, no geolocation lookups, no remotely-hosted fonts or scripts. Every asset it loads, including its webfonts, is served from your own site. Nothing about your site, your bookings or your customers leaves your server.
+This plugin makes no requests of its own to any third-party service: no analytics, no geolocation lookups, no remotely-hosted fonts or scripts. Every asset it loads, including its webfonts, is served from your own site. Nothing about your site, your bookings or your customers leaves your server through this plugin, unless you run Akismet as described next.
 
-One thing you can choose: if you run the Akismet plugin on your site with your own API key, the contact form asks it about each message that passed the plugin's own spam rules, through Akismet's own code and under your Akismet account. That sends the sender's name, e-mail address, IP address, browser user-agent and the message to Akismet (terms: [https://akismet.com/tos/](https://akismet.com/tos/), privacy: [https://automattic.com/privacy/](https://automattic.com/privacy/)). This plugin opens no connection of its own for it, holds no key and does not ship Akismet. Without that plugin and key nothing is sent.
+One thing you can choose: if you run the Akismet plugin on your site with your own API key, the contact form asks it about each message that passed the plugin's own spam rules, through Akismet's own code and under your Akismet account. That sends the sender's name, e-mail address, IP address, browser user-agent and the message, with your site address and language, to Akismet (terms: [https://akismet.com/tos/](https://akismet.com/tos/), privacy: [https://automattic.com/privacy/](https://automattic.com/privacy/)). This plugin opens no connection of its own for it, holds no key and does not ship Akismet. Without that plugin and key nothing is sent.
 
 For completeness, the plugin's admin screens do contain ordinary hyperlinks to pages outside your site, which open only if you click them and send nothing when you do:
 

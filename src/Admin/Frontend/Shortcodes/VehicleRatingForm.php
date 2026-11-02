@@ -400,7 +400,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 		// Updates are safe: user already passed spam check on first submission.
 		if (! $is_update) {
 			$honeypot = isset($_POST[ ContactFormView::HONEYPOT_FIELD ]) ? sanitize_text_field(wp_unslash( (string) $_POST[ ContactFormView::HONEYPOT_FIELD ])) : '';
-			$stamp    = isset($_POST[ RenderStamp::FIELD ]) ? sanitize_text_field(wp_unslash( (string) $_POST[ RenderStamp::FIELD ])) : '';
+			$stamp    = isset($_POST[ RenderStamp::FIELD ]) ? sanitize_text_field(wp_unslash( (string) $_POST[ RenderStamp::FIELD ])) : null;
 			if ('' !== $honeypot || RenderStamp::too_fast($stamp, RenderStamp::FORM_REVIEW) || ! \MHMRentiva\Admin\Settings\Comments\CommentsSettings::check_spam_protection($uid, $vid, $comment)) {
 				wp_send_json_error(array( 'message' => __('Your comment could not be submitted. Please wait a moment before trying again.', 'mhm-rentiva') ));
 			}

@@ -317,6 +317,69 @@ final class VehicleQueryShapeTest extends WP_UnitTestCase
 		$this->assertSame(array( $new ), $this->featured_ids());
 	}
 
+	/**
+	 * Featured HTML of the shortcode, with the HTML cache on.
+	 */
+	private function featured_html(): string
+	{
+		add_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_true', 999);
+		RequestSimulator::new_request();
+		$html = do_shortcode('[rentiva_featured_vehicles layout="grid" limit="50"]');
+		remove_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_true', 999);
+
+		return $html;
+	}
+
+	public function test_the_html_cache_really_answers(): void
+	{
+		$first = $this->featured_html();
+		$this->assertStringContainsString('>plain<', $first);
+
+		// Written behind every hook: only the cache can still show the old title.
+		global $wpdb;
+		$wpdb->update($wpdb->posts, array( 'post_title' => 'renamed' ), array( 'ID' => $this->vehicles['plain'] ));
+		clean_post_cache($this->vehicles['plain']);
+		$this->assertStringContainsString('>plain<', $this->featured_html(), 'Negative control: the HTML came from the cache.');
+	}
+
+	public function test_the_html_cache_follows_a_meta_change_from_any_session(): void
+	{
+		$this->assertStringContainsString('>plain<', $this->featured_html());
+
+		// An administrator's request, not the guest's: the cache read conditions differ.
+		wp_set_current_user((int) self::factory()->user->create(array( 'role' => 'administrator' )));
+		update_post_meta($this->vehicles['plain'], MetaKeys::VEHICLE_FEATURED, '0');
+		wp_set_current_user(0);
+
+		$this->assertStringNotContainsString('>plain<', $this->featured_html());
+	}
+
+	public function test_the_html_cache_follows_a_status_change(): void
+	{
+		$this->assertStringContainsString('>plain<', $this->featured_html());
+		wp_update_post(array( 'ID' => $this->vehicles['plain'], 'post_status' => 'draft' ));
+		$this->assertStringNotContainsString('>plain<', $this->featured_html());
+	}
+
+	public function test_the_html_cache_follows_a_delete(): void
+	{
+		$this->assertStringContainsString('>plain<', $this->featured_html());
+		wp_delete_post($this->vehicles['plain'], true);
+		$this->assertStringNotContainsString('>plain<', $this->featured_html());
+	}
+
+	public function test_a_rename_and_a_category_change_refresh_the_list(): void
+	{
+		$this->assertStringContainsString('>plain<', $this->featured_html());
+		wp_update_post(array( 'ID' => $this->vehicles['plain'], 'post_title' => 'renamed' ));
+		$this->assertStringContainsString('>renamed<', $this->featured_html());
+
+		$term = self::factory()->term->create(array( 'taxonomy' => 'mhmrentiva_vehicle_category', 'slug' => 'vans' ));
+		$this->assertSame(array(), $this->featured_ids('limit="50" category="vans"'));
+		wp_set_object_terms($this->vehicles['plain'], array( (int) $term ), 'mhmrentiva_vehicle_category');
+		$this->assertSame(array( $this->vehicles['plain'] ), $this->featured_ids('limit="50" category="vans"'));
+	}
+
 	public function test_another_meta_key_does_not_invalidate(): void
 	{
 		$id = $this->vehicles['plain'];

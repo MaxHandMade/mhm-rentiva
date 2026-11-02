@@ -200,7 +200,7 @@ final class GeneralSettings {
 			__( 'Minimum Seconds Before Sending', 'mhm-rentiva' ),
 			0,
 			300,
-			__( 'A contact form or new review sent sooner after the page opened counts as a bot. 0 turns this off.', 'mhm-rentiva' ),
+			__( 'A contact form or new review sent sooner after the page opened counts as a bot. 0 turns this off; left empty, the default applies.', 'mhm-rentiva' ),
 			self::SECTION_SITE_INFO,
 			1
 		);
@@ -211,7 +211,7 @@ final class GeneralSettings {
 			__( 'Maximum Links in a Message', 'mhm-rentiva' ),
 			0,
 			100,
-			__( 'A contact message with more links than this goes to Spam. With 0, any link does.', 'mhm-rentiva' ),
+			__( 'A contact message with more links than this goes to Spam. With 0, any link does; left empty, the default applies.', 'mhm-rentiva' ),
 			self::SECTION_SITE_INFO,
 			1
 		);

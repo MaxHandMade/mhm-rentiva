@@ -55,8 +55,53 @@ final class FeaturedVehicles extends AbstractShortcode {
 
 		add_action('transition_post_status', array( self::class, 'forget_list_on_status' ), 10, 3);
 		add_action('deleted_post', array( self::class, 'forget_list_on_delete' ), 10, 2);
+		add_action('post_updated', array( self::class, 'forget_list_on_update' ), 10, 3);
+		add_action('set_object_terms', array( self::class, 'forget_list_on_terms' ), 10, 4);
 		foreach (array( 'added_post_meta', 'updated_post_meta', 'deleted_post_meta' ) as $hook) {
 			add_action($hook, array( self::class, 'forget_list_on_meta' ), 10, 3);
+		}
+	}
+
+	/**
+	 * Both caches: the IDs and the HTML drawn from them. The HTML version goes whatever
+	 * this request's own cache conditions are (cleanup() asks those, and a logged-in or
+	 * cron request would leave the guests' HTML standing). A new version is made on
+	 * the next render.
+	 */
+	private static function forget_list(): void
+	{
+		\MHMRentiva\Admin\Core\Utilities\CacheManager::invalidate_type('vehicle_list');
+		delete_transient('mhmrentiva_rv_cache_v_' . self::SHORTCODE);
+	}
+
+	/**
+	 * A title, date or order change reorders a cached list.
+	 *
+	 * @param int      $post_id The post.
+	 * @param \WP_Post $after   After the update.
+	 * @param \WP_Post $before  Before the update.
+	 */
+	public static function forget_list_on_update($post_id, $after, $before): void
+	{
+		unset($post_id, $before);
+		if ($after instanceof \WP_Post && PT_Vehicle::POST_TYPE === $after->post_type) {
+			self::forget_list();
+		}
+	}
+
+	/**
+	 * The `category` attribute reads this taxonomy.
+	 *
+	 * @param int          $object_id The post.
+	 * @param array<mixed> $terms     Terms.
+	 * @param array<mixed> $tt_ids    Term taxonomy IDs.
+	 * @param string       $taxonomy  The taxonomy.
+	 */
+	public static function forget_list_on_terms($object_id, $terms, $tt_ids, $taxonomy): void
+	{
+		unset($terms, $tt_ids);
+		if ('mhmrentiva_vehicle_category' === $taxonomy && PT_Vehicle::POST_TYPE === get_post_type( (int) $object_id)) {
+			self::forget_list();
 		}
 	}
 
@@ -68,7 +113,7 @@ final class FeaturedVehicles extends AbstractShortcode {
 	public static function forget_list_on_status($new_status, $old_status, $post): void
 	{
 		if ($new_status !== $old_status && $post instanceof \WP_Post && PT_Vehicle::POST_TYPE === $post->post_type) {
-			\MHMRentiva\Admin\Core\Utilities\CacheManager::invalidate_type('vehicle_list');
+			self::forget_list();
 		}
 	}
 
@@ -80,7 +125,7 @@ final class FeaturedVehicles extends AbstractShortcode {
 	{
 		unset($post_id);
 		if ($post instanceof \WP_Post && PT_Vehicle::POST_TYPE === $post->post_type) {
-			\MHMRentiva\Admin\Core\Utilities\CacheManager::invalidate_type('vehicle_list');
+			self::forget_list();
 		}
 	}
 
@@ -93,7 +138,7 @@ final class FeaturedVehicles extends AbstractShortcode {
 	{
 		unset($meta_id);
 		if (in_array($meta_key, self::LIST_META_KEYS, true) && PT_Vehicle::POST_TYPE === get_post_type( (int) $post_id)) {
-			\MHMRentiva\Admin\Core\Utilities\CacheManager::invalidate_type('vehicle_list');
+			self::forget_list();
 		}
 	}
 

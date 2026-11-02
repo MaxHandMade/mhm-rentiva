@@ -72,13 +72,20 @@ final class RenderStamp {
 	}
 
 	/**
-	 * Whether this submit came too soon, or without a stamp the site signed. A minimum
+	 * Whether this submit came too soon, or with a stamp the site did not sign. A minimum
 	 * of 0 turns the trap off.
+	 *
+	 * No field at all (null) is not read as a bot: a page cached before this field
+	 * existed would send every real message to spam, unnoticed, for as long as that
+	 * cache lives. A bot that drops the field still meets the other rules.
+	 *
+	 * @param string|null $stamp The posted field, null when the request has none.
+	 * @param string      $form  FORM_CONTACT or FORM_REVIEW.
 	 */
-	public static function too_fast(string $stamp, string $form): bool
+	public static function too_fast(?string $stamp, string $form): bool
 	{
 		$minimum = self::min_seconds();
-		if ($minimum <= 0) {
+		if ($minimum <= 0 || null === $stamp) {
 			return false;
 		}
 

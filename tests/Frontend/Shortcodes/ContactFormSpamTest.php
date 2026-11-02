@@ -97,7 +97,8 @@ final class ContactFormSpamTest extends WP_Ajax_UnitTestCase
 	{
 		$_SERVER['REQUEST_TIME'] = $this->arrived ?? time();
 
-		$_POST = array_merge(
+		// A null field is left out of the request.
+		$_POST = array_filter(array_merge(
 			array(
 				'action'           => 'mhmrentiva_submit_contact_form',
 				'nonce'            => wp_create_nonce('mhmrentiva_contact_form_nonce'),
@@ -108,7 +109,7 @@ final class ContactFormSpamTest extends WP_Ajax_UnitTestCase
 				RenderStamp::FIELD => $this->stamp(),
 			),
 			$fields
-		);
+		), static fn($value): bool => null !== $value);
 		$this->_last_response = '';
 		$level                = ob_get_level();
 		ob_start();
@@ -218,9 +219,20 @@ final class ContactFormSpamTest extends WP_Ajax_UnitTestCase
 		$this->assert_clean($this->submit(array( RenderStamp::FIELD => $this->stamp(4) )), 'Control.');
 	}
 
-	public function test_a_missing_stamp_is_spam(): void
+	public function test_a_form_without_the_field_skips_the_time_rule(): void
+	{
+		$this->assert_clean($this->submit(array( RenderStamp::FIELD => null )), 'A page cached before the field existed.');
+	}
+
+	public function test_a_form_without_the_field_still_meets_the_other_rules(): void
+	{
+		$this->assert_spam($this->submit(array( RenderStamp::FIELD => null, ContactFormView::HONEYPOT_FIELD => 'x' )), SpamCheck::REASON_HONEYPOT);
+	}
+
+	public function test_an_empty_or_broken_field_is_still_spam(): void
 	{
 		$this->assert_spam($this->submit(array( RenderStamp::FIELD => '' )), SpamCheck::REASON_TIME);
+		$this->assert_spam($this->submit(array( RenderStamp::FIELD => 'x' )), SpamCheck::REASON_TIME);
 	}
 
 	public function test_a_stamp_cannot_be_forged(): void
@@ -343,23 +355,196 @@ final class ContactFormSpamTest extends WP_Ajax_UnitTestCase
 		$this->assert_clean($this->submit(array( 'message' => $message, 'email' => 'grace@example.com' )));
 	}
 
+	/**
+	 * @return array<string,string> Option name => value of the repeat claims.
+	 */
+	private function claims(): array
+	{
+		global $wpdb;
+		return (array) $wpdb->get_results("SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE 'mhmrentiva\\_contact\\_dup\\_%'", OBJECT_K);
+	}
+
 	public function test_the_duplicate_window_is_ten_minutes_and_holds_no_address(): void
 	{
+		global $wpdb;
+		$wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE 'mhmrentiva\\_contact\\_dup\\_%'");
+
 		$message = 'Do you have a van for Sunday?';
 		$this->assert_clean($this->submit(array( 'message' => $message )));
 
-		$key    = 'mhmrentiva_contact_dup_' . wp_hash('ada@example.com|' . $message);
-		$expiry = (int) get_option('_transient_timeout_' . $key);
-		if ($expiry > 0) {
-			$this->assertLessThanOrEqual(time() + 10 * MINUTE_IN_SECONDS, $expiry);
-			$this->assertGreaterThan(time() + 10 * MINUTE_IN_SECONDS - 60, $expiry);
-		}
+		$claims = $this->claims();
+		$this->assertCount(1, $claims);
+		$name   = (string) array_key_first($claims);
+		$expiry = (int) $claims[ $name ]->option_value;
+		$this->assertLessThanOrEqual(time() + 10 * MINUTE_IN_SECONDS, $expiry);
+		$this->assertGreaterThan(time() + 10 * MINUTE_IN_SECONDS - 60, $expiry);
 
-		global $wpdb;
 		$this->assertSame('0', (string) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s", '%ada@example.com%')));
 
-		delete_transient($key);
-		$this->assert_clean($this->submit(array( 'message' => $message )), 'The window is over.');
+		$wpdb->update($wpdb->options, array( 'option_value' => (string) ( time() - 1 ) ), array( 'option_name' => $name ));
+		$this->assert_clean($this->submit(array( 'message' => $message )), 'The window is over: the row is taken over.');
+		$this->assert_spam($this->submit(array( 'message' => $message )), SpamCheck::REASON_DUPLICATE, 'And held again.');
+	}
+
+	public function test_expired_claims_are_cleared_on_the_way(): void
+	{
+		global $wpdb;
+		$wpdb->insert($wpdb->options, array( 'option_name' => 'mhmrentiva_contact_dup_old', 'option_value' => (string) ( time() - 1 ), 'autoload' => 'off' ));
+
+		$this->assert_clean($this->submit());
+		$this->assertArrayNotHasKey('mhmrentiva_contact_dup_old', $this->claims());
+	}
+
+	/**
+	 * @return array<string,array{0:array<string,string>}>
+	 */
+	public static function other_requests(): array
+	{
+		return array(
+			'form type' => array( array( 'type' => 'booking' ) ),
+			'date'      => array( array( 'preferred_date' => '2026-12-11' ) ),
+			'booking'   => array( array( 'booking_id' => '4242' ) ),
+		);
+	}
+
+	/**
+	 * @dataProvider other_requests
+	 * @param array<string,string> $other
+	 */
+	public function test_the_same_words_about_something_else_are_another_request(array $other): void
+	{
+		$same = array( 'message' => 'Can I get a price for this?', 'preferred_date' => '2026-12-10', 'booking_id' => '41' );
+
+		$this->assert_clean($this->submit($same));
+		$this->assert_clean($this->submit(array_merge($same, $other)));
+		$this->assert_spam($this->submit(array_merge($same, $other)), SpamCheck::REASON_DUPLICATE, 'The identical repeat of it is caught.');
+	}
+
+	public function test_the_same_words_about_another_vehicle_or_recipient_are_another_request(): void
+	{
+		$one = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish' ));
+		$two = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish' ));
+		$say = array( 'message' => 'Can I get a price for this?' );
+
+		$this->assert_clean($this->submit($say + array( 'vehicle_id' => (string) $one )));
+		$this->assert_clean($this->submit($say + array( 'vehicle_id' => (string) $two )));
+		$this->assert_spam($this->submit($say + array( 'vehicle_id' => (string) $two )), SpamCheck::REASON_DUPLICATE);
+
+		$context = static function (string $recipient): array {
+			return SpamCheck::verdict(
+				array(
+					'stamp'   => null,
+					'email'   => 'ada@example.com',
+					'message' => 'Same words',
+					'context' => array( 'general', 0, '', 0, $recipient, false ),
+				)
+			);
+		};
+		$this->assertSame('', $context('a@example.com')['reason']);
+		$this->assertSame('', $context('b@example.com')['reason']);
+		$this->assertSame(SpamCheck::REASON_DUPLICATE, $context('b@example.com')['reason']);
+	}
+
+	/**
+	 * @return array<string,mixed> process_submission()'s answer.
+	 */
+	private function process(array $post, ?array $file, ?callable $handler): array
+	{
+		$method = new \ReflectionMethod(ContactForm::class, 'process_submission');
+		$method->setAccessible(true);
+		return $method->invoke(
+			null,
+			$post + array(
+				'type'             => 'general',
+				'name'             => 'Ada',
+				'email'            => 'ada@example.com',
+				'message'          => 'Same words about the file',
+				RenderStamp::FIELD => $this->stamp(),
+			),
+			$file,
+			$handler
+		);
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function pdf(): array
+	{
+		$tmp = $this->fixture($this->sandbox_uploads() . '/in', 'pdf');
+		return array( 'name' => 'a.pdf', 'type' => 'application/pdf', 'tmp_name' => $tmp, 'error' => UPLOAD_ERR_OK, 'size' => (int) filesize($tmp) );
+	}
+
+	public function test_a_message_with_a_file_is_another_request_than_the_same_without(): void
+	{
+		$this->assertSame(ContactStatus::STATUS_NEW, ContactStatus::get( (int) $this->process(array(), null, null)['message_id']));
+
+		$with = $this->process(array(), $this->pdf(), $this->sideload());
+		$this->assertTrue($with['ok']);
+		$this->assertSame(ContactStatus::STATUS_NEW, ContactStatus::get( (int) $with['message_id']));
+		$this->remove_sandbox();
+	}
+
+	public function test_two_requests_at_once_cannot_both_pass(): void
+	{
+		$submission = array( 'stamp' => null, 'email' => 'ada@example.com', 'message' => 'At once', 'context' => array() );
+
+		// B runs while A is between its verdict and its save: at A's own filter.
+		$second = null;
+		$nested = function (string $reason) use (&$second, $submission): string {
+			remove_all_filters('mhmrentiva_contact_spam_reason');
+			$second = SpamCheck::verdict($submission);
+			return $reason;
+		};
+		add_filter('mhmrentiva_contact_spam_reason', $nested);
+		$first = SpamCheck::verdict($submission);
+
+		$this->assertSame('', $first['reason']);
+		$this->assertNotSame('', $first['claim']);
+		$this->assertSame(SpamCheck::REASON_DUPLICATE, $second['reason'], 'The second one in loses.');
+		$this->assertSame('', $second['claim'], 'And holds nothing to release.');
+	}
+
+	public function test_a_refused_file_gives_the_claim_back(): void
+	{
+		$refused = $this->process(array(), $this->pdf(), static fn(array $file, array $overrides): array => array( 'error' => 'no' ));
+		$this->assertFalse($refused['ok']);
+
+		$retry = $this->process(array(), $this->pdf(), $this->sideload());
+		$this->assertTrue($retry['ok']);
+		$this->assertSame(ContactStatus::STATUS_NEW, ContactStatus::get( (int) $retry['message_id']), 'The retry is no repeat.');
+		$this->remove_sandbox();
+	}
+
+	public function test_a_failed_save_gives_the_claim_back(): void
+	{
+		add_filter('wp_insert_post_empty_content', '__return_true');
+		try {
+			$this->process(array(), null, null);
+			$this->fail('The save was to fail.');
+		} catch (\Exception $e) {
+			unset($e);
+		}
+		remove_filter('wp_insert_post_empty_content', '__return_true');
+
+		$this->assertSame(ContactStatus::STATUS_NEW, ContactStatus::get( (int) $this->process(array(), null, null)['message_id']));
+	}
+
+	public function test_a_message_akismet_catches_gives_the_claim_back(): void
+	{
+		$this->akismet('secret', array( '', 'true' ));
+		$this->assert_spam($this->submit(array( 'message' => 'Hold on' )), SpamCheck::REASON_AKISMET);
+		$this->assertSame(array(), $this->claims_for_message('Hold on'));
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function claims_for_message(string $message): array
+	{
+		AkismetStubState::$key = '';
+		$probe = SpamCheck::verdict(array( 'stamp' => null, 'email' => 'ada@example.com', 'message' => $message, 'context' => array( 'general', 0, '', 0, '', false ) ));
+		return '' === $probe['claim'] ? array( 'held' ) : array();
 	}
 
 	public function test_a_refused_attempt_does_not_make_the_retry_a_duplicate(): void

@@ -86,6 +86,26 @@ final class ReviewSpamTrapTest extends WP_Ajax_UnitTestCase
 		$this->assertTrue($this->submit(array( RenderStamp::FIELD => RenderStamp::issue(RenderStamp::FORM_REVIEW, time() - 4) ))['success']);
 	}
 
+	public function test_a_form_without_the_field_skips_the_time_rule(): void
+	{
+		$this->_last_response    = '';
+		$_SERVER['REQUEST_TIME'] = time();
+		$_POST                   = array(
+			'nonce'      => wp_create_nonce('mhmrentiva_rating_nonce'),
+			'vehicle_id' => (string) $this->vehicle,
+			'rating'     => '5',
+			'comment'    => 'A clean and comfortable car.',
+		);
+		try {
+			$this->_handleAjax('mhmrentiva_submit_rating');
+		} catch (\WPAjaxDieContinueException | \WPAjaxDieStopException $e) {
+			unset($e);
+		}
+
+		$this->assertTrue(json_decode($this->_last_response, true)['success']);
+		$this->assertSame(1, $this->review_count());
+	}
+
 	public function test_a_filled_trap_is_refused(): void
 	{
 		$this->assert_refused($this->submit(array( ContactFormView::HONEYPOT_FIELD => 'x' )), 'Trap.');
@@ -94,7 +114,7 @@ final class ReviewSpamTrapTest extends WP_Ajax_UnitTestCase
 	public function test_too_fast_missing_or_foreign_stamps_are_refused(): void
 	{
 		$this->assert_refused($this->submit(array( RenderStamp::FIELD => RenderStamp::issue(RenderStamp::FORM_REVIEW) )), 'Too fast.');
-		$this->assert_refused($this->submit(array( RenderStamp::FIELD => '' )), 'Missing.');
+		$this->assert_refused($this->submit(array( RenderStamp::FIELD => '' )), 'Empty.');
 		$this->assert_refused($this->submit(array( RenderStamp::FIELD => RenderStamp::issue(RenderStamp::FORM_CONTACT, time() - 60) )), 'The contact form\'s stamp.');
 	}
 
