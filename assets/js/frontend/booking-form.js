@@ -103,16 +103,17 @@
                 this.fetchAndApplyBlockedDates(vehicleId);
                 if (this.validateRentalLimits()) {
                     this.autoCheckAvailability();
-                    this.autoCalculatePrice();
                 }
             });
 
-            // Dates and time: limits first, then availability and the quote.
+            // Dates and time: limits first, then availability and the quote --
+            // one of each per change (autoCheckAvailability() sends both).
             this.container.on('change', '[data-rvs-pickup-date], [data-rvs-dropoff-date], [data-rvs-pickup-time]', () => {
                 this.updateSummaryDates();
                 if (this.validateRentalLimits()) {
                     this.autoCheckAvailability();
-                    this.autoCalculatePrice();
+                } else {
+                    this.abandonWindow();
                 }
             });
 
@@ -206,12 +207,10 @@
                         }
                     }
                 }
-
-                this.autoCheckAvailability();
-            });
-
-            dropoffDate.on('change', () => {
-                this.autoCheckAvailability();
+                // No check from here: the form's change handler (bound on the
+                // container, so it runs after this one has moved the return date)
+                // sends it once, after the rental limits. A second call here sent
+                // a window the limits had refused.
             });
         }
 
@@ -307,7 +306,6 @@
             if (this.hook('pickup-date').val() && this.hook('dropoff-date').val()) {
                 if (this.validateRentalLimits()) {
                     this.autoCheckAvailability();
-                    this.autoCalculatePrice();
                 }
             }
         }
@@ -453,7 +451,7 @@
             const formData = this.getFormData();
 
             if (!this.validateCalculationData(formData)) {
-                return;
+                return false;
             }
 
             this.showLoading(true);
@@ -519,6 +517,7 @@
                     this.showError(this.getMessage('error_occurred'));
                 }
             });
+            return true;
         }
 
         appendAddonQuantities(requestData, quantities) {
@@ -527,7 +526,12 @@
             });
         }
 
+        // An add-on change: the quote only. A window change already waiting
+        // quotes with the add-ons as they are then, so it is not sent twice.
         autoCalculatePrice() {
+            if (this.windowPending) {
+                return;
+            }
             clearTimeout(this.autoCalculateTimeout);
             this.autoCalculateTimeout = setTimeout(() => {
                 const formData = this.getFormData();
@@ -537,22 +541,69 @@
             }, 100);
         }
 
+        /**
+         * The rental window changed (dates, time, vehicle): one quote and one
+         * availability check, sent once the changes settle (debounced).
+         *
+         * What the screen shows belongs to the old window from this moment, so
+         * it says so at once -- the availability line reads "checking" and the
+         * summary is busy -- and answers still in flight for the old window are
+         * dropped. Before, the old "not available" and the old total stayed up
+         * with no sign of change until the new answers came back (2-4 s on dev),
+         * and each change sent the quote twice, the one that counted 300 ms late.
+         */
         autoCheckAvailability() {
-            if (this.autoAvailabilityTimeout) {
-                clearTimeout(this.autoAvailabilityTimeout);
+            clearTimeout(this.autoAvailabilityTimeout);
+            // The pending quote below covers an add-on change waiting too.
+            clearTimeout(this.autoCalculateTimeout);
+
+            const formData = this.getFormData();
+            // Vehicle and both dates (time is optional for the quote).
+            if (!formData.vehicle_id || !formData.pickup_date || !formData.dropoff_date) {
+                this.windowPending = false;
+                return;
             }
 
-            this.autoAvailabilityTimeout = setTimeout(() => {
-                const formData = this.getFormData();
+            this.dropPendingAnswers();
+            this.showLoading(true);
+            if (formData.pickup_time && formData.dropoff_time) {
+                this.setStatus(this.hook('availability'), 'busy', this.getMessage('checking_availability'));
+            }
+            this.windowPending = true;
 
-                // Vehicle and both dates (time is optional for the quote).
-                if (formData.vehicle_id && formData.pickup_date && formData.dropoff_date) {
-                    this.calculatePrice();
-                    if (formData.pickup_time && formData.dropoff_time) {
-                        this.checkAvailability();
-                    }
+            this.autoAvailabilityTimeout = setTimeout(() => {
+                this.windowPending = false;
+                const data = this.getFormData();
+                if (!data.vehicle_id || !data.pickup_date || !data.dropoff_date) {
+                    this.showLoading(false);
+                    return;
                 }
-            }, 300);
+                if (!this.calculatePrice()) {
+                    this.showLoading(false);
+                }
+                if (data.pickup_time && data.dropoff_time) {
+                    this.checkAvailability();
+                }
+            }, MHMRentivaBookingForm.WINDOW_DEBOUNCE_MS);
+        }
+
+        // Answers still in flight are for a window the visitor left: none of
+        // them may speak (calculatePrice / checkAvailability compare the seq).
+        dropPendingAnswers() {
+            this.quoteSeq = (this.quoteSeq || 0) + 1;
+            this.availabilitySeq = (this.availabilitySeq || 0) + 1;
+        }
+
+        // A window the rental limits refuse: nothing is sent for it, nothing
+        // sent for the one before may still land, and the availability line of
+        // the old window goes. The limits keep submit off (validateRentalLimits).
+        abandonWindow() {
+            clearTimeout(this.autoAvailabilityTimeout);
+            this.windowPending = false;
+            this.dropPendingAnswers();
+            this.hook('summary').attr('aria-busy', 'false');
+            this.hook('availability').prop('hidden', true).removeAttr('data-state').empty();
+            this.availabilityBlocked = false;
         }
 
         /**
@@ -1256,6 +1307,11 @@
     }
 
     // Export class for potential external use
+    // How long a window change waits for the next one before its quote and
+    // availability check go out (a pick is one change; a time typed after it,
+    // another).
+    MHMRentivaBookingForm.WINDOW_DEBOUNCE_MS = 150;
+
     // Calendar-date helpers. Dates travel as Y-m-d strings; arithmetic runs in
     // UTC so neither the browser zone nor DST can shift the day.
     MHMRentivaBookingForm.addDays = function (iso, n) {
