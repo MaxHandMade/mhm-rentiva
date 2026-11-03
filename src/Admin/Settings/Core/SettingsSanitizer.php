@@ -750,7 +750,7 @@ final class SettingsSanitizer {
 	 * @param array<string, mixed> $input Input data.
 	 * @return array{mhmrentiva_accent_mode: string, mhmrentiva_accent_color: string}
 	 */
-	private static function sanitize_accent_settings( array $input ): array {
+	public static function sanitize_accent_settings( array $input ): array {
 		$raw_mode = $input['mhmrentiva_accent_mode'] ?? '';
 		$mode     = self::validate_enum( \is_string( $raw_mode ) ? $raw_mode : '', array( 'auto', 'custom' ), 'auto' );
 

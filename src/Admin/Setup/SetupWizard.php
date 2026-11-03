@@ -10,6 +10,7 @@ if (! defined('ABSPATH')) {
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
+use MHMRentiva\Admin\Settings\Core\SettingsSanitizer;
 
 
 
@@ -24,6 +25,12 @@ final class SetupWizard {
 	private const PAGE_SLUG        = 'mhm-rentiva-setup';
 	private const OPTION_COMPLETED = 'mhmrentiva_setup_completed';
 	private const OPTION_REDIRECT  = 'mhmrentiva_setup_redirect';
+
+	/**
+	 * Set when step 4 has been saved at least once (the summary's evidence;
+	 * the currency setting always has a default, so it proves nothing).
+	 */
+	private const OPTION_FRONTEND_SAVED = 'mhmrentiva_setup_frontend_saved';
 
 	public static function register(): void
 	{
@@ -577,8 +584,29 @@ final class SetupWizard {
 		}
 		check_admin_referer('mhmrentiva_setup_frontend');
 
-		$settings                        = get_option('mhmrentiva_settings', array());
-		$settings['mhmrentiva_currency'] = sanitize_text_field(wp_unslash($_POST['currency'] ?? 'USD'));
+		$settings = get_option('mhmrentiva_settings', array());
+
+		// While WooCommerce owns the currency the field is not shown, so it is
+		// not posted: writing a fallback here would silently replace Rentiva's own.
+		if (! CurrencyHelper::woocommerce_is_active() && isset($_POST['currency'])) {
+			$settings['mhmrentiva_currency'] = sanitize_text_field(wp_unslash($_POST['currency']));
+		}
+
+		$accent_saved_as_auto = false;
+		// The same field as Settings > Frontend > Colors, through the same sanitizer.
+		// Only its two keys are read; the tab branch is not used (it would empty the
+		// tab's other texts).
+		if (isset($_POST['mhmrentiva_settings']) && is_array($_POST['mhmrentiva_settings'])) {
+			$posted = wp_unslash($_POST['mhmrentiva_settings']); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitize_accent_settings() below validates each key.
+			$accent = SettingsSanitizer::sanitize_accent_settings(
+				array(
+					'mhmrentiva_accent_mode'  => $posted['mhmrentiva_accent_mode'] ?? '',
+					'mhmrentiva_accent_color' => $posted['mhmrentiva_accent_color'] ?? '',
+				)
+			);
+			$settings             = array_merge($settings, $accent);
+			$accent_saved_as_auto = in_array('mhmrentiva_accent_color_empty', array_column(get_settings_errors('mhmrentiva_settings'), 'code'), true);
+		}
 
 		if (CurrencyHelper::woocommerce_is_active()) {
 			$settings['mhmrentiva_currency_position'] = get_option('woocommerce_currency_pos', 'right_space');
@@ -597,12 +625,14 @@ final class SetupWizard {
 		$settings['mhmrentiva_vehicle_min_rental_days'] = (string) max(1, min(365, $min_days));
 		$settings['mhmrentiva_vehicle_max_rental_days'] = (string) max( (int) $settings['mhmrentiva_vehicle_min_rental_days'], min(365, $max_days));
 
-		$settings['mhmrentiva_vehicle_show_features']     = isset($_POST['show_features']) ? '1' : '0';
-		$settings['mhmrentiva_vehicle_show_availability'] = isset($_POST['show_availability']) ? '1' : '0';
-
 		update_option('mhmrentiva_settings', $settings);
+		update_option(self::OPTION_FRONTEND_SAVED, '1');
 
-		wp_safe_redirect(self::step_url('summary', array( 'saved' => '1' )));
+		$args = array( 'saved' => '1' );
+		if ($accent_saved_as_auto) {
+			$args['accent'] = 'auto';
+		}
+		wp_safe_redirect(self::step_url('summary', $args));
 		exit;
 	}
 
@@ -1081,7 +1111,9 @@ final class SetupWizard {
 			case 'email':
 				return (bool) SettingsCore::get('mhmrentiva_email_from_address', '');
 			case 'frontend':
-				return (bool) SettingsCore::get('mhmrentiva_currency', 'USD');
+				// A wizard finished before this flag existed counts as saved.
+				return get_option(self::OPTION_FRONTEND_SAVED, '0') === '1'
+					|| get_option(self::OPTION_COMPLETED, '0') === '1';
 			case 'summary':
 				return get_option(self::OPTION_COMPLETED, '0') === '1';
 			default:
