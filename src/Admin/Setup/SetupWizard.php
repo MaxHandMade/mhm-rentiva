@@ -210,7 +210,7 @@ final class SetupWizard {
 							Html::echo_markup( self::format_status_badge($check['status']) );
 							?>
 							<?php if (! empty($check['message'])) : ?>
-								<div class="mhm-system-note"><?php echo esc_html($check['message']); ?></div>
+								<div class="mhm-system-note"><?php echo self::render_check_note( (string) $check['message']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_kses() with only <code> allowed. ?></div>
 							<?php endif; ?>
 						</td>
 					</tr>
@@ -1015,6 +1015,14 @@ final class SetupWizard {
 		);
 
 		return $checks;
+	}
+
+	/**
+	 * A check's note may carry a `<code>` snippet (the memory limit's define).
+	 */
+	private static function render_check_note(string $message): string
+	{
+		return wp_kses($message, array( 'code' => array() ));
 	}
 
 	private static function format_status_badge(string $status): string
