@@ -8,6 +8,7 @@ if (! defined('ABSPATH')) {
 }
 
 
+use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
 use MHMRentiva\Admin\Booking\Helpers\BookingConflicts;
 use MHMRentiva\Admin\Booking\Helpers\Util;
@@ -85,6 +86,8 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 
 		// Scripts and styles
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
+		add_action('edit_form_top', array( self::class, 'render_header_strip' ));
+		add_filter('get_user_option_screen_layout_mhmrentiva_booking', array( self::class, 'single_column_layout' ));
 
 		// AJAX handlers
 		add_action('wp_ajax_mhmrentiva_calculate_manual_booking', array( self::class, 'ajax_calculate_price' ));
@@ -163,10 +166,15 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 
 		// Load only on new booking creation page
 		if ($hook === 'post-new.php' && $post_type === 'mhmrentiva_booking') {
+			// The stylesheet reads ui-core tokens, declared on .mhmui-admin by the kit.
+			AssetManager::enqueue_kit('admin');
+			add_filter('admin_body_class', array( self::class, 'add_body_class' ));
+
+			// Literal dependency: the style-token gate reads registrations literally.
 			wp_enqueue_style(
 				'mhm-rentiva-manual-booking-meta',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/manual-booking-meta.css',
-				array( 'mhm-rentiva-css-variables' ),
+				array( 'mhmuicore-admin' ),
 				MHMRENTIVA_VERSION
 			);
 
@@ -232,6 +240,45 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Scope class for the kit's tokens on the new-booking screen.
+	 */
+	public static function add_body_class(string $classes): string
+	{
+		return $classes . ' mhmui-admin ';
+	}
+
+	/**
+	 * The new-booking form draws its own two columns inside one meta box; the
+	 * core sidebar column is empty here (Publish is removed), so the screen
+	 * runs single-column. Other booking screens keep the user's choice.
+	 *
+	 * @param mixed $columns Saved screen layout (user option).
+	 * @return mixed
+	 */
+	public static function single_column_layout($columns)
+	{
+		global $pagenow;
+
+		return 'post-new.php' === $pagenow ? 1 : $columns;
+	}
+
+	/**
+	 * Line under the core H1: back to the list, and what this record is.
+	 * Runs on edit_form_top, inside form#post: links and text only, no fields.
+	 */
+	public static function render_header_strip(\WP_Post $post): void
+	{
+		if ('mhmrentiva_booking' !== $post->post_type || 'auto-draft' !== $post->post_status) {
+			return;
+		}
+
+		echo '<p class="mhm-screen-subline">';
+		echo '<a href="' . esc_url(admin_url('edit.php?post_type=mhmrentiva_booking')) . '">&larr; ' . esc_html__('Bookings', 'mhm-rentiva') . '</a> ';
+		echo '<span>' . esc_html__('New record · added by an administrator', 'mhm-rentiva') . '</span>';
+		echo '</p>';
 	}
 
 	public static function render(\WP_Post $post, array $args = array()): void
