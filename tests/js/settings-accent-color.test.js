@@ -26,8 +26,10 @@ describe( 'settings accent color picker', () => {
 	beforeEach( () => {
 		window.mhmRentivaAccentPalette = twin;
 		// Fake Iris: wraps the input once, puts the swatch button before it and
-		// keeps the options; 'color' only writes the input (no change event, like
-		// Iris when the colour does not change).
+		// keeps the options; 'color' only writes the input. The stub fires no
+		// change event, but real Iris does for every valid colour (before it writes
+		// the input): Iris's own change fires too; the double paint ends in the
+		// same state.
 		$.fn.wpColorPicker = function ( arg, value ) {
 			return this.each( function () {
 				const $el = $( this );
