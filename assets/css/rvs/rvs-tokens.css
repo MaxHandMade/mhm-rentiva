@@ -46,20 +46,25 @@ body.rvs-rental,
 	--rvs-text: #1d2327;
 	--rvs-muted: #50575e;
 
-	/* Accent. White text sits on --rvs-accent-strong (5.17:1), never on
-	   --rvs-accent (4.08:1 on white): the accent is for rings and strokes. */
-	--rvs-accent: #3582c4;
+	/* Accent. --rvs-accent-strong is the site's colour (fill and border); --rvs-accent-deep its hover; --rvs-accent-100 a light fill. */
 	--rvs-accent-strong: #2271b1;
 	--rvs-accent-deep: #135e96;
 	--rvs-accent-100: #dcecf9;
-	--rvs-accent-200: #c5dff3;
+
+	/* Text on the accent and on its deep tone (PR 2 picks dark or white by
+	   contrast). The accent as text, link, focus ring and selected line: at
+	   least 4.5:1 on white and on --rvs-bg, so PR 2 may darken it while the
+	   fill keeps the site's colour. */
+	--rvs-on-accent: #ffffff;
+	--rvs-accent-text: #2271b1;
+	--rvs-accent-text-hover: #135e96;
 
 	/* Selected chip / option (board: sel-bg, sel-line, sel-text) and the
 	   stronger primary hover (board: hover-shadow). */
-	--rvs-sel-bg: #dcecf9;
-	--rvs-sel-line: #2271b1;
+	--rvs-sel-bg: var(--rvs-accent-100);
+	--rvs-sel-line: var(--rvs-accent-strong);
 	--rvs-sel-text: #0a3c63;
-	--rvs-hover-shadow: 0 2px 6px rgba(19, 94, 150, 0.35);
+	--rvs-hover-shadow: 0 2px 6px color-mix(in srgb, var(--rvs-accent-deep) 35%, transparent);
 
 	/* Alert */
 	--rvs-alert: #aa0b56;
@@ -71,7 +76,6 @@ body.rvs-rental,
 	--rvs-n-100: #f6f7f7;
 	--rvs-n-200: #e2e4e7;
 	--rvs-n-300: #c3c4c7;
-	--rvs-n-700: #50575e;
 
 	/* Lines and shadows. */
 	--rvs-line: #c3c4c7;
@@ -98,12 +102,12 @@ body.rvs-rental,
 	--rvs-card-radius: 4px;
 	--rvs-card-pad: 15px;
 	--rvs-card-title: #1d2327;
-	--rvs-card-title-hover: #2271b1;
+	--rvs-card-title-hover: var(--rvs-accent-text);
 	--rvs-card-title-margin: 0;
 	--rvs-card-price: #1d2327;
 	--rvs-card-price-period: #50575e;
-	--rvs-card-btn-bg: #2271b1;
-	--rvs-card-btn-bg-hover: #135e96;
+	--rvs-card-btn-bg: var(--rvs-accent-strong);
+	--rvs-card-btn-bg-hover: var(--rvs-accent-deep);
 	--rvs-card-btn-radius: 4px;
 
 	/* Booking form (rvs-booking.css). The Elementor form controls overwrite
@@ -111,13 +115,15 @@ body.rvs-rental,
 	--rvs-booking-bg: #ffffff;
 	--rvs-booking-radius: 4px;
 	--rvs-booking-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
-	--rvs-booking-cta: #2271b1;
-	--rvs-booking-cta-hover: #135e96;
+	--rvs-booking-cta: var(--rvs-accent-strong);
+	--rvs-booking-cta-hover: var(--rvs-accent-deep);
 
-	/* Booking status tags (rvs-data.css). Plain hex pairs from the live
-	   language board; text on background is at least 4.5:1 (RvsStatusContrastTest). */
-	--rvs-st-confirmed-bg: #dcecf9;
-	--rvs-st-confirmed-fg: #135e96;
+	/* Booking status tags (rvs-data.css). The confirmed pair follows the accent
+	   (fill accent-100, text sel-text); the others are plain hex pairs from the
+	   live language board. Text on background is at least 4.5:1
+	   (RvsStatusContrastTest resolves var() from this file). */
+	--rvs-st-confirmed-bg: var(--rvs-accent-100);
+	--rvs-st-confirmed-fg: var(--rvs-sel-text);
 	--rvs-st-pending-bg: #fdf0c8;
 	--rvs-st-pending-fg: #6b4a00;
 	--rvs-st-payment-bg: #ffe4d1;

@@ -150,14 +150,14 @@
 }
 
 .rvs-shell .rvs-compare__name:hover {
-	color: var(--rvs-accent-strong);
+	color: var(--rvs-accent-text);
 }
 
 .rvs-shell .rvs-compare .rvs-compare__remove {
 	flex: none;
 	min-height: 36px;
 	padding: 0 6px;
-	color: var(--rvs-accent-strong);
+	color: var(--rvs-accent-text);
 	font-weight: 400;
 }
 
@@ -188,7 +188,7 @@
 	min-height: 260px;
 	border: 1px dashed var(--rvs-line);
 	border-radius: var(--rvs-r);
-	color: var(--rvs-accent-strong);
+	color: var(--rvs-accent-text);
 	font-weight: 600;
 	text-decoration: none;
 }

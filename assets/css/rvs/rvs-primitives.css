@@ -29,16 +29,16 @@
 	cursor: pointer;
 }
 
-/* White text on --rvs-accent-strong (6.4:1); never on --rvs-accent. */
+/* Text on --rvs-accent-strong is --rvs-on-accent (white by default, 5.17:1). */
 .rvs-shell .rvs-btn--primary {
 	background: var(--rvs-accent-strong);
-	color: #fff;
+	color: var(--rvs-on-accent);
 }
 
 .rvs-shell .rvs-btn--primary:hover {
 	background: var(--rvs-accent-deep);
 	box-shadow: var(--rvs-hover-shadow);
-	color: #fff;
+	color: var(--rvs-on-accent);
 }
 
 .rvs-shell .rvs-btn--secondary {
@@ -54,12 +54,12 @@
 
 .rvs-shell .rvs-btn--ghost {
 	padding: 0 10px;
-	color: var(--rvs-accent-strong);
+	color: var(--rvs-accent-text);
 }
 
 .rvs-shell .rvs-btn--ghost:hover {
 	background: var(--rvs-accent-100);
-	color: var(--rvs-accent-deep);
+	color: var(--rvs-accent-text-hover);
 }
 
 .rvs-shell .rvs-btn--lg {
@@ -181,7 +181,7 @@
 
 .rvs-shell .rvs-tag--info {
 	background: var(--rvs-accent-100);
-	color: var(--rvs-accent-deep);
+	color: var(--rvs-accent-text-hover);
 }
 
 .rvs-shell .rvs-tag--neutral {

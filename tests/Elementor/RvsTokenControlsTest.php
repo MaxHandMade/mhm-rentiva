@@ -42,7 +42,7 @@ final class RvsTokenControlsTest extends WP_UnitTestCase
 
 		$this->assertIsArray($control);
 		$this->assertSame('color', $control['type']);
-		$this->assertSame(array( '{{WRAPPER}} .rvs-shell' => '--rvs-accent: {{VALUE}};' ), $control['selectors']);
+		$this->assertSame(array( '{{WRAPPER}} .rvs-shell' => '--rvs-accent-text: {{VALUE}};' ), $control['selectors']);
 	}
 
 	public function test_dimensions_control_writes_four_value_variable(): void
@@ -85,7 +85,7 @@ final class RvsTokenControlsTest extends WP_UnitTestCase
 
 		$control = $this->controls(RvsTokenPrefixedProbeWidget::class)['bad_prefix'] ?? null;
 
-		$this->assertSame(array( '{{WRAPPER}} .rvs-shell' => '--rvs-accent: {{VALUE}};' ), $control['selectors'] ?? null, 'The prefix is stripped, not doubled.');
+		$this->assertSame(array( '{{WRAPPER}} .rvs-shell' => '--rvs-accent-text: {{VALUE}};' ), $control['selectors'] ?? null, 'The prefix is stripped, not doubled.');
 	}
 }
 
@@ -104,7 +104,7 @@ class RvsTokenProbeWidget extends ElementorWidgetBase
 	protected function register_style_controls(): void
 	{
 		$this->start_controls_section('probe_style', array( 'label' => 'Probe', 'tab' => 'style' ));
-		$this->add_rvs_token_control('card_accent_color', 'Accent', 'accent');
+		$this->add_rvs_token_control('card_accent_color', 'Accent', 'accent-text');
 		$this->add_rvs_token_control('card_text_color', 'Text', 'text', array( 'default' => '#201e1d' ));
 		$this->add_rvs_token_dimensions_control('card_padding', 'Padding', 'card-pad');
 		$this->add_rvs_token_dimensions_control('new_gap', 'Gap', 'gap', array(), true);
@@ -122,7 +122,7 @@ final class RvsTokenPrefixedProbeWidget extends RvsTokenProbeWidget
 	protected function register_style_controls(): void
 	{
 		$this->start_controls_section('probe_style', array( 'label' => 'Probe', 'tab' => 'style' ));
-		$this->add_rvs_token_control('bad_prefix', 'Bad', '--rvs-accent');
+		$this->add_rvs_token_control('bad_prefix', 'Bad', '--rvs-accent-text');
 		$this->end_controls_section();
 	}
 }

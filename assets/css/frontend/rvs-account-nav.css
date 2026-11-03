@@ -115,13 +115,13 @@
 }
 
 .woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li a:focus-visible {
-	outline: 3px solid var(--rvs-accent-strong);
+	outline: 3px solid var(--rvs-accent-text);
 	outline-offset: 2px;
 }
 
 .woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li.is-active > a,
 .woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li > a[aria-current="page"] {
-	border-left-color: var(--rvs-accent-strong);
+	border-left-color: var(--rvs-accent-text);
 	background: var(--rvs-raised);
 	box-shadow: var(--rvs-shadow);
 	color: var(--rvs-text);
@@ -177,7 +177,7 @@
 
 	.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li.is-active > a,
 	.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li > a[aria-current="page"] {
-		border-bottom-color: var(--rvs-accent-strong);
+		border-bottom-color: var(--rvs-accent-text);
 		background: transparent;
 		box-shadow: none;
 		color: var(--rvs-text);

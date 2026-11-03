@@ -23,8 +23,8 @@
  * weight -- `form.checkout` or `:not(#rvs-none)` where Astra's selector carries
  * an id, each named beside its rule. One `!important`, against one of
  * WooCommerce's own (section 8, cart name cell). Where a value below looks
- * redundant it resets an Astra float, width or border. White text on the
- * accent is `#fff`, as in rvs-primitives.css.
+ * redundant it resets an Astra float, width or border. Text on the accent is
+ * `--rvs-on-accent`, as in rvs-primitives.css.
  */
 
 /* 1 · Page frame ----------------------------------------------------------- */
@@ -60,16 +60,16 @@ body.rvs-rental .woocommerce legend {
 }
 
 body.rvs-rental .woocommerce a:not(.button):not(.rvs-btn) {
-	color: var(--rvs-accent-strong);
+	color: var(--rvs-accent-text);
 	text-underline-offset: 3px;
 }
 
 body.rvs-rental .woocommerce a:not(.button):not(.rvs-btn):hover {
-	color: var(--rvs-accent-deep);
+	color: var(--rvs-accent-text-hover);
 }
 
 body.rvs-rental .woocommerce :focus-visible {
-	outline: 3px solid var(--rvs-accent-strong);
+	outline: 3px solid var(--rvs-accent-text);
 	outline-offset: 2px;
 }
 
@@ -105,14 +105,14 @@ body.rvs-rental .woocommerce .button:hover {
 	color: var(--rvs-text);
 }
 
-/* The primary action of each page. White text on --rvs-accent-strong. */
+/* The primary action of each page. --rvs-on-accent text on --rvs-accent-strong. */
 body.rvs-rental .woocommerce .button.alt,
 body.rvs-rental .woocommerce a.checkout-button,
 body.rvs-rental .woocommerce #place_order {
 	min-height: 52px;
 	border-color: var(--rvs-accent-strong);
 	background: var(--rvs-accent-strong);
-	color: #fff;
+	color: var(--rvs-on-accent);
 	font-size: 16px;
 }
 
@@ -122,7 +122,7 @@ body.rvs-rental .woocommerce #place_order:hover {
 	border-color: var(--rvs-accent-deep);
 	background: var(--rvs-accent-deep);
 	box-shadow: var(--rvs-hover-shadow);
-	color: #fff;
+	color: var(--rvs-on-accent);
 }
 
 body.rvs-rental .woocommerce .button:disabled,
@@ -181,8 +181,8 @@ body.rvs-rental .woocommerce select:focus,
 body.rvs-rental .woocommerce textarea:focus,
 body.rvs-rental .woocommerce .select2-container--focus .select2-selection--single,
 body.rvs-rental .woocommerce .select2-container--open .select2-selection--single {
-	border-color: var(--rvs-accent-strong);
-	outline: 3px solid var(--rvs-accent-strong);
+	border-color: var(--rvs-accent-text);
+	outline: 3px solid var(--rvs-accent-text);
 	outline-offset: 0;
 }
 

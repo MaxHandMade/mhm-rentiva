@@ -183,7 +183,7 @@
 
 .rvs-shell.rvs-dp .ui-datepicker-calendar .ui-state-active {
 	background: var(--rvs-accent-strong);
-	color: #fff;
+	color: var(--rvs-on-accent);
 }
 
 .rvs-shell.rvs-dp .ui-datepicker-calendar .ui-state-disabled span {

@@ -39,7 +39,7 @@
 
 /* The card rings when its control has keyboard focus. */
 .rvs-shell .rvs-option:has(input:focus-visible) {
-	outline: 3px solid var(--rvs-accent-strong);
+	outline: 3px solid var(--rvs-accent-text);
 	outline-offset: 2px;
 }
 
@@ -140,7 +140,7 @@
 
 /* Inside the group's border the ring is drawn inward. */
 .rvs-shell .rvs-stepper button:focus-visible {
-	outline: 3px solid var(--rvs-accent-strong);
+	outline: 3px solid var(--rvs-accent-text);
 	outline-offset: -3px;
 }
 
@@ -180,14 +180,14 @@
 }
 
 .rvs-shell .rvs-steps__item.is-done {
-	border-top-color: var(--rvs-accent-strong);
+	border-top-color: var(--rvs-accent-text);
 	color: var(--rvs-text);
 }
 
 /* Current: the heaviest edge and a raised card, besides the colour. */
 .rvs-shell .rvs-steps__item.is-current {
 	border-top-width: 4px;
-	border-top-color: var(--rvs-accent-strong);
+	border-top-color: var(--rvs-accent-text);
 	background: var(--rvs-raised);
 	color: var(--rvs-text);
 }
@@ -352,7 +352,7 @@
 
 .rvs-shell .rvs-seg > a:focus-visible,
 .rvs-shell .rvs-seg > button:focus-visible {
-	outline: 3px solid var(--rvs-accent-strong);
+	outline: 3px solid var(--rvs-accent-text);
 	outline-offset: -3px;
 }
 
@@ -402,7 +402,7 @@
 }
 
 .rvs-shell .rvs-seg--choice > label:has(input:focus-visible) {
-	outline: 3px solid var(--rvs-accent-strong);
+	outline: 3px solid var(--rvs-accent-text);
 	outline-offset: -3px;
 }
 
@@ -449,7 +449,7 @@
 
 .rvs-shell .rvs-stars > label:has(input:checked),
 .rvs-shell .rvs-stars > label:has(~ label input:checked) {
-	color: var(--rvs-accent-strong);
+	color: var(--rvs-accent-text);
 }
 
 /* The icon's size is the class's, not an inline style. */
@@ -466,7 +466,7 @@
 }
 
 .rvs-shell .rvs-stars > label:has(input:focus-visible) {
-	outline: 3px solid var(--rvs-accent-strong);
+	outline: 3px solid var(--rvs-accent-text);
 	outline-offset: -3px;
 }
 
@@ -485,7 +485,7 @@
 }
 
 .rvs-shell .rvs-file:has(.rvs-file__input:focus-visible) .rvs-file__choose {
-	outline: 3px solid var(--rvs-accent-strong);
+	outline: 3px solid var(--rvs-accent-text);
 	outline-offset: 2px;
 }
 
