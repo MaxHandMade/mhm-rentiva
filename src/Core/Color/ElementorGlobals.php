@@ -14,7 +14,8 @@ if (! defined('ABSPATH')) {
  * Two paths, same data (spec §6, plan R1/R2):
  * - Elementor's own `data_manager_v2->run( $stored )`, the stored string as is,
  *   only when a REST server is already up (or Elementor is already running its
- *   internal server). On a plain page request run() would call
+ *   internal server), with the rest_api_init callbacks restored afterwards
+ *   (run_keeping_rest_hooks()). On a plain page request run() would call
  *   remove_all_actions( 'rest_api_init' ) and build the global REST server with
  *   Elementor routes only, so a later rest_preload_api_request() in the same
  *   request (WooCommerce block checkout's Store API preload) would 404 and the
@@ -39,7 +40,7 @@ final class ElementorGlobals {
 		if (self::server_is_up()) {
 			$data_manager = self::plugin()->data_manager_v2 ?? null;
 			if (is_object($data_manager) && method_exists($data_manager, 'run')) {
-				$item = self::to_result($data_manager->run($stored));
+				$item = self::to_result(self::run_keeping_rest_hooks($data_manager, $stored));
 				if (null !== $item) {
 					return $item;
 				}
@@ -72,6 +73,28 @@ final class ElementorGlobals {
 		}
 		$data_manager = self::plugin()->data_manager_v2 ?? null;
 		return is_object($data_manager) && method_exists($data_manager, 'is_internal') && true === $data_manager->is_internal();
+	}
+
+	/**
+	 * Elementor's run_server() calls remove_all_actions( 'rest_api_init' ) the
+	 * first time it runs, even when the REST server is already up. Measured: a
+	 * server rebuilt later in the same request then carried Elementor's routes
+	 * only. The callbacks are put back as they were.
+	 *
+	 * @param object $data_manager Elementor data_manager_v2.
+	 * @return mixed run() result.
+	 */
+	private static function run_keeping_rest_hooks(object $data_manager, string $stored): mixed
+	{
+		global $wp_filter;
+		$saved = isset($wp_filter['rest_api_init']) ? clone $wp_filter['rest_api_init'] : null;
+		try {
+			return $data_manager->run($stored);
+		} finally {
+			if (null !== $saved) {
+				$wp_filter['rest_api_init'] = $saved; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- restores the exact hook list Elementor's run_server() emptied.
+			}
+		}
 	}
 
 	private static function elementor_ready(): bool

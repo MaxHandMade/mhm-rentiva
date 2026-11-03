@@ -176,6 +176,30 @@ final class FrontendColorSettingsSanitizerTest extends WP_UnitTestCase
 		$this->assertStringNotContainsString('notice-warning', $this->render());
 	}
 
+	public function test_render_tolerates_a_hand_written_option_row(): void
+	{
+		// Programmatic writes (WP-CLI, update_option) skip the form sanitizer.
+		$this->stored = array(
+			'mhmrentiva_accent_mode'  => array( 'custom' ),
+			'mhmrentiva_accent_color' => 'red;}body{x}',
+		);
+		$warnings = array();
+		set_error_handler(
+			static function (int $errno, string $errstr) use (&$warnings): bool {
+				$warnings[] = $errstr;
+				return true;
+			},
+			E_WARNING | E_NOTICE | E_DEPRECATED
+		);
+		$html = $this->render();
+		restore_error_handler();
+
+		$this->assertSame(array(), $warnings);
+		$this->assertMatchesRegularExpression('/value="auto" checked=(["\'])checked\1/', $html);
+		$this->assertMatchesRegularExpression('/class="mhm-rentiva-accent-color" data-default-color="#2271b1" value=""/', $html);
+		$this->assertStringNotContainsString('red;}', $html);
+	}
+
 	public function test_settings_screen_enqueues_colour_picker(): void
 	{
 		wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));

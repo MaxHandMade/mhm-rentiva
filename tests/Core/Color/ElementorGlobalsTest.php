@@ -225,6 +225,30 @@ final class ElementorGlobalsTest extends WP_UnitTestCase
 		$this->assertNotFalse(has_action('rest_api_init', $marker));
 	}
 
+	/**
+	 * Measured in the full suite (PreviewInertMarkupTest went red): even with
+	 * the REST server already up, Elementor's run_server() calls
+	 * remove_all_actions( 'rest_api_init' ) the first time it runs, so a server
+	 * rebuilt later in the same request carried only Elementor's routes.
+	 */
+	public function test_run_path_keeps_rest_api_init_callbacks(): void
+	{
+		$this->kit(array( 'accent' => '#CC0000' ));
+		rest_get_server();
+		$marker = static function (): void {};
+		add_action('rest_api_init', $marker, 99);
+		$this->assertTrue(ElementorGlobals::server_is_up());
+
+		$this->assertSame('#cc0000', ElementorGlobals::resolve('globals/colors?id=accent')['hex'] ?? null);
+
+		$this->assertSame(99, has_action('rest_api_init', $marker), 'run() must not drop rest_api_init callbacks');
+		$this->assertNotFalse(has_action('rest_api_init', 'create_initial_rest_routes'));
+
+		$GLOBALS['wp_rest_server'] = null;
+		$routes = rest_get_server()->get_routes();
+		$this->assertArrayHasKey('/wp/v2/block-renderer/(?P<name>[a-z0-9-]+/[a-z0-9-]+)', $routes, 'A rebuilt server keeps the core routes');
+	}
+
 	public function test_non_globals_string_and_unknown_id_are_null(): void
 	{
 		$this->kit(array( 'accent' => '#CC0000' ), array( 'v4var' => 'var(--e-global-color-x)' ));

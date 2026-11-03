@@ -268,10 +268,8 @@ final class FrontendSettings {
 	 * readability notice when links use a darker shade (spec §8, PR 2 scope).
 	 */
 	public static function render_accent_fields(): void {
-		$mode = (string) SettingsCore::get( AccentResolver::MODE_KEY, 'auto' );
-		if ( 'custom' !== $mode ) {
-			$mode = 'auto';
-		}
+		// A hand-written option row may hold anything: only the exact 'custom' counts.
+		$mode  = 'custom' === SettingsCore::get( AccentResolver::MODE_KEY, 'auto' ) ? 'custom' : 'auto';
 		$color = ColorMath::normalize( SettingsCore::get( AccentResolver::COLOR_KEY, '' ) ) ?? '';
 		$modes = array(
 			'auto'   => __( "Automatic — use the site's color", 'mhm-rentiva' ),
