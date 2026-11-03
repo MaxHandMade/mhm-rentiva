@@ -33,6 +33,9 @@ describe( 'accent palette twin', () => {
 			[ 'var(--x)', null ],
 			[ '#fff;}body{x}', null ],
 			[ ' #2271b1 ', '#2271b1' ],
+			// PHP trim() strips ASCII whitespace only; a no-break space stays and fails.
+			[ String.fromCharCode( 0xa0 ) + '#2271b1', null ],
+			[ '\t#2271b1\n', '#2271b1' ],
 			[ 'rgb(300,0,0)', null ],
 			[ null, null ],
 			[ {}, null ],

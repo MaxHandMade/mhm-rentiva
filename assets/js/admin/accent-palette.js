@@ -48,7 +48,8 @@
 		if ( typeof value !== 'string' ) {
 			return null;
 		}
-		var v = value.trim().toLowerCase();
+		// PHP trim(): ASCII whitespace only (String#trim would also strip Unicode spaces).
+		var v = value.replace( /^[ \t\n\r\0\x0B]+|[ \t\n\r\0\x0B]+$/g, '' ).toLowerCase();
 		var m;
 		if ( '' === v ) {
 			return null;
