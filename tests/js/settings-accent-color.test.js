@@ -119,6 +119,8 @@ describe( 'settings accent color picker', () => {
 		await boot();
 
 		expect( button().style.backgroundColor ).toBe( 'rgb(0, 103, 255)' );
+		// Core blanks a disabled button's background with !important.
+		expect( button().style.getPropertyPriority( 'background-color' ) ).toBe( 'important' );
 		expect( q( '.wp-picker-container' ).classList.contains( 'is-disabled' ) ).toBe( true );
 		expect( input().disabled ).toBe( true );
 		expect( input().value ).toBe( '' );

@@ -59,7 +59,10 @@
 		function paintButton( hex ) {
 			var button = $input.closest( '.wp-picker-container' ).find( '.wp-color-result' ).get( 0 );
 			if ( button && HEX.test( hex ) ) {
-				button.style.backgroundColor = hex;
+				// Important: core's `.wp-core-ui .button:disabled` sets the
+				// background transparent !important, which blanks the
+				// disabled Automatic-mode button otherwise.
+				button.style.setProperty( 'background-color', hex, 'important' );
 			}
 		}
 
