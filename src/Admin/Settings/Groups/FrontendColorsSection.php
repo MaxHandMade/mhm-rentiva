@@ -48,7 +48,25 @@ final class FrontendColorsSection {
 			'custom' => __( 'Custom color', 'mhm-rentiva' ),
 		);
 
-		echo '<div class="mhm-rentiva-accent" data-auto-hex="' . esc_attr( $automatic['hex'] ) . '" data-auto-source="' . esc_attr( self::source_label( $automatic ) ) . '" data-custom-source="' . esc_attr( self::source_label( $custom ) ) . '">';
+		// The developer filter also runs in Custom mode and may replace the picked
+		// colour. JavaScript cannot know that, so PHP measures it once for the saved
+		// custom colour (else the automatic one) and hands the result over. Limit: a
+		// filter that answers differently per colour is previewed only for the saved
+		// colour; what it does to a newly typed one shows after saving.
+		$candidate = '' !== $color ? $color : $automatic['hex'];
+		$probe     = ColorMath::normalize( apply_filters( 'mhmrentiva_accent_color', $candidate, 'custom' ) );
+		$filtered  = null !== $probe && $probe !== $candidate;
+
+		echo '<div class="mhm-rentiva-accent" data-auto-hex="' . esc_attr( $automatic['hex'] ) . '" data-auto-source="' . esc_attr( self::source_label( $automatic ) ) . '" data-custom-source="' . esc_attr( self::source_label( $custom ) ) . '"';
+		if ( $filtered ) {
+			$by_filter = array(
+				'source'     => 'filter',
+				'label'      => '',
+				'is_default' => false,
+			);
+			echo ' data-custom-filter-hex="' . esc_attr( (string) $probe ) . '" data-custom-filter-source="' . esc_attr( self::source_label( $by_filter ) ) . '"';
+		}
+		echo '>';
 
 		echo '<fieldset class="mhm-rentiva-accent-mode">';
 		echo '<legend class="screen-reader-text">' . esc_html__( 'Accent color mode', 'mhm-rentiva' ) . '</legend>';

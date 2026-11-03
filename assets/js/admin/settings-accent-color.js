@@ -31,6 +31,11 @@
 		var autoHex = preview ? palette.normalize( String( $box.attr( 'data-auto-hex' ) || '' ) ) : null;
 		var autoSource = String( $box.attr( 'data-auto-source' ) || '' );
 		var customSource = String( $box.attr( 'data-custom-source' ) || '' );
+		// Set by PHP only when the developer filter replaces the saved custom
+		// colour; JavaScript cannot know the filter. Limit: it describes the saved
+		// colour, so a newly typed one is previewed unfiltered until saved.
+		var filterHex = preview ? palette.normalize( String( $box.attr( 'data-custom-filter-hex' ) || '' ) ) : null;
+		var filterSource = String( $box.attr( 'data-custom-filter-source' ) || '' );
 
 		function isCustom() {
 			return 'custom' === $radios.filter( ':checked' ).val();
@@ -42,6 +47,9 @@
 			if ( isCustom() ) {
 				var hex = palette.normalize( undefined === raw ? String( $input.val() || '' ) : String( raw ) );
 				if ( hex ) {
+					if ( filterHex ) {
+						return { hex: filterHex, label: filterSource, button: true };
+					}
 					return { hex: hex, label: customSource, button: true };
 				}
 				// Custom + empty or invalid: the sanitizer falls back to Automatic.

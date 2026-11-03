@@ -54,6 +54,7 @@ final class FrontendColorsSectionTest extends WP_UnitTestCase
 			$GLOBALS['wp_scripts'] = $this->saved_scripts;
 			$this->swapped_assets  = false;
 		}
+		remove_all_filters('mhmrentiva_accent_color');
 		set_current_screen('front');
 		wp_set_current_user(0);
 		self::reset_defaults_cache();
@@ -164,6 +165,47 @@ final class FrontendColorsSectionTest extends WP_UnitTestCase
 		$this->assertStringContainsString('style="background-color:#cc0000"', $html);
 		$this->assertStringContainsString('data-auto-hex="#0067ff"', $html);
 		$this->assertStringContainsString('data-auto-source="theme setting (Astra)"', $html);
+	}
+
+	public function test_filter_overriding_the_custom_colour_is_handed_to_the_preview(): void
+	{
+		add_filter('mhmrentiva_accent_color', static fn (): string => '#000000');
+		$html = $this->render(
+			array(
+				'mhmrentiva_accent_mode'  => 'custom',
+				'mhmrentiva_accent_color' => '#ffee58',
+			)
+		);
+
+		$this->assertStringContainsString('data-custom-filter-hex="#000000"', $html);
+		$this->assertStringContainsString('data-custom-filter-source="developer filter (mhmrentiva_accent_color)"', $html);
+	}
+
+	public function test_no_filter_means_no_custom_filter_attributes(): void
+	{
+		$html = $this->render(
+			array(
+				'mhmrentiva_accent_mode'  => 'custom',
+				'mhmrentiva_accent_color' => '#ffee58',
+			)
+		);
+
+		$this->assertStringNotContainsString('data-custom-filter-hex', $html);
+		$this->assertStringNotContainsString('data-custom-filter-source', $html);
+	}
+
+	public function test_filter_returning_the_same_colour_means_no_custom_filter_attributes(): void
+	{
+		add_filter('mhmrentiva_accent_color', static fn ( $hex ) => $hex);
+		$html = $this->render(
+			array(
+				'mhmrentiva_accent_mode'  => 'custom',
+				'mhmrentiva_accent_color' => '#ffee58',
+			)
+		);
+
+		$this->assertStringNotContainsString('data-custom-filter-hex', $html);
+		$this->assertStringNotContainsString('data-custom-filter-source', $html);
 	}
 
 	/** @return array{text: string, fill: string} The two notice opening tags. */

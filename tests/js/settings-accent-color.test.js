@@ -206,6 +206,21 @@ describe( 'settings accent color picker', () => {
 		expect( q( '.mhm-rentiva-accent-hex' ).textContent ).toBe( '#0067ff' );
 	} );
 
+	test( 'previews the filtered colour when a filter overrides the custom colour', async () => {
+		markup( 'auto', '#ffee58' );
+		const box = q( '.mhm-rentiva-accent' );
+		box.setAttribute( 'data-custom-filter-hex', '#000000' );
+		box.setAttribute( 'data-custom-filter-source', 'developer filter (mhmrentiva_accent_color)' );
+		await boot();
+
+		setMode( 'custom' );
+
+		expect( previewTokens() ).toEqual( twin.palette( '#000000' ).tokens );
+		expect( line() ).toBe( 'Source: developer filter (mhmrentiva_accent_color)' );
+		expect( q( '.mhm-rentiva-accent-hex' ).textContent ).toBe( '#000000' );
+		expect( input().value ).toBe( '#ffee58' );
+	} );
+
 	test( 'writes text only', async () => {
 		markup( 'custom', '#cc0000', '<img src=x onerror=alert(1)>' );
 		await boot();
