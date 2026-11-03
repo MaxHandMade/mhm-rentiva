@@ -178,6 +178,30 @@ describe( 'manual booking layout', () => {
 		expect( $( '.mhm-price-details .mhm-price-item' ) ).toHaveLength( 4 );
 	} );
 
+	test( 'a pending answer cannot revive a form made invalid', async () => {
+		await load( markup() );
+		dates( '2099-04-01', '10:00', '2099-04-04', '10:00' );
+		const pending = [];
+		$.ajax.mockImplementation( ( opts ) => pending.push( opts ) );
+
+		$( '#mhmrentiva_manual_vehicle_id' ).val( '1' );
+		$( '#mhm-calculate-price' ).trigger( 'click' );
+		// Return before pickup while the answer is on its way.
+		$( '#mhmrentiva_manual_dropoff_date' ).val( '2099-03-30' ).trigger( 'change' );
+
+		pending[ 0 ].success( {
+			success: true,
+			data: { days: 3, price_per_day: 100, vehicle_total: 300, addon_total: 0, total_amount: 300, final_total: 300, deposit_amount: 60, remaining_amount: 240, payment_type: 'deposit' },
+		} );
+		pending[ 0 ].complete();
+
+		expect( $( '.mhm-price-calculation' ).hasClass( 'mhm-hidden' ) ).toBe( true );
+		expect( $( '#mhm-create-booking' ).hasClass( 'mhm-hidden' ) ).toBe( true );
+		expect( $( '.mhm-booking-messages .mhm-message' ).hasClass( 'error' ) ).toBe( true );
+		expect( $( '#mhm-calculate-price' ).prop( 'disabled' ) ).toBe( false );
+		expect( $( '.mhm-manual-booking-form' ).hasClass( 'mhm-calculating' ) ).toBe( false );
+	} );
+
 	test( 'messages land in the aside and replace each other', async () => {
 		await load( markup() );
 		dates( '2099-04-05', '10:00', '2099-04-04', '10:00' );

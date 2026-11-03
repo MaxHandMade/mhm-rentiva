@@ -88,6 +88,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
 		add_action('edit_form_top', array( self::class, 'render_header_strip' ));
 		add_filter('get_user_option_screen_layout_mhmrentiva_booking', array( self::class, 'single_column_layout' ));
+		add_filter('screen_layout_columns', array( self::class, 'limit_screen_columns' ), 10, 2);
 
 		// AJAX handlers
 		add_action('wp_ajax_mhmrentiva_calculate_manual_booking', array( self::class, 'ajax_calculate_price' ));
@@ -263,6 +264,24 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		global $pagenow;
 
 		return 'post-new.php' === $pagenow ? 1 : $columns;
+	}
+
+	/**
+	 * Screen Options offers one column on the new-booking screen, so the empty
+	 * core sidebar cannot be switched back on (WP_Screen reads this as `max`).
+	 *
+	 * @param array<string, int> $columns
+	 * @return array<string, int>
+	 */
+	public static function limit_screen_columns(array $columns, string $screen_id = ''): array
+	{
+		global $pagenow;
+
+		if ('post-new.php' === $pagenow && 'mhmrentiva_booking' === $screen_id) {
+			$columns[ $screen_id ] = 1;
+		}
+
+		return $columns;
 	}
 
 	/**

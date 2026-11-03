@@ -83,6 +83,16 @@ final class ManualBookingScreenKitTest extends WP_UnitTestCase
 		$this->assertSame(2, ManualBookingMetaBox::single_column_layout(2));
 	}
 
+	public function test_screen_options_offer_one_column_on_new_booking(): void
+	{
+		$this->on_new_booking_screen();
+		$this->assertSame(array( 'mhmrentiva_booking' => 1 ), ManualBookingMetaBox::limit_screen_columns(array(), 'mhmrentiva_booking'));
+		$this->assertSame(array(), ManualBookingMetaBox::limit_screen_columns(array(), 'mhmrentiva_vehicle'));
+
+		$GLOBALS['pagenow'] = 'post.php';
+		$this->assertSame(array(), ManualBookingMetaBox::limit_screen_columns(array(), 'mhmrentiva_booking'));
+	}
+
 	public function test_layout_filter_is_registered(): void
 	{
 		if (! has_filter('get_user_option_screen_layout_mhmrentiva_booking', array( ManualBookingMetaBox::class, 'single_column_layout' ))) {
@@ -91,6 +101,7 @@ final class ManualBookingScreenKitTest extends WP_UnitTestCase
 
 		$this->assertNotFalse(has_filter('get_user_option_screen_layout_mhmrentiva_booking', array( ManualBookingMetaBox::class, 'single_column_layout' )));
 		$this->assertNotFalse(has_action('edit_form_top', array( ManualBookingMetaBox::class, 'render_header_strip' )));
+		$this->assertNotFalse(has_filter('screen_layout_columns', array( ManualBookingMetaBox::class, 'limit_screen_columns' )));
 	}
 
 	public function test_header_strip_links_back_to_bookings(): void

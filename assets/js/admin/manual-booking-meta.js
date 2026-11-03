@@ -368,6 +368,13 @@
 		 * dates, a vehicle or add-ons that are no longer selected.
 		 */
 		invalidatePriceCalculation: function () {
+			// An answer still on its way was asked for the form as it was; it
+			// must not repaint the panel (or reopen Create) for the form as it is.
+			// Its complete() is skipped too, so the busy state is cleared here.
+			ManualBooking.priceRequest = ( ManualBooking.priceRequest || 0 ) + 1;
+			$( '#mhm-calculate-price' ).prop( 'disabled', false ).text( mhmManualBooking.text.calculatePrice || 'Calculate Price' );
+			$( '.mhm-manual-booking-form' ).removeClass( 'mhm-calculating' );
+
 			$( '.mhm-price-details' ).empty();
 			$( '.mhm-price-calculation' ).addClass( 'mhm-hidden' );
 			$( '#mhm-create-booking' ).addClass( 'mhm-hidden' );
