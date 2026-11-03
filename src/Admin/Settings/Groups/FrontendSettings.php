@@ -9,8 +9,6 @@ if (!defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
-use MHMRentiva\Core\Color\AccentResolver;
-use MHMRentiva\Core\Color\ColorMath;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -131,7 +129,7 @@ final class FrontendSettings {
 		add_settings_field(
 			'mhmrentiva_accent_color',
 			__( 'Accent color', 'mhm-rentiva' ),
-			array( self::class, 'render_accent_fields' ),
+			array( FrontendColorsSection::class, 'render_fields' ),
 			SettingsCore::PAGE,
 			self::SECTION_COLORS
 		);
@@ -261,39 +259,6 @@ final class FrontendSettings {
 	 */
 	public static function render_colors_section_description(): void {
 		echo '<p>' . esc_html__( "Front-end colors follow your site's theme or Elementor colors. Choose a custom color to override them.", 'mhm-rentiva' ) . '</p>';
-	}
-
-	/**
-	 * Accent mode (Automatic / Custom), the color picker and the one-line
-	 * readability notice when links use a darker shade (spec §8, PR 2 scope).
-	 */
-	public static function render_accent_fields(): void {
-		// A hand-written option row may hold anything: only the exact 'custom' counts.
-		$mode  = 'custom' === SettingsCore::get( AccentResolver::MODE_KEY, 'auto' ) ? 'custom' : 'auto';
-		$color = ColorMath::normalize( SettingsCore::get( AccentResolver::COLOR_KEY, '' ) ) ?? '';
-		$modes = array(
-			'auto'   => __( "Automatic — use the site's color", 'mhm-rentiva' ),
-			'custom' => __( 'Custom color', 'mhm-rentiva' ),
-		);
-
-		echo '<fieldset class="mhm-rentiva-accent-mode">';
-		foreach ( $modes as $value => $label ) {
-			echo '<label><input type="radio" name="mhmrentiva_settings[' . esc_attr( AccentResolver::MODE_KEY ) . ']" value="' . esc_attr( $value ) . '" ' . checked( $mode, $value, false ) . ' /> ' . esc_html( $label ) . '</label><br />';
-		}
-		echo '</fieldset>';
-
-		echo '<p><input type="text" name="mhmrentiva_settings[' . esc_attr( AccentResolver::COLOR_KEY ) . ']" class="mhm-rentiva-accent-color" data-default-color="' . esc_attr( ColorMath::DEFAULT_ACCENT ) . '" value="' . esc_attr( $color ) . '" /></p>';
-
-		$resolved = AccentResolver::resolve();
-		if ( $resolved['flags']['text_darkened'] ) {
-			echo '<p class="notice notice-warning inline">' . esc_html(
-				sprintf(
-					/* translators: %s: hex color */
-					__( 'This color is too light for text on the page. Links and text use a darker shade (%s) so they stay readable.', 'mhm-rentiva' ),
-					$resolved['tokens']['accent-text']
-				)
-			) . '</p>';
-		}
 	}
 
 	/**

@@ -670,15 +670,8 @@ final class SettingsCore {
 				true
 			);
 
-			// Accent color picker (Frontend tab) -- a file, not an inline block.
-			wp_enqueue_style( 'wp-color-picker' );
-			wp_enqueue_script(
-				'mhm-rentiva-settings-accent-color',
-				\MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/settings-accent-color.js',
-				array( 'jquery', 'wp-color-picker' ),
-				\MHMRENTIVA_VERSION,
-				true
-			);
+			// Colors section: color picker, palette twin and preview styles (Frontend tab only).
+			\MHMRentiva\Admin\Settings\Groups\FrontendColorsSection::enqueue_assets();
 
 			wp_localize_script(
 				'mhm-rentiva-settings-media-field',

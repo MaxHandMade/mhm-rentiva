@@ -21,6 +21,7 @@ use WP_UnitTestCase;
  *
  * @covers \MHMRentiva\Admin\Settings\Core\SettingsSanitizer
  * @covers \MHMRentiva\Admin\Settings\Groups\FrontendSettings
+ * @covers \MHMRentiva\Admin\Settings\Groups\FrontendColorsSection
  */
 final class FrontendColorSettingsSanitizerTest extends WP_UnitTestCase
 {
@@ -173,7 +174,10 @@ final class FrontendColorSettingsSanitizerTest extends WP_UnitTestCase
 			'mhmrentiva_accent_color' => '#cc0000',
 		);
 		AccentResolver::reset();
-		$this->assertStringNotContainsString('notice-warning', $this->render());
+		// Both notices stay in the markup for the live preview, hidden when their flag is off.
+		$html = $this->render();
+		$this->assertMatchesRegularExpression('/<p class="notice notice-warning inline mhm-rentiva-accent-notice--text"[^>]* hidden>/', $html);
+		$this->assertMatchesRegularExpression('/<p class="notice notice-warning inline mhm-rentiva-accent-notice--fill"[^>]* hidden>/', $html);
 	}
 
 	public function test_render_tolerates_a_hand_written_option_row(): void
@@ -205,12 +209,15 @@ final class FrontendColorSettingsSanitizerTest extends WP_UnitTestCase
 		wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
 		set_current_screen('mhm-rentiva_page_mhm-rentiva-settings');
 		$this->assertStringContainsString('mhm-rentiva-settings', get_current_screen()->id);
+		// The picker loads on the Frontend tab only (PR 3 plan R9).
+		$_GET['tab'] = 'frontend';
 
 		SettingsCore::enqueue_assets();
 		$this->assertTrue(wp_style_is('wp-color-picker'));
 		$this->assertTrue(wp_script_is('mhm-rentiva-settings-accent-color'));
 		$this->assertContains('wp-color-picker', wp_scripts()->registered['mhm-rentiva-settings-accent-color']->deps);
 
+		unset($_GET['tab']);
 		set_current_screen('front');
 		wp_set_current_user(0);
 	}
