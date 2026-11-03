@@ -935,5 +935,9 @@ final class PrefixMigrationMap {
         // spells it. New in 6.4.0, no legacy spelling; one hour long, it
         // expires on its own.
         'mhmrentiva_contact_reply_',
+        // Setup wizard step 4 saved-flag (6.4.0, admin screens PR 1): the
+        // summary's evidence that step 4 was saved. New in 6.4.0, no legacy
+        // spelling; swept by the `mhmrentiva%` LIKE.
+        'mhmrentiva_setup_frontend_saved',
     ];
 }

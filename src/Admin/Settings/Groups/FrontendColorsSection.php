@@ -193,7 +193,7 @@ final class FrontendColorsSection {
 		wp_enqueue_style(
 			'mhm-rentiva-accent-field',
 			// Literal source: the style-token gate reads registrations literally.
-			\MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/accent-field.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/accent-field.css',
 			array( 'wp-color-picker' ),
 			\MHMRENTIVA_VERSION
 		);

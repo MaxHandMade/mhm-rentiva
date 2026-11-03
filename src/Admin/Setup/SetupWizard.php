@@ -191,21 +191,15 @@ final class SetupWizard {
 				$classes[] = 'completed';
 			}
 
+			echo '<li class="' . esc_attr(implode(' ', $classes)) . '"' . ( $is_current ? ' aria-current="step"' : '' ) . '>';
 			// The current step shows its number even when done; a done step
 			// shows a tick with its state spelled out for screen readers.
-			$mark = ( $is_done && ! $is_current )
-				? '✓<span class="screen-reader-text">' . esc_html__('Completed', 'mhm-rentiva') . '</span>'
-				: esc_html(number_format_i18n($number));
-
-			printf(
-				'<li class="%1$s"%2$s><span class="mhm-setup-steps__num" aria-hidden="%3$s">%4$s</span><a href="%5$s">%6$s</a></li>',
-				esc_attr(implode(' ', $classes)),
-				$is_current ? ' aria-current="step"' : '',
-				$is_done && ! $is_current ? 'false' : 'true',
-				$mark, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built above from esc_html() parts.
-				esc_url(self::step_url($key)),
-				esc_html($label)
-			);
+			if ($is_done && ! $is_current) {
+				echo '<span class="mhm-setup-steps__num" aria-hidden="false">✓<span class="screen-reader-text">' . esc_html__('Completed', 'mhm-rentiva') . '</span></span>';
+			} else {
+				echo '<span class="mhm-setup-steps__num" aria-hidden="true">' . esc_html(number_format_i18n($number)) . '</span>';
+			}
+			echo '<a href="' . esc_url(self::step_url($key)) . '">' . esc_html($label) . '</a></li>';
 		}
 		echo '</ol>';
 	}
@@ -237,7 +231,7 @@ final class SetupWizard {
 							Html::echo_markup( self::format_status_badge($check['status']) );
 							?>
 							<?php if (! empty($check['message'])) : ?>
-								<div class="mhm-system-note"><?php echo self::render_check_note( (string) $check['message']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_kses() with only <code> allowed. ?></div>
+								<div class="mhm-system-note"><?php self::render_check_note( (string) $check['message']); ?></div>
 							<?php endif; ?>
 						</td>
 					</tr>
@@ -660,11 +654,12 @@ final class SetupWizard {
 		// Only its two keys are read; the tab branch is not used (it would empty the
 		// tab's other texts).
 		if (isset($_POST['mhmrentiva_settings']) && is_array($_POST['mhmrentiva_settings'])) {
-			$posted = wp_unslash($_POST['mhmrentiva_settings']); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitize_accent_settings() below validates each key.
+			// Read in the nonce-verified scope; sanitize_accent_settings() then
+			// validates the enum and the hex.
 			$accent = SettingsSanitizer::sanitize_accent_settings(
 				array(
-					'mhmrentiva_accent_mode'  => $posted['mhmrentiva_accent_mode'] ?? '',
-					'mhmrentiva_accent_color' => $posted['mhmrentiva_accent_color'] ?? '',
+					'mhmrentiva_accent_mode'  => sanitize_key(wp_unslash($_POST['mhmrentiva_settings']['mhmrentiva_accent_mode'] ?? '')),
+					'mhmrentiva_accent_color' => sanitize_text_field(wp_unslash($_POST['mhmrentiva_settings']['mhmrentiva_accent_color'] ?? '')),
 				)
 			);
 			$settings             = array_merge($settings, $accent);
@@ -1057,9 +1052,9 @@ final class SetupWizard {
 	/**
 	 * A check's note may carry a `<code>` snippet (the memory limit's define).
 	 */
-	private static function render_check_note(string $message): string
+	private static function render_check_note(string $message): void
 	{
-		return wp_kses($message, array( 'code' => array() ));
+		echo wp_kses($message, array( 'code' => array() ));
 	}
 
 	private static function format_status_badge(string $status): string
