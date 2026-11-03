@@ -85,6 +85,24 @@ final class ElementorGlobalsTest extends WP_UnitTestCase
 		$GLOBALS['wp_rest_server'] = $state['wp_rest_server'] ?? null;
 	}
 
+	/**
+	 * Elementor's own CSS-generation state: its internal REST server is running
+	 * (is_internal true, server bound). The only state the run() path is used in
+	 * (Fable I1).
+	 */
+	private static function make_elementor_internal(): void
+	{
+		$server = rest_get_server();
+		self::write_elementor_rest_state(
+			array(
+				'server'         => $server,
+				'is_internal'    => true,
+				'cache'          => array(),
+				'wp_rest_server' => $server,
+			)
+		);
+	}
+
 	/** Blank Elementor REST state for the test's own preconditions (plan I3). */
 	private static function reset_elementor_rest_state(): void
 	{
@@ -211,7 +229,7 @@ final class ElementorGlobalsTest extends WP_UnitTestCase
 			3
 		);
 
-		rest_get_server();
+		self::make_elementor_internal();
 		$this->assertTrue(ElementorGlobals::server_is_up());
 		$this->assertSame('#cc0000', ElementorGlobals::resolve('globals/colors?id=accent')['hex'] ?? null);
 		$this->assertSame('#00aa00', ElementorGlobals::resolve('globals/colors?id=c0ffee')['hex'] ?? null);
@@ -234,7 +252,7 @@ final class ElementorGlobalsTest extends WP_UnitTestCase
 			10,
 			3
 		);
-		rest_get_server();
+		self::make_elementor_internal();
 
 		ElementorGlobals::resolve('globals/colors?id=accent&foo=1');
 		$this->assertCount(1, $routes);
@@ -266,10 +284,40 @@ final class ElementorGlobalsTest extends WP_UnitTestCase
 	 * remove_all_actions( 'rest_api_init' ) the first time it runs, so a server
 	 * rebuilt later in the same request carried only Elementor's routes.
 	 */
-	public function test_run_path_keeps_rest_api_init_callbacks(): void
+	/**
+	 * Fable I1: with the core REST server up but Elementor not running its
+	 * internal server (a front-end request after something built the server),
+	 * resolution takes the kit-array path and Elementor's is_internal flag stays
+	 * false (it would open READABLE globals/* to everyone for the request).
+	 */
+	public function test_core_rest_server_up_but_not_internal_takes_the_fallback(): void
 	{
 		$this->kit(array( 'accent' => '#CC0000' ));
 		rest_get_server();
+		$this->assertInstanceOf(\WP_REST_Server::class, $GLOBALS['wp_rest_server']);
+		$this->assertFalse(Plugin::$instance->data_manager_v2->is_internal());
+
+		$routes = array();
+		add_filter(
+			'rest_pre_dispatch',
+			static function ($result, $server, $request) use (&$routes) {
+				$routes[] = $request->get_route();
+				return $result;
+			},
+			10,
+			3
+		);
+
+		$this->assertFalse(ElementorGlobals::server_is_up());
+		$this->assertSame('#cc0000', ElementorGlobals::resolve('globals/colors?id=accent')['hex'] ?? null);
+		$this->assertSame(array(), $routes, 'No REST dispatch: the kit-array path answered');
+		$this->assertFalse(Plugin::$instance->data_manager_v2->is_internal(), 'is_internal stays false');
+	}
+
+	public function test_run_path_keeps_rest_api_init_callbacks(): void
+	{
+		$this->kit(array( 'accent' => '#CC0000' ));
+		self::make_elementor_internal();
 		$marker = static function (): void {};
 		add_action('rest_api_init', $marker, 99);
 		$this->assertTrue(ElementorGlobals::server_is_up());
@@ -320,6 +368,27 @@ final class ElementorGlobalsTest extends WP_UnitTestCase
 		$this->assertNull(( new ElementorKitSource() )->resolve());
 	}
 
+	public function test_kit_source_builds_the_kit_items_once(): void
+	{
+		// Accent at factory value: the source reads accent, then primary (Fable M3).
+		$this->kit(
+			array(
+				'primary' => '#123456',
+				'accent'  => '#61CE70',
+			)
+		);
+		$builds = 0;
+		add_filter(
+			'elementor/globals/colors/items',
+			static function (array $items) use (&$builds): array {
+				++$builds;
+				return $items;
+			}
+		);
+		$this->assertSame('#123456', ( new ElementorKitSource() )->resolve());
+		$this->assertSame(1, $builds);
+	}
+
 	public function test_draft_kit_resolves_like_the_endpoint(): void
 	{
 		$this->kit(array( 'accent' => '#CC0000' ));
@@ -332,7 +401,7 @@ final class ElementorGlobalsTest extends WP_UnitTestCase
 		clean_post_cache($this->kit_id);
 		$this->assertSame('#cc0000', ElementorGlobals::resolve('globals/colors?id=accent')['hex'] ?? null);
 
-		rest_get_server();
+		self::make_elementor_internal();
 		$this->assertTrue(ElementorGlobals::server_is_up());
 		$this->assertSame('#cc0000', ElementorGlobals::resolve('globals/colors?id=accent')['hex'] ?? null, 'run() path agrees');
 	}
@@ -354,11 +423,13 @@ final class ElementorGlobalsTest extends WP_UnitTestCase
 		$this->assertSame(array(), $warnings);
 	}
 
-	public function test_server_is_up_requires_a_real_rest_server(): void
+	public function test_server_is_up_requires_elementor_internal(): void
 	{
 		rest_get_server();
+		$this->assertFalse(ElementorGlobals::server_is_up(), 'A core REST server alone is not enough (Fable I1)');
+		self::make_elementor_internal();
 		$this->assertTrue(ElementorGlobals::server_is_up());
-		$GLOBALS['wp_rest_server'] = false;
+		self::reset_elementor_rest_state();
 		$this->assertFalse(ElementorGlobals::server_is_up());
 	}
 }

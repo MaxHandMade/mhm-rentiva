@@ -11,18 +11,19 @@ if (! defined('ABSPATH')) {
  * Resolves a stored Elementor global colour reference (`globals/colors?id=xxx`,
  * the raw `__globals__` value) to a concrete '#rrggbb'.
  *
- * Two paths, same data (spec §6, plan R1/R2):
+ * Two paths, same data (spec §6, plan R1/R2, Fable branch audit I1):
  * - Elementor's own `data_manager_v2->run( $stored )`, the stored string as is,
- *   only when a REST server is already up (or Elementor is already running its
- *   internal server), with the rest_api_init callbacks restored afterwards
- *   (run_keeping_rest_hooks()). On a plain page request run() would call
- *   remove_all_actions( 'rest_api_init' ) and build the global REST server with
- *   Elementor routes only, so a later rest_preload_api_request() in the same
- *   request (WooCommerce block checkout's Store API preload) would 404 and the
- *   client would fall back to a live fetch.
+ *   only while Elementor is already running its internal REST server (its own
+ *   CSS generation). Then `is_internal()` is true and Elementor's server is set,
+ *   so run_server() is a no-op: no hook removal, no flag change, no server bind.
+ *   In any other state run() would remove every rest_api_init callback when its
+ *   own server is unset (even with the core server up: a server rebuilt later
+ *   carried Elementor's routes only) and would leave `is_internal` true for the
+ *   rest of the request, which opens READABLE globals/* to every visitor.
  * - Otherwise the kit array, mirroring the endpoint (colors.php:15-41): the
  *   active kit for the front end, system + custom colours via
  *   get_settings_for_display(), then the `elementor/globals/colors/items` filter.
+ *   `globals/colors` has no Before/After processors, so both paths agree.
  */
 final class ElementorGlobals {
 
@@ -33,68 +34,62 @@ final class ElementorGlobals {
 	 */
 	public static function resolve(string $stored): ?array
 	{
-		if (! str_starts_with($stored, self::PREFIX) || ! self::elementor_ready()) {
-			return null;
-		}
-
-		if (self::server_is_up()) {
-			$data_manager = self::plugin()->data_manager_v2 ?? null;
-			if (is_object($data_manager) && method_exists($data_manager, 'run')) {
-				$item = self::to_result(self::run_keeping_rest_hooks($data_manager, $stored));
-				if (null !== $item) {
-					return $item;
-				}
-			}
-		}
-
-		$query = array();
-		parse_str( (string) wp_parse_url($stored, PHP_URL_QUERY), $query);
-		$id = isset($query['id']) && is_string($query['id']) ? $query['id'] : '';
-		if ('' === $id) {
-			return null;
-		}
-
-		$items = self::kit_items();
-		return isset($items[ $id ]) ? self::to_result($items[ $id ]) : null;
+		return self::resolve_all(array( $stored ))[ $stored ] ?? null;
 	}
 
 	/**
-	 * A real REST server is already built for this request, or Elementor is
-	 * already running its internal one (plan R1, M1: after Elementor's
-	 * kill_server() the action count stays but the global is false).
+	 * Several stored references at once; the kit's item list is built at most
+	 * once for the whole call (Fable M3).
+	 *
+	 * @param list<string> $stored_list
+	 * @return array<string, array{id: string, title: string, hex: string}|null> keyed by the stored string
+	 */
+	public static function resolve_all(array $stored_list): array
+	{
+		$out   = array();
+		$items = null;
+		foreach ($stored_list as $stored) {
+			$out[ $stored ] = null;
+			if (! str_starts_with($stored, self::PREFIX) || ! self::elementor_ready()) {
+				continue;
+			}
+
+			if (self::server_is_up()) {
+				$data_manager = self::plugin()->data_manager_v2 ?? null;
+				if (is_object($data_manager) && method_exists($data_manager, 'run')) {
+					$item = self::to_result($data_manager->run($stored));
+					if (null !== $item) {
+						$out[ $stored ] = $item;
+						continue;
+					}
+				}
+			}
+
+			$query = array();
+			parse_str( (string) wp_parse_url($stored, PHP_URL_QUERY), $query);
+			$id = isset($query['id']) && is_string($query['id']) ? $query['id'] : '';
+			if ('' === $id) {
+				continue;
+			}
+
+			$items          = $items ?? self::kit_items();
+			$out[ $stored ] = isset($items[ $id ]) ? self::to_result($items[ $id ]) : null;
+		}
+		return $out;
+	}
+
+	/**
+	 * Elementor is already running its internal REST server (Fable I1). A core
+	 * REST server alone is not enough: run() would flip `is_internal` for the
+	 * rest of the request.
 	 */
 	public static function server_is_up(): bool
 	{
-		if (did_action('rest_api_init') > 0 && ( $GLOBALS['wp_rest_server'] ?? null ) instanceof \WP_REST_Server) {
-			return true;
-		}
 		if (! self::elementor_ready()) {
 			return false;
 		}
 		$data_manager = self::plugin()->data_manager_v2 ?? null;
 		return is_object($data_manager) && method_exists($data_manager, 'is_internal') && true === $data_manager->is_internal();
-	}
-
-	/**
-	 * Elementor's run_server() calls remove_all_actions( 'rest_api_init' ) the
-	 * first time it runs, even when the REST server is already up. Measured: a
-	 * server rebuilt later in the same request then carried Elementor's routes
-	 * only. The callbacks are put back as they were.
-	 *
-	 * @param object $data_manager Elementor data_manager_v2.
-	 * @return mixed run() result.
-	 */
-	private static function run_keeping_rest_hooks(object $data_manager, string $stored): mixed
-	{
-		global $wp_filter;
-		$saved = isset($wp_filter['rest_api_init']) ? clone $wp_filter['rest_api_init'] : null;
-		try {
-			return $data_manager->run($stored);
-		} finally {
-			if (null !== $saved) {
-				$wp_filter['rest_api_init'] = $saved; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- restores the exact hook list Elementor's run_server() emptied.
-			}
-		}
 	}
 
 	private static function elementor_ready(): bool
