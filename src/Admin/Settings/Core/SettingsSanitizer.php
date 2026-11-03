@@ -189,6 +189,33 @@ final class SettingsSanitizer {
 	}
 
 	/**
+	 * Keys a tab stores with sanitize_textarea_field().
+	 *
+	 * The programmatic branch below sees the whole settings array on every
+	 * write (the setup wizard saves it in full), so without this list those
+	 * texts lost their line breaks the next time any such writer ran.
+	 *
+	 * @return string[]
+	 */
+	private static function textarea_keys(): array {
+		$keys = array(
+			'mhmrentiva_booking_security_deposit_note',
+			'mhmrentiva_booking_fuel_policy_note',
+			'mhmrentiva_text_login_required',
+			'mhmrentiva_transfer_custom_types',
+		);
+
+		/**
+		 * Filters the settings keys a programmatic write treats as multi-line text.
+		 *
+		 * @param string[] $keys Keys sanitized with sanitize_textarea_field().
+		 */
+		$filtered = apply_filters( 'mhmrentiva_settings_textarea_keys', $keys );
+
+		return is_array( $filtered ) ? array_values( array_filter( $filtered, 'is_string' ) ) : $keys;
+	}
+
+	/**
 	 * A write that did not come from a settings form.
 	 *
 	 * Only keys the plugin already knows are accepted -- anything the caller
@@ -207,7 +234,8 @@ final class SettingsSanitizer {
 			array_keys( array_merge( SettingsCore::get_defaults(), $current ) ),
 			self::programmatic_keys()
 		);
-		$out   = array();
+		$textarea = self::textarea_keys();
+		$out      = array();
 
 		foreach ( $input as $key => $value ) {
 			if ( ! in_array( $key, $known, true ) ) {
@@ -219,7 +247,14 @@ final class SettingsSanitizer {
 				continue;
 			}
 
-			$out[ $key ] = is_scalar( $value ) ? \sanitize_text_field( (string) $value ) : '';
+			if ( ! is_scalar( $value ) ) {
+				$out[ $key ] = '';
+				continue;
+			}
+
+			$out[ $key ] = in_array( $key, $textarea, true )
+				? \sanitize_textarea_field( (string) $value )
+				: \sanitize_text_field( (string) $value );
 		}
 
 		return $out;
