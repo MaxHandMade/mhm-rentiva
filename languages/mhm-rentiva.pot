@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-03T03:59:37+00:00\n"
+"POT-Creation-Date: 2026-11-03T12:21:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -144,7 +144,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1671
 #: src/Admin/Frontend/Account/AccountController.php:297
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:596
-#: src/Admin/Settings/Groups/FrontendSettings.php:382
+#: src/Admin/Settings/Groups/FrontendSettings.php:345
 msgid "Error"
 msgstr ""
 
@@ -1265,6 +1265,7 @@ msgstr ""
 #: src/Admin/Emails/Notifications/BookingNotifications.php:208
 #: src/Admin/Frontend/Account/BookingTimeline.php:70
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:80
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:100
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1037
 #: assets/blocks/my-bookings/index.js:39
 #: src-react/admin/dashboard/components/RecentBookings.jsx:11
@@ -1892,7 +1893,7 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1089
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:488
-#: src/Admin/Settings/Groups/FrontendSettings.php:380
+#: src/Admin/Settings/Groups/FrontendSettings.php:343
 #: templates/emails/refund-customer.html.php:34
 msgid "Processing"
 msgstr ""
@@ -2243,7 +2244,7 @@ msgid "The deposit was paid outside WooCommerce, so no payment link can be sent 
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:427
-#: src/Admin/Settings/Groups/FrontendSettings.php:360
+#: src/Admin/Settings/Groups/FrontendSettings.php:323
 msgid "Cancel Booking"
 msgstr ""
 
@@ -2322,7 +2323,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:204
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:284
 #: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:426
-#: src/Admin/Settings/Groups/FrontendSettings.php:418
+#: src/Admin/Settings/Groups/FrontendSettings.php:381
 #: templates/shortcodes/booking-form.php:73
 msgid "Select Vehicle"
 msgstr ""
@@ -3055,13 +3056,13 @@ msgid "New Customer Information"
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:321
-#: src/Admin/Settings/Groups/FrontendSettings.php:399
+#: src/Admin/Settings/Groups/FrontendSettings.php:362
 #: templates/account/account-details.php:76
 msgid "First Name"
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:325
-#: src/Admin/Settings/Groups/FrontendSettings.php:400
+#: src/Admin/Settings/Groups/FrontendSettings.php:363
 #: templates/account/account-details.php:84
 msgid "Last Name"
 msgstr ""
@@ -3072,7 +3073,7 @@ msgstr ""
 #: src/Admin/Customers/CustomersPage.php:561
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:879
 #: src/Admin/Frontend/Shortcodes/ContactFormView.php:217
-#: src/Admin/Settings/Groups/FrontendSettings.php:401
+#: src/Admin/Settings/Groups/FrontendSettings.php:364
 #: templates/admin/partials/booking-popup.php:60
 #: templates/shortcodes/contact-form.php:145
 #: src-react/admin/customers/components/CustomerPanel.jsx:86
@@ -3085,7 +3086,7 @@ msgstr ""
 #: src/Admin/Customers/CustomersPage.php:566
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:880
 #: src/Admin/Frontend/Shortcodes/ContactFormView.php:214
-#: src/Admin/Settings/Groups/FrontendSettings.php:402
+#: src/Admin/Settings/Groups/FrontendSettings.php:365
 #: templates/admin/partials/booking-popup.php:64
 #: src-react/admin/contact-messages/components/SenderWidget.jsx:72
 #: src-react/admin/customers/components/CustomerPanel.jsx:90
@@ -6019,6 +6020,7 @@ msgstr ""
 
 #: src/Admin/Emails/Core/EmailTemplates.php:572
 #: src/Admin/Emails/Templates/EmailPreview.php:58
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:91
 msgid "Preview"
 msgstr ""
 
@@ -6756,7 +6758,8 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:679
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:326
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:100
-#: src/Admin/Settings/Groups/FrontendSettings.php:357
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:93
+#: src/Admin/Settings/Groups/FrontendSettings.php:320
 #: templates/account/favorites.php:76
 #: templates/partials/vehicle-card-base.php:256
 msgid "Book Now"
@@ -6767,7 +6770,8 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:209
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:434
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:680
-#: src/Admin/Settings/Groups/FrontendSettings.php:358
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:94
+#: src/Admin/Settings/Groups/FrontendSettings.php:321
 msgid "View Details"
 msgstr ""
 
@@ -6778,7 +6782,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:435
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:681
 #: src/Admin/Services/FavoritesService.php:175
-#: src/Admin/Settings/Groups/FrontendSettings.php:376
+#: src/Admin/Settings/Groups/FrontendSettings.php:339
 msgid "Added to favorites"
 msgstr ""
 
@@ -6789,7 +6793,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:436
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:682
 #: src/Admin/Services/FavoritesService.php:171
-#: src/Admin/Settings/Groups/FrontendSettings.php:377
+#: src/Admin/Settings/Groups/FrontendSettings.php:340
 msgid "Removed from favorites"
 msgstr ""
 
@@ -6798,7 +6802,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:437
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:683
 #: src/Admin/Services/FavoritesService.php:154
-#: src/Admin/Settings/Groups/FrontendSettings.php:378
+#: src/Admin/Settings/Groups/FrontendSettings.php:341
 msgid "You must be logged in to add to favorites"
 msgstr ""
 
@@ -8423,7 +8427,7 @@ msgid "Total price: low to high"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1951
-#: src/Admin/Settings/Groups/FrontendSettings.php:323
+#: src/Admin/Settings/Groups/FrontendSettings.php:286
 #: assets/blocks/search-results/index.js:52
 msgid "Price: Low to High"
 msgstr ""
@@ -8433,19 +8437,19 @@ msgid "Total price: high to low"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1952
-#: src/Admin/Settings/Groups/FrontendSettings.php:324
+#: src/Admin/Settings/Groups/FrontendSettings.php:287
 #: assets/blocks/search-results/index.js:53
 msgid "Price: High to Low"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1953
-#: src/Admin/Settings/Groups/FrontendSettings.php:325
+#: src/Admin/Settings/Groups/FrontendSettings.php:288
 #: assets/blocks/search-results/index.js:54
 msgid "Name: A to Z"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1954
-#: src/Admin/Settings/Groups/FrontendSettings.php:326
+#: src/Admin/Settings/Groups/FrontendSettings.php:289
 #: assets/blocks/search-results/index.js:55
 msgid "Name: Z to A"
 msgstr ""
@@ -9743,7 +9747,7 @@ msgid "Compact"
 msgstr ""
 
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:104
-#: src/Admin/Settings/Groups/FrontendSettings.php:158
+#: src/Admin/Settings/Groups/FrontendSettings.php:156
 #: assets/blocks/search-results/index.js:48
 msgid "Default Sort Order"
 msgstr ""
@@ -10768,7 +10772,7 @@ msgstr ""
 msgid "Settings updated"
 msgstr ""
 
-#: src/Admin/Settings/Core/SettingsCore.php:688
+#: src/Admin/Settings/Core/SettingsCore.php:681
 #: src/Admin/Settings/Core/SettingsHelper.php:235
 msgid "Select image"
 msgstr ""
@@ -10973,8 +10977,8 @@ msgstr ""
 
 #: src/Admin/Settings/Groups/CommentsSettingsGroup.php:109
 #: src/Admin/Settings/Groups/CommentsSettingsGroup.php:370
-#: src/Admin/Settings/Groups/FrontendSettings.php:184
-#: src/Admin/Settings/Groups/FrontendSettings.php:371
+#: src/Admin/Settings/Groups/FrontendSettings.php:182
+#: src/Admin/Settings/Groups/FrontendSettings.php:334
 msgid "Notifications"
 msgstr ""
 
@@ -11466,308 +11470,379 @@ msgstr ""
 msgid "Send Test Connection Email"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:126
-msgid "Colors"
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:133
-msgid "Accent color"
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:142
-msgid "Vehicle Display Settings"
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:150
-msgid "Vehicles Per Page"
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:167
-msgid "Texts & Labels"
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:175
-#: src/Admin/Settings/Groups/FrontendSettings.php:352
-msgid "General Buttons"
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:193
-#: src/Admin/Settings/Groups/FrontendSettings.php:394
-msgid "Form Labels"
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:202
-#: src/Admin/Settings/Groups/FrontendSettings.php:413
-msgid "Validation & Selection"
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:211
-#: src/Admin/Settings/Groups/FrontendSettings.php:433
-msgid "Payment Messages"
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:220
-#: src/Admin/Settings/Groups/FrontendSettings.php:453
-msgid "Account & Navigation"
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:229
-msgid "Permalinks & URLs"
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:230
-msgid "Manually configure page URLs for specific plugin functions. If left empty, the system will attempt to find pages containing the required shortcodes automatically."
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:237
-msgid "Booking Form URL"
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:238
-msgid "The URL of the page containing the [rentiva_booking_form] shortcode."
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:245
-msgid "Login Page URL"
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:246
-msgid "The URL of your custom login page."
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:253
-msgid "Registration Page URL"
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:254
-msgid "The URL of your custom registration page."
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:263
-msgid "Front-end colors follow your site's theme or Elementor colors. Choose a custom color to override them."
-msgstr ""
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:277
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:47
 msgid "Automatic — use the site's color"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:278
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:48
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:141
 msgid "Custom color"
 msgstr ""
 
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:54
+msgid "Accent color mode"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:60
+msgid "Custom accent color"
+msgstr ""
+
+#. translators: %s: where the accent color comes from, e.g. "theme setting (Astra)"
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:64
+#, php-format
+msgid "Source: %s"
+msgstr ""
+
 #. translators: %s: hex color
-#: src/Admin/Settings/Groups/FrontendSettings.php:294
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:72
 #, php-format
 msgid "This color is too light for text on the page. Links and text use a darker shade (%s) so they stay readable."
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:305
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:75
+msgid "This light color is hard to tell from a white background."
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:78
+msgid "If you use a page cache plugin, clear it after changing this."
+msgstr ""
+
+#. translators: %s: theme name
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:117
+#, php-format
+msgid "theme default (%s)"
+msgstr ""
+
+#. translators: %s: theme name
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:119
+#, php-format
+msgid "theme setting (%s)"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:123
+msgctxt "Elementor global color"
+msgid "Accent"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:125
+msgctxt "Elementor global color"
+msgid "Primary"
+msgstr ""
+
+#. translators: %s: Elementor global color name, e.g. "Accent"
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:128
+#, php-format
+msgid "Elementor global color (%s)"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:132
+msgid "the theme's button color"
+msgstr ""
+
+#. translators: %s: theme.json palette slug, e.g. "primary"
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:135
+#, php-format
+msgid "theme color palette (theme.json: %s)"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:138
+msgid "Rentiva default"
+msgstr ""
+
+#. translators: %s: filter hook name
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:145
+#, php-format
+msgid "developer filter (%s)"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:124
+msgid "Colors"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:131
+msgid "Accent color"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:140
+msgid "Vehicle Display Settings"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:148
+msgid "Vehicles Per Page"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:165
+msgid "Texts & Labels"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:173
+#: src/Admin/Settings/Groups/FrontendSettings.php:315
+msgid "General Buttons"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:191
+#: src/Admin/Settings/Groups/FrontendSettings.php:357
+msgid "Form Labels"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:200
+#: src/Admin/Settings/Groups/FrontendSettings.php:376
+msgid "Validation & Selection"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:209
+#: src/Admin/Settings/Groups/FrontendSettings.php:396
+msgid "Payment Messages"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:218
+#: src/Admin/Settings/Groups/FrontendSettings.php:416
+msgid "Account & Navigation"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:227
+msgid "Permalinks & URLs"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:228
+msgid "Manually configure page URLs for specific plugin functions. If left empty, the system will attempt to find pages containing the required shortcodes automatically."
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:235
+msgid "Booking Form URL"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:236
+msgid "The URL of the page containing the [rentiva_booking_form] shortcode."
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:243
+msgid "Login Page URL"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:244
+msgid "The URL of your custom login page."
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:251
+msgid "Registration Page URL"
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:252
+msgid "The URL of your custom registration page."
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:261
+msgid "Front-end colors follow your site's theme or Elementor colors. Choose a custom color to override them."
+msgstr ""
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:268
 msgid "Configure how vehicles are displayed on the frontend."
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:314
+#: src/Admin/Settings/Groups/FrontendSettings.php:277
 msgid "Number of vehicles to display per page"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:327
+#: src/Admin/Settings/Groups/FrontendSettings.php:290
 msgid "Year: Newest First"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:328
+#: src/Admin/Settings/Groups/FrontendSettings.php:291
 msgid "Year: Oldest First"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:336
+#: src/Admin/Settings/Groups/FrontendSettings.php:299
 msgid "Default sort order for vehicle listings"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:343
+#: src/Admin/Settings/Groups/FrontendSettings.php:306
 msgid "Customize the text labels and button texts displayed throughout the frontend. Leave empty to use default values."
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:357
+#: src/Admin/Settings/Groups/FrontendSettings.php:320
 msgid "Book Now Button"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:358
+#: src/Admin/Settings/Groups/FrontendSettings.php:321
 msgid "View Details Button"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:359
+#: src/Admin/Settings/Groups/FrontendSettings.php:322
 msgid "Make Booking Button"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:359
+#: src/Admin/Settings/Groups/FrontendSettings.php:322
 #: templates/shortcodes/booking-form.php:53
 msgid "Make Booking"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:360
+#: src/Admin/Settings/Groups/FrontendSettings.php:323
 msgid "Cancel Booking Button"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:376
+#: src/Admin/Settings/Groups/FrontendSettings.php:339
 msgid "Added to Favorites Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:377
+#: src/Admin/Settings/Groups/FrontendSettings.php:340
 msgid "Removed from Favorites Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:378
+#: src/Admin/Settings/Groups/FrontendSettings.php:341
 msgid "Login Required Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:379
+#: src/Admin/Settings/Groups/FrontendSettings.php:342
 msgid "Login Here Text"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:379
+#: src/Admin/Settings/Groups/FrontendSettings.php:342
 msgid "Login Here"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:380
+#: src/Admin/Settings/Groups/FrontendSettings.php:343
 msgid "Processing Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:381
+#: src/Admin/Settings/Groups/FrontendSettings.php:344
 msgid "Loading Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:381
+#: src/Admin/Settings/Groups/FrontendSettings.php:344
 msgid "Loading"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:382
+#: src/Admin/Settings/Groups/FrontendSettings.php:345
 msgid "Error Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:383
+#: src/Admin/Settings/Groups/FrontendSettings.php:346
 msgid "Booking Success Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:383
+#: src/Admin/Settings/Groups/FrontendSettings.php:346
 msgid "Booking Success"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:399
+#: src/Admin/Settings/Groups/FrontendSettings.php:362
 msgid "First Name Label"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:400
+#: src/Admin/Settings/Groups/FrontendSettings.php:363
 msgid "Last Name Label"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:401
+#: src/Admin/Settings/Groups/FrontendSettings.php:364
 msgid "Email Label"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:402
+#: src/Admin/Settings/Groups/FrontendSettings.php:365
 msgid "Phone Label"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:418
+#: src/Admin/Settings/Groups/FrontendSettings.php:381
 msgid "Select Vehicle Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:419
+#: src/Admin/Settings/Groups/FrontendSettings.php:382
 msgid "Select Dates Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:419
+#: src/Admin/Settings/Groups/FrontendSettings.php:382
 msgid "Select Dates"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:420
+#: src/Admin/Settings/Groups/FrontendSettings.php:383
 msgid "Invalid Dates Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:420
+#: src/Admin/Settings/Groups/FrontendSettings.php:383
 msgid "Invalid Dates"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:421
+#: src/Admin/Settings/Groups/FrontendSettings.php:384
 msgid "Select Payment Type Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:421
+#: src/Admin/Settings/Groups/FrontendSettings.php:384
 msgid "Select Payment Type"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:422
+#: src/Admin/Settings/Groups/FrontendSettings.php:385
 msgid "Select Payment Method Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:422
+#: src/Admin/Settings/Groups/FrontendSettings.php:385
 msgid "Select Payment Method"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:438
+#: src/Admin/Settings/Groups/FrontendSettings.php:401
 msgid "Calculating Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:438
+#: src/Admin/Settings/Groups/FrontendSettings.php:401
 msgid "Calculating"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:439
+#: src/Admin/Settings/Groups/FrontendSettings.php:402
 msgid "Payment Redirect Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:439
+#: src/Admin/Settings/Groups/FrontendSettings.php:402
 msgid "Payment Redirect"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:440
+#: src/Admin/Settings/Groups/FrontendSettings.php:403
 msgid "Payment Success Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:440
+#: src/Admin/Settings/Groups/FrontendSettings.php:403
 msgid "Payment Success"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:441
+#: src/Admin/Settings/Groups/FrontendSettings.php:404
 msgid "Payment Cancelled Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:441
+#: src/Admin/Settings/Groups/FrontendSettings.php:404
 msgid "Payment Cancelled"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:442
+#: src/Admin/Settings/Groups/FrontendSettings.php:405
 msgid "Popup Blocked Message"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:442
+#: src/Admin/Settings/Groups/FrontendSettings.php:405
 msgid "Popup Blocked"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:458
+#: src/Admin/Settings/Groups/FrontendSettings.php:421
 msgid "View Dashboard Text"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:458
+#: src/Admin/Settings/Groups/FrontendSettings.php:421
 msgid "View Dashboard"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:459
+#: src/Admin/Settings/Groups/FrontendSettings.php:422
 msgid "Back to Bookings Text"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:459
+#: src/Admin/Settings/Groups/FrontendSettings.php:422
 msgid "Back to Bookings"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:460
+#: src/Admin/Settings/Groups/FrontendSettings.php:423
 msgid "Already Have Account Text"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:460
+#: src/Admin/Settings/Groups/FrontendSettings.php:423
 msgid "Already have account?"
 msgstr ""
 
 #. translators: %s: default value
-#: src/Admin/Settings/Groups/FrontendSettings.php:475
+#: src/Admin/Settings/Groups/FrontendSettings.php:438
 #, php-format
 msgid "Default: \"%s\""
 msgstr ""
