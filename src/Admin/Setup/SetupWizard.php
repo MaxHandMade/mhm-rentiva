@@ -7,9 +7,13 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
+use MHMRentiva\Admin\Settings\Core\SettingsSanitizer;
+use MHMRentiva\Admin\Settings\Groups\FrontendColorsSection;
+use MHMRentiva\Core\Color\RvsColorTokens;
 
 
 
@@ -25,11 +29,18 @@ final class SetupWizard {
 	private const OPTION_COMPLETED = 'mhmrentiva_setup_completed';
 	private const OPTION_REDIRECT  = 'mhmrentiva_setup_redirect';
 
+	/**
+	 * Set when step 4 has been saved at least once (the summary's evidence;
+	 * the currency setting always has a default, so it proves nothing).
+	 */
+	private const OPTION_FRONTEND_SAVED = 'mhmrentiva_setup_frontend_saved';
+
 	public static function register(): void
 	{
 		add_action('admin_init', array( self::class, 'maybe_redirect' ));
 		add_action('admin_notices', array( self::class, 'show_permalink_notice' ));
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_assets' ));
+		add_filter('removable_query_args', array( self::class, 'removable_query_args' ));
 
 		add_action('admin_post_mhmrentiva_setup_create_pages', array( self::class, 'handle_create_pages' ));
 		add_action('admin_post_mhmrentiva_setup_save_email', array( self::class, 'handle_save_email' ));
@@ -57,14 +68,66 @@ final class SetupWizard {
 			return;
 		}
 
+		// The stylesheet reads ui-core tokens, declared on .mhmui-admin by the kit.
+		AssetManager::enqueue_kit('admin');
+		add_filter('admin_body_class', array( self::class, 'add_body_class' ));
+
 		$css_path = MHMRENTIVA_PLUGIN_DIR . 'assets/css/admin/setup-wizard.css';
 		if (file_exists($css_path)) {
+			// Literal dependency: the style-token gate reads registrations literally.
 			wp_enqueue_style(
 				'mhm-rentiva-setup-wizard',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/setup-wizard.css',
-				array(),
+				array( 'mhmuicore-admin' ),
 				MHMRENTIVA_VERSION . '.' . filemtime($css_path)
 			);
+		}
+
+		if ('frontend' === self::get_current_step()) {
+			// The Colors field and its preview, as on Settings > Frontend. The
+			// saved palette is attached here because RvsColorTokens::attach_admin()
+			// only runs on the Settings screen.
+			FrontendColorsSection::enqueue_picker_assets();
+			RvsColorTokens::attach();
+		}
+	}
+
+	/**
+	 * Core strips one-shot notice flags such as `saved` from the address bar
+	 * after a redirect; the accent fallback flag joins them, so a reload does
+	 * not show the warning again.
+	 *
+	 * @param string[] $args
+	 * @return string[]
+	 */
+	public static function removable_query_args(array $args): array
+	{
+		$args[] = 'mhmrentiva_accent';
+		return $args;
+	}
+
+	/**
+	 * Scope class for the kit's tokens on the wizard screen.
+	 */
+	public static function add_body_class(string $classes): string
+	{
+		return $classes . ' mhmui-admin ';
+	}
+
+	/**
+	 * Notice after a save redirect. The query flags only choose a message;
+	 * nothing is authorised by them.
+	 */
+	private static function render_saved_notice(): void
+	{
+		$saved  = sanitize_key(wp_unslash($_GET['saved'] ?? ''));
+		$accent = sanitize_key(wp_unslash($_GET['mhmrentiva_accent'] ?? ''));
+
+		if ('1' === $saved) {
+			echo '<div class="notice notice-success inline"><p>' . esc_html__('Settings saved.', 'mhm-rentiva') . '</p></div>';
+		}
+		if ('auto' === $accent) {
+			echo '<div class="notice notice-warning inline"><p>' . esc_html__('No custom color was chosen, so the accent color stays Automatic.', 'mhm-rentiva') . '</p></div>';
 		}
 	}
 
@@ -98,6 +161,7 @@ final class SetupWizard {
 
 		echo '<p>' . esc_html__('Follow the steps below to prepare Rentiva on a fresh WordPress installation. You can re-open this wizard later from the MHM Rentiva menu.', 'mhm-rentiva') . '</p>';
 
+		self::render_saved_notice();
 		self::render_step_navigation($steps, $current_step);
 		?>
 		<div class="mhm-setup-step">
@@ -129,21 +193,28 @@ final class SetupWizard {
 	private static function render_step_navigation(array $steps, string $current_step): void
 	{
 		echo '<ol class="mhm-setup-steps">';
+		$number = 0;
 		foreach ($steps as $key => $label) {
-			$classes = array();
-			if ($key === $current_step) {
+			++$number;
+			$is_current = $key === $current_step;
+			$is_done    = self::is_step_completed($key);
+			$classes    = array();
+			if ($is_current) {
 				$classes[] = 'current';
 			}
-			if (self::is_step_completed($key)) {
+			if ($is_done) {
 				$classes[] = 'completed';
 			}
-			$class_attr = implode(' ', $classes);
-			printf(
-				'<li class="%1$s"><a href="%2$s">%3$s</a></li>',
-				esc_attr($class_attr),
-				esc_url(self::step_url($key)),
-				esc_html($label)
-			);
+
+			echo '<li class="' . esc_attr(implode(' ', $classes)) . '"' . ( $is_current ? ' aria-current="step"' : '' ) . '>';
+			// The current step shows its number even when done; a done step
+			// shows a tick with its state spelled out for screen readers.
+			if ($is_done && ! $is_current) {
+				echo '<span class="mhm-setup-steps__num" aria-hidden="false">✓<span class="screen-reader-text">' . esc_html__('Completed', 'mhm-rentiva') . '</span></span>';
+			} else {
+				echo '<span class="mhm-setup-steps__num" aria-hidden="true">' . esc_html(number_format_i18n($number)) . '</span>';
+			}
+			echo '<a href="' . esc_url(self::step_url($key)) . '">' . esc_html($label) . '</a></li>';
 		}
 		echo '</ol>';
 	}
@@ -154,8 +225,8 @@ final class SetupWizard {
 		?>
 		<h2><?php esc_html_e('Step 1: System Requirements', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('We scanned your WordPress environment to ensure Rentiva can run reliably. Resolve any item marked as required before continuing.', 'mhm-rentiva'); ?></p>
-		<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
-		<table class="widefat striped mhm-system-table">
+		<div class="mhm-setup-table-wrap">
+		<table class="mhm-setup-table mhm-system-table">
 			<thead>
 				<tr>
 					<th><?php esc_html_e('Requirement', 'mhm-rentiva'); ?></th>
@@ -175,7 +246,7 @@ final class SetupWizard {
 							Html::echo_markup( self::format_status_badge($check['status']) );
 							?>
 							<?php if (! empty($check['message'])) : ?>
-								<div class="mhm-system-note"><?php echo esc_html($check['message']); ?></div>
+								<div class="mhm-system-note"><?php self::render_check_note( (string) $check['message']); ?></div>
 							<?php endif; ?>
 						</td>
 					</tr>
@@ -197,7 +268,8 @@ final class SetupWizard {
 		?>
 		<h2><?php esc_html_e('Step 2: Required Pages', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('Rentiva uses dedicated WordPress pages for booking, confirmation and customer account screens. Create missing pages automatically or link existing ones.', 'mhm-rentiva'); ?></p>
-		<table class="widefat striped">
+		<div class="mhm-setup-table-wrap">
+		<table class="mhm-setup-table">
 			<thead>
 				<tr>
 					<th><?php esc_html_e('Page', 'mhm-rentiva'); ?></th>
@@ -234,10 +306,11 @@ final class SetupWizard {
 				<?php endforeach; ?>
 			</tbody>
 		</table>
-		<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="margin-top:20px;">
+		</div>
+		<form method="post" class="mhm-setup-inline-actions" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
 			<?php wp_nonce_field('mhmrentiva_setup_pages'); ?>
 			<input type="hidden" name="action" value="mhmrentiva_setup_create_pages">
-			<?php submit_button(__('Create Missing Pages', 'mhm-rentiva')); ?>
+			<button type="submit" class="button button-primary"><?php esc_html_e('Create Missing Pages', 'mhm-rentiva'); ?></button>
 			<a class="button" href="<?php echo esc_url(admin_url('admin.php?page=mhm-rentiva-shortcode-pages')); ?>" target="_blank">
 				<?php esc_html_e('Open Shortcode Pages', 'mhm-rentiva'); ?>
 			</a>
@@ -263,15 +336,15 @@ final class SetupWizard {
 		<h2><?php esc_html_e('Step 3: Email & Notifications', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('Configure the sender information and enable automatic notifications for bookings.', 'mhm-rentiva'); ?></p>
 
-		<div class="mhm-wizard-notice notice notice-info inline" style="padding: 15px; background-color: #f0f6fc; border-left: 4px solid #72aee6; margin-bottom: 20px;">
-			<h3 style="margin: 0 0 10px 0; font-size: 1.1em; font-weight: 600;"><?php esc_html_e('📧 Important: Email Delivery Security', 'mhm-rentiva'); ?></h3>
-			<p style="margin-bottom: 10px;">
+		<div class="mhm-setup-info">
+			<strong class="mhm-setup-info__title"><?php esc_html_e('Important: Email Delivery Security', 'mhm-rentiva'); ?></strong>
+			<p>
 				<?php esc_html_e('The default WordPress email system can be unreliable depending on server configuration, causing your emails to fall into Spam/Junk folders.', 'mhm-rentiva'); ?>
 			</p>
 			<p>
 				<?php esc_html_e('For uninterrupted communication and delivery of booking notifications, please install and configure an SMTP Plugin.', 'mhm-rentiva'); ?>
 			</p>
-			<p style="margin-top: 10px; font-style: italic;">
+			<p class="mhm-setup-info__plugins">
 				<strong><?php esc_html_e('Recommended Plugins:', 'mhm-rentiva'); ?></strong>
 				<a href="https://wordpress.org/plugins/wp-mail-smtp/" target="_blank">WP Mail SMTP</a> <?php esc_html_e('or', 'mhm-rentiva'); ?>
 				<a href="https://wordpress.org/plugins/fluent-smtp/" target="_blank">Fluent SMTP</a>
@@ -281,41 +354,41 @@ final class SetupWizard {
 		<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
 			<?php wp_nonce_field('mhmrentiva_setup_email'); ?>
 			<input type="hidden" name="action" value="mhmrentiva_setup_save_email">
-			<table class="form-table">
-				<tr>
-					<th scope="row"><?php esc_html_e('Sender Name', 'mhm-rentiva'); ?></th>
-					<td><input type="text" name="sender_name" class="regular-text" value="<?php echo esc_attr($sender_name); ?>" /></td>
-				</tr>
-				<tr>
-					<th scope="row"><?php esc_html_e('Sender Email', 'mhm-rentiva'); ?></th>
-					<td><input type="email" name="sender_email" class="regular-text" value="<?php echo esc_attr($sender_email); ?>" /></td>
-				</tr>
-				<tr>
-					<th scope="row"><?php esc_html_e('Reply-To Address', 'mhm-rentiva'); ?></th>
-					<td><input type="email" name="reply_address" class="regular-text" value="<?php echo esc_attr($reply_address); ?>" /></td>
-				</tr>
-				<tr>
-					<th scope="row"><?php esc_html_e('Test Mode', 'mhm-rentiva'); ?></th>
-					<td>
+			<div class="mhm-setup-rows">
+				<div class="mhm-setup-row">
+					<label class="mhm-setup-row__label" for="mhm-setup-sender-name"><?php esc_html_e('Sender Name', 'mhm-rentiva'); ?></label>
+					<div class="mhm-setup-row__field"><input type="text" id="mhm-setup-sender-name" name="sender_name" class="regular-text" value="<?php echo esc_attr($sender_name); ?>" /></div>
+				</div>
+				<div class="mhm-setup-row">
+					<label class="mhm-setup-row__label" for="mhm-setup-sender-email"><?php esc_html_e('Sender Email', 'mhm-rentiva'); ?></label>
+					<div class="mhm-setup-row__field"><input type="email" id="mhm-setup-sender-email" name="sender_email" class="regular-text" value="<?php echo esc_attr($sender_email); ?>" /></div>
+				</div>
+				<div class="mhm-setup-row">
+					<label class="mhm-setup-row__label" for="mhm-setup-reply-address"><?php esc_html_e('Reply-To Address', 'mhm-rentiva'); ?></label>
+					<div class="mhm-setup-row__field"><input type="email" id="mhm-setup-reply-address" name="reply_address" class="regular-text" value="<?php echo esc_attr($reply_address); ?>" /></div>
+				</div>
+				<div class="mhm-setup-row">
+					<span class="mhm-setup-row__label"><?php esc_html_e('Test Mode', 'mhm-rentiva'); ?></span>
+					<div class="mhm-setup-row__field">
 						<label>
 							<input type="checkbox" name="test_mode" value="1" <?php checked($test_mode, '1'); ?> />
 							<?php esc_html_e('Enable test mode (emails will be sent only to the test address)', 'mhm-rentiva'); ?>
 						</label>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><?php esc_html_e('Test Email Address', 'mhm-rentiva'); ?></th>
-					<td><input type="email" name="test_address" class="regular-text" value="<?php echo esc_attr($test_address); ?>" /></td>
-				</tr>
-				<tr>
-					<th scope="row"><?php esc_html_e('Automation', 'mhm-rentiva'); ?></th>
-					<td>
-						<label><input type="checkbox" name="send_enabled" value="1" <?php checked($send_enabled, '1'); ?> /> <?php esc_html_e('Email sending enabled', 'mhm-rentiva'); ?></label><br>
-						<label><input type="checkbox" name="auto_enabled" value="1" <?php checked($auto_enabled, '1'); ?> /> <?php esc_html_e('Automatic email sending enabled', 'mhm-rentiva'); ?></label><br>
+					</div>
+				</div>
+				<div class="mhm-setup-row">
+					<label class="mhm-setup-row__label" for="mhm-setup-test-address"><?php esc_html_e('Test Email Address', 'mhm-rentiva'); ?></label>
+					<div class="mhm-setup-row__field"><input type="email" id="mhm-setup-test-address" name="test_address" class="regular-text" value="<?php echo esc_attr($test_address); ?>" /></div>
+				</div>
+				<div class="mhm-setup-row">
+					<span class="mhm-setup-row__label"><?php esc_html_e('Automation', 'mhm-rentiva'); ?></span>
+					<div class="mhm-setup-row__field mhm-setup-row__field--stack">
+						<label><input type="checkbox" name="send_enabled" value="1" <?php checked($send_enabled, '1'); ?> /> <?php esc_html_e('Email sending enabled', 'mhm-rentiva'); ?></label>
+						<label><input type="checkbox" name="auto_enabled" value="1" <?php checked($auto_enabled, '1'); ?> /> <?php esc_html_e('Automatic email sending enabled', 'mhm-rentiva'); ?></label>
 						<label><input type="checkbox" name="log_enabled" value="1" <?php checked($log_enabled, '1'); ?> /> <?php esc_html_e('Log emails in the email log post type', 'mhm-rentiva'); ?></label>
-					</td>
-				</tr>
-			</table>
+					</div>
+				</div>
+			</div>
 			<div class="mhm-step-actions">
 				<a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('pages')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
 				<button type="submit" class="button button-primary button-large"><?php esc_html_e('Save & Continue', 'mhm-rentiva'); ?></button>
@@ -355,18 +428,20 @@ final class SetupWizard {
 		$default_days      = (int) SettingsCore::get('mhmrentiva_default_rental_days', 1);
 		$min_days          = (int) SettingsCore::get('mhmrentiva_vehicle_min_rental_days', 1);
 		$max_days          = (int) SettingsCore::get('mhmrentiva_vehicle_max_rental_days', 30);
-		$show_features     = SettingsCore::get('mhmrentiva_vehicle_show_features', '1');
-		$show_availability = SettingsCore::get('mhmrentiva_vehicle_show_availability', '1');
 		?>
 		<h2><?php esc_html_e('Step 4: Frontend & Display', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('Fine tune the visible defaults that appear on booking forms and vehicle cards.', 'mhm-rentiva'); ?></p>
 		<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
 			<?php wp_nonce_field('mhmrentiva_setup_frontend'); ?>
 			<input type="hidden" name="action" value="mhmrentiva_setup_save_frontend">
-			<table class="form-table">
-				<tr>
-					<th><?php esc_html_e('Currency', 'mhm-rentiva'); ?></th>
-					<td>
+			<div class="mhm-setup-rows">
+				<div class="mhm-setup-row">
+					<?php if ($is_woocommerce_currency) : ?>
+						<span class="mhm-setup-row__label"><?php esc_html_e('Currency', 'mhm-rentiva'); ?></span>
+					<?php else : ?>
+						<label class="mhm-setup-row__label" for="mhm-setup-currency"><?php esc_html_e('Currency', 'mhm-rentiva'); ?></label>
+					<?php endif; ?>
+					<div class="mhm-setup-row__field">
 						<?php if ($is_woocommerce_currency) : ?>
 							<p class="description">
 								<strong><?php esc_html_e('Managed by WooCommerce:', 'mhm-rentiva'); ?></strong>
@@ -382,7 +457,7 @@ final class SetupWizard {
 								?>
 							</p>
 						<?php else : ?>
-							<select name="currency">
+							<select id="mhm-setup-currency" name="currency">
 								<?php foreach ($currencies as $code => $label) : ?>
 									<option value="<?php echo esc_attr($code); ?>" <?php selected($currency, $code); ?>>
 										<?php echo esc_html($label); ?>
@@ -390,11 +465,15 @@ final class SetupWizard {
 								<?php endforeach; ?>
 							</select>
 						<?php endif; ?>
-					</td>
-				</tr>
-				<tr>
-					<th><?php esc_html_e('Currency Position', 'mhm-rentiva'); ?></th>
-					<td>
+					</div>
+				</div>
+				<div class="mhm-setup-row">
+					<?php if ($is_woocommerce_currency) : ?>
+						<span class="mhm-setup-row__label"><?php esc_html_e('Currency Position', 'mhm-rentiva'); ?></span>
+					<?php else : ?>
+						<label class="mhm-setup-row__label" for="mhm-setup-currency-position"><?php esc_html_e('Currency Position', 'mhm-rentiva'); ?></label>
+					<?php endif; ?>
+					<div class="mhm-setup-row__field">
 						<?php if ($is_woocommerce_currency) : ?>
 							<?php
 							$wc_pos    = get_option('woocommerce_currency_pos');
@@ -414,7 +493,7 @@ final class SetupWizard {
 								?>
 							</p>
 						<?php else : ?>
-							<select name="currency_position">
+							<select id="mhm-setup-currency-position" name="currency_position">
 								<?php foreach ($positions as $pos => $label) : ?>
 									<option value="<?php echo esc_attr($pos); ?>" <?php selected($currency_position, $pos); ?>>
 										<?php echo esc_html($label); ?>
@@ -422,28 +501,28 @@ final class SetupWizard {
 								<?php endforeach; ?>
 							</select>
 						<?php endif; ?>
-					</td>
-				</tr>
-				<tr>
-					<th><?php esc_html_e('Default Rental Days', 'mhm-rentiva'); ?></th>
-					<td><input type="number" name="default_days" min="1" max="30" value="<?php echo esc_attr($default_days); ?>" /></td>
-				</tr>
-				<tr>
-					<th><?php esc_html_e('Minimum Rental Days', 'mhm-rentiva'); ?></th>
-					<td><input type="number" name="min_days" min="1" max="365" value="<?php echo esc_attr($min_days); ?>" /></td>
-				</tr>
-				<tr>
-					<th><?php esc_html_e('Maximum Rental Days', 'mhm-rentiva'); ?></th>
-					<td><input type="number" name="max_days" min="<?php echo esc_attr(max(1, $min_days)); ?>" max="365" value="<?php echo esc_attr($max_days); ?>" /></td>
-				</tr>
-				<tr>
-					<th><?php esc_html_e('Vehicle Cards', 'mhm-rentiva'); ?></th>
-					<td>
-						<label><input type="checkbox" name="show_features" value="1" <?php checked($show_features, '1'); ?> /> <?php esc_html_e('Show feature badges', 'mhm-rentiva'); ?></label><br>
-						<label><input type="checkbox" name="show_availability" value="1" <?php checked($show_availability, '1'); ?> /> <?php esc_html_e('Show availability badge', 'mhm-rentiva'); ?></label>
-					</td>
-				</tr>
-			</table>
+					</div>
+				</div>
+				<div class="mhm-setup-row">
+					<label class="mhm-setup-row__label" for="mhm-setup-default-days"><?php esc_html_e('Default Rental Days', 'mhm-rentiva'); ?></label>
+					<div class="mhm-setup-row__field"><input type="number" id="mhm-setup-default-days" class="small-text" name="default_days" min="1" max="30" value="<?php echo esc_attr($default_days); ?>" /></div>
+				</div>
+				<div class="mhm-setup-row">
+					<label class="mhm-setup-row__label" for="mhm-setup-min-days"><?php esc_html_e('Minimum Rental Days', 'mhm-rentiva'); ?></label>
+					<div class="mhm-setup-row__field"><input type="number" id="mhm-setup-min-days" class="small-text" name="min_days" min="1" max="365" value="<?php echo esc_attr($min_days); ?>" /></div>
+				</div>
+				<div class="mhm-setup-row">
+					<label class="mhm-setup-row__label" for="mhm-setup-max-days"><?php esc_html_e('Maximum Rental Days', 'mhm-rentiva'); ?></label>
+					<div class="mhm-setup-row__field"><input type="number" id="mhm-setup-max-days" class="small-text" name="max_days" min="<?php echo esc_attr(max(1, $min_days)); ?>" max="365" value="<?php echo esc_attr($max_days); ?>" /></div>
+				</div>
+				<div class="mhm-setup-row">
+					<span class="mhm-setup-row__label"><?php esc_html_e('Accent color', 'mhm-rentiva'); ?></span>
+					<div class="mhm-setup-row__field">
+						<?php FrontendColorsSection::render_fields(); ?>
+						<p class="description"><?php esc_html_e('Same setting as Settings › Frontend & Display › Colors.', 'mhm-rentiva'); ?></p>
+					</div>
+				</div>
+			</div>
 			<div class="mhm-step-actions">
 				<a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('email')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
 				<button type="submit" class="button button-primary button-large"><?php esc_html_e('Save & Continue', 'mhm-rentiva'); ?></button>
@@ -459,7 +538,8 @@ final class SetupWizard {
 		?>
 		<h2><?php esc_html_e('Final Step: Summary & Tests', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('Review the checklist below and run a quick booking to confirm everything is ready.', 'mhm-rentiva'); ?></p>
-		<table class="widefat striped">
+		<div class="mhm-setup-table-wrap">
+		<table class="mhm-setup-table mhm-setup-table--compact">
 			<thead>
 				<tr>
 					<th><?php esc_html_e('Step', 'mhm-rentiva'); ?></th>
@@ -479,6 +559,7 @@ final class SetupWizard {
 				<?php endforeach; ?>
 			</tbody>
 		</table>
+		</div>
 
 		<div class="mhm-summary-actions">
 			<a class="button" href="<?php echo esc_url(admin_url('admin.php?page=mhm-rentiva-settings')); ?>"><?php esc_html_e('Open Settings', 'mhm-rentiva'); ?></a>
@@ -493,16 +574,14 @@ final class SetupWizard {
 
 		if ($is_plain_permalink || $permalink_structure === '') :
 			?>
-			<div class="notice notice-warning inline" style="margin: 20px 0;">
-				<p>
-					<strong><?php esc_html_e('⚠️ Important: Permalink Settings', 'mhm-rentiva'); ?></strong><br>
-					<?php esc_html_e('Your WordPress permalink structure is set to "Plain". For the frontend pages to work correctly, please update your permalink settings to a SEO-friendly structure (e.g., "Post name").', 'mhm-rentiva'); ?>
-				</p>
-				<p>
+			<div class="mhm-setup-warning">
+				<strong><?php esc_html_e('Important: Permalink Settings', 'mhm-rentiva'); ?></strong>
+				<p><?php esc_html_e('Your WordPress permalink structure is set to "Plain". For the frontend pages to work correctly, please update your permalink settings to a SEO-friendly structure (e.g., "Post name").', 'mhm-rentiva'); ?></p>
+				<p class="mhm-setup-warning__actions">
 					<a class="button button-primary" href="<?php echo esc_url(admin_url('options-permalink.php')); ?>" target="_blank">
 						<?php esc_html_e('Open Permalink Settings', 'mhm-rentiva'); ?>
 					</a>
-					<span class="description" style="margin-left: 10px;">
+					<span class="description">
 						<?php esc_html_e('After updating, click "Save Changes" to refresh permalinks.', 'mhm-rentiva'); ?>
 					</span>
 				</p>
@@ -577,8 +656,30 @@ final class SetupWizard {
 		}
 		check_admin_referer('mhmrentiva_setup_frontend');
 
-		$settings                        = get_option('mhmrentiva_settings', array());
-		$settings['mhmrentiva_currency'] = sanitize_text_field(wp_unslash($_POST['currency'] ?? 'USD'));
+		$settings = get_option('mhmrentiva_settings', array());
+
+		// While WooCommerce owns the currency the field is not shown, so it is
+		// not posted: writing a fallback here would silently replace Rentiva's own.
+		if (! CurrencyHelper::woocommerce_is_active() && isset($_POST['currency'])) {
+			$settings['mhmrentiva_currency'] = sanitize_text_field(wp_unslash($_POST['currency']));
+		}
+
+		$accent_saved_as_auto = false;
+		// The same field as Settings > Frontend > Colors, through the same sanitizer.
+		// Only its two keys are read; the tab branch is not used (it would empty the
+		// tab's other texts).
+		if (isset($_POST['mhmrentiva_settings']) && is_array($_POST['mhmrentiva_settings'])) {
+			// Read in the nonce-verified scope; sanitize_accent_settings() then
+			// validates the enum and the hex.
+			$accent = SettingsSanitizer::sanitize_accent_settings(
+				array(
+					'mhmrentiva_accent_mode'  => sanitize_key(wp_unslash($_POST['mhmrentiva_settings']['mhmrentiva_accent_mode'] ?? '')),
+					'mhmrentiva_accent_color' => sanitize_text_field(wp_unslash($_POST['mhmrentiva_settings']['mhmrentiva_accent_color'] ?? '')),
+				)
+			);
+			$settings             = array_merge($settings, $accent);
+			$accent_saved_as_auto = in_array('mhmrentiva_accent_color_empty', array_column(get_settings_errors('mhmrentiva_settings'), 'code'), true);
+		}
 
 		if (CurrencyHelper::woocommerce_is_active()) {
 			$settings['mhmrentiva_currency_position'] = get_option('woocommerce_currency_pos', 'right_space');
@@ -597,12 +698,14 @@ final class SetupWizard {
 		$settings['mhmrentiva_vehicle_min_rental_days'] = (string) max(1, min(365, $min_days));
 		$settings['mhmrentiva_vehicle_max_rental_days'] = (string) max( (int) $settings['mhmrentiva_vehicle_min_rental_days'], min(365, $max_days));
 
-		$settings['mhmrentiva_vehicle_show_features']     = isset($_POST['show_features']) ? '1' : '0';
-		$settings['mhmrentiva_vehicle_show_availability'] = isset($_POST['show_availability']) ? '1' : '0';
-
 		update_option('mhmrentiva_settings', $settings);
+		update_option(self::OPTION_FRONTEND_SAVED, '1');
 
-		wp_safe_redirect(self::step_url('summary', array( 'saved' => '1' )));
+		$args = array( 'saved' => '1' );
+		if ($accent_saved_as_auto) {
+			$args['mhmrentiva_accent'] = 'auto';
+		}
+		wp_safe_redirect(self::step_url('summary', $args));
 		exit;
 	}
 
@@ -708,7 +811,7 @@ final class SetupWizard {
 		?>
 		<div class="notice notice-warning is-dismissible">
 			<p>
-				<strong><?php esc_html_e('⚠️ Important: Permalink Settings Required', 'mhm-rentiva'); ?></strong>
+				<strong><?php esc_html_e('Important: Permalink Settings Required', 'mhm-rentiva'); ?></strong>
 			</p>
 			<p>
 				<?php esc_html_e('Your WordPress permalink structure is set to "Plain". For the frontend pages (booking form, account pages, etc.) to work correctly, please update your permalink settings to a SEO-friendly structure.', 'mhm-rentiva'); ?>
@@ -961,6 +1064,14 @@ final class SetupWizard {
 		return $checks;
 	}
 
+	/**
+	 * A check's note may carry a `<code>` snippet (the memory limit's define).
+	 */
+	private static function render_check_note(string $message): void
+	{
+		echo wp_kses($message, array( 'code' => array() ));
+	}
+
 	private static function format_status_badge(string $status): string
 	{
 		$labels = array(
@@ -970,8 +1081,9 @@ final class SetupWizard {
 		);
 		$text   = $labels[ $status ] ?? __('Unknown', 'mhm-rentiva');
 
+		// Not `.mhm-status`: the ui-core kit's admin.css styles that name unscoped.
 		return sprintf(
-			'<span class="mhm-status mhm-status-%1$s">%2$s</span>',
+			'<span class="mhm-setup-badge mhm-setup-badge--%1$s">%2$s</span>',
 			esc_attr($status),
 			esc_html($text)
 		);
@@ -1081,7 +1193,9 @@ final class SetupWizard {
 			case 'email':
 				return (bool) SettingsCore::get('mhmrentiva_email_from_address', '');
 			case 'frontend':
-				return (bool) SettingsCore::get('mhmrentiva_currency', 'USD');
+				// A wizard finished before this flag existed counts as saved.
+				return get_option(self::OPTION_FRONTEND_SAVED, '0') === '1'
+					|| get_option(self::OPTION_COMPLETED, '0') === '1';
 			case 'summary':
 				return get_option(self::OPTION_COMPLETED, '0') === '1';
 			default:

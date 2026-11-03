@@ -943,45 +943,6 @@ input:checked+.mhm-toggle-slider:before {
 	}
 }
 
-/* Frontend > Colors: source line swatch, preview frame, disabled picker ---- */
-
-/* Edge against the admin background (#f0f0f1): #646970 keeps 3:1 there, where
-   the core input edge #8c8f94 gives 2.85 (plan R11, r2 M2). */
-.mhm-rentiva-accent-swatch {
-	display: inline-block;
-	width: 16px;
-	height: 16px;
-	border: 1px solid #646970;
-	border-radius: 2px;
-	vertical-align: middle;
-}
-
-.mhm-rentiva-accent-preview {
-	max-width: 28rem;
-	padding: 16px;
-	border: 1px solid #c3c4c7;
-	border-radius: 4px;
-}
-
-/* The button and the link sit in one row; keep them apart. */
-.mhm-rentiva-accent-preview > p:first-of-type {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 16px;
-	margin-top: 0;
-}
-
-/* Automatic mode: the picker stays legible (no opacity, which would lower the
-   contrast of its text) but reads as unavailable. */
-.mhm-rentiva-accent .wp-picker-container.is-disabled .wp-color-result,
-.mhm-rentiva-accent .wp-picker-container.is-disabled input {
-	cursor: not-allowed;
-}
-
-.mhm-rentiva-accent .wp-picker-container.is-disabled .wp-color-result-text {
-	background: #f6f7f7;
-	color: #50575e;
-}
+/* Frontend > Colors field styles: assets/css/admin/accent-field.css. */
 
 /* End of general settings */

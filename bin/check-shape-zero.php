@@ -124,7 +124,11 @@ $allowedByFile = [
     // vendor/bin/phpcs --report=json .../UserDashboard.php -> 0 uyarı.
     // Tavan bu dizinin toplamı olduğu için 22'den 20'ye iner.
     'Settings.php'               => 2,
-    'SetupWizard.php'            => 2,
+    // SetupWizard.php 2 -> 4 (2026-11-03, yönetici ekranları PR 1): kayıt
+    // sonrası bildirim `saved` ve `accent` bayraklarını okur (sanitize_key,
+    // sabit dizeyle karşılaştırma); yalnız hangi mesajın basılacağını seçer,
+    // hiçbir şeyi yetkilendirmez, yazmaz. Kayıt admin-post'ta nonce'lu.
+    'SetupWizard.php'            => 4,
     'VehicleSettings.php'        => 2,
     // ContactMessagesPage.php'nin 2 kalıntısı 2026-09-27'de EKLENDİ: salt-okunur
     // admin routing kararı $_REQUEST üzerinden alınıyor (post_status=trash
@@ -180,8 +184,9 @@ foreach ($violations as [$f, $l, $s]) {
 // 2026-09-27: 20 -> 22. ContactMessagesPage.php'nin iki yeni salt-okunur
 // routing okuması eklendi (yukarıdaki gerekçe, contact messages ekranı).
 // 2026-11-02: 22 -> 23. CheckoutJourney.php sipariş anahtarı okuması (yukarıda).
+// 2026-11-03: 23 -> 25. SetupWizard.php kayıt sonrası bildirim bayrakları (yukarıda).
 // Sonraki her artış aynı şekilde kendi dosya bazlı gerekçesini taşımalı.
-$CEILING = 23;
+$CEILING = 25;
 $overCeiling = [];
 foreach ($residualByFile as $file => $count) {
     if ($count > $allowedByFile[$file]) {

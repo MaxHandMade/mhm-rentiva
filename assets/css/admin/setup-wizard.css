@@ -1,35 +1,46 @@
 /* =============================================
-   MHM Rentiva — Setup Wizard Styles
+   MHM Rentiva — Setup Wizard
+   Approved design: canvas board Yon-Sihirbaz (v111).
+   Tokens: ui-core kit (admin.css), declared on .mhmui-admin;
+   the wizard adds that class to <body>.
    ============================================= */
+
+.mhm-setup-wrapper {
+	max-width: 1120px;
+}
+
+.mhm-setup-wrapper .version-badge {
+	display: inline-block;
+	margin-left: var(--mhmui-space-2);
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: var(--mhmui-info-soft);
+	color: var(--mhmui-accent-strong);
+	font-size: 12px;
+	font-weight: 600;
+	vertical-align: middle;
+}
+
+/* Step strip ------------------------------------------------ */
 
 .mhm-setup-steps {
 	display: flex;
-	gap: 12px;
 	flex-wrap: wrap;
+	gap: var(--mhmui-space-2);
+	margin: var(--mhmui-space-2) 0 var(--mhmui-space-4);
+	padding: 0;
 	list-style: none;
-	padding-left: 0;
-	margin-bottom: 20px;
 }
 
 .mhm-setup-steps li {
-	padding: 6px 14px;
-	border-radius: 20px;
-	background: #f6f7f7;
-	border: 1px solid #dcdcdc;
-	color: #1d2327;
-	transition: all 0.2s;
-}
-
-.mhm-setup-steps li.current {
-	background: #2271b1;
-	color: #fff;
-	border-color: #2271b1;
-	box-shadow: none;
-}
-
-.mhm-setup-steps li.completed {
-	border-color: #dcdcdc;
-	box-shadow: none;
+	display: inline-flex;
+	align-items: center;
+	gap: var(--mhmui-space-2);
+	min-height: 32px;
+	margin: 0;
+	padding: 0 6px;
+	background: var(--mhmui-surface);
+	color: var(--mhmui-text-secondary);
 }
 
 .mhm-setup-steps li a {
@@ -37,95 +48,280 @@
 	text-decoration: none;
 }
 
-.mhm-system-table .mhm-system-note {
-	font-size: 12px;
-	margin-top: 4px;
-	color: #646970;
+.mhm-setup-steps li a:focus {
+	box-shadow: 0 0 0 2px var(--mhmui-accent);
+	outline: 2px solid transparent;
 }
 
-.mhm-status {
+.mhm-setup-steps__num {
 	display: inline-flex;
 	align-items: center;
-	gap: 6px;
-	padding: 2px 8px;
-	border-radius: 999px;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background: var(--mhmui-surface-sunken);
+	color: var(--mhmui-text-secondary);
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.mhm-setup-steps li.completed {
+	background: var(--mhmui-neutral-soft);
+	color: var(--mhmui-text);
+}
+
+.mhm-setup-steps li.completed .mhm-setup-steps__num {
+	background: var(--mhmui-success-soft);
+	color: var(--mhmui-success-strong);
+}
+
+.mhm-setup-steps li.current {
+	background: var(--mhmui-accent);
+	color: var(--mhmui-on-accent);
+}
+
+.mhm-setup-steps li.current .mhm-setup-steps__num {
+	background: var(--mhmui-surface);
+	color: var(--mhmui-accent-strong);
+}
+
+/* Step card ------------------------------------------------- */
+
+.mhm-setup-step {
+	display: flex;
+	flex-direction: column;
+	gap: var(--mhmui-space-3);
+	padding: 24px 28px;
+	border: 1px solid var(--mhmui-border);
+	border-radius: var(--mhmui-radius);
+	background: var(--mhmui-surface);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.mhm-setup-step > h2 {
+	margin: 0;
+	padding-bottom: var(--mhmui-space-2);
+	border-bottom: 1px solid var(--mhmui-border-light);
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.mhm-setup-step > p,
+.mhm-setup-step form > p {
+	margin: 0;
+	color: var(--mhmui-text-secondary);
+}
+
+.mhm-setup-step form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--mhmui-space-3);
+}
+
+/* Tables ---------------------------------------------------- */
+
+.mhm-setup-table-wrap {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	border: 1px solid var(--mhmui-border-divider);
+	border-radius: var(--mhmui-radius);
+}
+
+.mhm-setup-table {
+	width: 100%;
+	min-width: 640px;
+	border-collapse: collapse;
+	text-align: left;
+}
+
+.mhm-setup-table--compact {
+	min-width: 0;
+}
+
+.mhm-setup-table th,
+.mhm-setup-table td {
+	padding: 9px 12px;
+	vertical-align: top;
+}
+
+.mhm-setup-table thead tr {
+	border-bottom: 1px solid var(--mhmui-border);
+}
+
+.mhm-setup-table th {
+	font-weight: 600;
+}
+
+.mhm-setup-table tbody tr:nth-child(odd) {
+	background: var(--mhmui-neutral-soft);
+}
+
+.mhm-system-table td:nth-child(3),
+.mhm-system-table .mhm-system-note {
+	color: var(--mhmui-text-secondary);
+}
+
+.mhm-system-table .mhm-system-note {
+	margin-top: var(--mhmui-space-1);
 	font-size: 12px;
 }
 
-.mhm-status-ok {
-	background: #d5f2e3;
-	color: #1d7a46;
+.mhm-setup-table .status-present {
+	color: var(--mhmui-success-strong);
+	font-weight: 600;
 }
 
-.mhm-status-warning {
-	background: #fff4ce;
-	color: #7a5b00;
+.mhm-setup-table .status-missing {
+	color: var(--mhmui-danger-ink);
+	font-weight: 600;
 }
 
-.mhm-status-fail {
-	background: #fdeaea;
-	color: #a12622;
+/* Status badges --------------------------------------------- */
+
+.mhm-setup-badge {
+	display: inline-block;
+	padding: 2px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.mhm-setup-badge--ok {
+	background: var(--mhmui-success-soft);
+	color: var(--mhmui-success-strong);
+}
+
+.mhm-setup-badge--warning {
+	background: var(--mhmui-warning-soft);
+	color: var(--mhmui-warning-ink);
+}
+
+.mhm-setup-badge--fail {
+	background: var(--mhmui-danger-soft);
+	color: var(--mhmui-danger-strong);
+}
+
+/* Form rows ------------------------------------------------- */
+
+.mhm-setup-rows {
+	display: flex;
+	flex-direction: column;
+}
+
+.mhm-setup-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: var(--mhmui-space-2) 24px;
+	padding: 10px 0;
+}
+
+.mhm-setup-row__label {
+	flex: 0 0 200px;
+	font-weight: 600;
+}
+
+.mhm-setup-row__field {
+	flex: 1 1 320px;
+	min-width: 0;
+}
+
+.mhm-setup-row__field--stack {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.mhm-setup-row__field .description {
+	margin: var(--mhmui-space-1) 0 0;
+	color: var(--mhmui-text-secondary);
+}
+
+.mhm-setup-row__field input[type="text"],
+.mhm-setup-row__field input[type="email"],
+.mhm-setup-row__field input[type="number"],
+.mhm-setup-row__field select {
+	min-height: 32px;
+	border-color: var(--mhmui-border-strong);
+	border-radius: var(--mhmui-radius);
+}
+
+/* Boxes ----------------------------------------------------- */
+
+.mhm-setup-info,
+.mhm-setup-warning {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 14px 16px;
+	border-radius: var(--mhmui-radius);
+}
+
+.mhm-setup-info {
+	border: 1px solid #c5d9ed;
+	background: #f0f6fc;
+}
+
+.mhm-setup-warning {
+	border: 1px solid #f0d78c;
+	background: #fff8e5;
+}
+
+.mhm-setup-info p,
+.mhm-setup-warning p {
+	margin: 0;
+}
+
+.mhm-setup-info__title {
+	font-size: 14px;
+}
+
+.mhm-setup-info__plugins {
+	font-style: italic;
+}
+
+.mhm-setup-warning__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+}
+
+/* Actions --------------------------------------------------- */
+
+.mhm-setup-inline-actions,
+.mhm-summary-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--mhmui-space-2);
 }
 
 .mhm-step-actions {
-	margin-top: 32px;
-	padding-top: 24px;
-	border-top: 1px solid #f0f0f1;
 	display: flex;
-	justify-content: flex-end;
-	gap: 12px;
 	flex-wrap: wrap;
 	align-items: center;
+	justify-content: flex-end;
+	gap: var(--mhmui-space-2);
+	margin-top: var(--mhmui-space-1);
 }
 
 .mhm-step-actions .align-left {
 	margin-right: auto;
 }
 
-.mhm-summary-actions {
-	display: flex;
-	gap: 10px;
-	margin: 16px 0;
-	flex-wrap: wrap;
+.mhm-setup-wrapper .button {
+	border-radius: 3px;
 }
 
-.mhm-license-card {
-	border: 1px solid #c3c4c7;
-	border-radius: 8px;
-	background: #fff;
-	padding: 16px 20px;
-	margin-bottom: 16px;
-}
+/* Narrow screens -------------------------------------------- */
 
-.mhm-license-card--active {
-	border-color: #3ab27b;
-	box-shadow: 0 0 0 1px rgba(58, 178, 123, 0.2);
-}
+@media screen and (max-width: 782px) {
+	.mhm-setup-step {
+		padding: 16px;
+	}
 
-.mhm-license-card__status {
-	font-weight: 600;
-	margin-bottom: 12px;
-}
-
-.mhm-license-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	gap: 12px 24px;
-	margin-bottom: 8px;
-}
-
-.mhm-license-label {
-	font-size: 12px;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	color: #646970;
-}
-
-.mhm-license-code {
-	display: inline-block;
-	font-size: 14px;
-	padding: 4px 8px;
-	background: #f6f7f7;
-	border-radius: 4px;
-	margin-top: 4px;
+	.mhm-setup-row__label {
+		flex-basis: 100%;
+	}
 }

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-03T12:21:38+00:00\n"
+"POT-Creation-Date: 2026-11-03T16:41:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -130,8 +130,8 @@ msgstr ""
 #: src/Admin/About/Tabs/SystemTab.php:150
 #: src/Admin/About/Tabs/SystemTab.php:156
 #: src/Admin/About/Tabs/SystemTab.php:162
-#: src/Admin/Setup/SetupWizard.php:880
-#: src/Admin/Setup/SetupWizard.php:971
+#: src/Admin/Setup/SetupWizard.php:973
+#: src/Admin/Setup/SetupWizard.php:1072
 #: src/Layout/CLI/LayoutImportCommand.php:397
 msgid "Unknown"
 msgstr ""
@@ -308,7 +308,7 @@ msgstr ""
 #: src/Admin/About/Tabs/SupportTab.php:78
 #: src/Admin/Core/Traits/AdminHelperTrait.php:119
 #: src/Admin/Core/Utilities/UXHelper.php:506
-#: src/Admin/Setup/SetupWizard.php:82
+#: src/Admin/Setup/SetupWizard.php:130
 #: src-react/admin/about/components/SupportTab.jsx:10
 msgid "Documentation"
 msgstr ""
@@ -346,7 +346,7 @@ msgstr ""
 #: src/Admin/About/Tabs/SupportTab.php:115
 #: src/Admin/Frontend/Widgets/Elementor/ContactFormWidget.php:36
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:111
-#: src/Admin/Setup/SetupWizard.php:824
+#: src/Admin/Setup/SetupWizard.php:917
 #: src-react/admin/about/components/SupportTab.jsx:23
 msgid "Contact Form"
 msgstr ""
@@ -823,8 +823,8 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1527
 #: src/Admin/Customers/CustomersPage.php:255
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
-#: src/Admin/Setup/SetupWizard.php:887
-#: src/Admin/Setup/SetupWizard.php:946
+#: src/Admin/Setup/SetupWizard.php:980
+#: src/Admin/Setup/SetupWizard.php:1039
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1038
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:460
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:763
@@ -857,7 +857,7 @@ msgstr ""
 #: src/Admin/Customers/CustomersPage.php:566
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:353
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:358
-#: src/Admin/Setup/SetupWizard.php:969
+#: src/Admin/Setup/SetupWizard.php:1070
 #: assets/blocks/unified-search/index.js:123
 msgid "Required"
 msgstr ""
@@ -1071,7 +1071,7 @@ msgstr[1] ""
 #: src/Admin/Addons/AddonScreen.php:1044
 #: src/Admin/Core/AssetManager.php:1681
 #: src/Admin/Customers/CustomersPage.php:447
-#: src/Admin/Setup/SetupWizard.php:225
+#: src/Admin/Setup/SetupWizard.php:288
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:971
 #: templates/partials/rvs/review-card.php:78
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:48
@@ -1265,7 +1265,7 @@ msgstr ""
 #: src/Admin/Emails/Notifications/BookingNotifications.php:208
 #: src/Admin/Frontend/Account/BookingTimeline.php:70
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:80
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:100
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:118
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1037
 #: assets/blocks/my-bookings/index.js:39
 #: src-react/admin/dashboard/components/RecentBookings.jsx:11
@@ -1293,6 +1293,7 @@ msgstr ""
 #: src/Admin/Frontend/Account/BookingTimeline.php:107
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:340
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:82
+#: src/Admin/Setup/SetupWizard.php:197
 #: src/Frontend/PreviewSamples.php:190
 #: templates/emails/booking-created-admin.html.php:65
 #: templates/emails/booking-created-customer.html.php:91
@@ -1735,9 +1736,9 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:254
 #: src/Admin/Booking/Meta/BookingMeta.php:349
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:488
-#: src/Admin/Setup/SetupWizard.php:164
-#: src/Admin/Setup/SetupWizard.php:205
-#: src/Admin/Setup/SetupWizard.php:466
+#: src/Admin/Setup/SetupWizard.php:226
+#: src/Admin/Setup/SetupWizard.php:268
+#: src/Admin/Setup/SetupWizard.php:537
 #: src/Admin/Utilities/ListTable/LogColumns.php:76
 #: src/Admin/Utilities/ListTable/LogColumns.php:145
 #: templates/account/payment-history.php:72
@@ -3980,7 +3981,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1524
 #: src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php:36
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:96
-#: src/Admin/Setup/SetupWizard.php:814
+#: src/Admin/Setup/SetupWizard.php:907
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:118
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:125
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:521
@@ -4112,6 +4113,7 @@ msgid "You have unsaved changes"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1556
+#: src/Admin/Setup/SetupWizard.php:112
 msgid "Settings saved."
 msgstr ""
 
@@ -4240,7 +4242,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1673
 #: src/Admin/Settings/Groups/LogsSettings.php:67
-#: src/Admin/Setup/SetupWizard.php:968
+#: src/Admin/Setup/SetupWizard.php:1069
 msgid "Warning"
 msgstr ""
 
@@ -4309,10 +4311,10 @@ msgid "Close"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1688
-#: src/Admin/Setup/SetupWizard.php:246
-#: src/Admin/Setup/SetupWizard.php:320
-#: src/Admin/Setup/SetupWizard.php:448
-#: src/Admin/Setup/SetupWizard.php:521
+#: src/Admin/Setup/SetupWizard.php:310
+#: src/Admin/Setup/SetupWizard.php:384
+#: src/Admin/Setup/SetupWizard.php:518
+#: src/Admin/Setup/SetupWizard.php:591
 msgid "Back"
 msgstr ""
 
@@ -5938,7 +5940,7 @@ msgid "Customize automated email communications. If a field is empty, the system
 msgstr ""
 
 #: src/Admin/Emails/Core/EmailTemplates.php:86
-#: src/Admin/Setup/SetupWizard.php:741
+#: src/Admin/Setup/SetupWizard.php:834
 msgid "Email Settings"
 msgstr ""
 
@@ -6001,7 +6003,7 @@ msgstr ""
 
 #: src/Admin/Emails/Core/EmailTemplates.php:565
 #: src/Admin/Emails/Templates/EmailPreview.php:57
-#: src/Admin/Setup/SetupWizard.php:486
+#: src/Admin/Setup/SetupWizard.php:558
 msgid "Send Test Email"
 msgstr ""
 
@@ -6020,7 +6022,7 @@ msgstr ""
 
 #: src/Admin/Emails/Core/EmailTemplates.php:572
 #: src/Admin/Emails/Templates/EmailPreview.php:58
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:91
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:109
 msgid "Preview"
 msgstr ""
 
@@ -6237,7 +6239,7 @@ msgstr ""
 #: src/Admin/Emails/Templates/RefundEmails.php:69
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:306
 #: src/Admin/Settings/Core/SettingsHelper.php:363
-#: src/Admin/Setup/SetupWizard.php:937
+#: src/Admin/Setup/SetupWizard.php:1030
 #: assets/blocks/unified-search/index.js:83
 #: assets/blocks/unified-search/index.js:93
 #: assets/blocks/unified-search/index.js:103
@@ -6758,7 +6760,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:679
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:326
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:100
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:93
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:111
 #: src/Admin/Settings/Groups/FrontendSettings.php:320
 #: templates/account/favorites.php:76
 #: templates/partials/vehicle-card-base.php:256
@@ -6770,7 +6772,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:209
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:434
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:680
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:94
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:112
 #: src/Admin/Settings/Groups/FrontendSettings.php:321
 msgid "View Details"
 msgstr ""
@@ -7456,8 +7458,8 @@ msgid "Equipment"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:315
-#: src/Admin/Setup/SetupWizard.php:914
-#: src/Admin/Setup/SetupWizard.php:928
+#: src/Admin/Setup/SetupWizard.php:1007
+#: src/Admin/Setup/SetupWizard.php:1021
 msgid "Unlimited"
 msgstr ""
 
@@ -9278,7 +9280,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:307
 #: src/Admin/Settings/Core/SettingsHelper.php:369
-#: src/Admin/Setup/SetupWizard.php:946
+#: src/Admin/Setup/SetupWizard.php:1039
 #: assets/blocks/unified-search/index.js:84
 #: assets/blocks/unified-search/index.js:94
 #: assets/blocks/unified-search/index.js:104
@@ -9401,7 +9403,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:40
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:63
-#: src/Admin/Setup/SetupWizard.php:799
+#: src/Admin/Setup/SetupWizard.php:892
 msgid "Booking Form"
 msgstr ""
 
@@ -9729,7 +9731,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:42
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:76
-#: src/Admin/Setup/SetupWizard.php:809
+#: src/Admin/Setup/SetupWizard.php:902
 msgid "Search Results"
 msgstr ""
 
@@ -10002,7 +10004,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:40
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:106
-#: src/Admin/Setup/SetupWizard.php:819
+#: src/Admin/Setup/SetupWizard.php:912
 msgid "Vehicles List"
 msgstr ""
 
@@ -10488,7 +10490,7 @@ msgid "Sorry, booking for vehicle \"%s\" has been cancelled. Please select anoth
 msgstr ""
 
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4313
-#: src/Admin/Setup/SetupWizard.php:885
+#: src/Admin/Setup/SetupWizard.php:978
 msgid "WooCommerce"
 msgstr ""
 
@@ -10777,7 +10779,8 @@ msgstr ""
 msgid "Select image"
 msgstr ""
 
-#: src/Admin/Settings/Core/SettingsSanitizer.php:731
+#: src/Admin/Settings/Core/SettingsSanitizer.php:766
+#: src/Admin/Setup/SetupWizard.php:115
 msgid "No custom color was chosen, so the accent color stays Automatic."
 msgstr ""
 
@@ -10846,7 +10849,7 @@ msgid "General booking configuration and data retention settings."
 msgstr ""
 
 #: src/Admin/Settings/Groups/BookingSettings.php:80
-#: src/Admin/Setup/SetupWizard.php:428
+#: src/Admin/Setup/SetupWizard.php:498
 msgid "Default Rental Days"
 msgstr ""
 
@@ -11370,17 +11373,17 @@ msgid "Email Configuration"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php:278
-#: src/Admin/Setup/SetupWizard.php:286
+#: src/Admin/Setup/SetupWizard.php:350
 msgid "Sender Name"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php:279
-#: src/Admin/Setup/SetupWizard.php:290
+#: src/Admin/Setup/SetupWizard.php:354
 msgid "Sender Email"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php:280
-#: src/Admin/Setup/SetupWizard.php:294
+#: src/Admin/Setup/SetupWizard.php:358
 msgid "Reply-To Address"
 msgstr ""
 
@@ -11413,7 +11416,7 @@ msgid "Redirect all outgoing mails to the test address below."
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php:295
-#: src/Admin/Setup/SetupWizard.php:307
+#: src/Admin/Setup/SetupWizard.php:371
 msgid "Test Email Address"
 msgstr ""
 
@@ -11475,82 +11478,82 @@ msgid "Automatic — use the site's color"
 msgstr ""
 
 #: src/Admin/Settings/Groups/FrontendColorsSection.php:48
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:141
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:159
 msgid "Custom color"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:54
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:72
 msgid "Accent color mode"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:60
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:78
 msgid "Custom accent color"
 msgstr ""
 
 #. translators: %s: where the accent color comes from, e.g. "theme setting (Astra)"
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:64
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:82
 #, php-format
 msgid "Source: %s"
 msgstr ""
 
 #. translators: %s: hex color
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:72
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:90
 #, php-format
 msgid "This color is too light for text on the page. Links and text use a darker shade (%s) so they stay readable."
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:75
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:93
 msgid "This light color is hard to tell from a white background."
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:78
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:96
 msgid "If you use a page cache plugin, clear it after changing this."
 msgstr ""
 
 #. translators: %s: theme name
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:117
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:135
 #, php-format
 msgid "theme default (%s)"
 msgstr ""
 
 #. translators: %s: theme name
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:119
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:137
 #, php-format
 msgid "theme setting (%s)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:123
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:141
 msgctxt "Elementor global color"
 msgid "Accent"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:125
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:143
 msgctxt "Elementor global color"
 msgid "Primary"
 msgstr ""
 
 #. translators: %s: Elementor global color name, e.g. "Accent"
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:128
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:146
 #, php-format
 msgid "Elementor global color (%s)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:132
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:150
 msgid "the theme's button color"
 msgstr ""
 
 #. translators: %s: theme.json palette slug, e.g. "primary"
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:135
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:153
 #, php-format
 msgid "theme color palette (theme.json: %s)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:138
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:156
 msgid "Rentiva default"
 msgstr ""
 
 #. translators: %s: filter hook name
-#: src/Admin/Settings/Groups/FrontendColorsSection.php:145
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:163
 #, php-format
 msgid "developer filter (%s)"
 msgstr ""
@@ -11560,6 +11563,7 @@ msgid "Colors"
 msgstr ""
 
 #: src/Admin/Settings/Groups/FrontendSettings.php:131
+#: src/Admin/Setup/SetupWizard.php:510
 msgid "Accent color"
 msgstr ""
 
@@ -11852,12 +11856,14 @@ msgid "Configure currency and display preferences."
 msgstr ""
 
 #: src/Admin/Settings/Groups/GeneralSettings.php:89
-#: src/Admin/Setup/SetupWizard.php:368
+#: src/Admin/Setup/SetupWizard.php:431
+#: src/Admin/Setup/SetupWizard.php:433
 msgid "Currency"
 msgstr ""
 
 #: src/Admin/Settings/Groups/GeneralSettings.php:98
-#: src/Admin/Setup/SetupWizard.php:396
+#: src/Admin/Setup/SetupWizard.php:463
+#: src/Admin/Setup/SetupWizard.php:465
 msgid "Currency Position"
 msgstr ""
 
@@ -11986,8 +11992,8 @@ msgid "A contact message with more links than this goes to Spam. With 0, any lin
 msgstr ""
 
 #: src/Admin/Settings/Groups/GeneralSettings.php:225
-#: src/Admin/Setup/SetupWizard.php:372
-#: src/Admin/Setup/SetupWizard.php:404
+#: src/Admin/Setup/SetupWizard.php:438
+#: src/Admin/Setup/SetupWizard.php:474
 msgid "Managed by WooCommerce:"
 msgstr ""
 
@@ -12217,7 +12223,7 @@ msgid "Configure vehicle availability rules and booking restrictions."
 msgstr ""
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php:170
-#: src/Admin/Setup/SetupWizard.php:432
+#: src/Admin/Setup/SetupWizard.php:502
 msgid "Minimum Rental Days"
 msgstr ""
 
@@ -12226,7 +12232,7 @@ msgid "Minimum number of rental days"
 msgstr ""
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php:180
-#: src/Admin/Setup/SetupWizard.php:436
+#: src/Admin/Setup/SetupWizard.php:506
 msgid "Maximum Rental Days"
 msgstr ""
 
@@ -12310,7 +12316,7 @@ msgid "Detailed booking form - with all booking options"
 msgstr ""
 
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:68
-#: src/Admin/Setup/SetupWizard.php:804
+#: src/Admin/Setup/SetupWizard.php:897
 msgid "Unified Search"
 msgstr ""
 
@@ -12420,7 +12426,7 @@ msgid "Monitor and configure system health, security, and performance."
 msgstr ""
 
 #: src/Admin/Settings/View/TabRendererRegistry.php:195
-#: src/Admin/Setup/SetupWizard.php:742
+#: src/Admin/Setup/SetupWizard.php:835
 msgid "Frontend & Display"
 msgstr ""
 
@@ -12756,400 +12762,392 @@ msgstr ""
 msgid "Reveal API Directory"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:46
-#: src/Admin/Setup/SetupWizard.php:47
+#: src/Admin/Setup/SetupWizard.php:56
+#: src/Admin/Setup/SetupWizard.php:57
 #: src/Admin/Utilities/Menu/Menu.php:174
 #: src/Admin/Utilities/Menu/Menu.php:175
 msgid "Setup Wizard"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:99
+#: src/Admin/Setup/SetupWizard.php:147
 msgid "Follow the steps below to prepare Rentiva on a fresh WordPress installation. You can re-open this wizard later from the MHM Rentiva menu."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:155
+#: src/Admin/Setup/SetupWizard.php:217
 msgid "Step 1: System Requirements"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:156
+#: src/Admin/Setup/SetupWizard.php:218
 msgid "We scanned your WordPress environment to ensure Rentiva can run reliably. Resolve any item marked as required before continuing."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:161
+#: src/Admin/Setup/SetupWizard.php:223
 msgid "Requirement"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:162
+#: src/Admin/Setup/SetupWizard.php:224
 msgid "Current Value"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:163
+#: src/Admin/Setup/SetupWizard.php:225
 msgid "Recommended"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:187
+#: src/Admin/Setup/SetupWizard.php:249
 msgid "Skip wizard"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:188
+#: src/Admin/Setup/SetupWizard.php:250
 msgid "Continue to Required Pages"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:198
+#: src/Admin/Setup/SetupWizard.php:260
 msgid "Step 2: Required Pages"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:199
+#: src/Admin/Setup/SetupWizard.php:261
 msgid "Rentiva uses dedicated WordPress pages for booking, confirmation and customer account screens. Create missing pages automatically or link existing ones."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:203
+#: src/Admin/Setup/SetupWizard.php:266
 #: src-react/admin/contact-messages/ContactMessagesList.jsx:261
 #: src-react/admin/customers/components/Pagination.jsx:17
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:14
 msgid "Page"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:204
+#: src/Admin/Setup/SetupWizard.php:267
 #: src-react/admin/shortcode-pages/components/DebugPanel.jsx:28
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:13
 msgid "Shortcode"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:206
+#: src/Admin/Setup/SetupWizard.php:269
 msgid "Recommended URL"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:213
+#: src/Admin/Setup/SetupWizard.php:276
 msgid "Present"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:213
-#: src/Admin/Setup/SetupWizard.php:886
+#: src/Admin/Setup/SetupWizard.php:276
+#: src/Admin/Setup/SetupWizard.php:979
 #: src-react/admin/shortcode-pages/components/StatsBar.jsx:12
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:8
 msgid "Missing"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:240
+#: src/Admin/Setup/SetupWizard.php:304
 msgid "Create Missing Pages"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:242
+#: src/Admin/Setup/SetupWizard.php:306
 msgid "Open Shortcode Pages"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:247
+#: src/Admin/Setup/SetupWizard.php:311
 msgid "Continue to Email"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:263
+#: src/Admin/Setup/SetupWizard.php:327
 msgid "Step 3: Email & Notifications"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:264
+#: src/Admin/Setup/SetupWizard.php:328
 msgid "Configure the sender information and enable automatic notifications for bookings."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:267
-msgid "📧 Important: Email Delivery Security"
+#: src/Admin/Setup/SetupWizard.php:331
+msgid "Important: Email Delivery Security"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:269
+#: src/Admin/Setup/SetupWizard.php:333
 msgid "The default WordPress email system can be unreliable depending on server configuration, causing your emails to fall into Spam/Junk folders."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:272
+#: src/Admin/Setup/SetupWizard.php:336
 msgid "For uninterrupted communication and delivery of booking notifications, please install and configure an SMTP Plugin."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:275
+#: src/Admin/Setup/SetupWizard.php:339
 msgid "Recommended Plugins:"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:276
+#: src/Admin/Setup/SetupWizard.php:340
 msgid "or"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:298
+#: src/Admin/Setup/SetupWizard.php:362
 msgid "Test Mode"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:302
+#: src/Admin/Setup/SetupWizard.php:366
 msgid "Enable test mode (emails will be sent only to the test address)"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:311
+#: src/Admin/Setup/SetupWizard.php:375
 msgid "Automation"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:313
+#: src/Admin/Setup/SetupWizard.php:377
 msgid "Email sending enabled"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:314
+#: src/Admin/Setup/SetupWizard.php:378
 msgid "Automatic email sending enabled"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:315
+#: src/Admin/Setup/SetupWizard.php:379
 msgid "Log emails in the email log post type"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:321
-#: src/Admin/Setup/SetupWizard.php:449
+#: src/Admin/Setup/SetupWizard.php:385
+#: src/Admin/Setup/SetupWizard.php:519
 msgid "Save & Continue"
 msgstr ""
 
 #. translators: %s: currency symbol
-#: src/Admin/Setup/SetupWizard.php:347
+#: src/Admin/Setup/SetupWizard.php:411
 #, php-format
 msgid "Left (%s100)"
 msgstr ""
 
 #. translators: %s: currency symbol
-#: src/Admin/Setup/SetupWizard.php:349
+#: src/Admin/Setup/SetupWizard.php:413
 #, php-format
 msgid "Left Space (%s 100)"
 msgstr ""
 
 #. translators: %s: currency symbol
-#: src/Admin/Setup/SetupWizard.php:351
+#: src/Admin/Setup/SetupWizard.php:415
 #, php-format
 msgid "Right (100%s)"
 msgstr ""
 
 #. translators: %s: currency symbol
-#: src/Admin/Setup/SetupWizard.php:353
+#: src/Admin/Setup/SetupWizard.php:417
 #, php-format
 msgid "Right Space (100 %s)"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:361
+#: src/Admin/Setup/SetupWizard.php:423
 msgid "Step 4: Frontend & Display"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:362
+#: src/Admin/Setup/SetupWizard.php:424
 msgid "Fine tune the visible defaults that appear on booking forms and vehicle cards."
 msgstr ""
 
 #. translators: %s: link to WooCommerce settings
-#: src/Admin/Setup/SetupWizard.php:379
+#: src/Admin/Setup/SetupWizard.php:445
 #, php-format
 msgid "To change the currency, please visit %s."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:380
-#: src/Admin/Setup/SetupWizard.php:412
+#: src/Admin/Setup/SetupWizard.php:446
+#: src/Admin/Setup/SetupWizard.php:482
 msgid "WooCommerce Settings"
 msgstr ""
 
 #. translators: %s: link to WooCommerce settings
-#: src/Admin/Setup/SetupWizard.php:411
+#: src/Admin/Setup/SetupWizard.php:481
 #, php-format
 msgid "To change the position, please visit %s."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:440
-msgid "Vehicle Cards"
+#: src/Admin/Setup/SetupWizard.php:513
+msgid "Same setting as Settings › Frontend & Display › Colors."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:442
-msgid "Show feature badges"
-msgstr ""
-
-#: src/Admin/Setup/SetupWizard.php:443
-msgid "Show availability badge"
-msgstr ""
-
-#: src/Admin/Setup/SetupWizard.php:460
+#: src/Admin/Setup/SetupWizard.php:530
 msgid "Final Step: Summary & Tests"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:461
+#: src/Admin/Setup/SetupWizard.php:531
 msgid "Review the checklist below and run a quick booking to confirm everything is ready."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:465
+#: src/Admin/Setup/SetupWizard.php:536
 msgid "Step"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:484
+#: src/Admin/Setup/SetupWizard.php:556
 msgid "Open Settings"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:485
+#: src/Admin/Setup/SetupWizard.php:557
 msgid "Review Shortcode Pages"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:498
-msgid "⚠️ Important: Permalink Settings"
+#: src/Admin/Setup/SetupWizard.php:569
+msgid "Important: Permalink Settings"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:499
+#: src/Admin/Setup/SetupWizard.php:570
 msgid "Your WordPress permalink structure is set to \"Plain\". For the frontend pages to work correctly, please update your permalink settings to a SEO-friendly structure (e.g., \"Post name\")."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:503
-#: src/Admin/Setup/SetupWizard.php:718
+#: src/Admin/Setup/SetupWizard.php:573
+#: src/Admin/Setup/SetupWizard.php:811
 msgid "Open Permalink Settings"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:506
+#: src/Admin/Setup/SetupWizard.php:576
 msgid "After updating, click \"Save Changes\" to refresh permalinks."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:517
+#: src/Admin/Setup/SetupWizard.php:587
 msgid "Setup wizard was completed previously. You can still finish again to return to the dashboard."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:522
+#: src/Admin/Setup/SetupWizard.php:592
 msgid "Go to Dashboard"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:523
+#: src/Admin/Setup/SetupWizard.php:593
 msgid "Complete Setup"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:532
-#: src/Admin/Setup/SetupWizard.php:554
-#: src/Admin/Setup/SetupWizard.php:576
-#: src/Admin/Setup/SetupWizard.php:612
-#: src/Admin/Setup/SetupWizard.php:632
-#: src/Admin/Setup/SetupWizard.php:644
+#: src/Admin/Setup/SetupWizard.php:602
+#: src/Admin/Setup/SetupWizard.php:624
+#: src/Admin/Setup/SetupWizard.php:646
+#: src/Admin/Setup/SetupWizard.php:705
+#: src/Admin/Setup/SetupWizard.php:725
+#: src/Admin/Setup/SetupWizard.php:737
 msgid "You are not allowed to perform this action."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:711
-msgid "⚠️ Important: Permalink Settings Required"
+#: src/Admin/Setup/SetupWizard.php:804
+msgid "Important: Permalink Settings Required"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:714
+#: src/Admin/Setup/SetupWizard.php:807
 msgid "Your WordPress permalink structure is set to \"Plain\". For the frontend pages (booking form, account pages, etc.) to work correctly, please update your permalink settings to a SEO-friendly structure."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:721
+#: src/Admin/Setup/SetupWizard.php:814
 msgid "Dismiss"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:739
+#: src/Admin/Setup/SetupWizard.php:832
 msgid "System Check"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:740
+#: src/Admin/Setup/SetupWizard.php:833
 msgid "Required Pages"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:743
+#: src/Admin/Setup/SetupWizard.php:836
 msgid "Summary & Tests"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:886
+#: src/Admin/Setup/SetupWizard.php:979
 msgid "Installed"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:889
+#: src/Admin/Setup/SetupWizard.php:982
 msgid "WooCommerce is required for payments and account management."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:892
+#: src/Admin/Setup/SetupWizard.php:985
 msgid "PHP Version"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:896
+#: src/Admin/Setup/SetupWizard.php:989
 msgid "Update PHP to 7.4 or higher."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:899
+#: src/Admin/Setup/SetupWizard.php:992
 msgid "WordPress Version"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:903
+#: src/Admin/Setup/SetupWizard.php:996
 msgid "Please update WordPress to the latest version."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:906
+#: src/Admin/Setup/SetupWizard.php:999
 msgid "Database Version"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:908
+#: src/Admin/Setup/SetupWizard.php:1001
 msgid "MySQL 5.7+ / MariaDB 10.3+"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:913
+#: src/Admin/Setup/SetupWizard.php:1006
 msgid "PHP Memory Limit"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:915
+#: src/Admin/Setup/SetupWizard.php:1008
 msgid "256 MB recommended"
 msgstr ""
 
 #. translators: %s: link to wp-config.php documentation
-#: src/Admin/Setup/SetupWizard.php:919
+#: src/Admin/Setup/SetupWizard.php:1012
 #, php-format
 msgid "Add %s to your wp-config.php file to increase memory."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:927
+#: src/Admin/Setup/SetupWizard.php:1020
 msgid "PHP max_execution_time"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:929
+#: src/Admin/Setup/SetupWizard.php:1022
 msgid "60s+"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:931
+#: src/Admin/Setup/SetupWizard.php:1024
 msgid "Increase max_execution_time to 60 seconds for large imports."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:936
+#: src/Admin/Setup/SetupWizard.php:1029
 msgid "HTTPS / SSL"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:937
+#: src/Admin/Setup/SetupWizard.php:1030
 msgid "Not detected"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:938
+#: src/Admin/Setup/SetupWizard.php:1031
 msgid "Valid SSL certificate"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:940
+#: src/Admin/Setup/SetupWizard.php:1033
 msgid "Install an SSL certificate to secure customer data."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:945
+#: src/Admin/Setup/SetupWizard.php:1038
 msgid "WP-Cron"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:947
+#: src/Admin/Setup/SetupWizard.php:1040
 msgid "Required for scheduled emails & jobs"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:949
+#: src/Admin/Setup/SetupWizard.php:1042
 msgid "Enable WP-Cron or set a real cron job for reminders."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:954
+#: src/Admin/Setup/SetupWizard.php:1047
 msgid "Email Delivery"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:955
+#: src/Admin/Setup/SetupWizard.php:1048
 msgid "SMTP/Provider detected"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:955
+#: src/Admin/Setup/SetupWizard.php:1048
 msgid "Default wp_mail()"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:956
+#: src/Admin/Setup/SetupWizard.php:1049
 msgid "SMTP provider recommended"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:958
+#: src/Admin/Setup/SetupWizard.php:1051
 msgid "Configure SMTP (WP Mail SMTP, Post SMTP, etc.) for reliable delivery."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:967
+#: src/Admin/Setup/SetupWizard.php:1068
 msgid "Ready"
 msgstr ""
 
