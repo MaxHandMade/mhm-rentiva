@@ -54,21 +54,31 @@ final class ManualBookingStyleTest extends TestCase
 		$this->assertMatchesRegularExpression('/font-size:\s*15px/', $body);
 	}
 
-	public function test_meta_box_title_is_visually_hidden_and_controls_stay(): void
+	public function test_meta_box_title_is_visually_hidden(): void
 	{
-		$rules = $this->rules();
 		$found = false;
-		foreach ($rules as $selector => $body) {
+		foreach ($this->rules() as $selector => $body) {
 			if (str_contains($selector, '#mhmrentiva_manual_booking .postbox-header .hndle')) {
 				$found = true;
 				$this->assertMatchesRegularExpression('/clip|clip-path/', $body);
 				$this->assertStringNotContainsString('display: none', $body);
 			}
-			if (str_contains($selector, 'handle-actions')) {
-				$this->assertDoesNotMatchRegularExpression('/display:\s*none/', $body, $selector);
-			}
 		}
 		$this->assertTrue($found, 'The box title keeps its accessible name, hidden for sight only.');
+	}
+
+	/**
+	 * The one meta box is the whole screen: collapsing it left three tiny
+	 * arrows and no form, and core keeps the closed state for the next visit
+	 * (Fable PR 2 delta). Its move/collapse controls are not offered, and a
+	 * stored closed state still shows the form.
+	 */
+	public function test_the_form_box_cannot_be_collapsed_away(): void
+	{
+		$rules = $this->rules();
+
+		$this->assertMatchesRegularExpression('/display:\s*none/', $rules['#mhmrentiva_manual_booking .handle-actions'] ?? '');
+		$this->assertMatchesRegularExpression('/display:\s*block/', $rules['#mhmrentiva_manual_booking.closed .inside'] ?? '');
 	}
 
 	public function test_important_only_in_core_hiding_and_hidden_helper(): void

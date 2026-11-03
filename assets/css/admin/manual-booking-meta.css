@@ -73,6 +73,17 @@
 	padding: 0;
 }
 
+/* This one box is the whole screen: moving or collapsing it has no use and
+   collapsing hid the form behind three tiny arrows (kept for the next visit).
+   No controls, and a stored closed state still shows the form. */
+#mhmrentiva_manual_booking .handle-actions {
+	display: none;
+}
+
+#mhmrentiva_manual_booking.closed .inside {
+	display: block;
+}
+
 /* Two columns ------------------------------------------------- */
 
 .mhm-mb-layout {
