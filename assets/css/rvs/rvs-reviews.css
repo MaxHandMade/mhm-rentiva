@@ -471,7 +471,7 @@
 
 .rvs-shell .rvs-testimonials__items:focus-visible,
 .rvs-shell .rvs-testimonials__dot:focus-visible {
-	outline: 3px solid var(--rvs-accent);
+	outline: 3px solid var(--rvs-accent-text);
 	outline-offset: 2px;
 }
 

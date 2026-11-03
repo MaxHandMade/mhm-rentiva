@@ -46,9 +46,7 @@ body.rvs-rental,
 	--rvs-text: #1d2327;
 	--rvs-muted: #50575e;
 
-	/* Accent. White text sits on --rvs-accent-strong (5.17:1), never on
-	   --rvs-accent (4.08:1 on white): the accent is for rings and strokes. */
-	--rvs-accent: #3582c4;
+	/* Accent. --rvs-accent-strong is the site's colour (fill and border); --rvs-accent-deep its hover; --rvs-accent-100 a light fill. */
 	--rvs-accent-strong: #2271b1;
 	--rvs-accent-deep: #135e96;
 	--rvs-accent-100: #dcecf9;

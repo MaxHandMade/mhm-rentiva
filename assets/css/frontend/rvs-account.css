@@ -455,7 +455,7 @@
 }
 
 .rvs-shell .rvs-account-detail__upload:focus-within {
-	outline: 3px solid var(--rvs-accent-strong);
+	outline: 3px solid var(--rvs-accent-text);
 	outline-offset: 2px;
 }
 
@@ -688,7 +688,7 @@
 	}
 
 	.rvs-shell .rvs-account-bookings__table tr:focus-within {
-		outline: 3px solid var(--rvs-accent-strong);
+		outline: 3px solid var(--rvs-accent-text);
 		outline-offset: 2px;
 	}
 

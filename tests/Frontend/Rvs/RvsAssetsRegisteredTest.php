@@ -98,7 +98,6 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 			array(
 				'--rvs-bg: #f0f6fc',
 				'--rvs-text: #1d2327',
-				'--rvs-accent: #3582c4',
 				'--rvs-accent-strong: #2271b1',
 				'--rvs-alert: #aa0b56',
 				'--rvs-s1: 5px',

@@ -69,7 +69,7 @@ body.rvs-rental .woocommerce a:not(.button):not(.rvs-btn):hover {
 }
 
 body.rvs-rental .woocommerce :focus-visible {
-	outline: 3px solid var(--rvs-accent-strong);
+	outline: 3px solid var(--rvs-accent-text);
 	outline-offset: 2px;
 }
 
@@ -181,8 +181,8 @@ body.rvs-rental .woocommerce select:focus,
 body.rvs-rental .woocommerce textarea:focus,
 body.rvs-rental .woocommerce .select2-container--focus .select2-selection--single,
 body.rvs-rental .woocommerce .select2-container--open .select2-selection--single {
-	border-color: var(--rvs-accent-strong);
-	outline: 3px solid var(--rvs-accent-strong);
+	border-color: var(--rvs-accent-text);
+	outline: 3px solid var(--rvs-accent-text);
 	outline-offset: 0;
 }
 

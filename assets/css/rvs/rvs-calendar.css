@@ -79,7 +79,7 @@
 }
 
 .rvs-shell .rvs-cal__day.is-today {
-	box-shadow: inset 0 0 0 2px var(--rvs-accent);
+	box-shadow: inset 0 0 0 2px var(--rvs-accent-strong);
 }
 
 /* Interactive month (availability calendar): the cell is a 44 px button on every
@@ -113,7 +113,7 @@
 }
 
 .rvs-shell .rvs-cal__btn:focus-visible {
-	outline: 3px solid var(--rvs-accent-strong);
+	outline: 3px solid var(--rvs-accent-text);
 	outline-offset: 2px;
 }
 

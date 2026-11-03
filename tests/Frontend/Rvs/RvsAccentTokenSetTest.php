@@ -234,6 +234,77 @@ final class RvsAccentTokenSetTest extends WP_UnitTestCase
 		$this->assertMatchesRegularExpression('/(^|[^-])color:\s*var\(--rvs-accent-text\)/', (string) preg_replace('/border-color:[^;]*;/', '', $rules[0]['body']));
 	}
 
+	public function test_focus_rings_read_accent_text(): void
+	{
+		// Spec §3 grep 3, verbatim (the name split so the full-name sweep below
+		// does not find this file).
+		$this->assertSame(array(), self::target_lines_matching('/outline:[^;]*var\(--rvs-' . 'accent(-strong)?\)/'), 'Focus ring on an accent fill token: use --rvs-accent-text.');
+
+		// And every outline of the target set is off or the accent-text ring, so a
+		// new raw-colour ring is caught too.
+		$other = array();
+		foreach (self::target_rules() as $rule) {
+			preg_match_all('/(?:^|[;\s{])outline:\s*([^;]+);/', $rule['body'], $m);
+			foreach ($m[1] as $value) {
+				$value = trim($value);
+				if ('none' !== $value && '0' !== $value && ! str_contains($value, 'var(--rvs-accent-text)')) {
+					$other[] = $rule['file'] . ': ' . $rule['selector'] . ' => ' . $value;
+				}
+			}
+		}
+		$this->assertSame(array(), $other);
+	}
+
+	public function test_selected_lines_read_accent_text(): void
+	{
+		$nav_active = '.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li.is-active > a, .woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li > a[aria-current="page"]';
+		$wc_focus   = 'body.rvs-rental .woocommerce .input-text:focus, body.rvs-rental .woocommerce select:focus, body.rvs-rental .woocommerce textarea:focus, body.rvs-rental .woocommerce .select2-container--focus .select2-selection--single, body.rvs-rental .woocommerce .select2-container--open .select2-selection--single';
+
+		// file, selector, property.
+		$cases = array(
+			array( 'frontend/rvs-account-nav.css', $nav_active, 'border-left-color' ),
+			array( 'frontend/rvs-account-nav.css', $nav_active, 'border-bottom-color' ),
+			array( 'frontend/rvs-availability.css', '.rvs-shell .rvs-availability__option[aria-pressed="true"]', 'border-color' ),
+			array( 'frontend/rvs-availability.css', '.rvs-shell .rvs-availability__option[aria-pressed="true"]', 'box-shadow' ),
+			// R5: the loading spinner, not a selected line; it must stay visible on a light accent.
+			array( 'frontend/rvs-availability.css', '.rvs-shell .rvs-availability[data-rvs-cal-loading] .rvs-availability__months::after', 'border-top-color' ),
+			// R4: the step indicator's done and current edges (the fill stays strong).
+			array( 'rvs/rvs-forms.css', '.rvs-shell .rvs-steps__item.is-done', 'border-top-color' ),
+			array( 'rvs/rvs-forms.css', '.rvs-shell .rvs-steps__item.is-current', 'border-top-color' ),
+			array( 'frontend/rvs-checkout.css', $wc_focus, 'border-color' ),
+		);
+
+		foreach ($cases as list( $file, $selector, $prop )) {
+			$bodies = implode("\n", array_column(self::rules_by_selector($selector, $file), 'body'));
+			$this->assertNotSame('', $bodies, "{$file}: {$selector} not found");
+			$this->assertMatchesRegularExpression('/(?:^|[;\s{])' . preg_quote($prop, '/') . ':[^;]*var\(--rvs-accent-text\)/', $bodies, "{$file}: {$selector} {$prop}");
+		}
+
+		$fill = self::rules_by_selector('.rvs-shell .rvs-steps__fill', 'rvs/rvs-forms.css');
+		$this->assertMatchesRegularExpression('/background:\s*var\(--rvs-accent-strong\)/', $fill[0]['body'] ?? '', 'R4: the progress fill keeps the site colour.');
+	}
+
+	public function test_today_ring_reads_accent_strong(): void
+	{
+		$rules = self::rules_by_selector('.rvs-shell .rvs-cal__day.is-today', 'rvs/rvs-calendar.css');
+		$this->assertCount(1, $rules);
+		$this->assertMatchesRegularExpression('/box-shadow:\s*inset 0 0 0 2px var\(--rvs-accent-strong\);/', $rules[0]['body']);
+	}
+
+	public function test_removed_tokens_are_gone_everywhere(): void
+	{
+		// Spec §3 greps 4 and 5, verbatim.
+		$this->assertSame(array(), self::target_lines_matching('/var\(--rvs-' . 'accent\)/'));
+		$this->assertSame(array(), self::target_lines_matching('/var\(--rvs-(accent-200|n-700)\)/'));
+
+		$name = '--rvs-' . 'accent';
+		$this->assertArrayNotHasKey($name, RvsTokenFile::declarations());
+
+		// The full name, nowhere in the plugin, tests included. Built in parts so
+		// this file does not find itself.
+		$this->assertSame(array(), self::files_matching('/' . preg_quote($name, '/') . '(?![-\w])/', array( 'assets', 'src', 'templates', 'tests' )));
+	}
+
 	/**
 	 * Lines of the target set matching the pattern, as "file:line" (grep -n).
 	 *
