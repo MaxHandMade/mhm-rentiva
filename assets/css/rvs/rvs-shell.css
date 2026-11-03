@@ -63,12 +63,12 @@
 }
 
 .rvs-shell a {
-	color: var(--rvs-accent-strong);
+	color: var(--rvs-accent-text);
 	text-underline-offset: 3px;
 }
 
 .rvs-shell a:hover {
-	color: var(--rvs-accent-deep);
+	color: var(--rvs-accent-text-hover);
 }
 
 /* Controls: written out, never inherited from the theme. */

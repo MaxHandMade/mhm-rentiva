@@ -37,7 +37,7 @@
 }
 
 .rvs-shell .rvs-vd__crumbs a {
-	color: var(--rvs-accent-strong);
+	color: var(--rvs-accent-text);
 }
 
 /* Title row ---------------------------------------------------------------- */
@@ -77,7 +77,7 @@
 }
 
 .rvs-shell .rvs-vd__meta a {
-	color: var(--rvs-accent-strong);
+	color: var(--rvs-accent-text);
 }
 
 .rvs-shell .rvs-vd__actions {
@@ -86,8 +86,8 @@
 }
 
 .rvs-shell .rvs-vd__actions .is-active {
-	border-color: var(--rvs-accent-strong);
-	color: var(--rvs-accent-strong);
+	border-color: var(--rvs-accent-text);
+	color: var(--rvs-accent-text);
 }
 
 /* Gallery ------------------------------------------------------------------ */

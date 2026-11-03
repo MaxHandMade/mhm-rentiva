@@ -219,6 +219,40 @@ final class RvsAccentTokenSetTest extends WP_UnitTestCase
 		$this->assertSame($expected, $white);
 	}
 
+	public function test_no_accent_fill_token_used_as_text(): void
+	{
+		// Spec §3 greps 1 and 2, verbatim: the fill tokens never colour text.
+		$this->assertSame(array(), self::target_lines_matching('/[^-]color:\s*var\(--rvs-accent-strong\)/'), 'Text in --rvs-accent-strong: use --rvs-accent-text.');
+		$this->assertSame(array(), self::target_lines_matching('/[^-]color:\s*var\(--rvs-accent-deep\)/'), 'Text in --rvs-accent-deep: use --rvs-accent-text-hover.');
+	}
+
+	public function test_active_vehicle_action_moves_line_and_text_together(): void
+	{
+		$rules = self::rules_by_selector('.rvs-shell .rvs-vd__actions .is-active', 'rvs/rvs-vehicle.css');
+		$this->assertCount(1, $rules);
+		$this->assertMatchesRegularExpression('/(^|[^-])border-color:\s*var\(--rvs-accent-text\)/', $rules[0]['body']);
+		$this->assertMatchesRegularExpression('/(^|[^-])color:\s*var\(--rvs-accent-text\)/', (string) preg_replace('/border-color:[^;]*;/', '', $rules[0]['body']));
+	}
+
+	/**
+	 * Lines of the target set matching the pattern, as "file:line" (grep -n).
+	 *
+	 * @return list<string>
+	 */
+	private static function target_lines_matching(string $pattern): array
+	{
+		$base = MHMRENTIVA_PLUGIN_DIR . 'assets/css/';
+		$hits = array();
+		foreach (array_merge(glob($base . 'rvs/*.css') ?: array(), glob($base . 'frontend/rvs-*.css') ?: array()) as $path) {
+			foreach (file($path) ?: array() as $i => $line) {
+				if (preg_match($pattern, $line)) {
+					$hits[] = substr($path, strlen($base)) . ':' . ( $i + 1 );
+				}
+			}
+		}
+		return $hits;
+	}
+
 	/**
 	 * Every rule of the target set (assets/css/rvs/*.css and
 	 * assets/css/frontend/rvs-*.css), comments stripped, @media blocks entered.

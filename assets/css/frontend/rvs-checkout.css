@@ -60,12 +60,12 @@ body.rvs-rental .woocommerce legend {
 }
 
 body.rvs-rental .woocommerce a:not(.button):not(.rvs-btn) {
-	color: var(--rvs-accent-strong);
+	color: var(--rvs-accent-text);
 	text-underline-offset: 3px;
 }
 
 body.rvs-rental .woocommerce a:not(.button):not(.rvs-btn):hover {
-	color: var(--rvs-accent-deep);
+	color: var(--rvs-accent-text-hover);
 }
 
 body.rvs-rental .woocommerce :focus-visible {

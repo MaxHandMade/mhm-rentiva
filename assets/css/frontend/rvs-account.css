@@ -254,7 +254,7 @@
 
 .rvs-shell .rvs-account-detail__back {
 	align-self: flex-start;
-	color: var(--rvs-accent-strong);
+	color: var(--rvs-accent-text);
 	font-size: 14px;
 }
 
@@ -447,7 +447,7 @@
 }
 
 .rvs-shell .rvs-account-detail__receipt a {
-	color: var(--rvs-accent-strong);
+	color: var(--rvs-accent-text);
 }
 
 .rvs-shell .rvs-account-detail__upload {
@@ -595,7 +595,7 @@
 }
 
 .rvs-shell .rvs-account-bookings__view {
-	color: var(--rvs-accent-strong);
+	color: var(--rvs-accent-text);
 	font-weight: 600;
 }
 
@@ -649,7 +649,7 @@
 }
 
 .rvs-shell .rvs-account-payments__receipt a {
-	color: var(--rvs-accent-strong);
+	color: var(--rvs-accent-text);
 	font-weight: 600;
 }
 
