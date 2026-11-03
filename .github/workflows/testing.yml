@@ -470,6 +470,13 @@ jobs:
             wp: '6.7.11'
             wc: '10.3.8'
             elementor: '4.0.9'
+          # PROBE (temporary, this PR only): where does the suite turn green?
+          - php: '8.1'
+            os: ubuntu-latest
+            wp: '6.9.11'
+          - php: '8.1'
+            os: ubuntu-latest
+            wp: '7.0.8'
 
     services:
       mysql:
