@@ -252,7 +252,20 @@ final class RvsAccentTokenSetTest extends WP_UnitTestCase
 				}
 			}
 		}
-		$this->assertSame(array(), $other);
+		$this->assertSame(array(), $other, 'outline: shorthand with a colour other than --rvs-accent-text.');
+
+		// The longhand too (PR 1 Fable Minor-4): a separate outline-color.
+		$longhand = array();
+		foreach (self::target_rules() as $rule) {
+			preg_match_all('/(?:^|[;\s{])outline-color:\s*([^;]+);/', $rule['body'], $m);
+			foreach ($m[1] as $value) {
+				$value = trim($value);
+				if ('var(--rvs-accent-text)' !== $value && 'transparent' !== $value && 'currentColor' !== $value && 'currentcolor' !== $value) {
+					$longhand[] = $rule['file'] . ': ' . $rule['selector'] . ' => ' . $value;
+				}
+			}
+		}
+		$this->assertSame(array(), $longhand, 'outline-color: other than --rvs-accent-text, transparent or currentColor.');
 	}
 
 	public function test_selected_lines_read_accent_text(): void

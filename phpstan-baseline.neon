@@ -769,7 +769,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 5
+			count: 6
 			path: src/Admin/Settings/Core/SettingsCore.php
 
 		-

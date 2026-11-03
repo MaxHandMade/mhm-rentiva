@@ -334,7 +334,7 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	 *
 	 * @param string              $id    Control id (kept verbatim).
 	 * @param string              $label Control label.
-	 * @param string              $token Token name without the `--rvs-` prefix, e.g. 'accent'.
+	 * @param string              $token Token name without the `--rvs-` prefix, e.g. 'accent-text'.
 	 * @param array<string,mixed> $args  Extra control args; 'type' defaults to color. Single-value types only (color, text, select, number): a slider writes {{SIZE}}{{UNIT}}, not {{VALUE}}.
 	 */
 	protected function add_rvs_token_control( string $id, string $label, string $token, array $args = array() ): void {

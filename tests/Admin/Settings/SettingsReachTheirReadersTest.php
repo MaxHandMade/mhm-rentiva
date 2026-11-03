@@ -510,4 +510,24 @@ final class SettingsReachTheirReadersTest extends WP_UnitTestCase
 
 		$this->assertStringContainsString('src="https://example.test/logo.png"', $html);
 	}
+
+	// ---------------------------------------------------------- accent colour
+
+	public function test_accent_colour_reaches_the_resolver(): void
+	{
+		$this->save_tab(
+			'frontend',
+			array(
+				'mhmrentiva_accent_mode'  => 'custom',
+				'mhmrentiva_accent_color' => '#CC0000',
+			)
+		);
+
+		\MHMRentiva\Core\Color\AccentResolver::reset();
+		$resolved = \MHMRentiva\Core\Color\AccentResolver::resolve();
+		\MHMRentiva\Core\Color\AccentResolver::reset();
+
+		$this->assertSame('#cc0000', $resolved['hex']);
+		$this->assertSame('custom', $resolved['source']);
+	}
 }

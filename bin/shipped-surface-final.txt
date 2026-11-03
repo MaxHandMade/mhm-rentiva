@@ -122,6 +122,7 @@ assets/js/admin/email-templates.js
 assets/js/admin/log-metabox.js
 assets/js/admin/manual-booking-meta.js
 assets/js/admin/rest-integration.js
+assets/js/admin/settings-accent-color.js
 assets/js/admin/settings-media-field.js
 assets/js/admin/settings.js
 assets/js/admin/vehicle-blocked-date-toggle.js
@@ -511,6 +512,15 @@ src/Core/Attribute/AllowlistRegistry.php
 src/Core/Attribute/CanonicalAttributeMapper.php
 src/Core/Attribute/KeyNormalizer.php
 src/Core/Attribute/Transformers.php
+src/Core/Color/AccentResolver.php
+src/Core/Color/ColorMath.php
+src/Core/Color/ElementorGlobals.php
+src/Core/Color/RvsColorTokens.php
+src/Core/Color/Sources/AccentSource.php
+src/Core/Color/Sources/AdapterSource.php
+src/Core/Color/Sources/ElementorKitSource.php
+src/Core/Color/Sources/ThemeJsonSource.php
+src/Core/Color/ThemeAdapters.php
 src/Core/Dashboard/SparklineRenderer.php
 src/Core/Database/Migrations/MultiTenantMigration.php
 src/Core/Logging/StructuredLogger.php

@@ -144,6 +144,11 @@ final class Plugin {
 			\MHMRentiva\Admin\Core\AssetManager::init();
 		}
 
+		// Site accent colour: one inline rule on the rvs token stylesheet.
+		if ($this->is_class_available('MHMRentiva\Core\Color\RvsColorTokens')) {
+			\MHMRentiva\Core\Color\RvsColorTokens::register();
+		}
+
 		// WordPress optimizer
 		if ($this->is_class_available('\MHMRentiva\Admin\Core\Utilities\WordPressOptimizer')) {
 			\MHMRentiva\Admin\Core\Utilities\WordPressOptimizer::register();

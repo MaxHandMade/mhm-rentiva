@@ -704,7 +704,39 @@ final class SettingsSanitizer {
 
 		$out['mhmrentiva_text_login_required'] = \sanitize_textarea_field( $input['mhmrentiva_text_login_required'] ?? '' );
 
-		return $out;
+		return array_merge( $out, self::sanitize_accent_settings( $input ) );
+	}
+
+	/**
+	 * Accent colour (Frontend tab, spec §4): mode auto|custom; colour '' or a
+	 * lower-case 6-digit '#rrggbb' (never null). Custom with no colour falls
+	 * back to Automatic and says so.
+	 *
+	 * @param array<string, mixed> $input Input data.
+	 * @return array{mhmrentiva_accent_mode: string, mhmrentiva_accent_color: string}
+	 */
+	private static function sanitize_accent_settings( array $input ): array {
+		$raw_mode = $input['mhmrentiva_accent_mode'] ?? '';
+		$mode     = self::validate_enum( \is_string( $raw_mode ) ? $raw_mode : '', array( 'auto', 'custom' ), 'auto' );
+
+		$raw_color = $input['mhmrentiva_accent_color'] ?? '';
+		$color     = \is_string( $raw_color ) ? \sanitize_hex_color( trim( $raw_color ) ) : null;
+		$color     = \MHMRentiva\Core\Color\ColorMath::normalize( $color ) ?? '';
+
+		if ( 'custom' === $mode && '' === $color ) {
+			$mode = 'auto';
+			\add_settings_error(
+				'mhmrentiva_settings',
+				'mhmrentiva_accent_color_empty',
+				\__( 'No custom color was chosen, so the accent color stays Automatic.', 'mhm-rentiva' ),
+				'warning'
+			);
+		}
+
+		return array(
+			'mhmrentiva_accent_mode'  => $mode,
+			'mhmrentiva_accent_color' => $color,
+		);
 	}
 
 	private static function sanitize_comments_settings( array $input, array $current ): array {
