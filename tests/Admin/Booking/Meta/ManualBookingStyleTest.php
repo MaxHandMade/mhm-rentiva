@@ -33,7 +33,7 @@ final class ManualBookingStyleTest extends TestCase
 		return $out;
 	}
 
-	public function test_no_legacy_mhm_tokens(): void
+	public function test_only_ui_core_tokens(): void
 	{
 		$this->assertDoesNotMatchRegularExpression('/var\(--mhm-/', $this->css());
 	}
