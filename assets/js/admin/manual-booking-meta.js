@@ -283,6 +283,15 @@
 			$( '#mhm-calculate-price' ).prop( 'disabled', true ).text( mhmManualBooking.text.calculating );
 			$( '.mhm-manual-booking-form' ).addClass( 'mhm-calculating' );
 
+			// Every input change asks again; answers can arrive out of order. Only
+			// the latest request may paint the panel, or a slow earlier answer
+			// (other dates, add-ons or payment type) overwrites the right figures.
+			ManualBooking.priceRequest = ( ManualBooking.priceRequest || 0 ) + 1;
+			const request              = ManualBooking.priceRequest;
+			const isLatest             = function () {
+				return request === ManualBooking.priceRequest;
+			};
+
 			// Seçilen ek hizmetleri al
 			const selectedAddons = [];
 			$( '.mhm-addon-checkbox:checked' ).each(
@@ -308,6 +317,9 @@
 						addon_qty: ManualBooking.addonQuantities()
 					},
 					success: function (response) {
+						if ( ! isLatest() ) {
+							return;
+						}
 						if (response.success) {
 							ManualBooking.displayPriceCalculation( response.data );
 							$( '#mhm-create-booking' ).removeClass( 'mhm-hidden' );
@@ -329,10 +341,16 @@
 						}
 					},
 					error: function () {
+						if ( ! isLatest() ) {
+							return;
+						}
 						ManualBooking.invalidatePriceCalculation();
 						ManualBooking.showMessage( 'error', mhmManualBooking.text.error );
 					},
 					complete: function () {
+						if ( ! isLatest() ) {
+							return;
+						}
 						$( '#mhm-calculate-price' ).prop( 'disabled', false ).text( mhmManualBooking.text.calculatePrice || 'Calculate Price' );
 						$( '.mhm-manual-booking-form' ).removeClass( 'mhm-calculating' );
 					}

@@ -151,6 +151,33 @@ describe( 'manual booking layout', () => {
 		expect( $( '.mhm-price-details .mhm-price-item' ) ).toHaveLength( 4 );
 	} );
 
+	test( 'a slow earlier price answer cannot overwrite a newer one', async () => {
+		await load( markup() );
+		dates( '2099-04-01', '10:00', '2099-04-04', '10:00' );
+		const pending = [];
+		$.ajax.mockImplementation( ( opts ) => pending.push( opts ) );
+		const answer = ( opts, paymentType, total ) => {
+			opts.success( {
+				success: true,
+				data: { days: 3, price_per_day: 100, vehicle_total: total, addon_total: 0, total_amount: total, final_total: total, deposit_amount: 1, remaining_amount: 2, payment_type: paymentType },
+			} );
+			opts.complete();
+		};
+
+		$( '#mhmrentiva_manual_vehicle_id' ).val( '1' );
+		$( '#mhm-calculate-price' ).trigger( 'click' ); // first: deposit
+		// Input changes re-price directly (the button is disabled meanwhile).
+		$( '#mhmrentiva_manual_payment_type' ).val( 'full' ).trigger( 'change' ); // second: full
+		expect( pending ).toHaveLength( 2 );
+
+		answer( pending[ 1 ], 'full', 999 ); // the newer answer arrives first
+		answer( pending[ 0 ], 'deposit', 111 ); // then the stale one
+
+		expect( $( '.mhm-price-details' ).text() ).toContain( '999' );
+		expect( $( '.mhm-price-details' ).text() ).not.toContain( '111' );
+		expect( $( '.mhm-price-details .mhm-price-item' ) ).toHaveLength( 4 );
+	} );
+
 	test( 'messages land in the aside and replace each other', async () => {
 		await load( markup() );
 		dates( '2099-04-05', '10:00', '2099-04-04', '10:00' );
