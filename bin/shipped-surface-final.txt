@@ -32,6 +32,7 @@ assets/blocks/vehicles-grid/block.json
 assets/blocks/vehicles-grid/index.js
 assets/blocks/vehicles-list/block.json
 assets/blocks/vehicles-list/index.js
+assets/css/admin/accent-field.css
 assets/css/admin/addon-list.css
 assets/css/admin/addons-screen.css
 assets/css/admin/auto-dark-mode.css

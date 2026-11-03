@@ -106,6 +106,8 @@ final class SetupWizardFrontendStepTest extends WP_UnitTestCase
 		foreach (FrontendColorsSection::PREVIEW_STYLES as $handle) {
 			$this->assertTrue(wp_style_is($handle, 'enqueued'), $handle);
 		}
+		// The field's own look (swatch, preview frame) travels with the field.
+		$this->assertTrue(wp_style_is('mhm-rentiva-accent-field', 'enqueued'));
 	}
 
 	public function test_picker_assets_stay_off_other_wizard_steps(): void
@@ -146,5 +148,6 @@ final class SetupWizardFrontendStepTest extends WP_UnitTestCase
 
 		$this->assertTrue(wp_script_is('mhm-rentiva-settings-accent-color', 'enqueued'));
 		$this->assertTrue(wp_style_is('wp-color-picker', 'enqueued'));
+		$this->assertTrue(wp_style_is('mhm-rentiva-accent-field', 'enqueued'));
 	}
 }

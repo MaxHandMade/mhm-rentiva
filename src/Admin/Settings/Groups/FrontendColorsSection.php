@@ -190,6 +190,13 @@ final class FrontendColorsSection {
 		self::register_picker_scripts();
 
 		wp_enqueue_style( 'wp-color-picker' );
+		wp_enqueue_style(
+			'mhm-rentiva-accent-field',
+			// Literal source: the style-token gate reads registrations literally.
+			\MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/accent-field.css',
+			array( 'wp-color-picker' ),
+			\MHMRENTIVA_VERSION
+		);
 		wp_enqueue_script( 'mhm-rentiva-accent-palette' );
 		wp_enqueue_script( 'mhm-rentiva-settings-accent-color' );
 		foreach ( self::PREVIEW_STYLES as $handle ) {
