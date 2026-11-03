@@ -43,6 +43,7 @@ final class FrontendColorSettingsSanitizerTest extends WP_UnitTestCase
 
 	public function tear_down(): void
 	{
+		unset($_GET['tab']);
 		$GLOBALS['wp_settings_errors'] = array();
 		self::reset_defaults_cache();
 		AccentResolver::reset();
@@ -217,7 +218,6 @@ final class FrontendColorSettingsSanitizerTest extends WP_UnitTestCase
 		$this->assertTrue(wp_script_is('mhm-rentiva-settings-accent-color'));
 		$this->assertContains('wp-color-picker', wp_scripts()->registered['mhm-rentiva-settings-accent-color']->deps);
 
-		unset($_GET['tab']);
 		set_current_screen('front');
 		wp_set_current_user(0);
 	}

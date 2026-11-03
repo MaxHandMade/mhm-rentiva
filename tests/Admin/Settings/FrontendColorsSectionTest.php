@@ -28,6 +28,14 @@ final class FrontendColorsSectionTest extends WP_UnitTestCase
 	/** @var array<string, mixed> */
 	private array $stored = array();
 
+	/** @var mixed Saved $GLOBALS['wp_styles'] while a test swaps the registry. */
+	private $saved_styles = null;
+
+	/** @var mixed Saved $GLOBALS['wp_scripts'] while a test swaps the registry. */
+	private $saved_scripts = null;
+
+	private bool $swapped_assets = false;
+
 	public function set_up(): void
 	{
 		parent::set_up();
@@ -41,6 +49,13 @@ final class FrontendColorsSectionTest extends WP_UnitTestCase
 	public function tear_down(): void
 	{
 		unset($_GET['tab']);
+		if ($this->swapped_assets) {
+			$GLOBALS['wp_styles']  = $this->saved_styles;
+			$GLOBALS['wp_scripts'] = $this->saved_scripts;
+			$this->swapped_assets  = false;
+		}
+		set_current_screen('front');
+		wp_set_current_user(0);
 		self::reset_defaults_cache();
 		AccentResolver::reset();
 		parent::tear_down();
@@ -247,8 +262,10 @@ final class FrontendColorsSectionTest extends WP_UnitTestCase
 		wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
 		set_current_screen('mhm-rentiva_page_mhm-rentiva-settings');
 
-		$saved_styles  = $GLOBALS['wp_styles'] ?? null;
-		$saved_scripts = $GLOBALS['wp_scripts'] ?? null;
+		// tear_down() puts these back, even when an assertion below fails.
+		$this->saved_styles  = $GLOBALS['wp_styles'] ?? null;
+		$this->saved_scripts = $GLOBALS['wp_scripts'] ?? null;
+		$this->swapped_assets = true;
 
 		$handles = array_merge(FrontendColorsSection::PREVIEW_STYLES, array( 'mhm-rentiva-rvs-tokens' ));
 		$scripts = array( 'mhm-rentiva-accent-palette', 'mhm-rentiva-settings-accent-color' );
@@ -281,10 +298,5 @@ final class FrontendColorsSectionTest extends WP_UnitTestCase
 			wp_scripts()->registered['mhm-rentiva-settings-accent-color']->deps
 		);
 		$this->assertSame(array(), wp_scripts()->registered['mhm-rentiva-accent-palette']->deps);
-
-		$GLOBALS['wp_styles']  = $saved_styles;
-		$GLOBALS['wp_scripts'] = $saved_scripts;
-		set_current_screen('front');
-		wp_set_current_user(0);
 	}
 }
