@@ -300,6 +300,7 @@ final class AccentResolverTest extends WP_UnitTestCase
 			2
 		);
 		$this->assertSame('#aabbcc', AccentResolver::resolve()['hex']);
+		$this->assertSame('filter', AccentResolver::resolve()['source']);
 		$this->assertSame(array( '#111aaa', 'adapter' ), $seen);
 
 		remove_all_filters('mhmrentiva_accent_color');
@@ -333,5 +334,69 @@ final class AccentResolverTest extends WP_UnitTestCase
 		);
 		AccentResolver::resolve();
 		$this->assertSame(array( 1, 0, 0 ), array( $a, $e, $t ));
+	}
+
+	public function test_automatic_ignores_custom_mode(): void
+	{
+		$calls          = 0;
+		$this->settings = array(
+			'mhmrentiva_accent_mode'  => 'custom',
+			'mhmrentiva_accent_color' => '#cc0000',
+		);
+		$this->use_sources(array( 'adapter' => self::fake('adapter', '#111aaa', $calls) ));
+		$auto = AccentResolver::automatic();
+		$this->assertSame(array( '#111aaa', 'adapter' ), array( $auto['hex'], $auto['source'] ));
+		$this->assertSame('#cc0000', AccentResolver::resolve()['hex']);
+		$this->assertSame('custom', AccentResolver::resolve()['source']);
+	}
+
+	public function test_custom_resolve_still_calls_no_source(): void
+	{
+		$calls          = 0;
+		$this->settings = array(
+			'mhmrentiva_accent_mode'  => 'custom',
+			'mhmrentiva_accent_color' => '#cc0000',
+		);
+		$this->use_sources(array( 'adapter' => self::fake('adapter', '#111aaa', $calls) ));
+		AccentResolver::resolve();
+		$this->assertSame(0, $calls);
+	}
+
+	public function test_reset_clears_both_memories(): void
+	{
+		$calls          = 0;
+		$this->settings = array(
+			'mhmrentiva_accent_mode'  => 'custom',
+			'mhmrentiva_accent_color' => '#cc0000',
+		);
+		$this->use_sources(array( 'adapter' => self::fake('adapter', '#111aaa', $calls) ));
+		AccentResolver::automatic();
+		AccentResolver::automatic();
+		AccentResolver::resolve();
+		$this->assertSame(1, $calls);
+		AccentResolver::reset();
+		AccentResolver::automatic();
+		$this->assertSame(2, $calls);
+		AccentResolver::reset();
+		$this->settings = array();
+		AccentResolver::resolve();
+		$this->assertSame(3, $calls);
+		AccentResolver::resolve();
+		$this->assertSame(3, $calls);
+	}
+
+	public function test_filter_that_changes_a_source_colour_is_the_source(): void
+	{
+		$calls = 0;
+		$this->use_sources(array( 'adapter' => self::fake('adapter', '#111aaa', $calls, 'Astra') ));
+		add_filter('mhmrentiva_accent_color', static fn (): string => '#222bbb');
+		$r = AccentResolver::resolve();
+		$this->assertSame(array( '#222bbb', 'filter', '', false ), array( $r['hex'], $r['source'], $r['label'], $r['is_default'] ));
+
+		remove_all_filters('mhmrentiva_accent_color');
+		add_filter('mhmrentiva_accent_color', static fn (string $hex): string => strtoupper($hex));
+		AccentResolver::reset();
+		$r = AccentResolver::resolve();
+		$this->assertSame(array( '#111aaa', 'adapter', 'Astra' ), array( $r['hex'], $r['source'], $r['label'] ));
 	}
 }
