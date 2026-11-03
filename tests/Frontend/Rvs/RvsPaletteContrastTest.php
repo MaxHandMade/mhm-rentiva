@@ -37,6 +37,7 @@ final class RvsPaletteContrastTest extends WP_UnitTestCase
 			array( '--rvs-accent-text', '--rvs-bg', 4.5 ),
 			array( '--rvs-accent-text-hover', '#ffffff', 4.5 ),
 			array( '--rvs-accent-text-hover', '--rvs-bg', 4.5 ),
+			array( '--rvs-accent-text', '--rvs-accent-text-hover', 1.3 ),
 			// Not in spec §5's pair list: the hover text sits on the accent-100 fill
 			// in four rules (plan R5 / debt B1).
 			array( '--rvs-accent-text-hover', '--rvs-accent-100', 4.5 ),
@@ -99,6 +100,7 @@ final class RvsPaletteContrastTest extends WP_UnitTestCase
 			array( 'accent-text', 'bg', 4.5 ),
 			array( 'accent-text-hover', 'accent-100', 4.5 ),
 			array( 'accent-text-hover', '#ffffff', 4.5 ),
+			array( 'accent-text', 'accent-text-hover', 1.3 ),
 			array( 'sel-text', 'accent-100', 7.0 ),
 		);
 		foreach ($pairs as list( $fg, $bg, $floor )) {

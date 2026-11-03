@@ -289,7 +289,7 @@
 				"sel-text": "#090909",
 				"on-accent": "#ffffff",
 				"accent-text": "#111111",
-				"accent-text-hover": "#0e0e0e"
+				"accent-text-hover": "#414141"
 			},
 			"css": {
 				"bg": "#f3f3f3",
@@ -298,7 +298,7 @@
 				"on-accent": "#ffffff",
 				"accent-deep": "#414141",
 				"accent-text": "#111111",
-				"accent-text-hover": "#0e0e0e",
+				"accent-text-hover": "#414141",
 				"sel-text": "#090909"
 			},
 			"looped": []
@@ -313,7 +313,7 @@
 				"sel-text": "#000000",
 				"on-accent": "#ffffff",
 				"accent-text": "#000000",
-				"accent-text-hover": "#000000"
+				"accent-text-hover": "#333333"
 			},
 			"css": {
 				"bg": "#f2f2f2",
@@ -322,7 +322,7 @@
 				"on-accent": "#ffffff",
 				"accent-deep": "#333333",
 				"accent-text": "#000000",
-				"accent-text-hover": "#000000",
+				"accent-text-hover": "#333333",
 				"sel-text": "#000000"
 			},
 			"looped": []
