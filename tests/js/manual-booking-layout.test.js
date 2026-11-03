@@ -146,6 +146,10 @@ describe( 'manual booking layout', () => {
 		expect( $( '.mhm-price-details' ).text() ).toContain( '240' );
 		expect( $( '.mhm-price-details .mhm-price-item' ) ).toHaveLength( 6 );
 
+		// The grand total carries its own class (the design sets it 15px / 700).
+		expect( $( '.mhm-price-details .mhm-price-item--total' ) ).toHaveLength( 1 );
+		expect( $( '.mhm-price-details .mhm-price-item--total' ).text() ).toContain( '300' );
+
 		$.ajax.mockImplementation( reply( 'full' ) );
 		$( '#mhm-calculate-price' ).trigger( 'click' );
 		expect( $( '.mhm-price-details .mhm-price-item' ) ).toHaveLength( 4 );

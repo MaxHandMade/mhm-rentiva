@@ -372,6 +372,11 @@
 	white-space: nowrap;
 }
 
+.mhm-price-item--total {
+	font-size: 15px;
+	font-weight: 700;
+}
+
 /* Actions -------------------------------------------------------- */
 
 .mhm-booking-actions {

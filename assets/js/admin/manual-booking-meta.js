@@ -408,7 +408,7 @@
 					<span class="mhm-price-value">${money(data.addon_total)}</span>
 					</div>
 					` : ''}
-				<div class="mhm-price-item">
+				<div class="mhm-price-item mhm-price-item--total">
 					<span class="mhm-price-label">${text.grandTotal || 'Grand Total'}:</span>
 					<span class="mhm-price-value">${money(data.final_total || data.total_amount)}</span>
 				</div>

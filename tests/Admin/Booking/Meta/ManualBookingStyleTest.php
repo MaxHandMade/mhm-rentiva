@@ -46,6 +46,14 @@ final class ManualBookingStyleTest extends TestCase
 		$this->assertMatchesRegularExpression('/align-self:\s*flex-start/', $body);
 	}
 
+	public function test_grand_total_is_emphasised(): void
+	{
+		$body = $this->rules()['.mhm-price-item--total'] ?? '';
+
+		$this->assertMatchesRegularExpression('/font-weight:\s*700/', $body);
+		$this->assertMatchesRegularExpression('/font-size:\s*15px/', $body);
+	}
+
 	public function test_meta_box_title_is_visually_hidden_and_controls_stay(): void
 	{
 		$rules = $this->rules();

@@ -93,6 +93,35 @@ final class ManualBookingScreenKitTest extends WP_UnitTestCase
 		$this->assertSame(array(), ManualBookingMetaBox::limit_screen_columns(array(), 'mhmrentiva_booking'));
 	}
 
+	/**
+	 * Single column puts core's sidebar container above the form, so the side
+	 * boxes that only make sense for an existing booking (refund, customer
+	 * account) stacked on top of the new-booking form. They are not drawn.
+	 */
+	public function test_existing_booking_side_boxes_leave_the_new_booking_screen(): void
+	{
+		global $wp_meta_boxes, $post;
+		$wp_meta_boxes = array();
+		$this->on_new_booking_screen();
+		set_current_screen('mhmrentiva_booking');
+		$post = self::factory()->post->create_and_get(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'auto-draft' ));
+
+		\MHMRentiva\Admin\Booking\Meta\BookingRefundMetaBox::add();
+		\MHMRentiva\Admin\Booking\Meta\BookingPortalMetaBox::add();
+		ManualBookingMetaBox::remove_default_meta_boxes();
+
+		$side = array();
+		foreach ((array) ( $wp_meta_boxes['mhmrentiva_booking']['side'] ?? array() ) as $boxes) {
+			foreach ((array) $boxes as $id => $box) {
+				if (false !== $box) {
+					$side[] = $id;
+				}
+			}
+		}
+		$this->assertNotContains('mhmrentiva_booking_refund', $side);
+		$this->assertNotContains('mhmrentiva_booking_customer_account', $side);
+	}
+
 	public function test_layout_filter_is_registered(): void
 	{
 		if (! has_filter('get_user_option_screen_layout_mhmrentiva_booking', array( ManualBookingMetaBox::class, 'single_column_layout' ))) {

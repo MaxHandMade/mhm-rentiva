@@ -119,6 +119,10 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		remove_meta_box('revisionsdiv', 'mhmrentiva_booking', 'normal');
 		remove_meta_box('pageparentdiv', 'mhmrentiva_booking', 'side');
 		remove_meta_box('postimagediv', 'mhmrentiva_booking', 'side');
+		// Refund and customer account need an existing booking; on this
+		// single-column screen they would also stack above the form.
+		remove_meta_box('mhmrentiva_booking_refund', 'mhmrentiva_booking', 'side');
+		remove_meta_box('mhmrentiva_booking_customer_account', 'mhmrentiva_booking', 'side');
 
 		// Hide title field
 		add_filter(
