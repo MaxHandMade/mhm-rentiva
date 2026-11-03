@@ -7,6 +7,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
@@ -66,12 +67,17 @@ final class SetupWizard {
 			return;
 		}
 
+		// The stylesheet reads ui-core tokens, declared on .mhmui-admin by the kit.
+		AssetManager::enqueue_kit('admin');
+		add_filter('admin_body_class', array( self::class, 'add_body_class' ));
+
 		$css_path = MHMRENTIVA_PLUGIN_DIR . 'assets/css/admin/setup-wizard.css';
 		if (file_exists($css_path)) {
+			// Literal dependency: the style-token gate reads registrations literally.
 			wp_enqueue_style(
 				'mhm-rentiva-setup-wizard',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/setup-wizard.css',
-				array(),
+				array( 'mhmuicore-admin' ),
 				MHMRENTIVA_VERSION . '.' . filemtime($css_path)
 			);
 		}
@@ -83,6 +89,14 @@ final class SetupWizard {
 			FrontendColorsSection::enqueue_picker_assets();
 			RvsColorTokens::attach();
 		}
+	}
+
+	/**
+	 * Scope class for the kit's tokens on the wizard screen.
+	 */
+	public static function add_body_class(string $classes): string
+	{
+		return $classes . ' mhmui-admin ';
 	}
 
 	/**
