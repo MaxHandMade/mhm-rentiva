@@ -44,12 +44,28 @@
 		return [ parseInt( hex.substr( 1, 2 ), 16 ), parseInt( hex.substr( 3, 2 ), 16 ), parseInt( hex.substr( 5, 2 ), 16 ) ];
 	}
 
+	// PHP trim(): the six ASCII characters only (String#trim also strips Unicode
+	// spaces such as U+00A0). By char code: no control escapes.
+	// Space, tab, LF, CR, NUL, vertical tab.
+	var TRIM = String.fromCharCode( 32, 9, 10, 13, 0, 11 );
+
+	function phpTrim( value ) {
+		var start = 0;
+		var end = value.length;
+		while ( start < end && -1 !== TRIM.indexOf( value.charAt( start ) ) ) {
+			start++;
+		}
+		while ( end > start && -1 !== TRIM.indexOf( value.charAt( end - 1 ) ) ) {
+			end--;
+		}
+		return value.slice( start, end );
+	}
+
 	function normalize( value ) {
 		if ( typeof value !== 'string' ) {
 			return null;
 		}
-		// PHP trim(): ASCII whitespace only (String#trim would also strip Unicode spaces).
-		var v = value.replace( /^[ \t\n\r\0\x0B]+|[ \t\n\r\0\x0B]+$/g, '' ).toLowerCase();
+		var v = phpTrim( value ).toLowerCase();
 		var m;
 		if ( '' === v ) {
 			return null;
