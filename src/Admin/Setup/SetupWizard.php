@@ -40,6 +40,7 @@ final class SetupWizard {
 		add_action('admin_init', array( self::class, 'maybe_redirect' ));
 		add_action('admin_notices', array( self::class, 'show_permalink_notice' ));
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_assets' ));
+		add_filter('removable_query_args', array( self::class, 'removable_query_args' ));
 
 		add_action('admin_post_mhmrentiva_setup_create_pages', array( self::class, 'handle_create_pages' ));
 		add_action('admin_post_mhmrentiva_setup_save_email', array( self::class, 'handle_save_email' ));
@@ -92,6 +93,20 @@ final class SetupWizard {
 	}
 
 	/**
+	 * Core strips one-shot notice flags such as `saved` from the address bar
+	 * after a redirect; the accent fallback flag joins them, so a reload does
+	 * not show the warning again.
+	 *
+	 * @param string[] $args
+	 * @return string[]
+	 */
+	public static function removable_query_args(array $args): array
+	{
+		$args[] = 'mhmrentiva_accent';
+		return $args;
+	}
+
+	/**
 	 * Scope class for the kit's tokens on the wizard screen.
 	 */
 	public static function add_body_class(string $classes): string
@@ -106,7 +121,7 @@ final class SetupWizard {
 	private static function render_saved_notice(): void
 	{
 		$saved  = sanitize_key(wp_unslash($_GET['saved'] ?? ''));
-		$accent = sanitize_key(wp_unslash($_GET['accent'] ?? ''));
+		$accent = sanitize_key(wp_unslash($_GET['mhmrentiva_accent'] ?? ''));
 
 		if ('1' === $saved) {
 			echo '<div class="notice notice-success inline"><p>' . esc_html__('Settings saved.', 'mhm-rentiva') . '</p></div>';
@@ -688,7 +703,7 @@ final class SetupWizard {
 
 		$args = array( 'saved' => '1' );
 		if ($accent_saved_as_auto) {
-			$args['accent'] = 'auto';
+			$args['mhmrentiva_accent'] = 'auto';
 		}
 		wp_safe_redirect(self::step_url('summary', $args));
 		exit;

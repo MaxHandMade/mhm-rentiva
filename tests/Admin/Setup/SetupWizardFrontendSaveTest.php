@@ -117,7 +117,7 @@ final class SetupWizardFrontendSaveTest extends WP_UnitTestCase
 
 		$this->assertSame('auto', $this->stored()['mhmrentiva_accent_mode']);
 		$this->assertSame('', $this->stored()['mhmrentiva_accent_color']);
-		$this->assertStringContainsString('accent=auto', $location);
+		$this->assertStringContainsString('mhmrentiva_accent=auto', $location);
 	}
 
 	public function test_forged_accent_input_is_cleaned(): void

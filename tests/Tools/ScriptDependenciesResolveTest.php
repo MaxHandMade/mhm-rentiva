@@ -68,6 +68,10 @@ final class ScriptDependenciesResolveTest extends TestCase
 		'wc-settings',
 		'elementor-frontend',
 		'elementor-editor',
+		// The bundled ui-core kit registers it at runtime (mhmuicore_enqueue_kit(),
+		// vendor/mhm/ui-core/bootstrap.php); that it is registered and enqueued on
+		// the setup wizard is asserted by SetupWizardKitContractTest.
+		'mhmuicore-admin',
 	);
 
 	/**

@@ -39,7 +39,7 @@ final class SetupWizardFrontendStepTest extends WP_UnitTestCase
 
 	public function tear_down(): void
 	{
-		unset($_GET['page'], $_GET['step'], $_GET['saved'], $_GET['accent'], $_GET['tab']);
+		unset($_GET['page'], $_GET['step'], $_GET['saved'], $_GET['mhmrentiva_accent'], $_GET['tab']);
 		delete_option('mhmrentiva_settings');
 		$GLOBALS['wp_styles']  = $this->saved_styles;
 		$GLOBALS['wp_scripts'] = $this->saved_scripts;
@@ -87,11 +87,27 @@ final class SetupWizardFrontendStepTest extends WP_UnitTestCase
 		$_GET['saved'] = '1';
 		$this->assertStringContainsString(__('Settings saved.', 'mhm-rentiva'), $this->render('render_saved_notice'));
 
-		$_GET['accent'] = 'auto';
+		$_GET['mhmrentiva_accent'] = 'auto';
 		$this->assertStringContainsString(
 			__('No custom color was chosen, so the accent color stays Automatic.', 'mhm-rentiva'),
 			$this->render('render_saved_notice')
 		);
+	}
+
+	/**
+	 * Core strips `saved` from the address bar after the redirect
+	 * (wp_admin_canonical_url); the accent flag must go too, or a reload
+	 * shows the warning again without the success notice.
+	 */
+	public function test_accent_flag_is_a_removable_query_arg(): void
+	{
+		// The suite does not boot the plugin's hooks; register() is what production runs.
+		if (! has_filter('removable_query_args', array( SetupWizard::class, 'removable_query_args' ))) {
+			SetupWizard::register();
+		}
+
+		$this->assertContains('mhmrentiva_accent', wp_removable_query_args());
+		$this->assertContains('saved', wp_removable_query_args());
 	}
 
 	public function test_picker_assets_enqueue_on_wizard_frontend_step(): void
