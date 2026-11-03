@@ -23,37 +23,72 @@ final class ElementorGlobalsTest extends WP_UnitTestCase
 {
 	private int $kit_id = 0;
 
+	/** @var array<string,mixed>|null Process state found before the test, put back after it. */
+	private ?array $found = null;
+
+	private const STATE = array(
+		'server'      => null,
+		'is_internal' => false,
+		'cache'       => array(),
+	);
+
 	public function set_up(): void
 	{
 		parent::set_up();
 		if (! class_exists('\Elementor\Plugin') || ! isset(Plugin::$instance->kits_manager)) {
 			$this->markTestSkipped('Elementor is not loaded in this test run.');
 		}
+		$this->found = self::read_elementor_rest_state();
 		self::reset_elementor_rest_state();
 	}
 
 	public function tear_down(): void
 	{
-		self::reset_elementor_rest_state();
+		// Put back what the suite had, not a blank state: zeroing Elementor's
+		// cached server here made a later Elementor test rebuild the global REST
+		// server with Elementor's routes only (measured: PreviewInertMarkupTest
+		// went red; the same order on main fails too, the leak predates PR 2).
+		if (null !== $this->found) {
+			self::write_elementor_rest_state($this->found);
+		}
 		parent::tear_down();
 	}
 
-	private static function reset_elementor_rest_state(): void
+	/** @return array<string,mixed> */
+	private static function read_elementor_rest_state(): array
 	{
-		$dm = Plugin::$instance->data_manager_v2;
-		$rc = new \ReflectionObject($dm);
-		foreach (array(
-			'server'      => null,
-			'is_internal' => false,
-			'cache'       => array(),
-		) as $prop => $value) {
+		$dm    = Plugin::$instance->data_manager_v2;
+		$rc    = new \ReflectionObject($dm);
+		$state = array( 'wp_rest_server' => $GLOBALS['wp_rest_server'] ?? null );
+		foreach (array_keys(self::STATE) as $prop) {
 			if ($rc->hasProperty($prop)) {
 				$p = $rc->getProperty($prop);
 				$p->setAccessible(true);
-				$p->setValue($dm, $value);
+				$state[ $prop ] = $p->getValue($dm);
 			}
 		}
-		$GLOBALS['wp_rest_server'] = null;
+		return $state;
+	}
+
+	/** @param array<string,mixed> $state */
+	private static function write_elementor_rest_state(array $state): void
+	{
+		$dm = Plugin::$instance->data_manager_v2;
+		$rc = new \ReflectionObject($dm);
+		foreach (self::STATE as $prop => $unused) {
+			if (array_key_exists($prop, $state) && $rc->hasProperty($prop)) {
+				$p = $rc->getProperty($prop);
+				$p->setAccessible(true);
+				$p->setValue($dm, $state[ $prop ]);
+			}
+		}
+		$GLOBALS['wp_rest_server'] = $state['wp_rest_server'] ?? null;
+	}
+
+	/** Blank Elementor REST state for the test's own preconditions (plan I3). */
+	private static function reset_elementor_rest_state(): void
+	{
+		self::write_elementor_rest_state(self::STATE + array( 'wp_rest_server' => null ));
 	}
 
 	/**
