@@ -1,0 +1,405 @@
+{
+	"_source": "Renk PR 2 Task 2. php = ColorMath::palette() (regression pin). css = the fixed-percentage value the CSS color-mix would give, from tests/fixtures/accent-palette-oracle.json (browser canvas paint); on-accent has no CSS formula and repeats php; accent-deep is the fixed 80% step in the direction php took (first direction, or the turned one when the turned fixed step held); for a looped token css is the first fixed step and php may differ. The #2271b1 row is the designer literal palette (plan R4, M2).",
+	"cases": [
+		{
+			"accent": "#2271b1",
+			"literal": true,
+			"php": {
+				"bg": "#f0f6fc",
+				"accent-strong": "#2271b1",
+				"accent-deep": "#135e96",
+				"accent-100": "#dcecf9",
+				"sel-text": "#0a3c63",
+				"on-accent": "#ffffff",
+				"accent-text": "#2271b1",
+				"accent-text-hover": "#135e96"
+			},
+			"css": {
+				"bg": "#f0f6fc",
+				"accent-strong": "#2271b1",
+				"accent-deep": "#135e96",
+				"accent-100": "#dcecf9",
+				"sel-text": "#0a3c63",
+				"on-accent": "#ffffff",
+				"accent-text": "#2271b1",
+				"accent-text-hover": "#135e96"
+			},
+			"looped": []
+		},
+		{
+			"accent": "#0067ff",
+			"php": {
+				"bg": "#f2f7ff",
+				"accent-strong": "#0067ff",
+				"accent-deep": "#0052cc",
+				"accent-100": "#d9e8ff",
+				"sel-text": "#002d70",
+				"on-accent": "#ffffff",
+				"accent-text": "#0052cc",
+				"accent-text-hover": "#0042a3"
+			},
+			"css": {
+				"bg": "#f2f7ff",
+				"accent-100": "#d9e8ff",
+				"accent-strong": "#0067ff",
+				"on-accent": "#ffffff",
+				"accent-deep": "#0052cc",
+				"accent-text": "#0052cc",
+				"accent-text-hover": "#0042a3",
+				"sel-text": "#002d70"
+			},
+			"looped": []
+		},
+		{
+			"accent": "#cc0000",
+			"php": {
+				"bg": "#fcf2f2",
+				"accent-strong": "#cc0000",
+				"accent-deep": "#a30000",
+				"accent-100": "#f7d9d9",
+				"sel-text": "#700000",
+				"on-accent": "#ffffff",
+				"accent-text": "#cc0000",
+				"accent-text-hover": "#a30000"
+			},
+			"css": {
+				"bg": "#fcf2f2",
+				"accent-100": "#f7d9d9",
+				"accent-strong": "#cc0000",
+				"on-accent": "#ffffff",
+				"accent-deep": "#a30000",
+				"accent-text": "#cc0000",
+				"accent-text-hover": "#a30000",
+				"sel-text": "#700000"
+			},
+			"looped": []
+		},
+		{
+			"accent": "#feb000",
+			"php": {
+				"bg": "#fffbf2",
+				"accent-strong": "#feb000",
+				"accent-deep": "#cb8d00",
+				"accent-100": "#fff3d9",
+				"sel-text": "#543a00",
+				"on-accent": "#1d2327",
+				"accent-text": "#986a00",
+				"accent-text-hover": "#7a5500"
+			},
+			"css": {
+				"bg": "#fffbf2",
+				"accent-100": "#fff3d9",
+				"accent-strong": "#feb000",
+				"on-accent": "#1d2327",
+				"accent-deep": "#cb8d00",
+				"accent-text": "#cb8d00",
+				"accent-text-hover": "#7a5500",
+				"sel-text": "#543a00"
+			},
+			"looped": [
+				"accent-text"
+			]
+		},
+		{
+			"accent": "#0d6dd7",
+			"php": {
+				"bg": "#f3f8fd",
+				"accent-strong": "#0d6dd7",
+				"accent-deep": "#0a57ac",
+				"accent-100": "#dbe9f9",
+				"sel-text": "#073c76",
+				"on-accent": "#ffffff",
+				"accent-text": "#0d6dd7",
+				"accent-text-hover": "#0a57ac"
+			},
+			"css": {
+				"bg": "#f3f8fd",
+				"accent-100": "#dbe9f9",
+				"accent-strong": "#0d6dd7",
+				"on-accent": "#ffffff",
+				"accent-deep": "#0a57ac",
+				"accent-text": "#0d6dd7",
+				"accent-text-hover": "#0a57ac",
+				"sel-text": "#073c76"
+			},
+			"looped": []
+		},
+		{
+			"accent": "#f91942",
+			"php": {
+				"bg": "#fff4f6",
+				"accent-strong": "#f91942",
+				"accent-deep": "#fb637e",
+				"accent-100": "#fedde3",
+				"sel-text": "#6d0b1d",
+				"on-accent": "#000000",
+				"accent-text": "#c71435",
+				"accent-text-hover": "#9f102a"
+			},
+			"css": {
+				"bg": "#fff4f6",
+				"accent-100": "#fedde3",
+				"accent-strong": "#f91942",
+				"on-accent": "#000000",
+				"accent-deep": "#fa4768",
+				"accent-text": "#c71435",
+				"accent-text-hover": "#9f102a",
+				"sel-text": "#6d0b1d"
+			},
+			"looped": [
+				"accent-deep"
+			]
+		},
+		{
+			"accent": "#f30c0c",
+			"php": {
+				"bg": "#fef3f3",
+				"accent-strong": "#f30c0c",
+				"accent-deep": "#f75a5a",
+				"accent-100": "#fddbdb",
+				"sel-text": "#6b0606",
+				"on-accent": "#000000",
+				"accent-text": "#c20a0a",
+				"accent-text-hover": "#9b0808"
+			},
+			"css": {
+				"bg": "#fef3f3",
+				"accent-100": "#fddbdb",
+				"accent-strong": "#f30c0c",
+				"on-accent": "#000000",
+				"accent-deep": "#f53d3d",
+				"accent-text": "#c20a0a",
+				"accent-text-hover": "#9b0808",
+				"sel-text": "#6b0606"
+			},
+			"looped": [
+				"accent-deep"
+			]
+		},
+		{
+			"accent": "#1cb098",
+			"php": {
+				"bg": "#f4fbfa",
+				"accent-strong": "#1cb098",
+				"accent-deep": "#5cc6b5",
+				"accent-100": "#ddf3f0",
+				"sel-text": "#0b463c",
+				"on-accent": "#1d2327",
+				"accent-text": "#147f6d",
+				"accent-text-hover": "#106657"
+			},
+			"css": {
+				"bg": "#f4fbfa",
+				"accent-100": "#ddf3f0",
+				"accent-strong": "#1cb098",
+				"on-accent": "#1d2327",
+				"accent-deep": "#49c0ad",
+				"accent-text": "#168d7a",
+				"accent-text-hover": "#106657",
+				"sel-text": "#0b463c"
+			},
+			"looped": [
+				"accent-deep",
+				"accent-text"
+			]
+		},
+		{
+			"accent": "#2b6cb0",
+			"php": {
+				"bg": "#f4f8fb",
+				"accent-strong": "#2b6cb0",
+				"accent-deep": "#22568d",
+				"accent-100": "#dfe9f3",
+				"sel-text": "#183b61",
+				"on-accent": "#ffffff",
+				"accent-text": "#2b6cb0",
+				"accent-text-hover": "#22568d"
+			},
+			"css": {
+				"bg": "#f4f8fb",
+				"accent-100": "#dfe9f3",
+				"accent-strong": "#2b6cb0",
+				"on-accent": "#ffffff",
+				"accent-deep": "#22568d",
+				"accent-text": "#2b6cb0",
+				"accent-text-hover": "#22568d",
+				"sel-text": "#183b61"
+			},
+			"looped": []
+		},
+		{
+			"accent": "#6ec1e4",
+			"php": {
+				"bg": "#f8fcfe",
+				"accent-strong": "#6ec1e4",
+				"accent-deep": "#589ab6",
+				"accent-100": "#e9f6fb",
+				"sel-text": "#24404b",
+				"on-accent": "#1d2327",
+				"accent-text": "#427489",
+				"accent-text-hover": "#355d6e"
+			},
+			"css": {
+				"bg": "#f8fcfe",
+				"accent-100": "#e9f6fb",
+				"accent-strong": "#6ec1e4",
+				"on-accent": "#1d2327",
+				"accent-deep": "#589ab6",
+				"accent-text": "#589ab6",
+				"accent-text-hover": "#355d6e",
+				"sel-text": "#24404b"
+			},
+			"looped": [
+				"accent-text"
+			]
+		},
+		{
+			"accent": "#ffee58",
+			"php": {
+				"bg": "#fffef7",
+				"accent-strong": "#ffee58",
+				"accent-deep": "#ccbe46",
+				"accent-100": "#fffce6",
+				"sel-text": "#433f17",
+				"on-accent": "#1d2327",
+				"accent-text": "#7a722a",
+				"accent-text-hover": "#625b22"
+			},
+			"css": {
+				"bg": "#fffef7",
+				"accent-100": "#fffce6",
+				"accent-strong": "#ffee58",
+				"on-accent": "#1d2327",
+				"accent-deep": "#ccbe46",
+				"accent-text": "#ccbe46",
+				"accent-text-hover": "#625b22",
+				"sel-text": "#433f17"
+			},
+			"looped": [
+				"accent-text"
+			]
+		},
+		{
+			"accent": "#111111",
+			"php": {
+				"bg": "#f3f3f3",
+				"accent-strong": "#111111",
+				"accent-deep": "#414141",
+				"accent-100": "#dbdbdb",
+				"sel-text": "#090909",
+				"on-accent": "#ffffff",
+				"accent-text": "#111111",
+				"accent-text-hover": "#0e0e0e"
+			},
+			"css": {
+				"bg": "#f3f3f3",
+				"accent-100": "#dbdbdb",
+				"accent-strong": "#111111",
+				"on-accent": "#ffffff",
+				"accent-deep": "#414141",
+				"accent-text": "#111111",
+				"accent-text-hover": "#0e0e0e",
+				"sel-text": "#090909"
+			},
+			"looped": []
+		},
+		{
+			"accent": "#000000",
+			"php": {
+				"bg": "#f2f2f2",
+				"accent-strong": "#000000",
+				"accent-deep": "#333333",
+				"accent-100": "#d9d9d9",
+				"sel-text": "#000000",
+				"on-accent": "#ffffff",
+				"accent-text": "#000000",
+				"accent-text-hover": "#000000"
+			},
+			"css": {
+				"bg": "#f2f2f2",
+				"accent-100": "#d9d9d9",
+				"accent-strong": "#000000",
+				"on-accent": "#ffffff",
+				"accent-deep": "#333333",
+				"accent-text": "#000000",
+				"accent-text-hover": "#000000",
+				"sel-text": "#000000"
+			},
+			"looped": []
+		},
+		{
+			"accent": "#ffffff",
+			"php": {
+				"bg": "#ffffff",
+				"accent-strong": "#ffffff",
+				"accent-deep": "#cccccc",
+				"accent-100": "#ffffff",
+				"sel-text": "#3e3e3e",
+				"on-accent": "#1d2327",
+				"accent-text": "#707070",
+				"accent-text-hover": "#5a5a5a"
+			},
+			"css": {
+				"bg": "#ffffff",
+				"accent-100": "#ffffff",
+				"accent-strong": "#ffffff",
+				"on-accent": "#1d2327",
+				"accent-deep": "#cccccc",
+				"accent-text": "#cccccc",
+				"accent-text-hover": "#5a5a5a",
+				"sel-text": "#3e3e3e"
+			},
+			"looped": [
+				"accent-text"
+			]
+		},
+		{
+			"accent": "#808080",
+			"php": {
+				"bg": "#f9f9f9",
+				"accent-strong": "#808080",
+				"accent-deep": "#999999",
+				"accent-100": "#ececec",
+				"sel-text": "#383838",
+				"on-accent": "#000000",
+				"accent-text": "#666666",
+				"accent-text-hover": "#525252"
+			},
+			"css": {
+				"bg": "#f9f9f9",
+				"accent-100": "#ececec",
+				"accent-strong": "#808080",
+				"on-accent": "#000000",
+				"accent-deep": "#999999",
+				"accent-text": "#666666",
+				"accent-text-hover": "#525252",
+				"sel-text": "#383838"
+			},
+			"looped": []
+		},
+		{
+			"accent": "#777777",
+			"php": {
+				"bg": "#f8f8f8",
+				"accent-strong": "#777777",
+				"accent-deep": "#929292",
+				"accent-100": "#ebebeb",
+				"sel-text": "#343434",
+				"on-accent": "#000000",
+				"accent-text": "#5f5f5f",
+				"accent-text-hover": "#4c4c4c"
+			},
+			"css": {
+				"bg": "#f8f8f8",
+				"accent-100": "#ebebeb",
+				"accent-strong": "#777777",
+				"on-accent": "#000000",
+				"accent-deep": "#929292",
+				"accent-text": "#5f5f5f",
+				"accent-text-hover": "#4c4c4c",
+				"sel-text": "#343434"
+			},
+			"looped": []
+		}
+	]
+}

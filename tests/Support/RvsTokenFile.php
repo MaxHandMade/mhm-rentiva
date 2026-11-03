@@ -77,15 +77,13 @@ final class RvsTokenFile
 		return '';
 	}
 
-	/** WCAG relative luminance; linear threshold 0.03928 (PR 2 moves to ColorMath). */
+	/**
+	 * WCAG 2.2 relative luminance, shared with the product (ColorMath, threshold
+	 * 0.04045; on 8-bit channels the old 0.03928 gives the same value).
+	 */
 	public static function luminance(string $hex): float
 	{
-		$out = array();
-		foreach (array( 1, 3, 5 ) as $i) {
-			$c     = hexdec(substr($hex, $i, 2)) / 255;
-			$out[] = $c <= 0.03928 ? $c / 12.92 : pow(($c + 0.055) / 1.055, 2.4);
-		}
-		return 0.2126 * $out[0] + 0.7152 * $out[1] + 0.0722 * $out[2];
+		return \MHMRentiva\Core\Color\ColorMath::luminance($hex);
 	}
 
 	public static function contrast(string $a, string $b): float
