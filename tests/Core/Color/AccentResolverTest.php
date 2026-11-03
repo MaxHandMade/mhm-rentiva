@@ -399,4 +399,20 @@ final class AccentResolverTest extends WP_UnitTestCase
 		$r = AccentResolver::resolve();
 		$this->assertSame(array( '#111aaa', 'adapter', 'Astra' ), array( $r['hex'], $r['source'], $r['label'] ));
 	}
+
+	public function test_filter_that_changes_a_custom_colour_is_the_source(): void
+	{
+		$calls          = 0;
+		$this->settings = array(
+			'mhmrentiva_accent_mode'  => 'custom',
+			'mhmrentiva_accent_color' => '#cc0000',
+		);
+		$this->use_sources(array( 'adapter' => self::fake('adapter', '#111aaa', $calls) ));
+		$cb = static fn (): string => '#00aa00';
+		add_filter('mhmrentiva_accent_color', $cb);
+		$r = AccentResolver::resolve();
+		remove_filter('mhmrentiva_accent_color', $cb);
+		$this->assertSame(array( '#00aa00', 'filter', '', false ), array( $r['hex'], $r['source'], $r['label'], $r['is_default'] ));
+		$this->assertSame(0, $calls, 'Custom mode runs no source');
+	}
 }
