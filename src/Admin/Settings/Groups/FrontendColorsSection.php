@@ -172,6 +172,32 @@ final class FrontendColorsSection {
 	 * SettingsCore::enqueue_assets(), which has already checked the screen.
 	 */
 	public static function enqueue_assets(): void {
+		self::register_picker_scripts();
+
+		// The screen's own tab reading (read-only routing), not a second $_GET read.
+		if ( 'frontend' !== Settings::current_tab() ) {
+			return;
+		}
+
+		self::enqueue_picker_assets();
+	}
+
+	/**
+	 * Color picker and preview assets wherever the field is rendered: the
+	 * Frontend tab and the setup wizard's step 4. The caller checks the screen.
+	 */
+	public static function enqueue_picker_assets(): void {
+		self::register_picker_scripts();
+
+		wp_enqueue_style( 'wp-color-picker' );
+		wp_enqueue_script( 'mhm-rentiva-accent-palette' );
+		wp_enqueue_script( 'mhm-rentiva-settings-accent-color' );
+		foreach ( self::PREVIEW_STYLES as $handle ) {
+			wp_enqueue_style( $handle );
+		}
+	}
+
+	private static function register_picker_scripts(): void {
 		wp_register_script(
 			'mhm-rentiva-accent-palette',
 			AssetManager::get_asset_url( 'assets/js/admin/accent-palette.js' ),
@@ -186,17 +212,5 @@ final class FrontendColorsSection {
 			\MHMRENTIVA_VERSION,
 			true
 		);
-
-		// The screen's own tab reading (read-only routing), not a second $_GET read.
-		if ( 'frontend' !== Settings::current_tab() ) {
-			return;
-		}
-
-		wp_enqueue_style( 'wp-color-picker' );
-		wp_enqueue_script( 'mhm-rentiva-accent-palette' );
-		wp_enqueue_script( 'mhm-rentiva-settings-accent-color' );
-		foreach ( self::PREVIEW_STYLES as $handle ) {
-			wp_enqueue_style( $handle );
-		}
 	}
 }

@@ -11,6 +11,8 @@ use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Settings\Core\SettingsSanitizer;
+use MHMRentiva\Admin\Settings\Groups\FrontendColorsSection;
+use MHMRentiva\Core\Color\RvsColorTokens;
 
 
 
@@ -73,6 +75,31 @@ final class SetupWizard {
 				MHMRENTIVA_VERSION . '.' . filemtime($css_path)
 			);
 		}
+
+		if ('frontend' === self::get_current_step()) {
+			// The Colors field and its preview, as on Settings > Frontend. The
+			// saved palette is attached here because RvsColorTokens::attach_admin()
+			// only runs on the Settings screen.
+			FrontendColorsSection::enqueue_picker_assets();
+			RvsColorTokens::attach();
+		}
+	}
+
+	/**
+	 * Notice after a save redirect. The query flags only choose a message;
+	 * nothing is authorised by them.
+	 */
+	private static function render_saved_notice(): void
+	{
+		$saved  = sanitize_key(wp_unslash($_GET['saved'] ?? ''));
+		$accent = sanitize_key(wp_unslash($_GET['accent'] ?? ''));
+
+		if ('1' === $saved) {
+			echo '<div class="notice notice-success inline"><p>' . esc_html__('Settings saved.', 'mhm-rentiva') . '</p></div>';
+		}
+		if ('auto' === $accent) {
+			echo '<div class="notice notice-warning inline"><p>' . esc_html__('No custom color was chosen, so the accent color stays Automatic.', 'mhm-rentiva') . '</p></div>';
+		}
 	}
 
 	public function render_page(): void
@@ -105,6 +132,7 @@ final class SetupWizard {
 
 		echo '<p>' . esc_html__('Follow the steps below to prepare Rentiva on a fresh WordPress installation. You can re-open this wizard later from the MHM Rentiva menu.', 'mhm-rentiva') . '</p>';
 
+		self::render_saved_notice();
 		self::render_step_navigation($steps, $current_step);
 		?>
 		<div class="mhm-setup-step">
@@ -362,8 +390,6 @@ final class SetupWizard {
 		$default_days      = (int) SettingsCore::get('mhmrentiva_default_rental_days', 1);
 		$min_days          = (int) SettingsCore::get('mhmrentiva_vehicle_min_rental_days', 1);
 		$max_days          = (int) SettingsCore::get('mhmrentiva_vehicle_max_rental_days', 30);
-		$show_features     = SettingsCore::get('mhmrentiva_vehicle_show_features', '1');
-		$show_availability = SettingsCore::get('mhmrentiva_vehicle_show_availability', '1');
 		?>
 		<h2><?php esc_html_e('Step 4: Frontend & Display', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('Fine tune the visible defaults that appear on booking forms and vehicle cards.', 'mhm-rentiva'); ?></p>
@@ -444,10 +470,10 @@ final class SetupWizard {
 					<td><input type="number" name="max_days" min="<?php echo esc_attr(max(1, $min_days)); ?>" max="365" value="<?php echo esc_attr($max_days); ?>" /></td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e('Vehicle Cards', 'mhm-rentiva'); ?></th>
+					<th><?php esc_html_e('Accent color', 'mhm-rentiva'); ?></th>
 					<td>
-						<label><input type="checkbox" name="show_features" value="1" <?php checked($show_features, '1'); ?> /> <?php esc_html_e('Show feature badges', 'mhm-rentiva'); ?></label><br>
-						<label><input type="checkbox" name="show_availability" value="1" <?php checked($show_availability, '1'); ?> /> <?php esc_html_e('Show availability badge', 'mhm-rentiva'); ?></label>
+						<?php FrontendColorsSection::render_fields(); ?>
+						<p class="description"><?php esc_html_e('Same setting as Settings › Frontend & Display › Colors.', 'mhm-rentiva'); ?></p>
 					</td>
 				</tr>
 			</table>
