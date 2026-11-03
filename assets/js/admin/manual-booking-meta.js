@@ -122,6 +122,13 @@
 			const pickupDate  = $( '#mhmrentiva_manual_pickup_date' ).val();
 			const dropoffDate = $( '#mhmrentiva_manual_dropoff_date' ).val();
 
+			// A cleared date leaves nothing to price: the breakdown on screen (or
+			// one still on its way) belongs to dates that are no longer there.
+			if ( ! pickupDate || ! dropoffDate ) {
+				ManualBooking.invalidatePriceCalculation();
+				return;
+			}
+
 			if (pickupDate && dropoffDate) {
 				// Tarih doğrulama
 				if (new Date( dropoffDate ) <= new Date( pickupDate )) {
@@ -194,25 +201,17 @@
 			let total             = 0;
 			const $selectedAddons = $( '.mhm-addon-checkbox:checked' );
 
-			// Gün sayısını hesapla
-			const pickupDate  = $( '#mhmrentiva_manual_pickup_date' ).val();
-			const dropoffDate = $( '#mhmrentiva_manual_dropoff_date' ).val();
-			let days          = 1;
-
-			if (pickupDate && dropoffDate) {
-				const start = new Date( pickupDate );
-				const end   = new Date( dropoffDate );
-				days        = Math.ceil( (end - start) / (1000 * 60 * 60 * 24) );
-				if (days <= 0) {
-					days = 1;
-				}
-			}
-
+			const days       = ManualBooking.rentalDays();
 			const quantities = ManualBooking.addonQuantities();
 			$selectedAddons.each(
 				function () {
-					const price = parseFloat( $( this ).attr( 'data-price' ) ) || 0;
-					total      += price * days * ( quantities[ $( this ).val() ] || 1 ); // Günlük hesaplama
+					const price    = parseFloat( $( this ).attr( 'data-price' ) ) || 0;
+					const quantity = quantities[ $( this ).val() ] || 1;
+					// Same rule as AddonPricingCalculator::calculate(): only a daily
+					// service multiplies by the days. This screen sends no passenger
+					// count, so the server prices a per-passenger service for one.
+					const perDay = 'per_day' === ( $( this ).attr( 'data-pricing-type' ) || 'per_day' );
+					total       += price * ( perDay ? days : 1 ) * quantity;
 				}
 			);
 
@@ -228,14 +227,34 @@
 			}
 		},
 
+		/**
+		 * Rental days as the server counts them (SiteTime::rental_days): whole
+		 * days between pickup and return date-times, at least one. Built on the
+		 * wall clock (UTC fields), so a DST change cannot shift the count.
+		 */
+		rentalDays: function () {
+			const toWall = function ( date, time ) {
+				const d = String( date || '' ).split( '-' ).map( Number );
+				const t = String( time || '00:00' ).split( ':' ).map( Number );
+				return Date.UTC( d[0], ( d[1] || 1 ) - 1, d[2] || 1, t[0] || 0, t[1] || 0 );
+			};
+			const pickupDate  = $( '#mhmrentiva_manual_pickup_date' ).val();
+			const dropoffDate = $( '#mhmrentiva_manual_dropoff_date' ).val();
+			if ( ! pickupDate || ! dropoffDate ) {
+				return 1;
+			}
+			const start = toWall( pickupDate, $( '#mhmrentiva_manual_pickup_time' ).val() );
+			const end   = toWall( dropoffDate, $( '#mhmrentiva_manual_dropoff_time' ).val() );
+			return Math.max( 1, Math.floor( ( end - start ) / 86400000 ) );
+		},
+
 		showVehicleInfo: function (vehicleName, price) {
 			const selectedVehicleText = mhmManualBooking.text.selectedVehicle || 'Selected Vehicle';
 			const vehicleText         = mhmManualBooking.text.vehicle || 'Vehicle';
 			const dailyPriceText      = mhmManualBooking.text.dailyPrice || 'Daily Price';
 			const notSpecifiedText    = mhmManualBooking.text.notSpecified || 'Not specified';
 
-			let infoHtml = `
-				<div class="mhm-vehicle-info">
+			const infoHtml = `
 					<h5>${selectedVehicleText}</h5>
 					<div class="mhm-vehicle-details">
 						<div class="mhm-vehicle-detail">
@@ -247,11 +266,11 @@
 							<span>${$('<span>').text(price ? ManualBooking.formatMoney(price) : notSpecifiedText).html()}</span>
 						</div>
 					</div>
-				</div>
 			`;
 
-			$( '.mhm-form-card:first-child .mhm-form-card-body' ).find( '#mhm-vehicle-info' ).remove();
-			$( '.mhm-form-card:first-child .mhm-form-card-body' ).append( infoHtml );
+			// One fixed slot (rendered by PHP under the two selects): its content
+			// is replaced, never appended, so a vehicle change cannot stack boxes.
+			$( '#mhm-vehicle-info' ).html( infoHtml ).removeClass( 'mhm-hidden' );
 		},
 
 		calculatePrice: function () {
@@ -263,6 +282,7 @@
 			const paymentType = $( '#mhmrentiva_manual_payment_type' ).val();
 
 			if ( ! vehicleId || ! pickupDate || ! dropoffDate) {
+				ManualBooking.invalidatePriceCalculation();
 				ManualBooking.showMessage( 'error', mhmManualBooking.text.fillAllFields || 'Please fill all required fields.' );
 				return;
 			}
@@ -270,6 +290,15 @@
 			// Loading state
 			$( '#mhm-calculate-price' ).prop( 'disabled', true ).text( mhmManualBooking.text.calculating );
 			$( '.mhm-manual-booking-form' ).addClass( 'mhm-calculating' );
+
+			// Every input change asks again; answers can arrive out of order. Only
+			// the latest request may paint the panel, or a slow earlier answer
+			// (other dates, add-ons or payment type) overwrites the right figures.
+			ManualBooking.priceRequest = ( ManualBooking.priceRequest || 0 ) + 1;
+			const request              = ManualBooking.priceRequest;
+			const isLatest             = function () {
+				return request === ManualBooking.priceRequest;
+			};
 
 			// Seçilen ek hizmetleri al
 			const selectedAddons = [];
@@ -296,6 +325,9 @@
 						addon_qty: ManualBooking.addonQuantities()
 					},
 					success: function (response) {
+						if ( ! isLatest() ) {
+							return;
+						}
 						if (response.success) {
 							ManualBooking.displayPriceCalculation( response.data );
 							$( '#mhm-create-booking' ).removeClass( 'mhm-hidden' );
@@ -317,10 +349,16 @@
 						}
 					},
 					error: function () {
+						if ( ! isLatest() ) {
+							return;
+						}
 						ManualBooking.invalidatePriceCalculation();
 						ManualBooking.showMessage( 'error', mhmManualBooking.text.error );
 					},
 					complete: function () {
+						if ( ! isLatest() ) {
+							return;
+						}
 						$( '#mhm-calculate-price' ).prop( 'disabled', false ).text( mhmManualBooking.text.calculatePrice || 'Calculate Price' );
 						$( '.mhm-manual-booking-form' ).removeClass( 'mhm-calculating' );
 					}
@@ -338,6 +376,13 @@
 		 * dates, a vehicle or add-ons that are no longer selected.
 		 */
 		invalidatePriceCalculation: function () {
+			// An answer still on its way was asked for the form as it was; it
+			// must not repaint the panel (or reopen Create) for the form as it is.
+			// Its complete() is skipped too, so the busy state is cleared here.
+			ManualBooking.priceRequest = ( ManualBooking.priceRequest || 0 ) + 1;
+			$( '#mhm-calculate-price' ).prop( 'disabled', false ).text( mhmManualBooking.text.calculatePrice || 'Calculate Price' );
+			$( '.mhm-manual-booking-form' ).removeClass( 'mhm-calculating' );
+
 			$( '.mhm-price-details' ).empty();
 			$( '.mhm-price-calculation' ).addClass( 'mhm-hidden' );
 			$( '#mhm-create-booking' ).addClass( 'mhm-hidden' );
@@ -371,7 +416,7 @@
 					<span class="mhm-price-value">${money(data.addon_total)}</span>
 					</div>
 					` : ''}
-				<div class="mhm-price-item">
+				<div class="mhm-price-item mhm-price-item--total">
 					<span class="mhm-price-label">${text.grandTotal || 'Grand Total'}:</span>
 					<span class="mhm-price-value">${money(data.final_total || data.total_amount)}</span>
 				</div>
@@ -420,7 +465,6 @@
 				pickup_time: $( '#mhmrentiva_manual_pickup_time' ).val(),
 				dropoff_date: $( '#mhmrentiva_manual_dropoff_date' ).val(),
 				dropoff_time: $( '#mhmrentiva_manual_dropoff_time' ).val(),
-				guests: $( '#mhmrentiva_manual_guests' ).val(),
 				payment_type: $( '#mhmrentiva_manual_payment_type' ).val(),
 				payment_method: $( '#mhmrentiva_manual_payment_method' ).val(),
 				// The element's id, not its name. Reading the name here matched
@@ -519,7 +563,13 @@
 			const $msg = $( '<div>' )
 				.addClass( 'mhm-message ' + type )
 				.text( message );
-			$( '.mhm-manual-booking-form' ).prepend( $msg );
+			// The sidebar's live region, above the price; the form's top otherwise.
+			const $slot = $( '.mhm-booking-messages' );
+			if ( $slot.length ) {
+				$slot.append( $msg );
+			} else {
+				$( '.mhm-manual-booking-form' ).prepend( $msg );
+			}
 
 			// 5 saniye sonra mesajı kaldır (success için)
 			if (type === 'success') {

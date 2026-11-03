@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-11-03T16:41:32+00:00\n"
+"POT-Creation-Date: 2026-11-03T19:23:46+00:00\n"
 "PO-Revision-Date: 2026-10-24 18:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -142,8 +142,8 @@ msgstr "Sistem bilgilerini alırken hata oluştu."
 #: src/Admin/About/SystemInfo.php:97 src/Admin/About/SystemInfo.php:98
 #: src/Admin/About/Tabs/SystemTab.php:150
 #: src/Admin/About/Tabs/SystemTab.php:156
-#: src/Admin/About/Tabs/SystemTab.php:162 src/Admin/Setup/SetupWizard.php:973
-#: src/Admin/Setup/SetupWizard.php:1072
+#: src/Admin/About/Tabs/SystemTab.php:162 src/Admin/Setup/SetupWizard.php:983
+#: src/Admin/Setup/SetupWizard.php:1082
 #: src/Layout/CLI/LayoutImportCommand.php:397
 msgid "Unknown"
 msgstr "Bilinmeyen"
@@ -196,7 +196,7 @@ msgstr "Dosya boyutu:"
 
 #: src/Admin/About/Tabs/GeneralTab.php:146
 #: src/Admin/About/Tabs/SystemTab.php:127
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:204
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:212
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:345
 msgid "Calculating..."
 msgstr "Hesaplanıyor..."
@@ -318,7 +318,7 @@ msgstr "Sürüm geçmişi"
 #: src/Admin/About/Tabs/SupportTab.php:78
 #: src/Admin/Core/Traits/AdminHelperTrait.php:119
 #: src/Admin/Core/Utilities/UXHelper.php:506
-#: src/Admin/Setup/SetupWizard.php:130
+#: src/Admin/Setup/SetupWizard.php:145
 #: src-react/admin/about/components/SupportTab.jsx:10
 msgid "Documentation"
 msgstr "Belgeler"
@@ -356,7 +356,7 @@ msgstr "Sorularınız için bizimle iletişime geçin."
 #: src/Admin/About/Tabs/SupportTab.php:115
 #: src/Admin/Frontend/Widgets/Elementor/ContactFormWidget.php:36
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:111
-#: src/Admin/Setup/SetupWizard.php:917
+#: src/Admin/Setup/SetupWizard.php:927
 #: src-react/admin/about/components/SupportTab.jsx:23
 msgid "Contact Form"
 msgstr "İletişim formu"
@@ -676,8 +676,8 @@ msgstr "\"%s\" ek hizmeti gereklidir."
 #: src/Admin/Booking/Meta/BookingMeta.php:1832
 #: src/Admin/Booking/Meta/BookingMeta.php:1916
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:124
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:531
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:637
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:584
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:692
 #: src/Admin/Core/SecurityHelper.php:140
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:36
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:133
@@ -756,7 +756,7 @@ msgstr "Fiyat başarıyla güncellendi."
 #: src/Admin/Addons/AddonMenu.php:87 src/Admin/Addons/AddonPostType.php:59
 #: src/Admin/Addons/AddonScreen.php:598
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:267
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:425
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:470
 #: src/Admin/Utilities/Menu/Menu.php:105 src/Admin/Utilities/Menu/Menu.php:106
 #: templates/shortcodes/booking-form.php:139
 #: src-react/admin/dashboard/components/QuickActions.jsx:19
@@ -808,7 +808,7 @@ msgstr "Ek hizmet ayarları"
 #: src/Admin/Core/AssetManager.php:1527
 #: src/Admin/Customers/CustomersPage.php:255
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
-#: src/Admin/Setup/SetupWizard.php:980 src/Admin/Setup/SetupWizard.php:1039
+#: src/Admin/Setup/SetupWizard.php:990 src/Admin/Setup/SetupWizard.php:1049
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1038
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:460
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:763
@@ -840,7 +840,7 @@ msgstr "Sadece aktif ek hizmetler rezervasyon formunda görünür."
 #: src/Admin/Customers/CustomersPage.php:566
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:353
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:358
-#: src/Admin/Setup/SetupWizard.php:1070
+#: src/Admin/Setup/SetupWizard.php:1080
 #: assets/blocks/unified-search/index.js:123
 msgid "Required"
 msgstr "Gerekli"
@@ -1047,7 +1047,7 @@ msgstr[1] "rezervasyon"
 
 #: src/Admin/Addons/AddonScreen.php:1044 src/Admin/Core/AssetManager.php:1681
 #: src/Admin/Customers/CustomersPage.php:447
-#: src/Admin/Setup/SetupWizard.php:288
+#: src/Admin/Setup/SetupWizard.php:297
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:971
 #: templates/partials/rvs/review-card.php:78
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:48
@@ -1295,7 +1295,7 @@ msgstr "Devam ediyor"
 #: src/Admin/Frontend/Account/BookingTimeline.php:107
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:340
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:82
-#: src/Admin/Setup/SetupWizard.php:197 src/Frontend/PreviewSamples.php:190
+#: src/Admin/Setup/SetupWizard.php:213 src/Frontend/PreviewSamples.php:190
 #: templates/emails/booking-created-admin.html.php:65
 #: templates/emails/booking-created-customer.html.php:91
 #: templates/emails/refund-customer.html.php:33
@@ -1757,7 +1757,7 @@ msgstr "Onayla"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:274
 #: src/Admin/Booking/ListTable/BookingColumns.php:384
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:299
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:347
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:709 src/Plugin.php:1157
 #: templates/account/booking-summary.php:59
 #: templates/admin/partials/booking-popup.php:52
@@ -1774,7 +1774,7 @@ msgstr "Rezervasyon kimliği"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:277
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:190
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:222
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:230
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:882
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:207
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:491
@@ -1828,9 +1828,9 @@ msgstr "Ödeme"
 #: src/Admin/Booking/ListTable/BookingColumns.php:283
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:254
 #: src/Admin/Booking/Meta/BookingMeta.php:349
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:488
-#: src/Admin/Setup/SetupWizard.php:226 src/Admin/Setup/SetupWizard.php:268
-#: src/Admin/Setup/SetupWizard.php:537
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:536
+#: src/Admin/Setup/SetupWizard.php:235 src/Admin/Setup/SetupWizard.php:277
+#: src/Admin/Setup/SetupWizard.php:546
 #: src/Admin/Utilities/ListTable/LogColumns.php:76
 #: src/Admin/Utilities/ListTable/LogColumns.php:145
 #: templates/account/payment-history.php:72
@@ -1998,7 +1998,7 @@ msgstr "Beklemede"
 #: src/Admin/Booking/ListTable/BookingColumns.php:1102
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:226
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:93
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:481
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:528
 msgid "Offline"
 msgstr "Çevrim dışı"
 
@@ -2187,7 +2187,7 @@ msgstr ""
 "mevcut değildir."
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:209
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:471
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:518
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:527
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:598
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:934
@@ -2195,8 +2195,8 @@ msgid "Payment Type"
 msgstr "Ödeme türü"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:212
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:228
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:474
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:236
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:521
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:626
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:75
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:136
@@ -2212,7 +2212,7 @@ msgstr "Kapora"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:214
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:501
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:473
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:520
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:524
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:595
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:933
@@ -2224,7 +2224,7 @@ msgid "Full Payment"
 msgstr "Tam ödeme"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:221
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:479
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:526
 #: src/Admin/Utilities/ListTable/LogColumns.php:74
 #: templates/account/payment-history.php:70
 msgid "Payment Method"
@@ -2232,7 +2232,7 @@ msgstr "Ödeme yöntemi"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:224
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:181
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:482
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:529
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:159
 msgid "Online"
 msgstr "Çevrim içi"
@@ -2243,12 +2243,12 @@ msgid "Total Amount"
 msgstr "Toplam tutar"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:255
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:223
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:231
 msgid "Rental Days"
 msgstr "Kiralama günleri"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:256
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:224
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:232
 #: templates/emails/booking-created-admin.html.php:50
 #: templates/emails/booking-created-customer.html.php:37
 msgid "days"
@@ -2401,7 +2401,7 @@ msgid "Saving..."
 msgstr "Kaydediliyor..."
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:128
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:205
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:213
 #: src/Admin/Core/AssetManager.php:1203 src/Admin/Core/AssetManager.php:1699
 #: src/Admin/Frontend/Account/AccountRenderer.php:505
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:349
@@ -2436,7 +2436,7 @@ msgid "Manual"
 msgstr "Manuel"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:204
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:284
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:332
 #: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:426
 #: src/Admin/Settings/Groups/FrontendSettings.php:381
 #: templates/shortcodes/booking-form.php:73
@@ -2454,35 +2454,34 @@ msgstr "Rezervasyon detayları"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:225
 #: src/Admin/Booking/Meta/BookingMeta.php:436
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:357
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:406
 #: templates/shortcodes/booking-form.php:97
 msgid "Pickup Date"
 msgstr "Araç teslim alma tarihi"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:230
 #: src/Admin/Booking/Meta/BookingMeta.php:441
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:362
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:411
 #: templates/shortcodes/booking-form.php:102
 msgid "Pickup Time"
 msgstr "Teslim alma saati"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:237
 #: src/Admin/Booking/Meta/BookingMeta.php:448
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:368
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:417
 #: templates/shortcodes/booking-form.php:114
 msgid "Return Date"
 msgstr "Araç dönüş tarihi"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:242
 #: src/Admin/Booking/Meta/BookingMeta.php:453
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:373
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:422
 #: templates/shortcodes/booking-form.php:119
 msgid "Return Time"
 msgstr "Araç dönüş saati"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:249
 #: src/Admin/Booking/Meta/BookingMeta.php:459
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:381
 msgid "Number of Guests"
 msgstr "Misafir sayısı"
 
@@ -2493,7 +2492,7 @@ msgid "%s (inactive)"
 msgstr "%s (pasif)"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:351
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:430
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:475
 msgid "Select the additional services needed for this booking."
 msgstr "Bu rezervasyon için gerekli olan ek hizmetleri seçin."
 
@@ -2503,13 +2502,13 @@ msgstr "Adet"
 
 #. translators: %s: additional service name.
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:390
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:444
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:489
 #, php-format
 msgid "Quantity: %s"
 msgstr "Adet: %s"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:400
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:454
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:499
 msgid "Additional Services Total:"
 msgstr "Ek hizmetler toplamı:"
 
@@ -2919,8 +2918,8 @@ msgstr ""
 "Bu araç için bu dönemde kapalı gün var: %s. Rezervasyon yine de kaydedildi."
 
 #: src/Admin/Booking/Meta/BookingMeta.php:1625
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:206
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:982
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:214
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1037
 msgid "Booking created"
 msgstr "Rezervasyon oluşturuldu"
 
@@ -3019,8 +3018,8 @@ msgstr "Müşteri hesabı oluştur"
 
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:117
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:146
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:536
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:642
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:589
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:697
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:40
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:137
 msgid "Permission denied."
@@ -3116,26 +3115,26 @@ msgstr "İade neden yapılmıyor?"
 msgid "No refund is due"
 msgstr "İade yapılmayacak"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:53
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:70
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:54
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:71
 msgid "Create Manual Booking"
 msgstr "Manuel rezervasyon oluştur"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:207
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:517
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:215
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:568
 msgid "Calculate Price"
 msgstr "Fiyatı hesapla"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:208
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:216
 msgid "Creating..."
 msgstr "Oluşturuluyor..."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:209
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:518
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:217
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:569
 msgid "Create Booking"
 msgstr "Rezervasyon oluştur"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:210
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:218
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:335
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:617
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:467
@@ -3144,97 +3143,108 @@ msgstr "Rezervasyon oluştur"
 msgid "Daily Price"
 msgstr "Günlük fiyat"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:214
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:222
 msgid "Weekend Difference:"
 msgstr "Hafta sonu farkı:"
 
 #. translators: %d: number of weekend days in the rental.
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:216
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:224
 #, php-format
 msgid "%d weekend day(s)"
 msgstr "%d hafta sonu günü"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:217
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:225
 msgid "Drop-off date must be after pick-up date."
 msgstr "Dönüş tarihi, teslim alma tarihinden sonra olmalıdır."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:218
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:226
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:696
 msgid "Please fill in all required fields."
 msgstr "Lütfen gerekli tüm alanları doldurun."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:219
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:227
 msgid "Not specified"
 msgstr "Belirtilmedi"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:220
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:228
 msgid "Price calculated successfully."
 msgstr "Fiyat başarıyla hesaplandı."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:221
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:229
 msgid "Selected Vehicle"
 msgstr "Seçilen araç"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:225
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:233
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:337
 msgid "Vehicle Total"
 msgstr "Araç toplamı"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:226
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:234
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3807
 msgid "Add-ons"
 msgstr "Ek hizmetler"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:227
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:235
 msgid "Grand Total"
 msgstr "Genel toplam"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:229
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:237
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1044
 msgid "Remaining"
 msgstr "Kalan"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:230
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:238
 msgid "Add-on Services Total"
 msgstr "Ek hizmetler toplamı"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:278
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:279
+#: src/Admin/Booking/PostType/Booking.php:27
+#: src/Admin/Utilities/Menu/Menu.php:91 src/Admin/Utilities/Menu/Menu.php:92
+#: src-react/admin/customers/components/CustomerTable.jsx:6
+msgid "Bookings"
+msgstr "Rezervasyonlar"
+
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:280
+msgid "New record · added by an administrator"
+msgstr "Yeni kayıt · yönetici tarafından"
+
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:326
 msgid "Vehicle & Customer"
 msgstr "Araç ve müşteri"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:286
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:334
 msgid "Select a vehicle..."
 msgstr "Bir araç seçin..."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:289
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:337
 msgid "day"
 msgstr "gün"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:301
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:349
 msgid "Select a customer..."
 msgstr "Bir müşteri seçin..."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:302
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:350
 msgid "+ Create New Customer"
 msgstr "+ Yeni müşteri oluştur"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:315
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:365
 msgid "New Customer Information"
 msgstr "Yeni müşteri bilgileri"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:321
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:371
 #: src/Admin/Settings/Groups/FrontendSettings.php:362
 #: templates/account/account-details.php:76
 msgid "First Name"
 msgstr "Ad"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:325
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:375
 #: src/Admin/Settings/Groups/FrontendSettings.php:363
 #: templates/account/account-details.php:84
 msgid "Last Name"
 msgstr "Soyadı"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:331
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:381
 #: src/Admin/Customers/AddCustomerPage.php:151
 #: src/Admin/Customers/CustomersPage.php:372
 #: src/Admin/Customers/CustomersPage.php:561
@@ -3247,7 +3257,7 @@ msgstr "Soyadı"
 msgid "Email"
 msgstr "E-posta"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:336
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:386
 #: src/Admin/Customers/AddCustomerPage.php:156
 #: src/Admin/Customers/CustomersPage.php:373
 #: src/Admin/Customers/CustomersPage.php:566
@@ -3261,43 +3271,47 @@ msgstr "E-posta"
 msgid "Phone"
 msgstr "Telefon"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:350
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:399
 msgid "Dates & Duration"
 msgstr "Tarihler ve süre"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:466
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:513
 msgid "Payment & Notes"
 msgstr "Ödeme ve notlar"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:502
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:531
+msgid "Online: the payment link is sent separately."
+msgstr "Çevrim içi: ödeme bağlantısı ayrıca gönderilir."
+
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:550
 msgid "Notes"
 msgstr "Notlar"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:503
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:551
 msgid "Special notes about the booking..."
 msgstr "Rezervasyonla ilgili özel notlar..."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:511
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:562
 msgid "Price Calculation"
 msgstr "Fiyat hesaplama"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:548
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:660
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:601
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:715
 msgid "Required fields are missing."
 msgstr "Gerekli alanlar eksik."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:584
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:857
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:637
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:912
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1360
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1569
 msgid "Price could not be calculated."
 msgstr "Fiyat hesaplanamadı."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:672
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:727
 msgid "Invalid booking status."
 msgstr "Geçersiz rezervasyon durumu."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:693
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:748
 msgid ""
 "You do not have permission to create new customer accounts. Please select an "
 "existing customer instead."
@@ -3305,15 +3319,15 @@ msgstr ""
 "Yeni müşteri hesabı oluşturma izniniz yok. Lütfen bunun yerine mevcut bir "
 "müşteri seçin."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:704
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:759
 msgid "New customer information is missing."
 msgstr "Yeni müşteri bilgileri eksik."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:709
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:764
 msgid "This email address is already registered."
 msgstr "Bu e-posta adresi zaten kayıtlı."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:724
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:779
 #: src/Admin/Customers/CustomersPage.php:336
 #: src/Admin/Customers/CustomersPage.php:489
 #: src/Admin/Customers/REST/CustomersRestController.php:161
@@ -3322,34 +3336,28 @@ msgid "Customer not found."
 msgstr "Müşteri bulunamadı."
 
 #. translators: %s: the error message wp_update_user() returned.
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:821
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:876
 #, php-format
 msgid "wp_update_user failed while creating a manual booking: %s"
 msgstr "wp_update_user, manuel rezervasyon oluşturulurken başarısız oldu: %s"
 
 #. translators: %s: vehicle title
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:869
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:924
 #, php-format
 msgid "Manual Booking - %s"
 msgstr "Manuel rezervasyon - %s"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:954
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1009
 msgid "This vehicle has just been booked for the selected dates."
 msgstr "Bu araç seçilen tarihler için az önce rezerve edildi."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:958
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1013
 msgid "Booking could not be created."
 msgstr "Rezervasyon oluşturulamadı."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1006
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1061
 msgid "Booking created successfully."
 msgstr "Rezervasyon başarıyla oluşturuldu."
-
-#: src/Admin/Booking/PostType/Booking.php:27
-#: src/Admin/Utilities/Menu/Menu.php:91 src/Admin/Utilities/Menu/Menu.php:92
-#: src-react/admin/customers/components/CustomerTable.jsx:6
-msgid "Bookings"
-msgstr "Rezervasyonlar"
 
 #: src/Admin/ContactMessages/ContactAttachmentDownload.php:35
 #: src/Admin/Customers/Export/CustomerExporter.php:41
@@ -4178,7 +4186,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1524
 #: src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php:36
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:96
-#: src/Admin/Setup/SetupWizard.php:907
+#: src/Admin/Setup/SetupWizard.php:917
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:118
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:125
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:521
@@ -4305,7 +4313,7 @@ msgstr "İşlem başarısız. Oturumunuz sona ermiş olabilir — sayfayı yenil
 msgid "You have unsaved changes"
 msgstr "Kaydedilmemiş değişiklikler var"
 
-#: src/Admin/Core/AssetManager.php:1556 src/Admin/Setup/SetupWizard.php:112
+#: src/Admin/Core/AssetManager.php:1556 src/Admin/Setup/SetupWizard.php:127
 msgid "Settings saved."
 msgstr "Ayarlar kaydedildi."
 
@@ -4437,7 +4445,7 @@ msgstr "Başarılı"
 
 #: src/Admin/Core/AssetManager.php:1673
 #: src/Admin/Settings/Groups/LogsSettings.php:67
-#: src/Admin/Setup/SetupWizard.php:1069
+#: src/Admin/Setup/SetupWizard.php:1079
 msgid "Warning"
 msgstr "Uyarı"
 
@@ -4505,9 +4513,9 @@ msgstr "Sıfırla"
 msgid "Close"
 msgstr "Kapat"
 
-#: src/Admin/Core/AssetManager.php:1688 src/Admin/Setup/SetupWizard.php:310
-#: src/Admin/Setup/SetupWizard.php:384 src/Admin/Setup/SetupWizard.php:518
-#: src/Admin/Setup/SetupWizard.php:591
+#: src/Admin/Core/AssetManager.php:1688 src/Admin/Setup/SetupWizard.php:319
+#: src/Admin/Setup/SetupWizard.php:393 src/Admin/Setup/SetupWizard.php:527
+#: src/Admin/Setup/SetupWizard.php:600
 msgid "Back"
 msgstr "Geri"
 
@@ -6196,7 +6204,7 @@ msgstr ""
 "otomatik olarak Gold Standard yerleşimini kullanır."
 
 #: src/Admin/Emails/Core/EmailTemplates.php:86
-#: src/Admin/Setup/SetupWizard.php:834
+#: src/Admin/Setup/SetupWizard.php:844
 msgid "Email Settings"
 msgstr "E-posta ayarları"
 
@@ -6263,7 +6271,7 @@ msgstr "Test e-postası gönderilemedi."
 
 #: src/Admin/Emails/Core/EmailTemplates.php:565
 #: src/Admin/Emails/Templates/EmailPreview.php:57
-#: src/Admin/Setup/SetupWizard.php:558
+#: src/Admin/Setup/SetupWizard.php:567
 msgid "Send Test Email"
 msgstr "Test e-postası gönder"
 
@@ -6533,7 +6541,7 @@ msgstr ""
 #: src/Admin/Emails/Templates/RefundEmails.php:69
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:306
 #: src/Admin/Settings/Core/SettingsHelper.php:363
-#: src/Admin/Setup/SetupWizard.php:1030
+#: src/Admin/Setup/SetupWizard.php:1040
 #: assets/blocks/unified-search/index.js:83
 #: assets/blocks/unified-search/index.js:93
 #: assets/blocks/unified-search/index.js:103
@@ -7806,7 +7814,7 @@ msgid "Equipment"
 msgstr "Donanım"
 
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:315
-#: src/Admin/Setup/SetupWizard.php:1007 src/Admin/Setup/SetupWizard.php:1021
+#: src/Admin/Setup/SetupWizard.php:1017 src/Admin/Setup/SetupWizard.php:1031
 msgid "Unlimited"
 msgstr "Sınırsız"
 
@@ -9645,7 +9653,7 @@ msgstr "Genel varsayılan"
 
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:307
 #: src/Admin/Settings/Core/SettingsHelper.php:369
-#: src/Admin/Setup/SetupWizard.php:1039
+#: src/Admin/Setup/SetupWizard.php:1049
 #: assets/blocks/unified-search/index.js:84
 #: assets/blocks/unified-search/index.js:94
 #: assets/blocks/unified-search/index.js:104
@@ -9768,7 +9776,7 @@ msgstr "Belirli bir araç kimliği girin ya da en yeni araç için boş bırakı
 
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:40
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:63
-#: src/Admin/Setup/SetupWizard.php:892
+#: src/Admin/Setup/SetupWizard.php:902
 msgid "Booking Form"
 msgstr "Rezervasyon formu"
 
@@ -10101,7 +10109,7 @@ msgstr "Kullanıcı ödeme işlemlerini görüntüler."
 
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:42
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:76
-#: src/Admin/Setup/SetupWizard.php:902
+#: src/Admin/Setup/SetupWizard.php:912
 msgid "Search Results"
 msgstr "Arama sonuçları"
 
@@ -10384,7 +10392,7 @@ msgstr "Fiyat etiketi"
 
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:40
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:106
-#: src/Admin/Setup/SetupWizard.php:912
+#: src/Admin/Setup/SetupWizard.php:922
 msgid "Vehicles List"
 msgstr "Araç listesi"
 
@@ -10993,7 +11001,7 @@ msgstr ""
 "başka bir araç seçin."
 
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4313
-#: src/Admin/Setup/SetupWizard.php:978
+#: src/Admin/Setup/SetupWizard.php:988
 msgid "WooCommerce"
 msgstr "WooCommerce"
 
@@ -11313,7 +11321,7 @@ msgid "Select image"
 msgstr "Görsel seç"
 
 #: src/Admin/Settings/Core/SettingsSanitizer.php:766
-#: src/Admin/Setup/SetupWizard.php:115
+#: src/Admin/Setup/SetupWizard.php:130
 msgid "No custom color was chosen, so the accent color stays Automatic."
 msgstr "Özel renk seçilmedi; ana renk Otomatik kalır."
 
@@ -11386,7 +11394,7 @@ msgid "General booking configuration and data retention settings."
 msgstr "Genel rezervasyon yapılandırması ve veri saklama ayarları."
 
 #: src/Admin/Settings/Groups/BookingSettings.php:80
-#: src/Admin/Setup/SetupWizard.php:498
+#: src/Admin/Setup/SetupWizard.php:507
 msgid "Default Rental Days"
 msgstr "Varsayılan kiralama gün sayısı"
 
@@ -11963,17 +11971,17 @@ msgid "Email Configuration"
 msgstr "E-posta yapılandırması"
 
 #: src/Admin/Settings/Groups/EmailSettings.php:278
-#: src/Admin/Setup/SetupWizard.php:350
+#: src/Admin/Setup/SetupWizard.php:359
 msgid "Sender Name"
 msgstr "Gönderen adı"
 
 #: src/Admin/Settings/Groups/EmailSettings.php:279
-#: src/Admin/Setup/SetupWizard.php:354
+#: src/Admin/Setup/SetupWizard.php:363
 msgid "Sender Email"
 msgstr "Gönderen e-postası"
 
 #: src/Admin/Settings/Groups/EmailSettings.php:280
-#: src/Admin/Setup/SetupWizard.php:358
+#: src/Admin/Setup/SetupWizard.php:367
 msgid "Reply-To Address"
 msgstr "Yanıt adresi"
 
@@ -12006,7 +12014,7 @@ msgid "Redirect all outgoing mails to the test address below."
 msgstr "Tüm giden postaları aşağıdaki test adresine yönlendirin."
 
 #: src/Admin/Settings/Groups/EmailSettings.php:295
-#: src/Admin/Setup/SetupWizard.php:371
+#: src/Admin/Setup/SetupWizard.php:380
 msgid "Test Email Address"
 msgstr "Test e-posta adresi"
 
@@ -12167,7 +12175,7 @@ msgid "Colors"
 msgstr "Renkler"
 
 #: src/Admin/Settings/Groups/FrontendSettings.php:131
-#: src/Admin/Setup/SetupWizard.php:510
+#: src/Admin/Setup/SetupWizard.php:519
 msgid "Accent color"
 msgstr "Ana renk"
 
@@ -12474,12 +12482,12 @@ msgid "Configure currency and display preferences."
 msgstr "Para birimi ve görüntüleme tercihlerini yapılandırın."
 
 #: src/Admin/Settings/Groups/GeneralSettings.php:89
-#: src/Admin/Setup/SetupWizard.php:431 src/Admin/Setup/SetupWizard.php:433
+#: src/Admin/Setup/SetupWizard.php:440 src/Admin/Setup/SetupWizard.php:442
 msgid "Currency"
 msgstr "Para birimi"
 
 #: src/Admin/Settings/Groups/GeneralSettings.php:98
-#: src/Admin/Setup/SetupWizard.php:463 src/Admin/Setup/SetupWizard.php:465
+#: src/Admin/Setup/SetupWizard.php:472 src/Admin/Setup/SetupWizard.php:474
 msgid "Currency Position"
 msgstr "Para birimi konumu"
 
@@ -12626,7 +12634,7 @@ msgstr ""
 "içeren her mesaj gider; boş bırakılırsa varsayılan geçerlidir."
 
 #: src/Admin/Settings/Groups/GeneralSettings.php:225
-#: src/Admin/Setup/SetupWizard.php:438 src/Admin/Setup/SetupWizard.php:474
+#: src/Admin/Setup/SetupWizard.php:447 src/Admin/Setup/SetupWizard.php:483
 msgid "Managed by WooCommerce:"
 msgstr "WooCommerce tarafından yönetilmektedir:"
 
@@ -12897,7 +12905,7 @@ msgstr ""
 "Araç müsaitlik kurallarını ve rezervasyon kısıtlamalarını yapılandırın."
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php:170
-#: src/Admin/Setup/SetupWizard.php:502
+#: src/Admin/Setup/SetupWizard.php:511
 msgid "Minimum Rental Days"
 msgstr "Minimum kiralama gün sayısı"
 
@@ -12906,7 +12914,7 @@ msgid "Minimum number of rental days"
 msgstr "Minimum kiralama süresi"
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php:180
-#: src/Admin/Setup/SetupWizard.php:506
+#: src/Admin/Setup/SetupWizard.php:515
 msgid "Maximum Rental Days"
 msgstr "Maksimum kiralama gün sayısı"
 
@@ -12994,7 +13002,7 @@ msgid "Detailed booking form - with all booking options"
 msgstr "Ayrıntılı rezervasyon formu - tüm rezervasyon seçenekleri ile birlikte"
 
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:68
-#: src/Admin/Setup/SetupWizard.php:897
+#: src/Admin/Setup/SetupWizard.php:907
 msgid "Unified Search"
 msgstr "Araç arama"
 
@@ -13121,7 +13129,7 @@ msgid "Monitor and configure system health, security, and performance."
 msgstr "Sistem sağlığı, güvenliği ve başarımını izleyin ve yapılandırın."
 
 #: src/Admin/Settings/View/TabRendererRegistry.php:195
-#: src/Admin/Setup/SetupWizard.php:835
+#: src/Admin/Setup/SetupWizard.php:845
 msgid "Frontend & Display"
 msgstr "Ön yüz ve görünüm"
 
@@ -13481,12 +13489,12 @@ msgstr ""
 msgid "Reveal API Directory"
 msgstr "API dizinini göster"
 
-#: src/Admin/Setup/SetupWizard.php:56 src/Admin/Setup/SetupWizard.php:57
+#: src/Admin/Setup/SetupWizard.php:57 src/Admin/Setup/SetupWizard.php:58
 #: src/Admin/Utilities/Menu/Menu.php:174 src/Admin/Utilities/Menu/Menu.php:175
 msgid "Setup Wizard"
 msgstr "Kurulum sihirbazı"
 
-#: src/Admin/Setup/SetupWizard.php:147
+#: src/Admin/Setup/SetupWizard.php:162
 msgid ""
 "Follow the steps below to prepare Rentiva on a fresh WordPress installation. "
 "You can re-open this wizard later from the MHM Rentiva menu."
@@ -13495,11 +13503,11 @@ msgstr ""
 "izleyin. Bu sihirbazı daha sonra MHM Rentiva menüsünden yeniden "
 "açabilirsiniz."
 
-#: src/Admin/Setup/SetupWizard.php:217
+#: src/Admin/Setup/SetupWizard.php:226
 msgid "Step 1: System Requirements"
 msgstr "Adım 1: sistem gereksinimleri"
 
-#: src/Admin/Setup/SetupWizard.php:218
+#: src/Admin/Setup/SetupWizard.php:227
 msgid ""
 "We scanned your WordPress environment to ensure Rentiva can run reliably. "
 "Resolve any item marked as required before continuing."
@@ -13507,31 +13515,31 @@ msgstr ""
 "Rentiva'nın güvenilir bir şekilde çalışabilmesi için WordPress ortamınızı "
 "taradık. Devam etmeden önce gerekli olarak işaretlenmiş tüm ögeleri çözün."
 
-#: src/Admin/Setup/SetupWizard.php:223
+#: src/Admin/Setup/SetupWizard.php:232
 msgid "Requirement"
 msgstr "Gereksinim"
 
-#: src/Admin/Setup/SetupWizard.php:224
+#: src/Admin/Setup/SetupWizard.php:233
 msgid "Current Value"
 msgstr "Mevcut değer"
 
-#: src/Admin/Setup/SetupWizard.php:225
+#: src/Admin/Setup/SetupWizard.php:234
 msgid "Recommended"
 msgstr "Önerilen"
 
-#: src/Admin/Setup/SetupWizard.php:249
+#: src/Admin/Setup/SetupWizard.php:258
 msgid "Skip wizard"
 msgstr "Sihirbazı atla"
 
-#: src/Admin/Setup/SetupWizard.php:250
+#: src/Admin/Setup/SetupWizard.php:259
 msgid "Continue to Required Pages"
 msgstr "Gerekli sayfalara devam et"
 
-#: src/Admin/Setup/SetupWizard.php:260
+#: src/Admin/Setup/SetupWizard.php:269
 msgid "Step 2: Required Pages"
 msgstr "Adım 2: gerekli sayfalar"
 
-#: src/Admin/Setup/SetupWizard.php:261
+#: src/Admin/Setup/SetupWizard.php:270
 msgid ""
 "Rentiva uses dedicated WordPress pages for booking, confirmation and "
 "customer account screens. Create missing pages automatically or link "
@@ -13541,50 +13549,50 @@ msgstr ""
 "sayfaları kullanır. Eksik sayfaları otomatik olarak oluşturun veya mevcut "
 "sayfalara bağlantı verin."
 
-#: src/Admin/Setup/SetupWizard.php:266
+#: src/Admin/Setup/SetupWizard.php:275
 #: src-react/admin/contact-messages/ContactMessagesList.jsx:261
 #: src-react/admin/customers/components/Pagination.jsx:17
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:14
 msgid "Page"
 msgstr "Sayfa"
 
-#: src/Admin/Setup/SetupWizard.php:267
+#: src/Admin/Setup/SetupWizard.php:276
 #: src-react/admin/shortcode-pages/components/DebugPanel.jsx:28
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:13
 msgid "Shortcode"
 msgstr "Kısa kod"
 
-#: src/Admin/Setup/SetupWizard.php:269
+#: src/Admin/Setup/SetupWizard.php:278
 msgid "Recommended URL"
 msgstr "Önerilen adres"
 
-#: src/Admin/Setup/SetupWizard.php:276
+#: src/Admin/Setup/SetupWizard.php:285
 msgid "Present"
 msgstr "Mevcut"
 
-#: src/Admin/Setup/SetupWizard.php:276 src/Admin/Setup/SetupWizard.php:979
+#: src/Admin/Setup/SetupWizard.php:285 src/Admin/Setup/SetupWizard.php:989
 #: src-react/admin/shortcode-pages/components/StatsBar.jsx:12
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:8
 msgid "Missing"
 msgstr "Eksik"
 
-#: src/Admin/Setup/SetupWizard.php:304
+#: src/Admin/Setup/SetupWizard.php:313
 msgid "Create Missing Pages"
 msgstr "Eksik sayfaları oluştur"
 
-#: src/Admin/Setup/SetupWizard.php:306
+#: src/Admin/Setup/SetupWizard.php:315
 msgid "Open Shortcode Pages"
 msgstr "Kısa kod sayfalarını aç"
 
-#: src/Admin/Setup/SetupWizard.php:311
+#: src/Admin/Setup/SetupWizard.php:320
 msgid "Continue to Email"
 msgstr "E-posta ayarlarına devam et"
 
-#: src/Admin/Setup/SetupWizard.php:327
+#: src/Admin/Setup/SetupWizard.php:336
 msgid "Step 3: Email & Notifications"
 msgstr "Adım 3: e-posta ve bildirimler"
 
-#: src/Admin/Setup/SetupWizard.php:328
+#: src/Admin/Setup/SetupWizard.php:337
 msgid ""
 "Configure the sender information and enable automatic notifications for "
 "bookings."
@@ -13592,11 +13600,11 @@ msgstr ""
 "Gönderen bilgilerini yapılandırın ve rezervasyonlar için otomatik "
 "bildirimleri etkinleştirin."
 
-#: src/Admin/Setup/SetupWizard.php:331
+#: src/Admin/Setup/SetupWizard.php:340
 msgid "Important: Email Delivery Security"
 msgstr "Önemli: e-posta teslimatı güvenliği"
 
-#: src/Admin/Setup/SetupWizard.php:333
+#: src/Admin/Setup/SetupWizard.php:342
 msgid ""
 "The default WordPress email system can be unreliable depending on server "
 "configuration, causing your emails to fall into Spam/Junk folders."
@@ -13605,7 +13613,7 @@ msgstr ""
 "güvenilir olmayabilir ve e-postalarınızın istenmeyen (spam) ya da gereksiz "
 "posta klasörlerine düşmesine neden olabilir."
 
-#: src/Admin/Setup/SetupWizard.php:336
+#: src/Admin/Setup/SetupWizard.php:345
 msgid ""
 "For uninterrupted communication and delivery of booking notifications, "
 "please install and configure an SMTP Plugin."
@@ -13613,72 +13621,72 @@ msgstr ""
 "Kesintisiz iletişim ve rezervasyon bildirimlerinin teslimi için lütfen bir "
 "SMTP eklentisi kurun ve yapılandırın."
 
-#: src/Admin/Setup/SetupWizard.php:339
+#: src/Admin/Setup/SetupWizard.php:348
 msgid "Recommended Plugins:"
 msgstr "Önerilen eklentiler:"
 
-#: src/Admin/Setup/SetupWizard.php:340
+#: src/Admin/Setup/SetupWizard.php:349
 msgid "or"
 msgstr "veya"
 
-#: src/Admin/Setup/SetupWizard.php:362
+#: src/Admin/Setup/SetupWizard.php:371
 msgid "Test Mode"
 msgstr "Test kipi"
 
-#: src/Admin/Setup/SetupWizard.php:366
+#: src/Admin/Setup/SetupWizard.php:375
 msgid "Enable test mode (emails will be sent only to the test address)"
 msgstr ""
 "Test kipini etkinleştir (e-postalar yalnızca test adresine gönderilecek)"
 
-#: src/Admin/Setup/SetupWizard.php:375
+#: src/Admin/Setup/SetupWizard.php:384
 msgid "Automation"
 msgstr "Otomasyon"
 
-#: src/Admin/Setup/SetupWizard.php:377
+#: src/Admin/Setup/SetupWizard.php:386
 msgid "Email sending enabled"
 msgstr "E-posta gönderme etkinleştirildi"
 
-#: src/Admin/Setup/SetupWizard.php:378
+#: src/Admin/Setup/SetupWizard.php:387
 msgid "Automatic email sending enabled"
 msgstr "Otomatik e-posta gönderme etkinleştirildi"
 
-#: src/Admin/Setup/SetupWizard.php:379
+#: src/Admin/Setup/SetupWizard.php:388
 msgid "Log emails in the email log post type"
 msgstr "E-postaları e-posta günlüğü yazı türünde günlüğe kaydet"
 
-#: src/Admin/Setup/SetupWizard.php:385 src/Admin/Setup/SetupWizard.php:519
+#: src/Admin/Setup/SetupWizard.php:394 src/Admin/Setup/SetupWizard.php:528
 msgid "Save & Continue"
 msgstr "Kaydet ve devam et"
 
 #. translators: %s: currency symbol
-#: src/Admin/Setup/SetupWizard.php:411
+#: src/Admin/Setup/SetupWizard.php:420
 #, php-format
 msgid "Left (%s100)"
 msgstr "Solda (%s100)"
 
 #. translators: %s: currency symbol
-#: src/Admin/Setup/SetupWizard.php:413
+#: src/Admin/Setup/SetupWizard.php:422
 #, php-format
 msgid "Left Space (%s 100)"
 msgstr "Solda, boşluklu (%s 100)"
 
 #. translators: %s: currency symbol
-#: src/Admin/Setup/SetupWizard.php:415
+#: src/Admin/Setup/SetupWizard.php:424
 #, php-format
 msgid "Right (100%s)"
 msgstr "Sağda (100%s)"
 
 #. translators: %s: currency symbol
-#: src/Admin/Setup/SetupWizard.php:417
+#: src/Admin/Setup/SetupWizard.php:426
 #, php-format
 msgid "Right Space (100 %s)"
 msgstr "Sağda, boşluklu (100 %s)"
 
-#: src/Admin/Setup/SetupWizard.php:423
+#: src/Admin/Setup/SetupWizard.php:432
 msgid "Step 4: Frontend & Display"
 msgstr "Adım 4: ön yüz ve görünüm"
 
-#: src/Admin/Setup/SetupWizard.php:424
+#: src/Admin/Setup/SetupWizard.php:433
 msgid ""
 "Fine tune the visible defaults that appear on booking forms and vehicle "
 "cards."
@@ -13687,30 +13695,30 @@ msgstr ""
 "yapın."
 
 #. translators: %s: link to WooCommerce settings
-#: src/Admin/Setup/SetupWizard.php:445
+#: src/Admin/Setup/SetupWizard.php:454
 #, php-format
 msgid "To change the currency, please visit %s."
 msgstr "Para birimini değiştirmek için lütfen %s sayfasını ziyaret edin."
 
-#: src/Admin/Setup/SetupWizard.php:446 src/Admin/Setup/SetupWizard.php:482
+#: src/Admin/Setup/SetupWizard.php:455 src/Admin/Setup/SetupWizard.php:491
 msgid "WooCommerce Settings"
 msgstr "WooCommerce ayarları"
 
 #. translators: %s: link to WooCommerce settings
-#: src/Admin/Setup/SetupWizard.php:481
+#: src/Admin/Setup/SetupWizard.php:490
 #, php-format
 msgid "To change the position, please visit %s."
 msgstr "Konumu değiştirmek için lütfen %s sayfasını ziyaret edin."
 
-#: src/Admin/Setup/SetupWizard.php:513
+#: src/Admin/Setup/SetupWizard.php:522
 msgid "Same setting as Settings › Frontend & Display › Colors."
 msgstr "Aynı ayar: Ayarlar › Ön yüz ve görünüm › Renkler."
 
-#: src/Admin/Setup/SetupWizard.php:530
+#: src/Admin/Setup/SetupWizard.php:539
 msgid "Final Step: Summary & Tests"
 msgstr "Son adım: özet ve testler"
 
-#: src/Admin/Setup/SetupWizard.php:531
+#: src/Admin/Setup/SetupWizard.php:540
 msgid ""
 "Review the checklist below and run a quick booking to confirm everything is "
 "ready."
@@ -13718,23 +13726,23 @@ msgstr ""
 "Aşağıdaki kontrol listesini gözden geçirin ve her şeyin hazır olduğunu "
 "onaylamak için hızlı bir rezervasyon yapın."
 
-#: src/Admin/Setup/SetupWizard.php:536
+#: src/Admin/Setup/SetupWizard.php:545
 msgid "Step"
 msgstr "Adım"
 
-#: src/Admin/Setup/SetupWizard.php:556
+#: src/Admin/Setup/SetupWizard.php:565
 msgid "Open Settings"
 msgstr "Ayarları aç"
 
-#: src/Admin/Setup/SetupWizard.php:557
+#: src/Admin/Setup/SetupWizard.php:566
 msgid "Review Shortcode Pages"
 msgstr "Kısa kod sayfalarını incele"
 
-#: src/Admin/Setup/SetupWizard.php:569
+#: src/Admin/Setup/SetupWizard.php:578
 msgid "Important: Permalink Settings"
 msgstr "Önemli: kalıcı bağlantı ayarları"
 
-#: src/Admin/Setup/SetupWizard.php:570
+#: src/Admin/Setup/SetupWizard.php:579
 msgid ""
 "Your WordPress permalink structure is set to \"Plain\". For the frontend "
 "pages to work correctly, please update your permalink settings to a SEO-"
@@ -13744,17 +13752,17 @@ msgstr ""
 "sayfalarının doğru çalışması için lütfen kalıcı bağlantı ayarlarınızı SEO "
 "dostu bir yapıya (ör. \"Yazı adı\") güncelleyin."
 
-#: src/Admin/Setup/SetupWizard.php:573 src/Admin/Setup/SetupWizard.php:811
+#: src/Admin/Setup/SetupWizard.php:582 src/Admin/Setup/SetupWizard.php:821
 msgid "Open Permalink Settings"
 msgstr "Kalıcı bağlantı ayarlarını aç"
 
-#: src/Admin/Setup/SetupWizard.php:576
+#: src/Admin/Setup/SetupWizard.php:585
 msgid "After updating, click \"Save Changes\" to refresh permalinks."
 msgstr ""
 "Güncelledikten sonra kalıcı bağlantıları yenilemek için \"Değişiklikleri "
 "kaydet\" düğmesine tıklayın."
 
-#: src/Admin/Setup/SetupWizard.php:587
+#: src/Admin/Setup/SetupWizard.php:596
 msgid ""
 "Setup wizard was completed previously. You can still finish again to return "
 "to the dashboard."
@@ -13762,25 +13770,25 @@ msgstr ""
 "Kurulum sihirbazı daha önce tamamlandı. Başlangıç ekranına dönmek için yine "
 "de yeniden tamamlayabilirsiniz."
 
-#: src/Admin/Setup/SetupWizard.php:592
+#: src/Admin/Setup/SetupWizard.php:601
 msgid "Go to Dashboard"
 msgstr "Başlangıç ekranına git"
 
-#: src/Admin/Setup/SetupWizard.php:593
+#: src/Admin/Setup/SetupWizard.php:602
 msgid "Complete Setup"
 msgstr "Kurulumu tamamla"
 
-#: src/Admin/Setup/SetupWizard.php:602 src/Admin/Setup/SetupWizard.php:624
-#: src/Admin/Setup/SetupWizard.php:646 src/Admin/Setup/SetupWizard.php:705
-#: src/Admin/Setup/SetupWizard.php:725 src/Admin/Setup/SetupWizard.php:737
+#: src/Admin/Setup/SetupWizard.php:611 src/Admin/Setup/SetupWizard.php:633
+#: src/Admin/Setup/SetupWizard.php:655 src/Admin/Setup/SetupWizard.php:715
+#: src/Admin/Setup/SetupWizard.php:735 src/Admin/Setup/SetupWizard.php:747
 msgid "You are not allowed to perform this action."
 msgstr "Bu eylemi gerçekleştirme izniniz yok."
 
-#: src/Admin/Setup/SetupWizard.php:804
+#: src/Admin/Setup/SetupWizard.php:814
 msgid "Important: Permalink Settings Required"
 msgstr "Önemli: kalıcı bağlantı ayarları gerekli"
 
-#: src/Admin/Setup/SetupWizard.php:807
+#: src/Admin/Setup/SetupWizard.php:817
 msgid ""
 "Your WordPress permalink structure is set to \"Plain\". For the frontend "
 "pages (booking form, account pages, etc.) to work correctly, please update "
@@ -13790,132 +13798,132 @@ msgstr ""
 "sayfalarının (rezervasyon formu, hesap sayfaları vb.) doğru çalışması için "
 "lütfen kalıcı bağlantı ayarlarınızı SEO dostu bir yapıya güncelleyin."
 
-#: src/Admin/Setup/SetupWizard.php:814
+#: src/Admin/Setup/SetupWizard.php:824
 msgid "Dismiss"
 msgstr "Kapat"
 
-#: src/Admin/Setup/SetupWizard.php:832
+#: src/Admin/Setup/SetupWizard.php:842
 msgid "System Check"
 msgstr "Sistem kontrolü"
 
-#: src/Admin/Setup/SetupWizard.php:833
+#: src/Admin/Setup/SetupWizard.php:843
 msgid "Required Pages"
 msgstr "Gerekli sayfalar"
 
-#: src/Admin/Setup/SetupWizard.php:836
+#: src/Admin/Setup/SetupWizard.php:846
 msgid "Summary & Tests"
 msgstr "Özet ve testler"
 
-#: src/Admin/Setup/SetupWizard.php:979
+#: src/Admin/Setup/SetupWizard.php:989
 msgid "Installed"
 msgstr "Kurulu"
 
-#: src/Admin/Setup/SetupWizard.php:982
+#: src/Admin/Setup/SetupWizard.php:992
 msgid "WooCommerce is required for payments and account management."
 msgstr "Ödemeler ve hesap yönetimi için WooCommerce gereklidir."
 
-#: src/Admin/Setup/SetupWizard.php:985
+#: src/Admin/Setup/SetupWizard.php:995
 msgid "PHP Version"
 msgstr "PHP sürümü"
 
-#: src/Admin/Setup/SetupWizard.php:989
+#: src/Admin/Setup/SetupWizard.php:999
 msgid "Update PHP to 7.4 or higher."
 msgstr "PHP'yi 7.4 veya üstü bir sürüme güncelleyin."
 
-#: src/Admin/Setup/SetupWizard.php:992
+#: src/Admin/Setup/SetupWizard.php:1002
 msgid "WordPress Version"
 msgstr "WordPress sürümü"
 
-#: src/Admin/Setup/SetupWizard.php:996
+#: src/Admin/Setup/SetupWizard.php:1006
 msgid "Please update WordPress to the latest version."
 msgstr "Lütfen WordPress'i en son sürüme güncelleyin."
 
-#: src/Admin/Setup/SetupWizard.php:999
+#: src/Admin/Setup/SetupWizard.php:1009
 msgid "Database Version"
 msgstr "Veritabanı sürümü"
 
-#: src/Admin/Setup/SetupWizard.php:1001
+#: src/Admin/Setup/SetupWizard.php:1011
 msgid "MySQL 5.7+ / MariaDB 10.3+"
 msgstr "MySQL 5.7+ / MariaDB 10.3+"
 
-#: src/Admin/Setup/SetupWizard.php:1006
+#: src/Admin/Setup/SetupWizard.php:1016
 msgid "PHP Memory Limit"
 msgstr "PHP bellek sınırı"
 
-#: src/Admin/Setup/SetupWizard.php:1008
+#: src/Admin/Setup/SetupWizard.php:1018
 msgid "256 MB recommended"
 msgstr "256 MB önerilir"
 
 #. translators: %s: link to wp-config.php documentation
-#: src/Admin/Setup/SetupWizard.php:1012
+#: src/Admin/Setup/SetupWizard.php:1022
 #, php-format
 msgid "Add %s to your wp-config.php file to increase memory."
 msgstr "Belleği artırmak için wp-config.php dosyanıza %s ekleyin."
 
-#: src/Admin/Setup/SetupWizard.php:1020
+#: src/Admin/Setup/SetupWizard.php:1030
 msgid "PHP max_execution_time"
 msgstr "PHP max_execution_time"
 
-#: src/Admin/Setup/SetupWizard.php:1022
+#: src/Admin/Setup/SetupWizard.php:1032
 msgid "60s+"
 msgstr "60 sn+"
 
-#: src/Admin/Setup/SetupWizard.php:1024
+#: src/Admin/Setup/SetupWizard.php:1034
 msgid "Increase max_execution_time to 60 seconds for large imports."
 msgstr "Büyük içe aktarmalar için max_execution_time'ı 60 saniyeye yükseltin."
 
-#: src/Admin/Setup/SetupWizard.php:1029
+#: src/Admin/Setup/SetupWizard.php:1039
 msgid "HTTPS / SSL"
 msgstr "HTTPS / SSL"
 
-#: src/Admin/Setup/SetupWizard.php:1030
+#: src/Admin/Setup/SetupWizard.php:1040
 msgid "Not detected"
 msgstr "Algılanmadı"
 
-#: src/Admin/Setup/SetupWizard.php:1031
+#: src/Admin/Setup/SetupWizard.php:1041
 msgid "Valid SSL certificate"
 msgstr "Geçerli SSL sertifikası"
 
-#: src/Admin/Setup/SetupWizard.php:1033
+#: src/Admin/Setup/SetupWizard.php:1043
 msgid "Install an SSL certificate to secure customer data."
 msgstr "Müşteri verilerini korumak için bir SSL sertifikası kurun."
 
-#: src/Admin/Setup/SetupWizard.php:1038
+#: src/Admin/Setup/SetupWizard.php:1048
 msgid "WP-Cron"
 msgstr "WP-Cron"
 
-#: src/Admin/Setup/SetupWizard.php:1040
+#: src/Admin/Setup/SetupWizard.php:1050
 msgid "Required for scheduled emails & jobs"
 msgstr "Zamanlanmış e-postalar ve işler için gereklidir"
 
-#: src/Admin/Setup/SetupWizard.php:1042
+#: src/Admin/Setup/SetupWizard.php:1052
 msgid "Enable WP-Cron or set a real cron job for reminders."
 msgstr ""
 "Hatırlatmalar için WP-Cron'u etkinleştirin veya gerçek bir cron görevi "
 "ayarlayın."
 
-#: src/Admin/Setup/SetupWizard.php:1047
+#: src/Admin/Setup/SetupWizard.php:1057
 msgid "Email Delivery"
 msgstr "E-posta teslimatı"
 
-#: src/Admin/Setup/SetupWizard.php:1048
+#: src/Admin/Setup/SetupWizard.php:1058
 msgid "SMTP/Provider detected"
 msgstr "SMTP/sağlayıcı algılandı"
 
-#: src/Admin/Setup/SetupWizard.php:1048
+#: src/Admin/Setup/SetupWizard.php:1058
 msgid "Default wp_mail()"
 msgstr "Varsayılan wp_mail()"
 
-#: src/Admin/Setup/SetupWizard.php:1049
+#: src/Admin/Setup/SetupWizard.php:1059
 msgid "SMTP provider recommended"
 msgstr "SMTP sağlayıcısı önerilir"
 
-#: src/Admin/Setup/SetupWizard.php:1051
+#: src/Admin/Setup/SetupWizard.php:1061
 msgid "Configure SMTP (WP Mail SMTP, Post SMTP, etc.) for reliable delivery."
 msgstr ""
 "Güvenilir teslimat için SMTP yapılandırın (WP Mail SMTP, Post SMTP vb.)."
 
-#: src/Admin/Setup/SetupWizard.php:1068
+#: src/Admin/Setup/SetupWizard.php:1078
 msgid "Ready"
 msgstr "Hazır"
 
