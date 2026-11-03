@@ -963,6 +963,15 @@ input:checked+.mhm-toggle-slider:before {
 	border-radius: 4px;
 }
 
+/* The button and the link sit in one row; keep them apart. */
+.mhm-rentiva-accent-preview > p:first-of-type {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 16px;
+	margin-top: 0;
+}
+
 /* Automatic mode: the picker stays legible (no opacity, which would lower the
    contrast of its text) but reads as unavailable. */
 .mhm-rentiva-accent .wp-picker-container.is-disabled .wp-color-result,
