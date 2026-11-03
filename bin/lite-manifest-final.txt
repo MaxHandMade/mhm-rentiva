@@ -226,6 +226,7 @@ src/Admin/Settings/Groups/BookingSettings.php
 src/Admin/Settings/Groups/CommentsSettingsGroup.php
 src/Admin/Settings/Groups/CoreSettings.php
 src/Admin/Settings/Groups/EmailSettings.php
+src/Admin/Settings/Groups/FrontendColorsSection.php
 src/Admin/Settings/Groups/FrontendSettings.php
 src/Admin/Settings/Groups/GeneralSettings.php
 src/Admin/Settings/Groups/LogsSettings.php

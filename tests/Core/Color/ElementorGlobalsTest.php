@@ -10,8 +10,9 @@ use WP_UnitTestCase;
 
 /**
  * ElementorGlobals resolves a stored global colour reference through Elementor's
- * own data_manager_v2->run() when a REST server is already up, otherwise through
- * the kit array that mirrors the globals/colors endpoint (plan R1, R2).
+ * own data_manager_v2->run() only while Elementor runs its own internal server
+ * (is_internal()); otherwise through the kit array that mirrors the
+ * globals/colors endpoint (plan R1 after Fable I1, R2).
  *
  * data_manager_v2 keeps `server`, `is_internal` and `cache` for the whole
  * process and the WP test case does not reset $GLOBALS['wp_rest_server'];
@@ -279,12 +280,6 @@ final class ElementorGlobalsTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Measured in the full suite (PreviewInertMarkupTest went red): even with
-	 * the REST server already up, Elementor's run_server() calls
-	 * remove_all_actions( 'rest_api_init' ) the first time it runs, so a server
-	 * rebuilt later in the same request carried only Elementor's routes.
-	 */
-	/**
 	 * Fable I1: with the core REST server up but Elementor not running its
 	 * internal server (a front-end request after something built the server),
 	 * resolution takes the kit-array path and Elementor's is_internal flag stays
@@ -314,6 +309,11 @@ final class ElementorGlobalsTest extends WP_UnitTestCase
 		$this->assertFalse(Plugin::$instance->data_manager_v2->is_internal(), 'is_internal stays false');
 	}
 
+	/**
+	 * With Elementor's internal server already up run_server() is a no-op, so core
+	 * rest_api_init callbacks survive; the guard for the non-internal case is
+	 * test_core_rest_server_up_but_not_internal_takes_the_fallback.
+	 */
 	public function test_run_path_keeps_rest_api_init_callbacks(): void
 	{
 		$this->kit(array( 'accent' => '#CC0000' ));

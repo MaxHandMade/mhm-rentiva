@@ -122,6 +122,16 @@ final class Settings {
 	}
 
 	/**
+	 * The requested settings tab slug (read-only display routing, default
+	 * 'general'). The one place the screen reads `?tab=`: the page render and
+	 * the Colors section's tab-gated assets share it.
+	 */
+	public static function current_tab(): string
+	{
+		return isset($_GET['tab']) ? sanitize_key(wp_unslash( (string) $_GET['tab'])) : 'general';
+	}
+
+	/**
 	 * Render the main settings page.
 	 *
 	 * Orchestrates the TabRendererRegistry and SettingsView.
@@ -129,7 +139,7 @@ final class Settings {
 	public static function render_settings_page(): void
 	{
 		$registry    = new TabRendererRegistry();
-		$current_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash( (string) $_GET['tab'])) : 'general';
+		$current_tab = self::current_tab();
 		$renderer    = $registry->get($current_tab) ?: $registry->get('general');
 
 		// Prepare tab list for sidebar

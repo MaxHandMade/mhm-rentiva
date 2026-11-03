@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-11-03T03:59:37+00:00\n"
+"POT-Creation-Date: 2026-11-03T12:21:38+00:00\n"
 "PO-Revision-Date: 2026-10-24 18:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -155,7 +155,7 @@ msgstr "Hesaplanamadı"
 #: src/Admin/About/SystemInfo.php:223 src/Admin/Core/AssetManager.php:1671
 #: src/Admin/Frontend/Account/AccountController.php:297
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:596
-#: src/Admin/Settings/Groups/FrontendSettings.php:382
+#: src/Admin/Settings/Groups/FrontendSettings.php:345
 msgid "Error"
 msgstr "Hata"
 
@@ -1266,6 +1266,7 @@ msgstr "Bekleyen"
 #: src/Admin/Emails/Notifications/BookingNotifications.php:208
 #: src/Admin/Frontend/Account/BookingTimeline.php:70
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:80
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:100
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1037
 #: assets/blocks/my-bookings/index.js:39
 #: src-react/admin/dashboard/components/RecentBookings.jsx:11
@@ -1984,7 +1985,7 @@ msgstr "Bekleyen doğrulama"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1089
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:488
-#: src/Admin/Settings/Groups/FrontendSettings.php:380
+#: src/Admin/Settings/Groups/FrontendSettings.php:343
 #: templates/emails/refund-customer.html.php:34
 msgid "Processing"
 msgstr "İşleniyor"
@@ -2358,7 +2359,7 @@ msgstr ""
 "\"Kalan tutarı işle\" düğmesini kullanın."
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:427
-#: src/Admin/Settings/Groups/FrontendSettings.php:360
+#: src/Admin/Settings/Groups/FrontendSettings.php:323
 msgid "Cancel Booking"
 msgstr "Rezervasyonu iptal et"
 
@@ -2436,7 +2437,7 @@ msgstr "Manuel"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:204
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:284
 #: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:426
-#: src/Admin/Settings/Groups/FrontendSettings.php:418
+#: src/Admin/Settings/Groups/FrontendSettings.php:381
 #: templates/shortcodes/booking-form.php:73
 msgid "Select Vehicle"
 msgstr "Araç seç"
@@ -3221,13 +3222,13 @@ msgid "New Customer Information"
 msgstr "Yeni müşteri bilgileri"
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:321
-#: src/Admin/Settings/Groups/FrontendSettings.php:399
+#: src/Admin/Settings/Groups/FrontendSettings.php:362
 #: templates/account/account-details.php:76
 msgid "First Name"
 msgstr "Ad"
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:325
-#: src/Admin/Settings/Groups/FrontendSettings.php:400
+#: src/Admin/Settings/Groups/FrontendSettings.php:363
 #: templates/account/account-details.php:84
 msgid "Last Name"
 msgstr "Soyadı"
@@ -3238,7 +3239,7 @@ msgstr "Soyadı"
 #: src/Admin/Customers/CustomersPage.php:561
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:879
 #: src/Admin/Frontend/Shortcodes/ContactFormView.php:217
-#: src/Admin/Settings/Groups/FrontendSettings.php:401
+#: src/Admin/Settings/Groups/FrontendSettings.php:364
 #: templates/admin/partials/booking-popup.php:60
 #: templates/shortcodes/contact-form.php:145
 #: src-react/admin/customers/components/CustomerPanel.jsx:86
@@ -3251,7 +3252,7 @@ msgstr "E-posta"
 #: src/Admin/Customers/CustomersPage.php:566
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:880
 #: src/Admin/Frontend/Shortcodes/ContactFormView.php:214
-#: src/Admin/Settings/Groups/FrontendSettings.php:402
+#: src/Admin/Settings/Groups/FrontendSettings.php:365
 #: templates/admin/partials/booking-popup.php:64
 #: src-react/admin/contact-messages/components/SenderWidget.jsx:72
 #: src-react/admin/customers/components/CustomerPanel.jsx:90
@@ -6280,6 +6281,7 @@ msgstr "Şablonu düzenle"
 
 #: src/Admin/Emails/Core/EmailTemplates.php:572
 #: src/Admin/Emails/Templates/EmailPreview.php:58
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:91
 msgid "Preview"
 msgstr "Ön izleme"
 
@@ -7079,7 +7081,8 @@ msgstr "Araç bulunamadı"
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:679
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:326
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:100
-#: src/Admin/Settings/Groups/FrontendSettings.php:357
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:93
+#: src/Admin/Settings/Groups/FrontendSettings.php:320
 #: templates/account/favorites.php:76
 #: templates/partials/vehicle-card-base.php:256
 msgid "Book Now"
@@ -7090,7 +7093,8 @@ msgstr "Rezervasyon yap"
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:209
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:434
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:680
-#: src/Admin/Settings/Groups/FrontendSettings.php:358
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:94
+#: src/Admin/Settings/Groups/FrontendSettings.php:321
 msgid "View Details"
 msgstr "Ayrıntıları görüntüle"
 
@@ -7101,7 +7105,7 @@ msgstr "Ayrıntıları görüntüle"
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:435
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:681
 #: src/Admin/Services/FavoritesService.php:175
-#: src/Admin/Settings/Groups/FrontendSettings.php:376
+#: src/Admin/Settings/Groups/FrontendSettings.php:339
 msgid "Added to favorites"
 msgstr "Favorilere eklendi"
 
@@ -7112,7 +7116,7 @@ msgstr "Favorilere eklendi"
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:436
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:682
 #: src/Admin/Services/FavoritesService.php:171
-#: src/Admin/Settings/Groups/FrontendSettings.php:377
+#: src/Admin/Settings/Groups/FrontendSettings.php:340
 msgid "Removed from favorites"
 msgstr "Favorilerden kaldırıldı"
 
@@ -7121,7 +7125,7 @@ msgstr "Favorilerden kaldırıldı"
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:437
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:683
 #: src/Admin/Services/FavoritesService.php:154
-#: src/Admin/Settings/Groups/FrontendSettings.php:378
+#: src/Admin/Settings/Groups/FrontendSettings.php:341
 msgid "You must be logged in to add to favorites"
 msgstr "Favorilere eklemek için oturum açmalısınız"
 
@@ -8786,7 +8790,7 @@ msgid "Total price: low to high"
 msgstr "Toplam fiyat: artan"
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1951
-#: src/Admin/Settings/Groups/FrontendSettings.php:323
+#: src/Admin/Settings/Groups/FrontendSettings.php:286
 #: assets/blocks/search-results/index.js:52
 msgid "Price: Low to High"
 msgstr "Fiyat: düşükten yükseğe"
@@ -8796,19 +8800,19 @@ msgid "Total price: high to low"
 msgstr "Toplam fiyat: azalan"
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1952
-#: src/Admin/Settings/Groups/FrontendSettings.php:324
+#: src/Admin/Settings/Groups/FrontendSettings.php:287
 #: assets/blocks/search-results/index.js:53
 msgid "Price: High to Low"
 msgstr "Fiyat: yüksekten düşüğe"
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1953
-#: src/Admin/Settings/Groups/FrontendSettings.php:325
+#: src/Admin/Settings/Groups/FrontendSettings.php:288
 #: assets/blocks/search-results/index.js:54
 msgid "Name: A to Z"
 msgstr "Ad: A'dan Z'ye"
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1954
-#: src/Admin/Settings/Groups/FrontendSettings.php:326
+#: src/Admin/Settings/Groups/FrontendSettings.php:289
 #: assets/blocks/search-results/index.js:55
 msgid "Name: Z to A"
 msgstr "Ad: Z'den A'ya"
@@ -10112,7 +10116,7 @@ msgid "Compact"
 msgstr "Kompakt"
 
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:104
-#: src/Admin/Settings/Groups/FrontendSettings.php:158
+#: src/Admin/Settings/Groups/FrontendSettings.php:156
 #: assets/blocks/search-results/index.js:48
 msgid "Default Sort Order"
 msgstr "Varsayılan sıralama"
@@ -11300,7 +11304,7 @@ msgstr "Geçersiz geçici anahtar"
 msgid "Settings updated"
 msgstr "Ayarlar güncellendi"
 
-#: src/Admin/Settings/Core/SettingsCore.php:688
+#: src/Admin/Settings/Core/SettingsCore.php:681
 #: src/Admin/Settings/Core/SettingsHelper.php:235
 msgid "Select image"
 msgstr "Görsel seç"
@@ -11529,8 +11533,8 @@ msgstr "İstenmeyen içerik ve güvenlik"
 
 #: src/Admin/Settings/Groups/CommentsSettingsGroup.php:109
 #: src/Admin/Settings/Groups/CommentsSettingsGroup.php:370
-#: src/Admin/Settings/Groups/FrontendSettings.php:184
-#: src/Admin/Settings/Groups/FrontendSettings.php:371
+#: src/Admin/Settings/Groups/FrontendSettings.php:182
+#: src/Admin/Settings/Groups/FrontendSettings.php:334
 msgid "Notifications"
 msgstr "Bildirimler"
 
@@ -12063,56 +12067,145 @@ msgstr ""
 msgid "Send Test Connection Email"
 msgstr "Test bağlantısı e-postası gönder"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:126
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:47
+msgid "Automatic — use the site's color"
+msgstr "Otomatik — sitenin rengini kullan"
+
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:48
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:141
+msgid "Custom color"
+msgstr "Özel renk"
+
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:54
+msgid "Accent color mode"
+msgstr "Ana renk kipi"
+
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:60
+msgid "Custom accent color"
+msgstr "Özel ana renk"
+
+#. translators: %s: where the accent color comes from, e.g. "theme setting (Astra)"
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:64
+#, php-format
+msgid "Source: %s"
+msgstr "Kaynak: %s"
+
+#. translators: %s: hex color
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:72
+#, php-format
+msgid ""
+"This color is too light for text on the page. Links and text use a darker "
+"shade (%s) so they stay readable."
+msgstr ""
+"Bu renk sayfadaki yazı için fazla açık. Bağlantılar ve yazılar okunur kalsın "
+"diye daha koyu bir ton (%s) kullanılır."
+
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:75
+msgid "This light color is hard to tell from a white background."
+msgstr "Bu açık renk beyaz zeminden zor ayırt edilir."
+
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:78
+msgid "If you use a page cache plugin, clear it after changing this."
+msgstr "Sayfa önbelleği eklentisi kullanıyorsanız bunu değiştirdikten sonra önbelleği temizleyin."
+
+#. translators: %s: theme name
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:117
+#, php-format
+msgid "theme default (%s)"
+msgstr "tema varsayılanı (%s)"
+
+#. translators: %s: theme name
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:119
+#, php-format
+msgid "theme setting (%s)"
+msgstr "tema ayarı (%s)"
+
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:123
+msgctxt "Elementor global color"
+msgid "Accent"
+msgstr "Vurgu"
+
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:125
+msgctxt "Elementor global color"
+msgid "Primary"
+msgstr "Birincil"
+
+#. translators: %s: Elementor global color name, e.g. "Accent"
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:128
+#, php-format
+msgid "Elementor global color (%s)"
+msgstr "Elementor global rengi (%s)"
+
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:132
+msgid "the theme's button color"
+msgstr "temanın düğme rengi"
+
+#. translators: %s: theme.json palette slug, e.g. "primary"
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:135
+#, php-format
+msgid "theme color palette (theme.json: %s)"
+msgstr "tema renk paleti (theme.json: %s)"
+
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:138
+msgid "Rentiva default"
+msgstr "Rentiva varsayılanı"
+
+#. translators: %s: filter hook name
+#: src/Admin/Settings/Groups/FrontendColorsSection.php:145
+#, php-format
+msgid "developer filter (%s)"
+msgstr "geliştirici filtresi (%s)"
+
+#: src/Admin/Settings/Groups/FrontendSettings.php:124
 msgid "Colors"
 msgstr "Renkler"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:133
+#: src/Admin/Settings/Groups/FrontendSettings.php:131
 msgid "Accent color"
 msgstr "Ana renk"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:142
+#: src/Admin/Settings/Groups/FrontendSettings.php:140
 msgid "Vehicle Display Settings"
 msgstr "Araç görüntüleme ayarları"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:150
+#: src/Admin/Settings/Groups/FrontendSettings.php:148
 msgid "Vehicles Per Page"
 msgstr "Sayfa başına araç sayısı"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:167
+#: src/Admin/Settings/Groups/FrontendSettings.php:165
 msgid "Texts & Labels"
 msgstr "Metinler ve etiketler"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:175
-#: src/Admin/Settings/Groups/FrontendSettings.php:352
+#: src/Admin/Settings/Groups/FrontendSettings.php:173
+#: src/Admin/Settings/Groups/FrontendSettings.php:315
 msgid "General Buttons"
 msgstr "Genel düğmeler"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:193
-#: src/Admin/Settings/Groups/FrontendSettings.php:394
+#: src/Admin/Settings/Groups/FrontendSettings.php:191
+#: src/Admin/Settings/Groups/FrontendSettings.php:357
 msgid "Form Labels"
 msgstr "Form etiketleri"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:202
-#: src/Admin/Settings/Groups/FrontendSettings.php:413
+#: src/Admin/Settings/Groups/FrontendSettings.php:200
+#: src/Admin/Settings/Groups/FrontendSettings.php:376
 msgid "Validation & Selection"
 msgstr "Doğrulama ve seçim"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:211
-#: src/Admin/Settings/Groups/FrontendSettings.php:433
+#: src/Admin/Settings/Groups/FrontendSettings.php:209
+#: src/Admin/Settings/Groups/FrontendSettings.php:396
 msgid "Payment Messages"
 msgstr "Ödeme iletileri"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:220
-#: src/Admin/Settings/Groups/FrontendSettings.php:453
+#: src/Admin/Settings/Groups/FrontendSettings.php:218
+#: src/Admin/Settings/Groups/FrontendSettings.php:416
 msgid "Account & Navigation"
 msgstr "Hesap ve gezinme"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:229
+#: src/Admin/Settings/Groups/FrontendSettings.php:227
 msgid "Permalinks & URLs"
 msgstr "Kalıcı bağlantılar ve adresler"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:230
+#: src/Admin/Settings/Groups/FrontendSettings.php:228
 msgid ""
 "Manually configure page URLs for specific plugin functions. If left empty, "
 "the system will attempt to find pages containing the required shortcodes "
@@ -12122,73 +12215,59 @@ msgstr ""
 "bırakılırsa sistem, gerekli kısa kodları içeren sayfaları otomatik olarak "
 "bulmaya çalışır."
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:237
+#: src/Admin/Settings/Groups/FrontendSettings.php:235
 msgid "Booking Form URL"
 msgstr "Rezervasyon formu adresi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:238
+#: src/Admin/Settings/Groups/FrontendSettings.php:236
 msgid "The URL of the page containing the [rentiva_booking_form] shortcode."
 msgstr "[rentiva_booking_form] kısa kodunu içeren sayfanın adresi."
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:245
+#: src/Admin/Settings/Groups/FrontendSettings.php:243
 msgid "Login Page URL"
 msgstr "Giriş sayfası adresi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:246
+#: src/Admin/Settings/Groups/FrontendSettings.php:244
 msgid "The URL of your custom login page."
 msgstr "Özel giriş sayfanızın adresi."
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:253
+#: src/Admin/Settings/Groups/FrontendSettings.php:251
 msgid "Registration Page URL"
 msgstr "Kayıt sayfası adresi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:254
+#: src/Admin/Settings/Groups/FrontendSettings.php:252
 msgid "The URL of your custom registration page."
 msgstr "Özel kayıt sayfanızın adresi."
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:263
+#: src/Admin/Settings/Groups/FrontendSettings.php:261
 msgid ""
 "Front-end colors follow your site's theme or Elementor colors. Choose a "
 "custom color to override them."
-msgstr "Ön yüz renkleri sitenizin temasını ya da Elementor renklerini izler. Değiştirmek için özel bir renk seçin."
+msgstr ""
+"Ön yüz renkleri sitenizin temasını ya da Elementor renklerini izler. "
+"Değiştirmek için özel bir renk seçin."
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:277
-msgid "Automatic — use the site's color"
-msgstr "Otomatik — sitenin rengini kullan"
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:278
-msgid "Custom color"
-msgstr "Özel renk"
-
-#. translators: %s: hex color
-#: src/Admin/Settings/Groups/FrontendSettings.php:294
-#, php-format
-msgid ""
-"This color is too light for text on the page. Links and text use a darker "
-"shade (%s) so they stay readable."
-msgstr "Bu renk sayfadaki yazı için fazla açık. Bağlantılar ve yazılar okunur kalsın diye daha koyu bir ton (%s) kullanılır."
-
-#: src/Admin/Settings/Groups/FrontendSettings.php:305
+#: src/Admin/Settings/Groups/FrontendSettings.php:268
 msgid "Configure how vehicles are displayed on the frontend."
 msgstr "Araçların ön uçta nasıl görüntüleneceğini yapılandırın."
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:314
+#: src/Admin/Settings/Groups/FrontendSettings.php:277
 msgid "Number of vehicles to display per page"
 msgstr "Sayfa başına gösterilecek araç sayısı"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:327
+#: src/Admin/Settings/Groups/FrontendSettings.php:290
 msgid "Year: Newest First"
 msgstr "Yıl: yeniden eskiye"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:328
+#: src/Admin/Settings/Groups/FrontendSettings.php:291
 msgid "Year: Oldest First"
 msgstr "Yıl: eskiden yeniye"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:336
+#: src/Admin/Settings/Groups/FrontendSettings.php:299
 msgid "Default sort order for vehicle listings"
 msgstr "Araç listeleri için varsayılan sıralama"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:343
+#: src/Admin/Settings/Groups/FrontendSettings.php:306
 msgid ""
 "Customize the text labels and button texts displayed throughout the "
 "frontend. Leave empty to use default values."
@@ -12196,189 +12275,189 @@ msgstr ""
 "Ön uçta görüntülenen metin etiketlerini ve düğme metinlerini özelleştirin. "
 "Varsayılan değerleri kullanmak için boş bırakın."
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:357
+#: src/Admin/Settings/Groups/FrontendSettings.php:320
 msgid "Book Now Button"
 msgstr "Şimdi rezervasyon yap düğmesi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:358
+#: src/Admin/Settings/Groups/FrontendSettings.php:321
 msgid "View Details Button"
 msgstr "Ayrıntıları görüntüle düğmesi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:359
+#: src/Admin/Settings/Groups/FrontendSettings.php:322
 msgid "Make Booking Button"
 msgstr "Rezervasyon yap düğmesi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:359
+#: src/Admin/Settings/Groups/FrontendSettings.php:322
 #: templates/shortcodes/booking-form.php:53
 msgid "Make Booking"
 msgstr "Rezervasyon yap"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:360
+#: src/Admin/Settings/Groups/FrontendSettings.php:323
 msgid "Cancel Booking Button"
 msgstr "Rezervasyonu iptal et düğmesi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:376
+#: src/Admin/Settings/Groups/FrontendSettings.php:339
 msgid "Added to Favorites Message"
 msgstr "Favorilere eklendi iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:377
+#: src/Admin/Settings/Groups/FrontendSettings.php:340
 msgid "Removed from Favorites Message"
 msgstr "Favorilerden kaldırıldı iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:378
+#: src/Admin/Settings/Groups/FrontendSettings.php:341
 msgid "Login Required Message"
 msgstr "Giriş gerekli iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:379
+#: src/Admin/Settings/Groups/FrontendSettings.php:342
 msgid "Login Here Text"
 msgstr "Buradan giriş yapın metni"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:379
+#: src/Admin/Settings/Groups/FrontendSettings.php:342
 msgid "Login Here"
 msgstr "Giriş yapın"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:380
+#: src/Admin/Settings/Groups/FrontendSettings.php:343
 msgid "Processing Message"
 msgstr "İşleniyor iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:381
+#: src/Admin/Settings/Groups/FrontendSettings.php:344
 msgid "Loading Message"
 msgstr "Yükleniyor iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:381
+#: src/Admin/Settings/Groups/FrontendSettings.php:344
 msgid "Loading"
 msgstr "Yükleniyor"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:382
+#: src/Admin/Settings/Groups/FrontendSettings.php:345
 msgid "Error Message"
 msgstr "Hata iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:383
+#: src/Admin/Settings/Groups/FrontendSettings.php:346
 msgid "Booking Success Message"
 msgstr "Rezervasyon başarı iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:383
+#: src/Admin/Settings/Groups/FrontendSettings.php:346
 msgid "Booking Success"
 msgstr "Rezervasyon başarılı"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:399
+#: src/Admin/Settings/Groups/FrontendSettings.php:362
 msgid "First Name Label"
 msgstr "Ad etiketi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:400
+#: src/Admin/Settings/Groups/FrontendSettings.php:363
 msgid "Last Name Label"
 msgstr "Soyadı etiketi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:401
+#: src/Admin/Settings/Groups/FrontendSettings.php:364
 msgid "Email Label"
 msgstr "E-posta etiketi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:402
+#: src/Admin/Settings/Groups/FrontendSettings.php:365
 msgid "Phone Label"
 msgstr "Telefon etiketi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:418
+#: src/Admin/Settings/Groups/FrontendSettings.php:381
 msgid "Select Vehicle Message"
 msgstr "Araç seçin iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:419
+#: src/Admin/Settings/Groups/FrontendSettings.php:382
 msgid "Select Dates Message"
 msgstr "Tarihleri seçin iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:419
+#: src/Admin/Settings/Groups/FrontendSettings.php:382
 msgid "Select Dates"
 msgstr "Tarihleri seç"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:420
+#: src/Admin/Settings/Groups/FrontendSettings.php:383
 msgid "Invalid Dates Message"
 msgstr "Geçersiz tarih iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:420
+#: src/Admin/Settings/Groups/FrontendSettings.php:383
 msgid "Invalid Dates"
 msgstr "Geçersiz tarihler"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:421
+#: src/Admin/Settings/Groups/FrontendSettings.php:384
 msgid "Select Payment Type Message"
 msgstr "Ödeme türünü seçin iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:421
+#: src/Admin/Settings/Groups/FrontendSettings.php:384
 msgid "Select Payment Type"
 msgstr "Ödeme türü seç"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:422
+#: src/Admin/Settings/Groups/FrontendSettings.php:385
 msgid "Select Payment Method Message"
 msgstr "Ödeme yöntemini seçin iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:422
+#: src/Admin/Settings/Groups/FrontendSettings.php:385
 msgid "Select Payment Method"
 msgstr "Ödeme yöntemi seç"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:438
+#: src/Admin/Settings/Groups/FrontendSettings.php:401
 msgid "Calculating Message"
 msgstr "Hesaplanıyor iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:438
+#: src/Admin/Settings/Groups/FrontendSettings.php:401
 msgid "Calculating"
 msgstr "Hesaplanıyor"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:439
+#: src/Admin/Settings/Groups/FrontendSettings.php:402
 msgid "Payment Redirect Message"
 msgstr "Ödeme yönlendirme iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:439
+#: src/Admin/Settings/Groups/FrontendSettings.php:402
 msgid "Payment Redirect"
 msgstr "Ödeme yönlendirme"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:440
+#: src/Admin/Settings/Groups/FrontendSettings.php:403
 msgid "Payment Success Message"
 msgstr "Ödeme başarılı iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:440
+#: src/Admin/Settings/Groups/FrontendSettings.php:403
 msgid "Payment Success"
 msgstr "Ödeme başarılı"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:441
+#: src/Admin/Settings/Groups/FrontendSettings.php:404
 msgid "Payment Cancelled Message"
 msgstr "Ödeme iptal edildi iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:441
+#: src/Admin/Settings/Groups/FrontendSettings.php:404
 msgid "Payment Cancelled"
 msgstr "Ödeme iptal edildi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:442
+#: src/Admin/Settings/Groups/FrontendSettings.php:405
 msgid "Popup Blocked Message"
 msgstr "Açılır pencere engellendi iletisi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:442
+#: src/Admin/Settings/Groups/FrontendSettings.php:405
 msgid "Popup Blocked"
 msgstr "Açılır pencere engellendi"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:458
+#: src/Admin/Settings/Groups/FrontendSettings.php:421
 msgid "View Dashboard Text"
 msgstr "Başlangıç ekranını görüntüle metni"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:458
+#: src/Admin/Settings/Groups/FrontendSettings.php:421
 msgid "View Dashboard"
 msgstr "Başlangıç ekranını görüntüle"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:459
+#: src/Admin/Settings/Groups/FrontendSettings.php:422
 msgid "Back to Bookings Text"
 msgstr "Rezervasyonlara geri dön metni"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:459
+#: src/Admin/Settings/Groups/FrontendSettings.php:422
 msgid "Back to Bookings"
 msgstr "Rezervasyonlara geri dön"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:460
+#: src/Admin/Settings/Groups/FrontendSettings.php:423
 msgid "Already Have Account Text"
 msgstr "Zaten hesabınız var metni"
 
-#: src/Admin/Settings/Groups/FrontendSettings.php:460
+#: src/Admin/Settings/Groups/FrontendSettings.php:423
 msgid "Already have account?"
 msgstr "Zaten kayıtlı mısınız?"
 
 #. translators: %s: default value
-#: src/Admin/Settings/Groups/FrontendSettings.php:475
+#: src/Admin/Settings/Groups/FrontendSettings.php:438
 #, php-format
 msgid "Default: \"%s\""
 msgstr "Varsayılan: \"%s\""

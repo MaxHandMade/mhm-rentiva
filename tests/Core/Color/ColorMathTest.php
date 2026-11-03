@@ -132,6 +132,28 @@ final class ColorMathTest extends TestCase
 		$this->assertContains('accent-deep', $p['looped']);
 	}
 
+	/** Fable PR 2 M1, ruling R2: a near-black accent's link hover turns lighter. */
+	public function test_dark_text_hover_flips_toward_white(): void
+	{
+		foreach (array( '#111111' => '#414141', '#000000' => '#333333' ) as $accent => $expected) {
+			$p = ColorMath::palette($accent);
+			$t = $p['tokens'];
+			$this->assertSame($expected, $t['accent-text-hover'], $accent);
+			$this->assertGreaterThanOrEqual(1.3, ColorMath::contrast($t['accent-text'], $t['accent-text-hover']), "{$accent} text vs hover");
+			foreach (array( $t['accent-100'], '#ffffff', $t['bg'] ) as $ground) {
+				$this->assertGreaterThanOrEqual(4.5, ColorMath::contrast($t['accent-text-hover'], $ground), "{$accent} hover on {$ground}");
+			}
+			$this->assertNotContains('accent-text-hover', $p['looped'], $accent);
+		}
+	}
+
+	public function test_hover_flip_leaves_other_accents_alone(): void
+	{
+		foreach (array( '#0067ff' => '#0042a3', '#cc0000' => '#a30000', '#808080' => '#525252' ) as $accent => $expected) {
+			$this->assertSame($expected, ColorMath::palette($accent)['tokens']['accent-text-hover'], $accent);
+		}
+	}
+
 	public function test_luminance_threshold_is_wcag22(): void
 	{
 		// 10/255 = 0.0392 is below the 0.04045 threshold: the linear branch.
