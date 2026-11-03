@@ -116,7 +116,8 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 		$css = self::css('assets/css/rvs/rvs-primitives.css');
 
 		$this->assertMatchesRegularExpression('/\.rvs-btn--primary\s*\{[^}]*background:\s*var\(--rvs-accent-strong\)/', $css);
-		$this->assertDoesNotMatchRegularExpression('/background:\s*var\(--rvs-accent\);[^}]*color:\s*#fff/', $css);
+		$this->assertMatchesRegularExpression('/\.rvs-btn--primary\s*\{[^}]*color:\s*var\(--rvs-on-accent\)/', $css);
+		$this->assertMatchesRegularExpression('/\.rvs-btn--primary:hover\s*\{[^}]*color:\s*var\(--rvs-on-accent\)/', $css);
 	}
 
 	public function test_interactive_minimums(): void

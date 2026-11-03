@@ -121,6 +121,179 @@ final class RvsAccentTokenSetTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * Accent-filled rules that legitimately carry no --rvs-on-accent, by
+	 * selector. A rule listed here that no longer fills with the accent fails too.
+	 *
+	 * @return array<string,array{file:string,why:string,from?:string}>
+	 */
+	private static function fill_exceptions(): array
+	{
+		$card    = 'the element also carries rvs-btn rvs-btn--primary (templates/partials/rvs-vehicle-card.php)';
+		$booking = 'the element also carries rvs-btn--primary (templates/shortcodes/booking-form.php)';
+
+		return array(
+			'.rvs-shell .rvs-steps__fill'                                       => array( 'file' => 'rvs/rvs-forms.css', 'why' => 'a fill without text' ),
+			'.rvs-shell .rvs-review-summary__fill'                              => array( 'file' => 'rvs/rvs-reviews.css', 'why' => 'a fill without text' ),
+			'.rvs-shell .rvs-testimonials__dot[aria-current="true"] span'       => array( 'file' => 'rvs/rvs-reviews.css', 'why' => 'a dot without text' ),
+			'.rvs-shell .rvs-vd__swatch--selected'                              => array( 'file' => 'rvs/rvs-vehicle.css', 'why' => 'a swatch without text' ),
+			'.rvs-shell .rvs-cal.is-interactive .rvs-cal__day.is-selected:hover' => array(
+				'file' => 'rvs/rvs-calendar.css',
+				'why'  => 'takes its text from the same element\'s selected rule',
+				'from' => '.rvs-shell .rvs-cal__day.is-selected',
+			),
+			'.rvs-shell .rvs-card__select'                                      => array( 'file' => 'rvs/rvs-card.css', 'why' => $card ),
+			'.rvs-shell .rvs-card__select:hover'                                => array( 'file' => 'rvs/rvs-card.css', 'why' => $card ),
+			'.rvs-shell .rvs-card__select:disabled'                             => array( 'file' => 'rvs/rvs-card.css', 'why' => $card ),
+			'.rvs-shell .rvs-booking .rvs-booking__submit'                      => array( 'file' => 'frontend/rvs-booking.css', 'why' => $booking ),
+			'.rvs-shell .rvs-booking .rvs-booking__submit:hover:not(:disabled)' => array( 'file' => 'frontend/rvs-booking.css', 'why' => $booking ),
+		);
+	}
+
+	public function test_accent_fills_carry_on_accent_text(): void
+	{
+		$fill       = '/background(-color)?:\s*var\(--rvs-(accent-strong|accent-deep|card-btn-bg|card-btn-bg-hover|booking-cta|booking-cta-hover)\)/';
+		$on_accent  = '/(^|[^-])color:\s*var\(--rvs-on-accent\)/';
+		$exceptions = self::fill_exceptions();
+		$missing    = array();
+		$used       = array();
+
+		foreach (self::target_rules() as $rule) {
+			if (! preg_match($fill, $rule['body'])) {
+				continue;
+			}
+			if (isset($exceptions[ $rule['selector'] ]) && $exceptions[ $rule['selector'] ]['file'] === $rule['file']) {
+				$used[ $rule['selector'] ] = true;
+				continue;
+			}
+			if (! preg_match($on_accent, $rule['body'])) {
+				$missing[] = $rule['file'] . ': ' . $rule['selector'];
+			}
+		}
+
+		$this->assertSame(array(), $missing, 'Accent-filled rules without --rvs-on-accent text and not excepted by name.');
+		$this->assertSame(array(), array_values(array_diff(array_keys($exceptions), array_keys($used))), 'Stale exceptions: they no longer match an accent-filled rule.');
+
+		// "Takes its text from X": X declares the on-accent text.
+		foreach ($exceptions as $selector => $row) {
+			if (! isset($row['from'])) {
+				continue;
+			}
+			$from = self::rules_by_selector($row['from'], $row['file']);
+			$this->assertNotSame(array(), $from, "{$selector}: rule {$row['from']} not found");
+			$this->assertMatchesRegularExpression($on_accent, implode("\n", array_column($from, 'body')), "{$row['from']} does not declare --rvs-on-accent");
+		}
+
+		// The two template-backed exceptions: the element really is a primary button.
+		foreach (
+			array(
+				'templates/partials/rvs-vehicle-card.php'   => 'rvs-card__select',
+				'templates/shortcodes/booking-form.php'     => 'rvs-booking__submit',
+			) as $template => $class
+		) {
+			$source = (string) file_get_contents(MHMRENTIVA_PLUGIN_DIR . $template); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- test reads a shipped template.
+			preg_match_all('/class="([^"]*\b' . preg_quote($class, '/') . '\b[^"]*)"/', $source, $m);
+			$this->assertNotSame(array(), $m[1], "{$template}: no element with {$class}");
+			foreach ($m[1] as $classes) {
+				$this->assertMatchesRegularExpression('/(^|\s)rvs-btn--primary(\s|$)/', $classes, "{$template}: {$class} without rvs-btn--primary");
+			}
+		}
+	}
+
+	public function test_no_literal_white_on_the_accent(): void
+	{
+		$white = array();
+		foreach (self::target_rules() as $rule) {
+			if (preg_match('/(^|[^-])color:\s*#fff(fff)?\b/i', $rule['body'])) {
+				$white[] = $rule['file'] . ': ' . $rule['selector'];
+			}
+		}
+		sort($white);
+
+		// Spec §measured: these four sit on --rvs-text or --rvs-alert, not on the accent.
+		$expected = array(
+			'frontend/rvs-account.css: .rvs-shell .rvs-account-cancel__confirm',
+			'frontend/rvs-account.css: .rvs-shell .rvs-account-cancel__confirm:hover',
+			'rvs/rvs-results.css: .rvs-shell .rvs-results__band',
+			'rvs/rvs-vehicle.css: .rvs-shell .rvs-vd__counter',
+		);
+		$this->assertSame($expected, $white);
+	}
+
+	/**
+	 * Every rule of the target set (assets/css/rvs/*.css and
+	 * assets/css/frontend/rvs-*.css), comments stripped, @media blocks entered.
+	 *
+	 * @return list<array{file:string,selector:string,body:string}>
+	 */
+	private static function target_rules(): array
+	{
+		$base  = MHMRENTIVA_PLUGIN_DIR . 'assets/css/';
+		$files = array_merge(glob($base . 'rvs/*.css') ?: array(), glob($base . 'frontend/rvs-*.css') ?: array());
+		sort($files);
+
+		$rules = array();
+		foreach ($files as $path) {
+			$rel = substr($path, strlen($base));
+			foreach (self::parse_rules((string) file_get_contents($path)) as $rule) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- test reads a shipped asset.
+				$rules[] = array( 'file' => $rel ) + $rule;
+			}
+		}
+		return $rules;
+	}
+
+	/**
+	 * @return list<array{file:string,selector:string,body:string}>
+	 */
+	private static function rules_by_selector(string $selector, string $file): array
+	{
+		return array_values(array_filter(self::target_rules(), static fn (array $r): bool => $r['selector'] === $selector && $r['file'] === $file));
+	}
+
+	/**
+	 * Innermost `prelude { body }` blocks; the prelude is whitespace-normalised.
+	 *
+	 * @return list<array{selector:string,body:string}>
+	 */
+	private static function parse_rules(string $css): array
+	{
+		$css   = (string) preg_replace('!/\*.*?\*/!s', '', $css);
+		$rules = array();
+		$stack = array();
+		$mark  = 0;
+		$len   = strlen($css);
+
+		for ($i = 0; $i < $len; $i++) {
+			$c = $css[ $i ];
+			if ('{' === $c) {
+				$stack[] = array(
+					'prelude' => trim((string) preg_replace('/\s+/', ' ', substr($css, $mark, $i - $mark))),
+					'start'   => $i + 1,
+					'nested'  => false,
+				);
+				if (count($stack) > 1) {
+					$stack[ count($stack) - 2 ]['nested'] = true;
+				}
+				$mark = $i + 1;
+			} elseif ('}' === $c) {
+				$open = array_pop($stack);
+				if (null !== $open && ! $open['nested']) {
+					$rules[] = array(
+						'selector' => (string) preg_replace('/\s*,\s*/', ', ', $open['prelude']),
+						'body'     => substr($css, $open['start'], $i - $open['start']),
+					);
+				}
+				$mark = $i + 1;
+			} elseif (';' === $c && array() === $stack) {
+				$mark = $i + 1; // @import / @charset at top level.
+			} elseif (';' === $c) {
+				// A declaration inside a block: the next prelude starts after it.
+				$mark = $i + 1;
+			}
+		}
+		return $rules;
+	}
+
+	/**
 	 * Files (relative to the plugin root) under the given directories whose
 	 * .css/.php/.js source matches the pattern, as "path:line".
 	 *

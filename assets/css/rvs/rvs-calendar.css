@@ -74,7 +74,7 @@
 
 .rvs-shell .rvs-cal__day.is-selected {
 	background: var(--rvs-accent-strong);
-	color: #fff;
+	color: var(--rvs-on-accent);
 	font-weight: 600;
 }
 
