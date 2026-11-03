@@ -317,13 +317,14 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		);
 
 		echo '<div class="mhm-manual-booking-form">';
+		echo '<div class="mhm-mb-layout">';
+		echo '<div class="mhm-mb-main">';
 
 		// ── Card 1: Vehicle & Customer ──
 		echo '<div class="mhm-form-card">';
-		echo '<div class="mhm-form-card-header">';
-		echo '<span class="dashicons dashicons-car" aria-hidden="true"></span> ';
+		echo '<h3 class="mhm-form-card-header">';
 		echo esc_html__( 'Vehicle & Customer', 'mhm-rentiva' );
-		echo '</div>';
+		echo '</h3>';
 		echo '<div class="mhm-form-card-body">';
 
 		// Vehicle Selection
@@ -355,12 +356,14 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		echo '</select>';
 		echo '</div>';
 
+		// One fixed slot for the selected vehicle: the script fills it, never appends.
+		echo '<div id="mhm-vehicle-info" class="mhm-vehicle-info mhm-hidden" aria-live="polite"></div>';
+
 		// New Customer Fields — mhm-hidden instead of style="display:none"
 		echo '<div id="mhmrentiva_new_customer_fields" class="mhm-form-card mhm-form-card--nested mhm-hidden">';
-		echo '<div class="mhm-form-card-header mhm-form-card-header--sm">';
-		echo '<span class="dashicons dashicons-admin-users" aria-hidden="true"></span> ';
+		echo '<h3 class="mhm-form-card-header mhm-form-card-header--sm">';
 		echo esc_html__( 'New Customer Information', 'mhm-rentiva' );
-		echo '</div>';
+		echo '</h3>';
 		echo '<div class="mhm-form-card-body">';
 
 		echo '<div class="mhm-field-row">';
@@ -392,10 +395,9 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 
 		// ── Card 2: Dates & Duration ──
 		echo '<div class="mhm-form-card">';
-		echo '<div class="mhm-form-card-header">';
-		echo '<span class="dashicons dashicons-calendar-alt" aria-hidden="true"></span> ';
+		echo '<h3 class="mhm-form-card-header">';
 		echo esc_html__( 'Dates & Duration', 'mhm-rentiva' );
-		echo '</div>';
+		echo '</h3>';
 		echo '<div class="mhm-form-card-body">';
 
 		echo '<div class="mhm-datetime-fields">';
@@ -423,11 +425,6 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		echo '</div>';
 
 		echo '</div>'; // .mhm-datetime-fields
-
-		echo '<div class="mhm-field-group">';
-		echo '<label for="mhmrentiva_manual_guests" class="mhm-field-label">' . esc_html__( 'Number of Guests', 'mhm-rentiva' ) . '</label>';
-		echo '<input type="number" id="mhmrentiva_manual_guests" name="mhmrentiva_manual_guests" class="mhm-field-input mhm-field-input--narrow" value="1" min="1" max="10">';
-		echo '</div>';
 
 		echo '</div>'; // .mhm-form-card-body
 		echo '</div>'; // Card 2
@@ -461,16 +458,17 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 				'description' => $addon->post_excerpt,
 				'required'    => (bool) get_post_meta( $addon->ID, 'mhmrentiva_addon_required', true ),
 				'max'         => \MHMRentiva\Admin\Addons\AddonSelection::max_quantity( (int) $addon->ID ),
+				// The screen's live total prices each service the way the server does.
+				'pricing'     => \MHMRentiva\Admin\Addons\AddonPricingType::sanitize( (string) get_post_meta( $addon->ID, '_mhmrentiva_addon_pricing_type', true ) ),
 			);
 		}
 
 		// ── Card 3: Additional Services (only if addons exist) ──
 		if ( ! empty( $available_addons ) ) {
 			echo '<div class="mhm-form-card">';
-			echo '<div class="mhm-form-card-header">';
-			echo '<span class="dashicons dashicons-plus-alt" aria-hidden="true"></span> ';
+			echo '<h3 class="mhm-form-card-header">';
 			echo esc_html__( 'Additional Services', 'mhm-rentiva' );
-			echo '</div>';
+			echo '</h3>';
 			echo '<div class="mhm-form-card-body">';
 
 			echo '<div class="mhm-addon-selection">';
@@ -480,7 +478,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 				$required_text = $addon['required'] ? ' <span class="required">*</span>' : '';
 
 				echo '<label class="mhm-addon-item">';
-				echo '<input type="checkbox" name="selected_addons[]" value="' . esc_attr( $addon['id'] ) . '" class="mhm-addon-checkbox" data-price="' . esc_attr( $addon['price'] ) . '"' . checked( $addon['required'], true, false ) . ( $addon['required'] ? ' disabled="disabled"' : '' ) . '>';
+				echo '<input type="checkbox" name="selected_addons[]" value="' . esc_attr( $addon['id'] ) . '" class="mhm-addon-checkbox" data-price="' . esc_attr( $addon['price'] ) . '" data-pricing-type="' . esc_attr( $addon['pricing'] ) . '"' . checked( $addon['required'], true, false ) . ( $addon['required'] ? ' disabled="disabled"' : '' ) . '>';
 				echo '<span class="mhm-addon-info">';
 				echo '<span class="mhm-addon-title">' . esc_html( $addon['title'] ) . wp_kses_post( $required_text ) . '</span>';
 				echo '<span class="mhm-addon-price-badge">+ ' . esc_html( self::format_addon_price( (float) $addon['price'] ) ) . '</span>';
@@ -506,12 +504,14 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			echo '</div>'; // Card 3
 		}
 
+		echo '</div>'; // .mhm-mb-main
+		echo '<div class="mhm-mb-aside">';
+
 		// ── Card 4: Payment & Notes ──
 		echo '<div class="mhm-form-card">';
-		echo '<div class="mhm-form-card-header">';
-		echo '<span class="dashicons dashicons-money-alt" aria-hidden="true"></span> ';
+		echo '<h3 class="mhm-form-card-header">';
 		echo esc_html__( 'Payment & Notes', 'mhm-rentiva' );
-		echo '</div>';
+		echo '</h3>';
 		echo '<div class="mhm-form-card-body">';
 
 		echo '<div class="mhm-field-group">';
@@ -524,10 +524,11 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 
 		echo '<div class="mhm-field-group">';
 		echo '<label for="mhmrentiva_manual_payment_method" class="mhm-field-label">' . esc_html__( 'Payment Method', 'mhm-rentiva' ) . '</label>';
-		echo '<select id="mhmrentiva_manual_payment_method" name="mhmrentiva_manual_payment_method" class="mhm-field-select">';
+		echo '<select id="mhmrentiva_manual_payment_method" name="mhmrentiva_manual_payment_method" class="mhm-field-select" aria-describedby="mhmrentiva_manual_payment_method_note">';
 		echo '<option value="offline"' . selected( 'offline', 'offline', false ) . '>' . esc_html__( 'Offline', 'mhm-rentiva' ) . '</option>';
 		echo '<option value="online">' . esc_html__( 'Online', 'mhm-rentiva' ) . '</option>';
 		echo '</select>';
+		echo '<span id="mhmrentiva_manual_payment_method_note" class="description">' . esc_html__( 'Online: the payment link is sent separately.', 'mhm-rentiva' ) . '</span>';
 		echo '</div>';
 
 		$initial_statuses = self::initial_statuses();
@@ -553,6 +554,9 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		echo '</div>'; // .mhm-form-card-body
 		echo '</div>'; // Card 4
 
+		// Messages: the script writes here (sidebar, above the price).
+		echo '<div class="mhm-booking-messages" aria-live="polite"></div>';
+
 		// Price Calculation — mhm-hidden instead of style="display:none"
 		echo '<div class="mhm-price-calculation mhm-hidden">';
 		echo '<h4 class="mhm-price-calculation-title">' . esc_html__( 'Price Calculation', 'mhm-rentiva' ) . '</h4>';
@@ -565,6 +569,8 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		echo '<button type="button" id="mhm-create-booking" class="button button-primary mhm-hidden">' . esc_html__( 'Create Booking', 'mhm-rentiva' ) . '</button>';
 		echo '</div>';
 
+		echo '</div>'; // .mhm-mb-aside
+		echo '</div>'; // .mhm-mb-layout
 		echo '</div>'; // .mhm-manual-booking-form
 	}
 
@@ -648,6 +654,8 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 				'deposit_amount'     => $deposit_result['deposit_amount'],
 				'remaining_amount'   => $deposit_result['remaining_amount'],
 				'deposit_type'       => $deposit_result['deposit_type'],
+				// What the calculator settled on: a vehicle with no deposit is 'full' even when 'deposit' was asked.
+				'payment_type'       => $deposit_result['payment_type'] ?? 'full',
 				'payment_display'    => $deposit_result['payment_display'],
 				'weekend_days'       => $breakdown['weekend_days'],
 				'weekend_surcharge'  => round($breakdown['weekend_surcharge'], 2),
