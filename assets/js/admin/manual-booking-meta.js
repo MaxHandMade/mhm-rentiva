@@ -122,6 +122,13 @@
 			const pickupDate  = $( '#mhmrentiva_manual_pickup_date' ).val();
 			const dropoffDate = $( '#mhmrentiva_manual_dropoff_date' ).val();
 
+			// A cleared date leaves nothing to price: the breakdown on screen (or
+			// one still on its way) belongs to dates that are no longer there.
+			if ( ! pickupDate || ! dropoffDate ) {
+				ManualBooking.invalidatePriceCalculation();
+				return;
+			}
+
 			if (pickupDate && dropoffDate) {
 				// Tarih doğrulama
 				if (new Date( dropoffDate ) <= new Date( pickupDate )) {
@@ -275,6 +282,7 @@
 			const paymentType = $( '#mhmrentiva_manual_payment_type' ).val();
 
 			if ( ! vehicleId || ! pickupDate || ! dropoffDate) {
+				ManualBooking.invalidatePriceCalculation();
 				ManualBooking.showMessage( 'error', mhmManualBooking.text.fillAllFields || 'Please fill all required fields.' );
 				return;
 			}

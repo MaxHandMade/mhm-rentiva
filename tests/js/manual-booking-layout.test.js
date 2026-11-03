@@ -206,6 +206,54 @@ describe( 'manual booking layout', () => {
 		expect( $( '.mhm-manual-booking-form' ).hasClass( 'mhm-calculating' ) ).toBe( false );
 	} );
 
+	test.each( [ '#mhmrentiva_manual_pickup_date', '#mhmrentiva_manual_dropoff_date' ] )(
+		'emptying %s while a price is on its way voids it',
+		async ( field ) => {
+			await load( markup() );
+			dates( '2099-04-01', '10:00', '2099-04-04', '10:00' );
+			const pending = [];
+			$.ajax.mockImplementation( ( opts ) => pending.push( opts ) );
+
+			$( '#mhmrentiva_manual_vehicle_id' ).val( '1' );
+			$( '#mhm-calculate-price' ).trigger( 'click' );
+			$( field ).val( '' ).trigger( 'change' );
+
+			pending[ 0 ].success( {
+				success: true,
+				data: { days: 3, price_per_day: 100, vehicle_total: 300, addon_total: 0, total_amount: 300, final_total: 300, deposit_amount: 60, remaining_amount: 240, payment_type: 'deposit' },
+			} );
+			pending[ 0 ].complete();
+
+			expect( $( '.mhm-price-calculation' ).hasClass( 'mhm-hidden' ) ).toBe( true );
+			expect( $( '#mhm-create-booking' ).hasClass( 'mhm-hidden' ) ).toBe( true );
+			expect( $( '#mhm-calculate-price' ).prop( 'disabled' ) ).toBe( false );
+			expect( $( '.mhm-manual-booking-form' ).hasClass( 'mhm-calculating' ) ).toBe( false );
+		}
+	);
+
+	test( 'calculating with a missing field voids a pending price', async () => {
+		await load( markup() );
+		dates( '2099-04-01', '10:00', '2099-04-04', '10:00' );
+		const pending = [];
+		$.ajax.mockImplementation( ( opts ) => pending.push( opts ) );
+
+		$( '#mhmrentiva_manual_vehicle_id' ).val( '1' );
+		$( '#mhm-calculate-price' ).trigger( 'click' );
+		// The vehicle is cleared without a change event, then Calculate is asked again.
+		$( '#mhmrentiva_manual_vehicle_id' ).val( '' );
+		$( '#mhm-calculate-price' ).prop( 'disabled', false ).trigger( 'click' );
+
+		pending[ 0 ].success( {
+			success: true,
+			data: { days: 3, price_per_day: 100, vehicle_total: 300, addon_total: 0, total_amount: 300, final_total: 300, deposit_amount: 60, remaining_amount: 240, payment_type: 'deposit' },
+		} );
+		pending[ 0 ].complete();
+
+		expect( pending ).toHaveLength( 1 );
+		expect( $( '.mhm-price-calculation' ).hasClass( 'mhm-hidden' ) ).toBe( true );
+		expect( $( '#mhm-create-booking' ).hasClass( 'mhm-hidden' ) ).toBe( true );
+	} );
+
 	test( 'messages land in the aside and replace each other', async () => {
 		await load( markup() );
 		dates( '2099-04-05', '10:00', '2099-04-04', '10:00' );
