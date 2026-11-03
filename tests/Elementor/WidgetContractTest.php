@@ -79,9 +79,11 @@ final class WidgetContractTest extends WP_UnitTestCase
 		parent::setUp();
 
 		// A stub-backed Widget_Base would not reproduce Elementor 4.3.5's constructor
-		// and stack contract; fail (never skip) when the real one is missing.
+		// and stack contract; fail (never skip) when the real one is missing. A CI leg
+		// that installs another Elementor on purpose names it in the environment, and
+		// then this contract is measured against that version.
 		$this->assertTrue(defined('ELEMENTOR_VERSION'), 'Elementor is not loaded; the contract test would measure an absence.');
-		$this->assertSame('4.3.5', ELEMENTOR_VERSION);
+		$this->assertSame(getenv('MHMRENTIVA_TEST_ELEMENTOR_VERSION') ?: '4.3.5', ELEMENTOR_VERSION);
 
 		wp_set_current_user(0);
 		RequestSimulator::new_request();

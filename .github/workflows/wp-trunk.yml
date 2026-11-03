@@ -1,0 +1,79 @@
+name: WordPress trunk canary
+
+# Weekly: the suite against the WordPress nightly build, so a change in the next
+# release (wp_kses() reordering attributes in 7.2, for one) shows up before it
+# ships. Schedule and manual runs only -- never on a pull request, so it blocks
+# no merge. And no continue-on-error: with it a failed run reports success,
+# GitHub sends no failure mail, and the canary never sings (rentiva-lisans,
+# 2026-11-04).
+on:
+  schedule:
+    - cron: '23 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phpunit-trunk:
+    name: Run PHPUnit (PHP 8.4, WP trunk)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mysqli
+          tools: composer:v2
+          coverage: none
+
+      - name: Install SVN (required by install-wp-tests.sh)
+        run: sudo apt-get update && sudo apt-get install -y subversion
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Install WordPress trunk and its test suite
+        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 trunk
+
+      - name: Check the installed WordPress version
+        run: bash bin/check-wp-version.sh /tmp/wordpress trunk
+
+      # The newest WooCommerce and Elementor, not the pinned ones: the canary
+      # asks what the next WordPress does to the plugin as sites will run it.
+      - name: Install WooCommerce and Elementor (latest stable)
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wordpress/wp-content/plugins
+          for p in woocommerce elementor; do
+            curl -sSL --fail -o "/tmp/$p.zip" "https://downloads.wordpress.org/plugin/$p.latest-stable.zip"
+            unzip -q "/tmp/$p.zip" -d /tmp/wordpress/wp-content/plugins
+            test -f "/tmp/wordpress/wp-content/plugins/$p/$p.php"
+          done
+          # The Elementor pin follows whatever latest-stable was today.
+          v=$(grep -o "define( 'ELEMENTOR_VERSION', '[^']*'" /tmp/wordpress/wp-content/plugins/elementor/elementor.php | sed "s/.*, '//; s/'$//")
+          test -n "$v"
+          echo "MHMRENTIVA_TEST_ELEMENTOR_VERSION=$v" >> "$GITHUB_ENV"
+
+      - name: Run PHPUnit
+        env:
+          WP_TESTS_DIR: /tmp/wordpress-tests-lib
+        run: composer test

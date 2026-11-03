@@ -30,6 +30,9 @@ if [[ $WP_VERSION == 'latest' ]]; then
 		exit 1
 	fi
 	WP_TESTS_TAG="tags/$LATEST_VERSION"
+elif [[ $WP_VERSION == 'trunk' ]]; then
+	# The weekly canary: the nightly build, tested by trunk's own test library.
+	WP_TESTS_TAG="trunk"
 else
 	WP_TESTS_TAG="tags/$WP_VERSION"
 fi
@@ -39,13 +42,19 @@ install_wp() {
 		return
 	fi
 	mkdir -p "$WP_CORE_DIR"
-	if [[ $WP_VERSION == 'latest' ]]; then
-		local ARCHIVE_NAME='latest'
+	if [[ $WP_VERSION == 'trunk' ]]; then
+		download https://wordpress.org/nightly-builds/wordpress-latest.zip /tmp/wordpress-nightly.zip
+		unzip -q /tmp/wordpress-nightly.zip -d /tmp/wordpress-nightly
+		cp -R /tmp/wordpress-nightly/wordpress/. "$WP_CORE_DIR"
 	else
-		local ARCHIVE_NAME="wordpress-$WP_VERSION"
+		if [[ $WP_VERSION == 'latest' ]]; then
+			local ARCHIVE_NAME='latest'
+		else
+			local ARCHIVE_NAME="wordpress-$WP_VERSION"
+		fi
+		download "https://wordpress.org/${ARCHIVE_NAME}.tar.gz" /tmp/wordpress.tar.gz
+		tar --strip-components=1 -zxmf /tmp/wordpress.tar.gz -C "$WP_CORE_DIR"
 	fi
-	download "https://wordpress.org/${ARCHIVE_NAME}.tar.gz" /tmp/wordpress.tar.gz
-	tar --strip-components=1 -zxmf /tmp/wordpress.tar.gz -C "$WP_CORE_DIR"
 	download https://raw.github.com/markoheijnen/wp-mysqli/master/db.php "$WP_CORE_DIR/wp-content/db.php"
 }
 
