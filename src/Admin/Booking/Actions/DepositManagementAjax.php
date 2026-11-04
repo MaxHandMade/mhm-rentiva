@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Booking\Core\PaymentView;
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Booking\Helpers\CancellationHandler;
 use MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox;
@@ -110,38 +111,45 @@ final class DepositManagementAjax {
 			return;
 		}
 
-		// Deposit system check
-		$payment_type = get_post_meta( $booking_id, '_mhmrentiva_payment_type', true );
-		if ( $payment_type !== 'deposit' ) {
-			wp_send_json_error( array( 'message' => __( 'This booking does not use deposit system.', 'mhm-rentiva' ) ) );
+		// Payment history scope (PaymentView): the success reply comes after
+		// `finally`, so the row is written before wp_die() ends the request.
+		$scope = PaymentView::begin( $booking_id );
+		try {
+			// Deposit system check
+			$payment_type = get_post_meta( $booking_id, '_mhmrentiva_payment_type', true );
+			if ( $payment_type !== 'deposit' ) {
+				wp_send_json_error( array( 'message' => __( 'This booking does not use deposit system.', 'mhm-rentiva' ) ) );
+			}
+
+			$remaining_amount = floatval( get_post_meta( $booking_id, '_mhmrentiva_remaining_amount', true ) );
+			if ( $remaining_amount <= 0 ) {
+				wp_send_json_error( array( 'message' => __( 'No remaining amount found.', 'mhm-rentiva' ) ) );
+			}
+
+			// Reset remaining amount
+			update_post_meta( $booking_id, '_mhmrentiva_remaining_amount', 0 );
+
+			// Update payment status
+			update_post_meta( $booking_id, '_mhmrentiva_payment_status', 'paid' );
+
+			// If the rental period has actually ended, mark as completed; otherwise
+			// confirmed. Uses the drop-off time, not just the date -- see
+			// Util::rental_has_ended().
+			$target_status = \MHMRentiva\Admin\Booking\Helpers\Util::rental_has_ended( $booking_id ) ? 'completed' : 'confirmed';
+			Status::update_status( $booking_id, $target_status, get_current_user_id() );
+
+			// Add log
+			self::add_booking_log(
+				$booking_id,
+				'remaining_payment_processed',
+				array(
+					'amount'       => $remaining_amount,
+					'processed_by' => get_current_user_id(),
+				)
+			);
+		} finally {
+			PaymentView::end( $scope );
 		}
-
-		$remaining_amount = floatval( get_post_meta( $booking_id, '_mhmrentiva_remaining_amount', true ) );
-		if ( $remaining_amount <= 0 ) {
-			wp_send_json_error( array( 'message' => __( 'No remaining amount found.', 'mhm-rentiva' ) ) );
-		}
-
-		// Reset remaining amount
-		update_post_meta( $booking_id, '_mhmrentiva_remaining_amount', 0 );
-
-		// Update payment status
-		update_post_meta( $booking_id, '_mhmrentiva_payment_status', 'paid' );
-
-		// If the rental period has actually ended, mark as completed; otherwise
-		// confirmed. Uses the drop-off time, not just the date -- see
-		// Util::rental_has_ended().
-		$target_status = \MHMRentiva\Admin\Booking\Helpers\Util::rental_has_ended( $booking_id ) ? 'completed' : 'confirmed';
-		Status::update_status( $booking_id, $target_status, get_current_user_id() );
-
-		// Add log
-		self::add_booking_log(
-			$booking_id,
-			'remaining_payment_processed',
-			array(
-				'amount'       => $remaining_amount,
-				'processed_by' => get_current_user_id(),
-			)
-		);
 
 		wp_send_json_success(
 			array(
@@ -233,20 +241,25 @@ final class DepositManagementAjax {
 			wp_send_json_error( array( 'message' => __( 'This booking is not awaiting payment.', 'mhm-rentiva' ) ) );
 		}
 
-		// Update payment status to confirmed
-		update_post_meta( $booking_id, '_mhmrentiva_payment_status', 'paid' );
+		$scope = PaymentView::begin( $booking_id );
+		try {
+			// Update payment status to confirmed
+			update_post_meta( $booking_id, '_mhmrentiva_payment_status', 'paid' );
 
-		// Update booking status to confirmed
-		Status::update_status( $booking_id, 'confirmed', get_current_user_id() );
+			// Update booking status to confirmed
+			Status::update_status( $booking_id, 'confirmed', get_current_user_id() );
 
-		// Add log
-		self::add_booking_log(
-			$booking_id,
-			'payment_approved',
-			array(
-				'approved_by' => get_current_user_id(),
-			)
-		);
+			// Add log
+			self::add_booking_log(
+				$booking_id,
+				'payment_approved',
+				array(
+					'approved_by' => get_current_user_id(),
+				)
+			);
+		} finally {
+			PaymentView::end( $scope );
+		}
 
 		wp_send_json_success(
 			array(
