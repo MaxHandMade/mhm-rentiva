@@ -119,7 +119,7 @@ final class BookingPricingInputs {
 	 * Before anything reads the booking, carry the values the edit box shows
 	 * from legacy keys into the current ones -- once, before the fingerprint.
 	 *
-	 * render() falls back to legacy keys; the writers (this fingerprint, the
+	 * The edit box's render() falls back to legacy keys; the writers (this fingerprint, the
 	 * vehicle-change check, the add-on quantity cap via for_booking()) read
 	 * the current keys. On a booking with only legacy keys the first Update
 	 * therefore saw a change where the operator made none and re-priced it
