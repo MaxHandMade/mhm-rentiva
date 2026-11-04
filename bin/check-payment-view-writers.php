@@ -17,8 +17,10 @@
  *               the keys (literal or MetaKeys::BOOKING_*) in the call;
  *   create   -- a `meta_input` array entry for a key (booking creation,
  *               no scope needed: there is no "before");
- *   generic  -- a meta write whose key is the `$key` parameter
- *               (WooCommerceBridge::write_booking_meta), found by shape.
+ *   generic  -- a post meta write whose key is a variable of any name
+ *               (WooCommerceBridge::write_booking_meta's `$key`,
+ *               QueueManager's `$meta_key`), found by shape. Not every one
+ *               writes a payment key; each is listed so a reviewer decides.
  *
  * Comments are blanked through token_get_all() before matching (same length,
  * newlines kept), so a key named in a comment is not a writer. A closure is
@@ -104,7 +106,7 @@ function mhmrentiva_find_payment_view_writers(string $root): array
     $keys    = "(?:'_mhmrentiva_(?:payment_status|remaining_amount|payment_type)'|\"_mhmrentiva_(?:payment_status|remaining_amount|payment_type)\"|MetaKeys::BOOKING_(?:PAYMENT_STATUS|REMAINING_AMOUNT|PAYMENT_TYPE))";
     $writer  = '/(?:(?:update|add|delete)_(?:post_meta|metadata)|write_booking_meta_alone|write_booking_meta_or_roll_back)\s*\(\s*[^;]{0,300}?' . $keys . '/s';
     $create  = "/'_mhmrentiva_(?:payment_status|remaining_amount|payment_type)'\s*=>/";
-    $generic = '/(?:add|update)_post_meta\s*\(\s*\$\w+\s*,\s*\$key\b/';
+    $generic = '/(?:add|update)_post_meta\s*\(\s*\$\w+\s*,\s*\$\w+\s*[,)]/';
 
     $found    = array(
         'writer'  => array(),
@@ -174,7 +176,10 @@ if (PHP_SAPI === 'cli' && isset($argv[0]) && realpath($argv[0]) === realpath(__F
     $a = array_filter(explode("\n", $want));
     $b = array_filter(explode("\n", $now));
     foreach (array_diff($b, $a) as $line) {
-        echo "  + {$line}   (new: put its entry point in a PaymentView scope, test it, then add it)\n";
+        $hint = 0 === strpos($line, 'generic ')
+            ? 'new variable-key writer: if it can write a payment key, scope its entry point; then add it'
+            : 'new: put its entry point in a PaymentView scope, test it, then add it';
+        echo "  + {$line}   ({$hint})\n";
     }
     foreach (array_diff($a, $b) as $line) {
         echo "  - {$line}   (gone: remove it from the baseline)\n";

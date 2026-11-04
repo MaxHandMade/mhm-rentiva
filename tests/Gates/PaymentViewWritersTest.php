@@ -74,9 +74,9 @@ final class PaymentViewWritersTest extends TestCase
 
 	public function test_meta_input_is_a_create_and_a_variable_key_is_generic(): void
 	{
-		$found = $this->scan("<?php\nfunction c() { wp_insert_post(array('meta_input' => array('_mhmrentiva_payment_status' => 'pending'))); }\nfunction g(\$id, \$key, \$v) { update_post_meta(\$id, \$key, \$v); }\n");
+		$found = $this->scan("<?php\nfunction c() { wp_insert_post(array('meta_input' => array('_mhmrentiva_payment_status' => 'pending'))); }\nfunction g(\$id, \$key, \$v) { update_post_meta(\$id, \$key, \$v); }\nfunction q(\$booking_id, \$meta_key, \$meta_value) { update_post_meta(\$booking_id, \$meta_key, \$meta_value); }\n");
 		$this->assertSame(array( 'Fixture::c' ), $found['create']);
-		$this->assertSame(array( 'Fixture::g' ), $found['generic']);
+		$this->assertSame(array( 'Fixture::g', 'Fixture::q' ), $found['generic']);
 		$this->assertSame(array(), $found['writer']);
 	}
 

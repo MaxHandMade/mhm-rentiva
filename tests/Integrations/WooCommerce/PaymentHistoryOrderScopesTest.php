@@ -119,6 +119,33 @@ final class PaymentHistoryOrderScopesTest extends WP_UnitTestCase
 		$this->assertSame(array( array( 'pending', 'partially_paid' ) ), $this->rows($b));
 	}
 
+	public function test_a_nested_order_for_a_later_booking_still_leaves_it_one_row(): void
+	{
+		// Codex #170: while the outer order loop handles A, A's status change
+		// runs another order that changes B; the outer loop then reaches B and
+		// changes it again. B must get one row (pending -> paid), not two.
+		$a      = $this->booking('paid', 70.0);
+		$b      = $this->booking('pending', 70.0);
+		$inner  = $this->order(array( $b ), false, '30');
+		$outer  = $this->order(array( $a, $b ), true, '70');
+		$nested = false;
+		add_action(
+			'mhmrentiva_booking_status_changed',
+			static function ($booking_id) use ($a, $inner, &$nested): void {
+				if ( (int) $booking_id === $a && ! $nested) {
+					$nested = true;
+					$inner->update_status('processing');
+				}
+			},
+			5
+		);
+
+		$outer->update_status('processing');
+
+		$this->assertTrue($nested, 'The nested order ran inside the outer loop.');
+		$this->assertSame(array( array( 'pending', 'paid' ) ), $this->rows($b));
+	}
+
 	public function test_on_hold_from_unpaid_writes_one_row_and_from_pending_none(): void
 	{
 		$unpaid = $this->booking('unpaid', 70.0);

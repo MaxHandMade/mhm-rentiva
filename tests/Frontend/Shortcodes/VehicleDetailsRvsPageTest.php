@@ -297,8 +297,19 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		update_post_meta($booking, '_mhmrentiva_dropoff_date', '2027-07-14');
 		update_post_meta($booking, '_mhmrentiva_status', 'confirmed');
 		$other = $this->free_car('Renault Clio');
-		$this->free_car('Free B');
-		$this->free_car('Free C');
+		$b     = $this->free_car('Free B');
+		$c     = $this->free_car('Free C');
+		// Suggestions come newest first (get_posts' date order) and stop at two.
+		// The three cars above share one second, so the tie was MySQL's to
+		// break and the full multisite run left Clio out. B and C are made a
+		// minute older (a past date stays published; a future one would not).
+		foreach (array( $b, $c ) as $older) {
+			wp_update_post(array(
+				'ID'            => $older,
+				'post_date'     => wp_date('Y-m-d H:i:s', time() - 60),
+				'post_date_gmt' => gmdate('Y-m-d H:i:s', time() - 60),
+			));
+		}
 
 		$html = $this->render_window('2027-07-12', '2027-07-15');
 

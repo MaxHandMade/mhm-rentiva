@@ -2883,19 +2883,31 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	{
 		$items = $order->get_items();
 
-		foreach ($items as $item) {
-			$booking_id = (int) $item->get_meta('_mhmrentiva_booking_id');
-
-			if ($booking_id) {
-				// One payment-history scope per booking on the order (plan r4
-				// R9): an order can carry several, and the early exits of the
-				// per-booking work must not skip the scope's close.
-				$scope = PaymentView::begin($booking_id);
-				try {
-					self::apply_order_status_to_booking($booking_id, $order_id, $old_status, $new_status, $order);
-				} finally {
-					PaymentView::end($scope);
+		// One payment-history scope per booking on the order (plan r4 R9),
+		// all opened BEFORE the loop and closed after it: handling one booking
+		// can run another order's hook (Status::update_status ->
+		// sync_completed_to_wc) that changes a booking this loop has not
+		// reached yet; with its scope already open, that change and this
+		// loop's later one make one row, not two (Codex #170).
+		$scopes = array();
+		try {
+			foreach ($items as $item) {
+				$booking_id = (int) $item->get_meta('_mhmrentiva_booking_id');
+				if ($booking_id && ! isset($scopes[ $booking_id ])) {
+					$scopes[ $booking_id ] = PaymentView::begin($booking_id);
 				}
+			}
+
+			foreach ($items as $item) {
+				$booking_id = (int) $item->get_meta('_mhmrentiva_booking_id');
+
+				if ($booking_id) {
+					self::apply_order_status_to_booking($booking_id, $order_id, $old_status, $new_status, $order);
+				}
+			}
+		} finally {
+			foreach ($scopes as $scope) {
+				PaymentView::end($scope);
 			}
 		}
 	}

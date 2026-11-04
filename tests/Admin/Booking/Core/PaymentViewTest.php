@@ -191,6 +191,20 @@ final class PaymentViewTest extends WP_UnitTestCase
 		$this->assertCount(1, $this->payment_rows());
 	}
 
+	public function test_booking_meta_registers_the_update_scope_around_its_writers(): void
+	{
+		// register() runs once per process (static guard); reset it so this
+		// test sees what the plugin wires at bootstrap.
+		$flag = new \ReflectionProperty(\MHMRentiva\Admin\Booking\Meta\BookingMeta::class, 'registered');
+		$flag->setAccessible(true);
+		$flag->setValue(null, false);
+		\MHMRentiva\Admin\Booking\Meta\BookingMeta::register();
+
+		$this->assertSame(1, has_action('save_post', array( PaymentView::class, 'open_update_scope' )));
+		$this->assertSame(99, has_action('save_post', array( PaymentView::class, 'close_update_scope' )));
+		$this->assertSame(10, has_action('save_post', array( \MHMRentiva\Admin\Booking\Meta\BookingMeta::class, 'save_meta' )));
+	}
+
 	public function test_an_update_scope_surrounds_the_generic_save_post_writers(): void
 	{
 		// BookingEditMetaBox (5) and BookingMeta::save_meta (10) write on the
