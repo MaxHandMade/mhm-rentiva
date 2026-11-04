@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-11-04T00:37:18+00:00\n"
+"POT-Creation-Date: 2026-11-04T03:35:30+00:00\n"
 "PO-Revision-Date: 2026-10-24 18:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -676,8 +676,8 @@ msgstr "\"%s\" ek hizmeti gereklidir."
 #: src/Admin/Booking/Meta/BookingMeta.php:1832
 #: src/Admin/Booking/Meta/BookingMeta.php:1916
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:124
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:607
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:715
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:742
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:850
 #: src/Admin/Core/SecurityHelper.php:140
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:36
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:133
@@ -756,7 +756,7 @@ msgstr "Fiyat başarıyla güncellendi."
 #: src/Admin/Addons/AddonMenu.php:87 src/Admin/Addons/AddonPostType.php:59
 #: src/Admin/Addons/AddonScreen.php:598
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:267
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:493
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:628
 #: src/Admin/Utilities/Menu/Menu.php:105 src/Admin/Utilities/Menu/Menu.php:106
 #: templates/shortcodes/booking-form.php:139
 #: src-react/admin/dashboard/components/QuickActions.jsx:19
@@ -1757,7 +1757,7 @@ msgstr "Onayla"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:274
 #: src/Admin/Booking/ListTable/BookingColumns.php:384
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:370
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:503
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:709 src/Plugin.php:1157
 #: templates/account/booking-summary.php:59
 #: templates/admin/partials/booking-popup.php:52
@@ -1828,7 +1828,7 @@ msgstr "Ödeme"
 #: src/Admin/Booking/ListTable/BookingColumns.php:283
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:254
 #: src/Admin/Booking/Meta/BookingMeta.php:349
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:559
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:694
 #: src/Admin/Setup/SetupWizard.php:235 src/Admin/Setup/SetupWizard.php:277
 #: src/Admin/Setup/SetupWizard.php:546
 #: src/Admin/Utilities/ListTable/LogColumns.php:76
@@ -1998,7 +1998,7 @@ msgstr "Beklemede"
 #: src/Admin/Booking/ListTable/BookingColumns.php:1102
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:226
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:93
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:551
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:686
 msgid "Offline"
 msgstr "Çevrim dışı"
 
@@ -2187,7 +2187,7 @@ msgstr ""
 "mevcut değildir."
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:209
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:541
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:676
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:527
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:598
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:934
@@ -2196,7 +2196,7 @@ msgstr "Ödeme türü"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:212
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:241
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:544
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:679
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:626
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:75
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:136
@@ -2212,7 +2212,7 @@ msgstr "Kapora"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:214
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:501
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:543
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:678
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:524
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:595
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:933
@@ -2224,7 +2224,7 @@ msgid "Full Payment"
 msgstr "Tam ödeme"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:221
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:549
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:684
 #: src/Admin/Utilities/ListTable/LogColumns.php:74
 #: templates/account/payment-history.php:70
 msgid "Payment Method"
@@ -2232,7 +2232,7 @@ msgstr "Ödeme yöntemi"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:224
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:181
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:552
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:687
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:159
 msgid "Online"
 msgstr "Çevrim içi"
@@ -2436,7 +2436,7 @@ msgid "Manual"
 msgstr "Manuel"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:204
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:355
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:488
 #: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:426
 #: src/Admin/Settings/Groups/FrontendSettings.php:381
 #: templates/shortcodes/booking-form.php:73
@@ -2454,28 +2454,28 @@ msgstr "Rezervasyon detayları"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:225
 #: src/Admin/Booking/Meta/BookingMeta.php:436
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:429
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:564
 #: templates/shortcodes/booking-form.php:97
 msgid "Pickup Date"
 msgstr "Araç teslim alma tarihi"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:230
 #: src/Admin/Booking/Meta/BookingMeta.php:441
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:434
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:569
 #: templates/shortcodes/booking-form.php:102
 msgid "Pickup Time"
 msgstr "Teslim alma saati"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:237
 #: src/Admin/Booking/Meta/BookingMeta.php:448
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:440
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:575
 #: templates/shortcodes/booking-form.php:114
 msgid "Return Date"
 msgstr "Araç dönüş tarihi"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:242
 #: src/Admin/Booking/Meta/BookingMeta.php:453
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:445
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:580
 #: templates/shortcodes/booking-form.php:119
 msgid "Return Time"
 msgstr "Araç dönüş saati"
@@ -2492,7 +2492,7 @@ msgid "%s (inactive)"
 msgstr "%s (pasif)"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:351
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:498
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:633
 msgid "Select the additional services needed for this booking."
 msgstr "Bu rezervasyon için gerekli olan ek hizmetleri seçin."
 
@@ -2502,13 +2502,13 @@ msgstr "Adet"
 
 #. translators: %s: additional service name.
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:390
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:512
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:647
 #, php-format
 msgid "Quantity: %s"
 msgstr "Adet: %s"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:400
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:522
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:657
 msgid "Additional Services Total:"
 msgstr "Ek hizmetler toplamı:"
 
@@ -2919,7 +2919,7 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:1625
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:219
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1060
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1209
 msgid "Booking created"
 msgstr "Rezervasyon oluşturuldu"
 
@@ -3018,8 +3018,8 @@ msgstr "Müşteri hesabı oluştur"
 
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:117
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:146
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:612
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:720
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:747
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:855
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:40
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:137
 msgid "Permission denied."
@@ -3121,7 +3121,7 @@ msgid "Create Manual Booking"
 msgstr "Manuel rezervasyon oluştur"
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:220
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:591
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:726
 msgid "Calculate Price"
 msgstr "Fiyatı hesapla"
 
@@ -3130,7 +3130,7 @@ msgid "Creating..."
 msgstr "Oluşturuluyor..."
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:222
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:592
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:727
 msgid "Create Booking"
 msgstr "Rezervasyon oluştur"
 
@@ -3197,54 +3197,82 @@ msgstr "Kalan"
 msgid "Add-on Services Total"
 msgstr "Ek hizmetler toplamı"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:302
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:275
+msgid "State"
+msgstr "İl"
+
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:276
+msgid "State / region"
+msgstr "Eyalet / bölge"
+
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:277
+msgid "State or region"
+msgstr "Eyalet veya bölge"
+
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:278
+msgid "Select a state..."
+msgstr "Bir il seçin..."
+
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:351
+msgid "(optional)"
+msgstr "(isteğe bağlı)"
+
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:354
+msgid "Country"
+msgstr "Ülke"
+
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:356
+msgid "Select a country..."
+msgstr "Bir ülke seçin..."
+
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:435
 #: src/Admin/Booking/PostType/Booking.php:27
 #: src/Admin/Utilities/Menu/Menu.php:91 src/Admin/Utilities/Menu/Menu.php:92
 #: src-react/admin/customers/components/CustomerTable.jsx:6
 msgid "Bookings"
 msgstr "Rezervasyonlar"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:303
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:436
 msgid "New record · added by an administrator"
 msgstr "Yeni kayıt · yönetici tarafından"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:349
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:482
 msgid "Vehicle & Customer"
 msgstr "Araç ve müşteri"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:357
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:490
 msgid "Select a vehicle..."
 msgstr "Bir araç seçin..."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:360
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:493
 msgid "day"
 msgstr "gün"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:372
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:505
 msgid "Select a customer..."
 msgstr "Bir müşteri seçin..."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:373
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:506
 msgid "+ Create New Customer"
 msgstr "+ Yeni müşteri oluştur"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:388
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:521
 msgid "New Customer Information"
 msgstr "Yeni müşteri bilgileri"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:394
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:527
 #: src/Admin/Settings/Groups/FrontendSettings.php:362
 #: templates/account/account-details.php:76
 msgid "First Name"
 msgstr "Ad"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:398
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:531
 #: src/Admin/Settings/Groups/FrontendSettings.php:363
 #: templates/account/account-details.php:84
 msgid "Last Name"
 msgstr "Soyadı"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:404
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:537
 #: src/Admin/Customers/AddCustomerPage.php:151
 #: src/Admin/Customers/CustomersPage.php:372
 #: src/Admin/Customers/CustomersPage.php:561
@@ -3257,7 +3285,7 @@ msgstr "Soyadı"
 msgid "Email"
 msgstr "E-posta"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:409
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:542
 #: src/Admin/Customers/AddCustomerPage.php:156
 #: src/Admin/Customers/CustomersPage.php:373
 #: src/Admin/Customers/CustomersPage.php:566
@@ -3271,47 +3299,47 @@ msgstr "E-posta"
 msgid "Phone"
 msgstr "Telefon"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:422
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:557
 msgid "Dates & Duration"
 msgstr "Tarihler ve süre"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:536
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:671
 msgid "Payment & Notes"
 msgstr "Ödeme ve notlar"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:554
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:689
 msgid "Online: the payment link is sent separately."
 msgstr "Çevrim içi: ödeme bağlantısı ayrıca gönderilir."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:573
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:708
 msgid "Notes"
 msgstr "Notlar"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:574
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:709
 msgid "Special notes about the booking..."
 msgstr "Rezervasyonla ilgili özel notlar..."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:585
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:720
 msgid "Price Calculation"
 msgstr "Fiyat hesaplama"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:624
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:738
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:759
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:873
 msgid "Required fields are missing."
 msgstr "Gerekli alanlar eksik."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:660
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:935
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:795
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1084
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1360
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1569
 msgid "Price could not be calculated."
 msgstr "Fiyat hesaplanamadı."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:750
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:885
 msgid "Invalid booking status."
 msgstr "Geçersiz rezervasyon durumu."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:771
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:906
 msgid ""
 "You do not have permission to create new customer accounts. Please select an "
 "existing customer instead."
@@ -3319,15 +3347,15 @@ msgstr ""
 "Yeni müşteri hesabı oluşturma izniniz yok. Lütfen bunun yerine mevcut bir "
 "müşteri seçin."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:782
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:922
 msgid "New customer information is missing."
 msgstr "Yeni müşteri bilgileri eksik."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:787
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:927
 msgid "This email address is already registered."
 msgstr "Bu e-posta adresi zaten kayıtlı."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:802
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:942
 #: src/Admin/Customers/CustomersPage.php:336
 #: src/Admin/Customers/CustomersPage.php:489
 #: src/Admin/Customers/REST/CustomersRestController.php:161
@@ -3336,26 +3364,26 @@ msgid "Customer not found."
 msgstr "Müşteri bulunamadı."
 
 #. translators: %s: the error message wp_update_user() returned.
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:899
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1039
 #, php-format
 msgid "wp_update_user failed while creating a manual booking: %s"
 msgstr "wp_update_user, manuel rezervasyon oluşturulurken başarısız oldu: %s"
 
 #. translators: %s: vehicle title
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:947
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1096
 #, php-format
 msgid "Manual Booking - %s"
 msgstr "Manuel rezervasyon - %s"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1032
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1181
 msgid "This vehicle has just been booked for the selected dates."
 msgstr "Bu araç seçilen tarihler için az önce rezerve edildi."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1036
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1185
 msgid "Booking could not be created."
 msgstr "Rezervasyon oluşturulamadı."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1084
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1233
 msgid "Booking created successfully."
 msgstr "Rezervasyon başarıyla oluşturuldu."
 
