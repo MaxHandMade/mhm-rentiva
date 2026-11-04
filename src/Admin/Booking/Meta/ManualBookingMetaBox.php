@@ -244,7 +244,104 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 					),
 				)
 			);
+
+			// WooCommerce's state table for the new-customer card. Data, not
+			// strings, so it travels as an inline script rather than through
+			// wp_localize_script.
+			wp_add_inline_script(
+				'mhm-rentiva-manual-booking-meta',
+				'window.mhmManualBookingLocations = ' . wp_json_encode(self::location_data()) . ';',
+				'before'
+			);
 		}
+	}
+
+	/**
+	 * Country and state data for the new-customer card, all from WooCommerce:
+	 * the countries the store sells to, the base country, and per country
+	 * either a state list (select), an empty list (WooCommerce shows no state
+	 * field) or no list at all (free text) -- the same three cases as checkout.
+	 *
+	 * @return array{base: string, countries: array<string, string>, states: array<string, array<string, string>>, noState: list<string>, labels: array{state: string, region: string, regionPlaceholder: string, selectState: string}}
+	 */
+	public static function location_data(): array
+	{
+		$data = array(
+			'base'      => '',
+			'countries' => array(),
+			'states'    => array(),
+			'noState'   => array(),
+			'labels'    => array(
+				'state'             => __('State', 'mhm-rentiva'),
+				'region'            => __('State / region', 'mhm-rentiva'),
+				'regionPlaceholder' => __('State or region', 'mhm-rentiva'),
+				'selectState'       => __('Select a state...', 'mhm-rentiva'),
+			),
+		);
+
+		if (! function_exists('WC') || ! WC()->countries instanceof \WC_Countries) {
+			return $data;
+		}
+
+		$wc_countries      = WC()->countries;
+		$data['countries'] = $wc_countries->get_allowed_countries();
+		$data['base']      = (string) $wc_countries->get_base_country();
+
+		foreach (array_keys($data['countries']) as $code) {
+			$states = $wc_countries->get_states( (string) $code);
+			if (is_array($states) && array() !== $states) {
+				$data['states'][ (string) $code ] = $states;
+			} elseif (is_array($states)) {
+				$data['noState'][] = (string) $code;
+			}
+		}
+
+		return $data;
+	}
+
+	/**
+	 * The optional country and state fields of the new-customer card
+	 * (spec K6). The base country is preselected; the state starts empty so
+	 * nothing the admin never chose is saved.
+	 */
+	private static function render_location_fields(): void
+	{
+		$data = self::location_data();
+		if (array() === $data['countries']) {
+			return;
+		}
+
+		$base     = isset($data['countries'][ $data['base'] ]) ? $data['base'] : '';
+		$optional = '<span class="mhm-field-optional">' . esc_html__('(optional)', 'mhm-rentiva') . '</span>';
+
+		echo '<div class="mhm-field-group">';
+		echo '<label for="mhmrentiva_new_customer_country" class="mhm-field-label">' . esc_html__('Country', 'mhm-rentiva') . ' ' . $optional . '</label>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $optional is built from esc_html__() above.
+		echo '<select id="mhmrentiva_new_customer_country" name="mhmrentiva_new_customer_country" class="mhm-field-select">';
+		echo '<option value="">' . esc_html__('Select a country...', 'mhm-rentiva') . '</option>';
+		foreach ($data['countries'] as $code => $name) {
+			// WooCommerce's names carry HTML entities (Cura&ccedil;ao); esc_html()
+			// leaves an existing entity alone, so the browser shows the letter.
+			echo '<option value="' . esc_attr( (string) $code) . '"' . selected($base, (string) $code, false) . '>' . esc_html( (string) $name) . '</option>';
+		}
+		echo '</select>';
+		echo '</div>';
+
+		$has_list = '' !== $base && isset($data['states'][ $base ]);
+		$no_state = '' === $base || in_array($base, $data['noState'], true);
+
+		echo '<div id="mhmrentiva_new_customer_state_field" class="mhm-field-group' . ( $no_state ? ' mhm-hidden' : '' ) . '">';
+		echo '<label for="mhmrentiva_new_customer_state" class="mhm-field-label"><span id="mhmrentiva_new_customer_state_label">' . esc_html($has_list ? $data['labels']['state'] : $data['labels']['region']) . '</span> ' . $optional . '</label>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $optional is built from esc_html__() above.
+		if ($has_list) {
+			echo '<select id="mhmrentiva_new_customer_state" name="mhmrentiva_new_customer_state" class="mhm-field-select">';
+			echo '<option value="">' . esc_html($data['labels']['selectState']) . '</option>';
+			foreach ($data['states'][ $base ] as $code => $name) {
+				echo '<option value="' . esc_attr( (string) $code) . '">' . esc_html( (string) $name) . '</option>';
+			}
+			echo '</select>';
+		} else {
+			echo '<input type="text" id="mhmrentiva_new_customer_state" name="mhmrentiva_new_customer_state" class="mhm-field-input" placeholder="' . esc_attr($data['labels']['regionPlaceholder']) . '">';
+		}
+		echo '</div>';
 	}
 
 	/**
@@ -409,6 +506,8 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		echo '<label for="mhmrentiva_new_customer_phone" class="mhm-field-label">' . esc_html__( 'Phone', 'mhm-rentiva' ) . ' <span class="required">*</span></label>';
 		echo '<input type="tel" id="mhmrentiva_new_customer_phone" name="mhmrentiva_new_customer_phone" class="mhm-field-input">';
 		echo '</div>';
+
+		self::render_location_fields();
 
 		echo '</div>'; // .mhm-form-card-body (nested)
 		echo '</div>'; // #mhmrentiva_new_customer_fields
