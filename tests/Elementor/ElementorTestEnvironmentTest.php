@@ -14,7 +14,9 @@ use WP_UnitTestCase;
  * tests that guard on class_exists() would skip silently instead of failing.
  * This file is the environment's own gate: the version is pinned so CI and a
  * developer's machine answer the same question, and a dropped workflow step or
- * an empty download shows up here by name.
+ * an empty download shows up here by name. A CI leg that runs another Elementor
+ * on purpose (the WordPress-floor row, the trunk canary) names it in
+ * MHMRENTIVA_TEST_ELEMENTOR_VERSION; everywhere else the pin is 4.3.5.
  */
 final class ElementorTestEnvironmentTest extends WP_UnitTestCase
 {
@@ -31,7 +33,7 @@ final class ElementorTestEnvironmentTest extends WP_UnitTestCase
 		$this->assertTrue( defined( 'ELEMENTOR_VERSION' ), 'Elementor is not loaded.' );
 
 		$this->assertSame(
-			'4.3.5',
+			getenv( 'MHMRENTIVA_TEST_ELEMENTOR_VERSION' ) ?: '4.3.5',
 			ELEMENTOR_VERSION,
 			'Elementor differs from the pinned version; the pin lives in .github/workflows/testing.yml (Elementor zip URL), this assertion, and WidgetContractTest::setUp().'
 		);

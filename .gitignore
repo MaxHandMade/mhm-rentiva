@@ -225,6 +225,8 @@ website/
 !.github/workflows/
 .github/workflows/*
 !.github/workflows/testing.yml
+# Weekly WordPress-trunk canary (schedule + manual only, never on a PR).
+!.github/workflows/wp-trunk.yml
 !.github/pull_request_template.md
 .kilocode/
 pcp/
@@ -345,6 +347,8 @@ bin/*
 !bin/build-release.py
 !bin/build-i18n.py
 !bin/BUILD.md
+# CI: each PHPUnit leg checks that the WordPress it installed is the one it names.
+!bin/check-wp-version.sh
 # The .pot recipe. Tracked because the project's "makepot scope must match the
 # committed .pot" rule is unenforceable while the --exclude set lives only in
 # somebody's shell history: there is no way to check what the committed catalog

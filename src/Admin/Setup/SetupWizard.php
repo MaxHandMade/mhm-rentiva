@@ -977,9 +977,18 @@ final class SetupWizard {
 	{
 		global $wpdb;
 
-		$php_ok     = version_compare(PHP_VERSION, '7.4', '>=');
+		// The minimums are the plugin header's, the values WordPress itself
+		// enforces on install and update; a second copy here went stale (it
+		// said PHP 7.4 / WordPress 6.0 while the header said 8.1 / 6.7).
+		$requires   = get_file_data(MHMRENTIVA_PLUGIN_FILE, array(
+			'wp'  => 'Requires at least',
+			'php' => 'Requires PHP',
+		));
+		$min_php    = (string) $requires['php'];
+		$min_wp     = (string) $requires['wp'];
+		$php_ok     = version_compare(PHP_VERSION, $min_php, '>=');
 		$wp_version = get_bloginfo('version');
-		$wp_ok      = version_compare($wp_version, '6.0', '>=');
+		$wp_ok      = version_compare($wp_version, $min_wp, '>=');
 		$db_version = $wpdb instanceof \wpdb ? $wpdb->db_version() : __('Unknown', 'mhm-rentiva');
 		$memory_mb  = self::memory_limit_mb();
 
@@ -994,14 +1003,15 @@ final class SetupWizard {
 			array(
 				'label'    => __('PHP Version', 'mhm-rentiva'),
 				'current'  => PHP_VERSION,
-				'expected' => '7.4+',
+				'expected' => $min_php . '+',
 				'status'   => $php_ok ? 'ok' : 'fail',
-				'message'  => $php_ok ? '' : __('Update PHP to 7.4 or higher.', 'mhm-rentiva'),
+				/* translators: %s: minimum PHP version, e.g. 8.1. */
+				'message'  => $php_ok ? '' : sprintf(__('Update PHP to %s or higher.', 'mhm-rentiva'), $min_php),
 			),
 			array(
 				'label'    => __('WordPress Version', 'mhm-rentiva'),
 				'current'  => $wp_version,
-				'expected' => '6.0+',
+				'expected' => $min_wp . '+',
 				'status'   => $wp_ok ? 'ok' : 'fail',
 				'message'  => $wp_ok ? '' : __('Please update WordPress to the latest version.', 'mhm-rentiva'),
 			),

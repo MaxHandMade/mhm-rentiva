@@ -84,6 +84,13 @@ class Html {
 		// `hidden` on a div but not `inert`.
 		$allowed['div'] = ( $allowed['div'] ?? array() ) + array( 'inert' => true );
 
+		// The comparison table's horizontal scroll region is a focusable
+		// `div role="region" tabindex="0"` (templates/shortcodes/vehicle-comparison.php),
+		// so a keyboard can scroll it. Core's 'post' list allows `tabindex` on a
+		// div only from WordPress 7.1; up to 7.0 this kses pass removed it and the
+		// region could not be reached (measured by the WP 7.0.8 CI row, 2026-11-04).
+		$allowed['div']['tabindex'] = true;
+
 		// wc_price() wraps every amount in <bdi>, which core's 'post' list lacks:
 		// the front-end standard's card prints prices as WooCommerce writes them
 		// (PriceDisplay), and without this every card price lost its bidi

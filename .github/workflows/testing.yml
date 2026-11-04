@@ -444,7 +444,7 @@ jobs:
   # jobs. Remove it once ubuntu-latest resolves to 26.04 -- from then on it is
   # a duplicate of the 8.1 row.
   phpunit:
-    name: Run PHPUnit (PHP ${{ matrix.php }}${{ matrix.os != 'ubuntu-latest' && format(', {0}', matrix.os) || '' }})
+    name: Run PHPUnit (PHP ${{ matrix.php }}${{ matrix.os != 'ubuntu-latest' && format(', {0}', matrix.os) || '' }}${{ matrix.wp && matrix.wp != 'latest' && format(', WP {0}', matrix.wp) || '' }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
 
@@ -453,9 +453,24 @@ jobs:
       matrix:
         php: [ '8.1', '8.2', '8.3', '8.4' ]
         os: [ ubuntu-latest ]
+        # An axis of its own so the floor row below is a NEW combination; as a
+        # key only in `include` it would merge into the existing 8.1 row and
+        # replace its `latest` run.
+        wp: [ latest ]
         include:
           - php: '8.1'
             os: ubuntu-26.04
+          # The floor the plugin promises: readme `Requires at least: 7.0` and
+          # `Requires PHP: 8.1`. The pinned WooCommerce (11.0.1, needs 6.9) and
+          # Elementor (4.3.5, needs 6.8) install here as they are. The floor was
+          # 6.7 until 2026-11-04: measured on 6.7.11 / 6.9.11 the suite was red
+          # (61 / 56), on 7.0.8 green after one real fix, and the current
+          # WooCommerce (11.2) itself needs 7.0 -- the user raised it. Move this
+          # row with the readme floor; `wc` / `elementor` keys pin older
+          # releases when a floor ever needs them.
+          - php: '8.1'
+            os: ubuntu-latest
+            wp: '7.0.8'
 
     services:
       mysql:
@@ -500,7 +515,12 @@ jobs:
         run: composer install --no-interaction --no-progress --prefer-dist
 
       - name: Install WordPress test suite
-        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 latest
+        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 ${{ matrix.wp || 'latest' }}
+
+      # A leg is only worth its name if it tested the version it names: a
+      # download that silently fell back to another release would stay green.
+      - name: Check the installed WordPress version
+        run: bash bin/check-wp-version.sh /tmp/wordpress ${{ matrix.wp || 'latest' }}
 
       # WooCommerce is not part of the WordPress test suite, and without it 26
       # source files take their "WooCommerce absent" branch -- which is how the
@@ -513,9 +533,10 @@ jobs:
           set -euo pipefail
           mkdir -p /tmp/wordpress/wp-content/plugins
           curl -sSL --fail -o /tmp/woocommerce.zip \
-            https://downloads.wordpress.org/plugin/woocommerce.11.0.1.zip
+            https://downloads.wordpress.org/plugin/woocommerce.${{ matrix.wc || '11.0.1' }}.zip
           unzip -q /tmp/woocommerce.zip -d /tmp/wordpress/wp-content/plugins
           test -f /tmp/wordpress/wp-content/plugins/woocommerce/woocommerce.php
+          grep -q "^ \* Version: ${{ matrix.wc || '11.0.1' }}\$" /tmp/wordpress/wp-content/plugins/woocommerce/woocommerce.php
 
       # The Elementor widget bridge is only measurable against real Elementor
       # widgets. Pinned to the dev site's version; ElementorTestEnvironmentTest
@@ -525,13 +546,15 @@ jobs:
           set -euo pipefail
           mkdir -p /tmp/wordpress/wp-content/plugins
           curl -sSL --fail -o /tmp/elementor.zip \
-            https://downloads.wordpress.org/plugin/elementor.4.3.5.zip
+            https://downloads.wordpress.org/plugin/elementor.${{ matrix.elementor || '4.3.5' }}.zip
           unzip -q /tmp/elementor.zip -d /tmp/wordpress/wp-content/plugins
           test -f /tmp/wordpress/wp-content/plugins/elementor/elementor.php
+          grep -q "define( 'ELEMENTOR_VERSION', '${{ matrix.elementor || '4.3.5' }}' );" /tmp/wordpress/wp-content/plugins/elementor/elementor.php
 
       - name: Run PHPUnit
         env:
           WP_TESTS_DIR: /tmp/wordpress-tests-lib
+          MHMRENTIVA_TEST_ELEMENTOR_VERSION: ${{ matrix.elementor || '4.3.5' }}
         run: composer test
 
       # G-E runs in this job because it needs a WordPress CORE TREE to read --

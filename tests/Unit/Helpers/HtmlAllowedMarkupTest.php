@@ -127,6 +127,23 @@ final class HtmlAllowedMarkupTest extends WP_UnitTestCase
      * vehicle-card.php:51-57 sets both for retina/wide vehicle photos; without
      * this, every vehicle card image silently fell back to a single `src`.
      */
+    /**
+     * The comparison table's scroll region and the testimonials carousel are
+     * focusable divs (tabindex="0"). Core allows tabindex on a div only from
+     * WordPress 7.1, so on the 7.0 floor this entry is what keeps them
+     * reachable; the WordPress 7.0.8 CI row is where removing it goes red.
+     */
+    public function test_allowed_markup_keeps_tabindex_on_div(): void
+    {
+        $allowed = \MHMRentiva\Helpers\Html::allowed_markup();
+
+        $this->assertTrue($allowed['div']['tabindex'] ?? false, "'div' loses tabindex");
+        $this->assertStringContainsString(
+            'tabindex="0"',
+            wp_kses('<div role="region" aria-label="x" tabindex="0">t</div>', $allowed)
+        );
+    }
+
     public function test_allowed_markup_preserves_img_srcset_and_sizes(): void
     {
         $allowed = \MHMRentiva\Helpers\Html::allowed_markup();

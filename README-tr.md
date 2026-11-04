@@ -15,7 +15,7 @@
 </p>
 
 ![Version](https://img.shields.io/badge/version-6.4.0-blue.svg)
-![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
+![WordPress](https://img.shields.io/badge/WordPress-7.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
 
@@ -539,7 +539,7 @@ mhm-rentiva/
 ## 📋 Gereksinimler
 
 ### WordPress & PHP
-- **Minimum WordPress**: 6.7
+- **Minimum WordPress**: 7.0
 - **Test Edilen**: 7.1
 - **Minimum PHP**: 8.1 (Önerilen: 8.2+)
 - **Bellek Limiti**: Minimum 128MB (256MB önerilir)
