@@ -1170,17 +1170,18 @@ final class AccountController {
 				$user_data['last_name'] = $last_name;
 			}
 
-			$result = wp_update_user($user_data);
+			// Unslashed once on input; wp_update_user() unslashes again.
+			$result = wp_update_user(wp_slash($user_data));
 
 			if (is_wp_error($result)) {
 				$error = (string) $result->get_error_message();
 			} else {
 				// Update meta information
 				if (! empty($phone)) {
-					update_user_meta($user_id, 'mhmrentiva_phone', $phone);
+					update_user_meta($user_id, 'mhmrentiva_phone', wp_slash($phone));
 				}
 				if (! empty($address)) {
-					update_user_meta($user_id, 'mhmrentiva_address', $address);
+					update_user_meta($user_id, 'mhmrentiva_address', wp_slash($address));
 				}
 			}
 		} catch (\Exception $e) {
