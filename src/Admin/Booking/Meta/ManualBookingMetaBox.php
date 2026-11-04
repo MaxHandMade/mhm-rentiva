@@ -1057,9 +1057,10 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			}
 
 			// Update user information (same as normal booking form). The
-			// values were unslashed once on input; wp_update_user() unslashes
-			// again, so they are slashed back (a name "Ali\Veli" keeps its
-			// backslash).
+			// profile values were unslashed once on input; wp_update_user()
+			// unslashes again, so they are slashed back (a name "Ali\Veli"
+			// keeps its backslash). The role is added after: wp_insert_user()
+			// hands it to set_role() as is.
 			$update_result = wp_update_user(
 				wp_slash(
 					array(
@@ -1067,9 +1068,8 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 						'display_name' => $customer_name,
 						'first_name'   => $customer_first_name,
 						'last_name'    => $customer_last_name,
-						'role'         => $default_role,
 					)
-				)
+				) + array( 'role' => $default_role )
 			);
 			// Non-fatal: log but don't abort booking creation. Routed to the plugin's
 			// own logger instead of the site's PHP error log.

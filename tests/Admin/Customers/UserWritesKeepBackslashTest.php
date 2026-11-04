@@ -140,6 +140,36 @@ final class UserWritesKeepBackslashTest extends WP_Ajax_UnitTestCase
 		$this->assertSame(self::ADDRESS, get_user_meta($user->ID, 'mhmrentiva_address', true));
 	}
 
+	public function test_a_role_key_is_not_slashed_with_the_profile(): void
+	{
+		// wp_insert_user() hands `role` to set_role() as is (no unslash), so
+		// slashing the whole update array would grant "fleet\\customer".
+		add_role('fleet\customer', 'Fleet customer', array( 'read' => true ));
+		$settings = (array) get_option(\MHMRentiva\Admin\Settings\Core\SettingsCore::OPTION_NAME, array());
+		$settings['mhmrentiva_customer_default_role'] = 'fleet\customer';
+		update_option(\MHMRentiva\Admin\Settings\Core\SettingsCore::OPTION_NAME, $settings);
+
+		try {
+			$_POST = wp_slash(array(
+				'mhmrentiva_add_customer_nonce' => wp_create_nonce('mhmrentiva_add_customer'),
+				'customer_name'                 => self::NAME,
+				'customer_email'                => 'bs-role@example.com',
+				'customer_phone'                => self::PHONE,
+				'customer_address'              => self::ADDRESS,
+			));
+			ob_start();
+			AddCustomerPage::render();
+			ob_end_clean();
+			$user = get_user_by('email', 'bs-role@example.com');
+		} finally {
+			delete_option(\MHMRentiva\Admin\Settings\Core\SettingsCore::OPTION_NAME);
+			remove_role('fleet\customer');
+		}
+
+		$this->assertInstanceOf(\WP_User::class, $user);
+		$this->assertSame(array( 'fleet\customer' ), array_keys(array_filter((array) $user->caps)));
+	}
+
 	public function test_customer_edit_page(): void
 	{
 		$customer = (int) self::factory()->user->create(array( 'role' => 'customer', 'user_email' => 'bs-edit@example.com' ));

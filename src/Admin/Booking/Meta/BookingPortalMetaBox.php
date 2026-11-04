@@ -175,14 +175,14 @@ final class BookingPortalMetaBox {
 		$display_name = trim( $name ) ?: $email;
 		$role         = get_role( 'customer' ) ? 'customer' : 'subscriber';
 
-		// Unslashed once on input; wp_update_user() unslashes again.
+		// Unslashed once on input; wp_update_user() unslashes again. The
+		// role is added after: wp_insert_user() hands it to set_role() as is.
 		$update_result = wp_update_user( wp_slash( array(
 			'ID'           => $user_id,
 			'first_name'   => $first_name,
 			'last_name'    => $last_name,
 			'display_name' => $display_name,
-			'role'         => $role,
-		) ) );
+		) ) + array( 'role' => $role ) );
 
 		if ( is_wp_error( $update_result ) ) {
 			wp_send_json_error( array( 'message' => $update_result->get_error_message() ) );

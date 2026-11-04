@@ -96,15 +96,16 @@ final class AddCustomerPage {
 
 					// Update user information. Unslashed once on input;
 					// wp_update_user() and update_user_meta() unslash again.
+					// The role is added after: wp_insert_user() hands it to
+					// set_role() as is.
 					wp_update_user(
 						wp_slash(
 							array(
 								'ID'           => $user_id,
 								'display_name' => $customer_name,
 								'first_name'   => $customer_name,
-								'role'         => $default_role,
 							)
-						)
+						) + array( 'role' => $default_role )
 					);
 
 					// Ensure role is set even if wp_update_user ignores role
