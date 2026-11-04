@@ -12,6 +12,7 @@ if (! defined('ABSPATH')) {
 
 
 
+use MHMRentiva\Admin\Booking\Core\PaymentView;
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 use MHMRentiva\Admin\Payment\Core\Money;
@@ -2886,208 +2887,231 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			$booking_id = (int) $item->get_meta('_mhmrentiva_booking_id');
 
 			if ($booking_id) {
-				// Money landed (a gateway's late callback, an operator marking the
-				// order paid): a booking that lost its dates is not revived over
-				// someone else's. Paid: confirm_paid_booking() decides and writes
-				// under the vehicle's lock. On hold: only a revivable booking is
-				// asked (a refunded or no-show one keeps the old, silent answer).
-				// The operator is told; the money is theirs to return.
-				$is_remaining = self::is_remaining_order($order);
-				if (in_array($new_status, array( 'processing', 'completed' ), true)) {
-					// Same rule as the deposit screen, and for the same reason:
-					// a date-only comparison completes a booking at midnight on
-					// the drop-off day, hours before the car is back.
-					$target  = 'completed' === $new_status && \MHMRentiva\Admin\Booking\Helpers\Util::rental_has_ended($booking_id) ? Status::COMPLETED : Status::CONFIRMED;
-					$refusal = self::confirm_paid_booking($booking_id, $is_remaining, $target);
-					if (self::UNLOCKED_NOT_HELD === $refusal) {
-						// An unlocked write did not hold: the note says what the
-						// booking holds now. Only a paid mark that held reaches the
-						// mapping below, which may clear the remaining balance
-						// (Fable PR K delta8 2).
-						$outcome                = self::$unlocked_outcome;
-						self::$unlocked_outcome = array();
-						self::report_unclaimed_payment($order, $booking_id, '', (string) $new_status, 'unlocked_write', $outcome);
-						if ('paid' !== ( $outcome['payment'] ?? null )) {
-							continue;
-						}
-					} elseif (null !== $refusal) {
-						self::report_unclaimed_payment($order, $booking_id, $refusal, (string) $new_status);
-						continue;
-					}
-				} elseif ('on-hold' === $new_status && in_array( (string) get_post_meta($booking_id, '_mhmrentiva_status', true), self::REVIVABLE, true)) {
-					$revived = array();
-					$refusal = self::claim_booking($booking_id, $is_remaining, $revived);
-					if ('' !== $refusal) {
-						self::report_unclaimed_payment($order, $booking_id, $refusal, 'on-hold');
-						continue;
-					}
-					self::announce_revivals($revived);
+				// One payment-history scope per booking on the order (plan r4
+				// R9): an order can carry several, and the early exits of the
+				// per-booking work must not skip the scope's close.
+				$scope = PaymentView::begin($booking_id);
+				try {
+					self::apply_order_status_to_booking($booking_id, $order_id, $old_status, $new_status, $order);
+				} finally {
+					PaymentView::end($scope);
 				}
-
-				// Status Mapping Logic
-				switch ($new_status) {
-					case 'completed':
-						// WC order completed - the booking is paid and confirmed, or
-						// completed once the rental has ended: written above, under
-						// the lock (confirm_paid_booking()).
-						// Clear the remaining balance only when THIS order is the one
-						// that settles it. Until 6.1.0 the branch looked only at the
-						// booking's payment_type, so completing the FIRST (deposit)
-						// order wiped a debt the customer had never paid -- and
-						// sync_completed_to_wc() drives the original order to completed
-						// itself, so the plugin could trigger it with nobody touching
-						// the order. The processing branch below has always carried
-						// this ownership check; this is the same rule, same key.
-						if ($order->get_meta('_mhmrentiva_is_remaining_payment') === '1') {
-							$remaining = floatval(get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true));
-							if ($remaining > 0) {
-								update_post_meta($booking_id, '_mhmrentiva_remaining_amount', 0);
-							}
-						}
-						break;
-
-					case 'processing':
-						// Payment confirmed - paid and confirmed above, under the lock
-						// (confirm_paid_booking()). Full payment, or the remaining
-						// payment's own order: nothing is left to pay.
-						if (get_post_meta($booking_id, '_mhmrentiva_payment_type', true) === 'full' || $order->get_meta('_mhmrentiva_is_remaining_payment') === '1') {
-							update_post_meta($booking_id, '_mhmrentiva_remaining_amount', 0);
-						}
-						break;
-
-					case 'on-hold':
-						// Payment pending (Bank transfer etc.)
-						// Same ownership rule the completed and processing branches
-						// carry, and for the same reason: a REMAINING order going
-						// on-hold says nothing about a deposit the customer already
-						// paid. Without this, choosing bank transfer for the
-						// remainder demoted the booking to pending/pending --
-						// precisely the pair AutoCancel sweep #1 selects, so the
-						// plugin cancelled a healthy booking and its paid deposit
-						// order along with it.
-						if ($order->get_meta('_mhmrentiva_is_remaining_payment') === '1'
-							&& get_post_meta($booking_id, '_mhmrentiva_payment_status', true) === 'paid') {
-							break;
-						}
-
-						update_post_meta($booking_id, '_mhmrentiva_payment_status', 'pending');
-						Status::update_status($booking_id, 'pending', get_current_user_id());
-						break;
-
-					case 'cancelled':
-					case 'failed':
-						if ( self::has_paid_sibling_order( $booking_id, (int) $order_id ) ) {
-							// A sibling order still holds paid money. Cancelling
-							// the collection instrument is not cancelling the
-							// debt: the balance stays, the dead order id is
-							// cleared so the operator can issue a new payment
-							// link, and a human is told.
-							//
-							// Only the remaining-order pointer is ever cleared
-							// here, never _mhmrentiva_woocommerce_order_id: if
-							// the DEPOSIT order is the one dying, deleting the
-							// primary key would discard the only reference to
-							// the (still paid) deposit order -- data loss, and
-							// worse than the stale pointer this leaves instead.
-							if ( (int) get_post_meta( $booking_id, '_mhmrentiva_remaining_order_id', true ) === (int) $order_id ) {
-								delete_post_meta( $booking_id, '_mhmrentiva_remaining_order_id' );
-							}
-
-							// The bool is load-bearing, same reasons as
-							// AutoCancel.php's cancel_booking_with_orders():
-							// send_*_email() returns false without throwing
-							// when admin_email does not validate
-							// (NotificationHelper.php:64-66) and when
-							// wp_mail() fails, and src/ registers no
-							// wp_mail_failed listener. Discarding it here is
-							// worse than that site: there the booking lands in
-							// a visible needs_review state, but here the
-							// remaining-order pointer is already deleted and
-							// the booking looks perfectly healthy -- silently
-							// dropping the e-mail leaves nothing else for
-							// anyone to find.
-							$helper_exists = class_exists( '\MHMRentiva\Helpers\NotificationHelper' );
-							$notified      = $helper_exists
-								&& \MHMRentiva\Helpers\NotificationHelper::send_order_cancelled_on_live_booking_email( $booking_id, (int) $order_id );
-
-							if ( ! $notified ) {
-								// Task 14b item 1: was error() + add(), the
-								// same pair and same reasons as AutoCancel.php's
-								// lock-refusal/notify-failure branches; one call
-								// now covers both.
-								//
-								// Task 14b item 7: the reason used to read
-								// 'notification_failed' even when
-								// $helper_exists was false -- practically
-								// unreachable (NotificationHelper ships in the
-								// Lite manifest), but the exact class item 2
-								// exists for: a reason this branch cannot
-								// actually know is wrong to state as fact.
-								AdvancedLogger::error_linked(
-									sprintf(
-										/* translators: 1: the WooCommerce order id that was cancelled/failed, 2: the booking id it belongs to. */
-										__( 'Order #%1$d was cancelled/failed on booking #%2$d while a sibling order still holds paid money, but the notification e-mail could not be sent -- no one has been told a new payment link may be needed.', 'mhm-rentiva' ),
-										(int) $order_id,
-										$booking_id
-									),
-									$booking_id,
-									array(
-										'order_id' => (int) $order_id,
-										'surface'  => 'wc_status_change',
-										'reason'   => $helper_exists ? 'notification_failed' : 'helper_missing',
-									),
-									AdvancedLogger::CATEGORY_SYSTEM
-								);
-							}
-
-							break;
-						}
-
-						Status::update_status($booking_id, 'cancelled', get_current_user_id());
-						break;
-
-					case 'refunded':
-						// This switch operates per ORDER, but WooCommerce flips an
-						// order's own status to 'refunded' the moment THAT order is
-						// fully drained -- not when the booking is. A deposit
-						// booking's smaller leg routinely hits zero long before the
-						// larger one does, and this handler runs BEFORE
-						// handle_order_refunded(): wc_create_refund() changes the
-						// order's own status (WC 11.0.1 wc-order-functions.php :731)
-						// before it fires woocommerce_refund_created (:742).
-						// Blindly mirroring the per-order flip here is the exact
-						// terminal mid-walk defect Task 8 removed from that hook,
-						// one hop earlier -- so this asks PaymentState the same
-						// booking-level question before touching the booking.
-						//
-						// _mhmrentiva_payment_status is left untouched here on
-						// purpose. handle_order_refunded() runs immediately after
-						// this (same wc_create_refund() call) and is that meta's
-						// single writer for a refund event; writing a value here
-						// that gets overwritten a moment later is a second writer
-						// under a new name -- and a wrong one, during the not-fully-
-						// refunded case, is live for however long that gap is.
-						if (PaymentState::forBooking($booking_id)->isFullyRefunded()) {
-							Status::update_status($booking_id, 'refunded', get_current_user_id());
-						}
-						break;
-				}
-
-				// Add log
-				$logs   = get_post_meta($booking_id, '_mhmrentiva_booking_logs', true) ?: array();
-				$logs[] = array(
-					'action'    => 'wc_status_change',
-					'timestamp' => current_time('mysql'),
-					'user_id'   => 0, // System
-					'data'      => array(
-						'order_id'   => $order_id,
-						'old_status' => $old_status,
-						'new_status' => $new_status,
-					),
-				);
-				update_post_meta($booking_id, '_mhmrentiva_booking_logs', $logs);
 			}
 		}
+	}
+
+	/**
+	 * One booking of handle_order_status_change(): its order-status work,
+	 * unchanged, moved here so that the caller's payment scope closes on
+	 * every exit (each former `continue` is a `return`).
+	 *
+	 * @param int|string $order_id
+	 * @param string     $old_status
+	 * @param string     $new_status
+	 * @param \WC_Order  $order
+	 */
+	private static function apply_order_status_to_booking(int $booking_id, $order_id, $old_status, $new_status, $order): void
+	{
+		// Money landed (a gateway's late callback, an operator marking the
+		// order paid): a booking that lost its dates is not revived over
+		// someone else's. Paid: confirm_paid_booking() decides and writes
+		// under the vehicle's lock. On hold: only a revivable booking is
+		// asked (a refunded or no-show one keeps the old, silent answer).
+		// The operator is told; the money is theirs to return.
+		$is_remaining = self::is_remaining_order($order);
+		if (in_array($new_status, array( 'processing', 'completed' ), true)) {
+			// Same rule as the deposit screen, and for the same reason:
+			// a date-only comparison completes a booking at midnight on
+			// the drop-off day, hours before the car is back.
+			$target  = 'completed' === $new_status && \MHMRentiva\Admin\Booking\Helpers\Util::rental_has_ended($booking_id) ? Status::COMPLETED : Status::CONFIRMED;
+			$refusal = self::confirm_paid_booking($booking_id, $is_remaining, $target);
+			if (self::UNLOCKED_NOT_HELD === $refusal) {
+				// An unlocked write did not hold: the note says what the
+				// booking holds now. Only a paid mark that held reaches the
+				// mapping below, which may clear the remaining balance
+				// (Fable PR K delta8 2).
+				$outcome                = self::$unlocked_outcome;
+				self::$unlocked_outcome = array();
+				self::report_unclaimed_payment($order, $booking_id, '', (string) $new_status, 'unlocked_write', $outcome);
+				if ('paid' !== ( $outcome['payment'] ?? null )) {
+					return;
+				}
+			} elseif (null !== $refusal) {
+				self::report_unclaimed_payment($order, $booking_id, $refusal, (string) $new_status);
+				return;
+			}
+		} elseif ('on-hold' === $new_status && in_array( (string) get_post_meta($booking_id, '_mhmrentiva_status', true), self::REVIVABLE, true)) {
+			$revived = array();
+			$refusal = self::claim_booking($booking_id, $is_remaining, $revived);
+			if ('' !== $refusal) {
+				self::report_unclaimed_payment($order, $booking_id, $refusal, 'on-hold');
+				return;
+			}
+			self::announce_revivals($revived);
+		}
+
+		// Status Mapping Logic
+		switch ($new_status) {
+			case 'completed':
+				// WC order completed - the booking is paid and confirmed, or
+				// completed once the rental has ended: written above, under
+				// the lock (confirm_paid_booking()).
+				// Clear the remaining balance only when THIS order is the one
+				// that settles it. Until 6.1.0 the branch looked only at the
+				// booking's payment_type, so completing the FIRST (deposit)
+				// order wiped a debt the customer had never paid -- and
+				// sync_completed_to_wc() drives the original order to completed
+				// itself, so the plugin could trigger it with nobody touching
+				// the order. The processing branch below has always carried
+				// this ownership check; this is the same rule, same key.
+				if ($order->get_meta('_mhmrentiva_is_remaining_payment') === '1') {
+					$remaining = floatval(get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true));
+					if ($remaining > 0) {
+						update_post_meta($booking_id, '_mhmrentiva_remaining_amount', 0);
+					}
+				}
+				break;
+
+			case 'processing':
+				// Payment confirmed - paid and confirmed above, under the lock
+				// (confirm_paid_booking()). Full payment, or the remaining
+				// payment's own order: nothing is left to pay.
+				if (get_post_meta($booking_id, '_mhmrentiva_payment_type', true) === 'full' || $order->get_meta('_mhmrentiva_is_remaining_payment') === '1') {
+					update_post_meta($booking_id, '_mhmrentiva_remaining_amount', 0);
+				}
+				break;
+
+			case 'on-hold':
+				// Payment pending (Bank transfer etc.)
+				// Same ownership rule the completed and processing branches
+				// carry, and for the same reason: a REMAINING order going
+				// on-hold says nothing about a deposit the customer already
+				// paid. Without this, choosing bank transfer for the
+				// remainder demoted the booking to pending/pending --
+				// precisely the pair AutoCancel sweep #1 selects, so the
+				// plugin cancelled a healthy booking and its paid deposit
+				// order along with it.
+				if ($order->get_meta('_mhmrentiva_is_remaining_payment') === '1'
+					&& get_post_meta($booking_id, '_mhmrentiva_payment_status', true) === 'paid') {
+					break;
+				}
+
+				update_post_meta($booking_id, '_mhmrentiva_payment_status', 'pending');
+				Status::update_status($booking_id, 'pending', get_current_user_id());
+				break;
+
+			case 'cancelled':
+			case 'failed':
+				if ( self::has_paid_sibling_order( $booking_id, (int) $order_id ) ) {
+					// A sibling order still holds paid money. Cancelling
+					// the collection instrument is not cancelling the
+					// debt: the balance stays, the dead order id is
+					// cleared so the operator can issue a new payment
+					// link, and a human is told.
+					//
+					// Only the remaining-order pointer is ever cleared
+					// here, never _mhmrentiva_woocommerce_order_id: if
+					// the DEPOSIT order is the one dying, deleting the
+					// primary key would discard the only reference to
+					// the (still paid) deposit order -- data loss, and
+					// worse than the stale pointer this leaves instead.
+					if ( (int) get_post_meta( $booking_id, '_mhmrentiva_remaining_order_id', true ) === (int) $order_id ) {
+						delete_post_meta( $booking_id, '_mhmrentiva_remaining_order_id' );
+					}
+
+					// The bool is load-bearing, same reasons as
+					// AutoCancel.php's cancel_booking_with_orders():
+					// send_*_email() returns false without throwing
+					// when admin_email does not validate
+					// (NotificationHelper.php:64-66) and when
+					// wp_mail() fails, and src/ registers no
+					// wp_mail_failed listener. Discarding it here is
+					// worse than that site: there the booking lands in
+					// a visible needs_review state, but here the
+					// remaining-order pointer is already deleted and
+					// the booking looks perfectly healthy -- silently
+					// dropping the e-mail leaves nothing else for
+					// anyone to find.
+					$helper_exists = class_exists( '\MHMRentiva\Helpers\NotificationHelper' );
+					$notified      = $helper_exists
+						&& \MHMRentiva\Helpers\NotificationHelper::send_order_cancelled_on_live_booking_email( $booking_id, (int) $order_id );
+
+					if ( ! $notified ) {
+						// Task 14b item 1: was error() + add(), the
+						// same pair and same reasons as AutoCancel.php's
+						// lock-refusal/notify-failure branches; one call
+						// now covers both.
+						//
+						// Task 14b item 7: the reason used to read
+						// 'notification_failed' even when
+						// $helper_exists was false -- practically
+						// unreachable (NotificationHelper ships in the
+						// Lite manifest), but the exact class item 2
+						// exists for: a reason this branch cannot
+						// actually know is wrong to state as fact.
+						AdvancedLogger::error_linked(
+							sprintf(
+								/* translators: 1: the WooCommerce order id that was cancelled/failed, 2: the booking id it belongs to. */
+								__( 'Order #%1$d was cancelled/failed on booking #%2$d while a sibling order still holds paid money, but the notification e-mail could not be sent -- no one has been told a new payment link may be needed.', 'mhm-rentiva' ),
+								(int) $order_id,
+								$booking_id
+							),
+							$booking_id,
+							array(
+								'order_id' => (int) $order_id,
+								'surface'  => 'wc_status_change',
+								'reason'   => $helper_exists ? 'notification_failed' : 'helper_missing',
+							),
+							AdvancedLogger::CATEGORY_SYSTEM
+						);
+					}
+
+					break;
+				}
+
+				Status::update_status($booking_id, 'cancelled', get_current_user_id());
+				break;
+
+			case 'refunded':
+				// This switch operates per ORDER, but WooCommerce flips an
+				// order's own status to 'refunded' the moment THAT order is
+				// fully drained -- not when the booking is. A deposit
+				// booking's smaller leg routinely hits zero long before the
+				// larger one does, and this handler runs BEFORE
+				// handle_order_refunded(): wc_create_refund() changes the
+				// order's own status (WC 11.0.1 wc-order-functions.php :731)
+				// before it fires woocommerce_refund_created (:742).
+				// Blindly mirroring the per-order flip here is the exact
+				// terminal mid-walk defect Task 8 removed from that hook,
+				// one hop earlier -- so this asks PaymentState the same
+				// booking-level question before touching the booking.
+				//
+				// _mhmrentiva_payment_status is left untouched here on
+				// purpose. handle_order_refunded() runs immediately after
+				// this (same wc_create_refund() call) and is that meta's
+				// single writer for a refund event; writing a value here
+				// that gets overwritten a moment later is a second writer
+				// under a new name -- and a wrong one, during the not-fully-
+				// refunded case, is live for however long that gap is.
+				if (PaymentState::forBooking($booking_id)->isFullyRefunded()) {
+					Status::update_status($booking_id, 'refunded', get_current_user_id());
+				}
+				break;
+		}
+
+		// Add log
+		$logs   = get_post_meta($booking_id, '_mhmrentiva_booking_logs', true) ?: array();
+		$logs[] = array(
+			'action'    => 'wc_status_change',
+			'timestamp' => current_time('mysql'),
+			'user_id'   => 0, // System
+			'data'      => array(
+				'order_id'   => $order_id,
+				'old_status' => $old_status,
+				'new_status' => $new_status,
+			),
+		);
+		update_post_meta($booking_id, '_mhmrentiva_booking_logs', $logs);
 	}
 
 	/**
