@@ -300,6 +300,42 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 	}
 
 	/**
+	 * Keep a posted country only if the store sells to it, and a state only
+	 * if it belongs to that country: a code from the country's list, or free
+	 * text where WooCommerce has no list. An unknown or empty country also
+	 * reads as "no list", so the state is looked at only once the country was
+	 * kept -- otherwise a state code would be saved with no country.
+	 *
+	 * @return array{country: string, state: string}
+	 */
+	private static function sanitize_location(string $country, string $state): array
+	{
+		$clean = array(
+			'country' => '',
+			'state'   => '',
+		);
+
+		if (! function_exists('WC') || ! WC()->countries instanceof \WC_Countries || '' === $country) {
+			return $clean;
+		}
+
+		$wc_countries = WC()->countries;
+		if (! array_key_exists($country, $wc_countries->get_allowed_countries())) {
+			return $clean;
+		}
+		$clean['country'] = $country;
+
+		$states = $wc_countries->get_states($country);
+		if (is_array($states) && array() !== $states) {
+			$clean['state'] = array_key_exists($state, $states) ? $state : '';
+		} elseif (false === $states) {
+			$clean['state'] = mb_substr(trim($state), 0, 100);
+		}
+
+		return $clean;
+	}
+
+	/**
 	 * The optional country and state fields of the new-customer card
 	 * (spec K6). The base country is preselected; the state starts empty so
 	 * nothing the admin never chose is saved.
@@ -876,6 +912,11 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			$customer_name       = trim($customer_first_name . ' ' . $customer_last_name);
 			$customer_email      = isset($_POST['new_customer_email']) ? sanitize_email(wp_unslash( (string) $_POST['new_customer_email'])) : '';
 			$customer_phone      = isset($_POST['new_customer_phone']) ? sanitize_text_field(wp_unslash( (string) $_POST['new_customer_phone'])) : '';
+			// Optional (spec K6); checked against WooCommerce, never trusted.
+			$customer_location = self::sanitize_location(
+				isset($_POST['new_customer_country']) ? sanitize_text_field(wp_unslash( (string) $_POST['new_customer_country'])) : '',
+				isset($_POST['new_customer_state']) ? sanitize_text_field(wp_unslash( (string) $_POST['new_customer_state'])) : ''
+			);
 
 			if (! $customer_first_name || ! $customer_last_name || ! $customer_email || ! $customer_phone) {
 				wp_send_json_error(array( 'message' => esc_html__('New customer information is missing.', 'mhm-rentiva') ));
@@ -1013,6 +1054,15 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			// Save meta information (same as normal booking form)
 			update_user_meta($user_id, 'mhmrentiva_phone', $customer_phone);
 			update_user_meta($user_id, 'mhmrentiva_customer', true);
+
+			// WooCommerce's own customer fields, so checkout and the account
+			// pages show the same country and state.
+			if ('' !== $customer_location['country']) {
+				update_user_meta($user_id, 'billing_country', $customer_location['country']);
+			}
+			if ('' !== $customer_location['state']) {
+				update_user_meta($user_id, 'billing_state', $customer_location['state']);
+			}
 
 			$customer = get_userdata($user_id);
 		}
