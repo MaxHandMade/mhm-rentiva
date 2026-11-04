@@ -461,3 +461,23 @@
 .mhm-history-show-more:hover {
 	text-decoration: underline;
 }
+/* Line under the core H1 (PR 3b-1) ---------------------------- */
+
+.mhm-screen-subline {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--mhmui-space-1, 4px) var(--mhmui-space-3, 12px);
+	margin: 0 0 var(--mhmui-space-3, 12px);
+	color: var(--mhmui-text-muted, #646970);
+	font-size: 13px;
+}
+
+.mhm-screen-subline a {
+	text-decoration: none;
+}
+
+/* The title is generated; it stays in the form (post_title), off screen. */
+body.post-type-mhmrentiva_booking.post-php #titlediv {
+	display: none;
+}

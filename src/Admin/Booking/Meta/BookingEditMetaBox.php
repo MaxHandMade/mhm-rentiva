@@ -74,6 +74,25 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 
 		// Save handler - Higher priority to run before other save hooks
 		add_action( 'save_post', array( self::class, 'save_booking_details' ), 5 );
+
+		add_action( 'edit_form_top', array( self::class, 'render_header_strip' ) );
+	}
+
+	/**
+	 * Line under the core H1 on an existing booking: back to the list, and
+	 * what the screen holds. Runs on edit_form_top, inside form#post: links
+	 * and text only, no fields. The new-booking screen has its own
+	 * (ManualBookingMetaBox::render_header_strip()).
+	 */
+	public static function render_header_strip( \WP_Post $post ): void {
+		if ( 'mhmrentiva_booking' !== $post->post_type || 'auto-draft' === $post->post_status ) {
+			return;
+		}
+
+		echo '<p class="mhm-screen-subline">';
+		echo '<a href="' . esc_url( admin_url( 'edit.php?post_type=mhmrentiva_booking' ) ) . '">&larr; ' . esc_html__( 'Bookings', 'mhm-rentiva' ) . '</a> ';
+		echo '<span>' . esc_html__( 'Customer, vehicle and payment details', 'mhm-rentiva' ) . '</span>';
+		echo '</p>';
 	}
 
 	public static function add_meta_boxes(): void {
