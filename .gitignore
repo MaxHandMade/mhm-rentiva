@@ -572,6 +572,8 @@ bin/*
 # in every clone or the gate that catches a bare update_post_meta() bypassing
 # RefundStatus::transition() runs in nobody's clone but this one.
 !bin/check-refund-status-writers.php
+!bin/check-payment-view-writers.php
+!bin/payment-view-writers-baseline.txt
 # Translation placeholder gate. `composer check-i18n-placeholders` and the CI
 # step run it, and tests/Gates/I18nPlaceholderParityTest.php require()s it --
 # so an untracked copy would fail the suite in every clean clone, exactly the

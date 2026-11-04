@@ -548,6 +548,9 @@ final class AutoCancel {
 	 * @param string $reason Human-readable reason persisted on the booking.
 	 */
 	private static function cancel_booking_with_orders( int $bid, string $reason ): void {
+		// Payment-history scope (PaymentView): a cron run has no user, so the
+		// row reads "System".
+		$scope = \MHMRentiva\Admin\Booking\Core\PaymentView::begin( $bid );
 		try {
 			// Lookup chain mirrors ReportRepository / RemainingPaymentHandler —
 			// historical key drift left several aliases in production data.
@@ -742,6 +745,8 @@ final class AutoCancel {
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 				);
 			}
+		} finally {
+			\MHMRentiva\Admin\Booking\Core\PaymentView::end( $scope );
 		}
 	}
 

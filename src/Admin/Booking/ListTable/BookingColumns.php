@@ -562,7 +562,10 @@ final class BookingColumns {
 
 			case 'mhmrentiva_booking_payment':
 				// Check both old and new meta keys
-				$status    = (string) ( get_post_meta( $post_id, '_mhmrentiva_booking_payment_status', true ) ?: get_post_meta( $post_id, '_mhmrentiva_payment_status', true ) );
+				// The derived payment view (PaymentView): a paid deposit that still
+				// owes reads "Partially paid"; the current key wins over the legacy
+				// one (the old order here read the legacy key first).
+				$status    = \MHMRentiva\Admin\Booking\Core\PaymentView::status( $post_id );
 				$amount    = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $post_id )->paid();
 				$currency  = (string) ( get_post_meta( $post_id, '_mhmrentiva_booking_payment_currency', true ) ?: get_post_meta( $post_id, '_mhmrentiva_payment_currency', true ) );
 				$gateway   = (string) ( get_post_meta( $post_id, '_mhmrentiva_booking_payment_gateway', true ) ?: get_post_meta( $post_id, '_mhmrentiva_payment_gateway', true ) );
@@ -573,8 +576,8 @@ final class BookingColumns {
 				}
 
 				echo '<div class="payment-info">';
-				$label       = $status ? self::get_payment_status_label( $status ) : __( 'Unpaid', 'mhm-rentiva' );
-				$status_slug = sanitize_html_class( $status ?: 'unpaid' );
+				$label       = \MHMRentiva\Admin\Booking\Core\PaymentView::label( $status );
+				$status_slug = sanitize_html_class( $status );
 				echo '<span class="badge payment-status-' . esc_attr( $status_slug ) . '">' . esc_html( $label ) . '</span>';
 
 				if ( $amount > 0 ) {
@@ -930,7 +933,7 @@ final class BookingColumns {
 		echo '<select name="mhmrentiva_payment_status" class="postform">';
 		echo '  <option value="">' . esc_html__( 'All payments', 'mhm-rentiva' ) . '</option>';
 		foreach ( array( 'unpaid', 'paid', 'refunded', 'failed' ) as $s ) {
-			$label = self::get_payment_status_label( $s );
+			$label = \MHMRentiva\Admin\Booking\Core\PaymentView::label( $s );
 			echo '  <option value="' . esc_attr( $s ) . '"' . selected( $pcur, $s, false ) . '>' . esc_html( $label ) . '</option>';
 		}
 		echo '</select>';
@@ -1072,26 +1075,6 @@ final class BookingColumns {
 			$meta['relation'] = 'AND';
 			$q->set( 'meta_query', $meta );
 		}
-	}
-
-	/**
-	 * Return localized label for payment status.
-	 */
-	private static function get_payment_status_label( string $status ): string {
-		$labels = array(
-			'unpaid'               => __( 'Unpaid', 'mhm-rentiva' ),
-			'paid'                 => __( 'Paid', 'mhm-rentiva' ),
-			'refunded'             => __( 'Refunded', 'mhm-rentiva' ),
-			'failed'               => __( 'Failed', 'mhm-rentiva' ),
-			'pending_verification' => __( 'Pending Verification', 'mhm-rentiva' ),
-			'pending'              => __( 'Pending', 'mhm-rentiva' ),
-			'cancelled'            => __( 'Cancelled', 'mhm-rentiva' ),
-			'processing'           => __( 'Processing', 'mhm-rentiva' ),
-			'on-hold'              => __( 'On Hold', 'mhm-rentiva' ),
-			'completed'            => __( 'Paid', 'mhm-rentiva' ),
-		);
-
-		return $labels[ $status ] ?? ucfirst( $status );
 	}
 
 	/**

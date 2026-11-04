@@ -272,8 +272,11 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		// Payment status
 		echo '<div class="payment-status-section">';
 		echo '<h4>' . esc_html__( 'Payment Status', 'mhm-rentiva' ) . '</h4>';
-		echo '<div class="payment-status-indicator ' . esc_attr( $payment_status ?: 'unpaid' ) . '">';
-		echo esc_html( self::get_payment_status_label( $payment_status ?: 'unpaid' ) );
+		// Shown from the derived payment view (PaymentView); the raw status
+		// above still drives the actions below.
+		$payment_view = \MHMRentiva\Admin\Booking\Core\PaymentView::status( $post->ID );
+		echo '<div class="payment-status-indicator ' . esc_attr( $payment_view ) . '">';
+		echo esc_html( \MHMRentiva\Admin\Booking\Core\PaymentView::label( $payment_view ) );
 		echo '</div>';
 		echo '</div>';
 
@@ -449,21 +452,6 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		// Reading mhmrentiva_currency_position here pinned this to `right_space`
 		// whenever that option was unset, which is its normal state.
 		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $price, 2 );
-	}
-
-	private static function get_payment_status_label( string $status ): string {
-		$labels = array(
-			'unpaid'               => __( 'Unpaid', 'mhm-rentiva' ),
-			'pending'              => __( 'Pending', 'mhm-rentiva' ),
-			'paid'                 => __( 'Paid', 'mhm-rentiva' ),
-			'refunded'             => __( 'Refunded', 'mhm-rentiva' ),
-			'failed'               => __( 'Failed', 'mhm-rentiva' ),
-			'processing'           => __( 'Processing', 'mhm-rentiva' ),
-			'partially_paid'       => __( 'Partially Paid', 'mhm-rentiva' ),
-			'pending_verification' => __( 'Pending Verification', 'mhm-rentiva' ),
-		);
-
-		return $labels[ $status ] ?? ucfirst( $status );
 	}
 
 	/**
