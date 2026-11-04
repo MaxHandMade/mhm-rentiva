@@ -14,6 +14,37 @@ use WP_UnitTestCase;
  */
 final class SetupWizardSystemStepTest extends WP_UnitTestCase
 {
+	/** @return array<string, array<string, string>> label => check */
+	private function checks(): array
+	{
+		$method = new \ReflectionMethod(SetupWizard::class, 'get_system_checks');
+		$method->setAccessible(true);
+		$out = array();
+		foreach ($method->invoke(null) as $check) {
+			$out[ (string) $check['label'] ] = $check;
+		}
+		return $out;
+	}
+
+	/**
+	 * The wizard said PHP 7.4+ and WordPress 6.0+ were fine while the plugin
+	 * required 8.1 and 6.7, then 7.0 (Fable, Lite #163). The minimums now come
+	 * from the plugin header, the one place WordPress itself enforces.
+	 */
+	public function test_minimum_versions_follow_the_plugin_header(): void
+	{
+		$header = get_file_data(MHMRENTIVA_PLUGIN_FILE, array(
+			'wp'  => 'Requires at least',
+			'php' => 'Requires PHP',
+		));
+		$checks = $this->checks();
+
+		$this->assertSame($header['php'] . '+', $checks['PHP Version']['expected']);
+		$this->assertSame($header['wp'] . '+', $checks['WordPress Version']['expected']);
+		$this->assertSame('7.0', $header['wp']);
+		$this->assertSame('8.1', $header['php']);
+	}
+
 	private function note(string $message): string
 	{
 		$method = new \ReflectionMethod(SetupWizard::class, 'render_check_note');

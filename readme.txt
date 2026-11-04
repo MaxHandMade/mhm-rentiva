@@ -200,6 +200,7 @@ ordinary visitors can also send re-opens the bypass this default closes.
 WordPress.org renders at most 5,000 characters of this section, so only the releases published since the version currently in the directory are repeated here. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json, 6.0.0's breaking-change notice among them.
 
 = 6.4.0 =
+* Changed: requires WordPress 7.0 or newer (was 6.7); current WooCommerce requires 7.0 as well.
 * Changed: the new front-end pages use the Plus Jakarta Sans typeface, served from your own site.
 * New: a redesigned search and results page. The search strip is one row (pickup location, pickup, return) and opens on tomorrow to three days later. Results have a filter column with a new Category filter, removable filter chips, a line with the dates and number of days, and page buttons that keep your filters. On phones the filters open in a drawer.
 * New: a redesigned vehicle card on grids, lists, featured vehicles, search results and My Account > Favorites. With search dates it shows the total for the whole rental, required add-ons included, and the price per day; it lists the deposit and the free-cancellation window.
@@ -220,7 +221,7 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 * Note for themes: a theme that overrides templates/account/*.php keeps its old markup and may look unstyled, because the old account stylesheets no longer load on these pages. A theme that overrides WooCommerce's myaccount/dashboard.php keeps its own.
 * Changed: My bookings is split into Upcoming, Past and Cancelled, each with its count, and becomes one card per booking on phones. The menu shows the number of upcoming bookings and saved vehicles. The old filter box and search field are gone; links that carry their values still narrow the list. My favorites uses the same layout.
 * Changed: My bookings is ordered within each section: Upcoming soonest pickup first, Past and Cancelled latest first. Saved blocks and widgets that used the old default order follow it too. The new "Automatic" order option is the default; an order chosen explicitly still applies.
-* Removed: the dashboard no longer reads the unregistered options mhmrentiva_customer_dashboard_welcome, mhmrentiva_customer_favorites and mhmrentiva_customer_booking_history. No settings screen wrote them; a value set by hand has no effect any more.
+* Removed: three unregistered dashboard options no settings screen wrote are no longer read.
 
 = 6.3.1 =
 * Fixed: pages built with Elementor are found, so "Book now" buttons and other links no longer fall back to the home page and Shortcode Pages no longer lists them as missing. A page with the shortcode or block in its content still wins. On Elementor sites whose vehicle-details page is now found, vehicle pages move under that page, with a 301 from /vehicle/...
@@ -229,7 +230,7 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 == Upgrade Notice ==
 
 = 6.4.0 =
-New search, results and vehicle card design. Taxes now come only from WooCommerce > Settings > Tax (Rentiva's own tax settings are removed), and seasonal prices are charged as shown. Rentiva Pro 6.4.0 works with this release.
+Requires WordPress 7.0. New search, results and vehicle card design. Taxes now come only from WooCommerce > Settings > Tax (Rentiva's own tax settings are removed), and seasonal prices are charged as shown. Rentiva Pro 6.4.0 works with this release.
 
 = 6.3.1 =
 Elementor-built pages are found: "Book now" buttons open your booking page again. On Elementor sites the vehicle pages may move under your vehicle-details page (old addresses redirect).

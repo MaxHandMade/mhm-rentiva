@@ -6,6 +6,7 @@
     "title": "A new search, results page and vehicle card, and a booking quote that equals the charge",
     "summary": "6.4.0 redesigns the pages a visitor sees first and makes the price on screen the price charged. The search strip, the results page and the vehicle card follow the new front-end design, with a category filter, filter chips, a comparison bar and a filter drawer on phones; with search dates every card shows the total for the rental. The booking form quotes exactly what WooCommerce charges: seasonal pricing now reaches the payment, and taxes come only from WooCommerce. One database step rebuilds Elementor's generated CSS. Rentiva Pro 6.4.0 works with this release.",
     "changes": [
+      "Changed: Rentiva requires WordPress 7.0 or newer (was 6.7). Measured: the test suite was not green on WordPress 6.7 or 6.9, and the current WooCommerce requires 7.0 as well. Sites on an older WordPress keep 6.3.1 until they update WordPress.",
       "New: the search strip is one row: pickup location, pickup date and time, return date (the return time follows the pickup time) and Search, with visible labels. It opens on the visitor's search, or tomorrow 10:00 to three days later (longer if the minimum rental is longer) when dates are required.",
       "New: the results page has a filter column with a Category filter, removable chips for active filters, a line with the number of vehicles, the dates and the number of days, sorting by total price when dates are set, a grid/list switch and page buttons. Changing a filter, the sort or the page keeps the dates and every filter.",
       "New: on phones the results page shows a summary card with a \"Change\" link and opens the filters in a full-screen drawer that works with the keyboard.",
@@ -33,7 +34,8 @@
       "Changed: My bookings is split into Upcoming, Past and Cancelled (each with its count; the section is in the address as mhmrentiva_view), shows two full dates and the booking number customers see in e-mails, and becomes one card per booking on phones. The menu shows the number of upcoming bookings and saved vehicles. The old filter box and search field are gone; links that carry their values still narrow the list. My favorites uses the same layout.",
       "Changed: My bookings is ordered within each section: Upcoming soonest pickup first, Past and Cancelled latest first. Saved blocks and widgets that used the old default order follow it too. The new \"Automatic\" order option is the default; an order chosen explicitly still applies.",
       "Removed: the dashboard no longer reads the unregistered options mhmrentiva_customer_dashboard_welcome, mhmrentiva_customer_favorites and mhmrentiva_customer_booking_history. No settings screen wrote them; a value set by hand has no effect any more.",
-      "Changed: the new front-end pages use the Plus Jakarta Sans typeface, served from your own site (the same font file the admin screens already used). The unused Source Serif 4 font files are no longer shipped."
+      "Changed: the new front-end pages use the Plus Jakarta Sans typeface, served from your own site (the same font file the admin screens already used). The unused Source Serif 4 font files are no longer shipped.",
+      "Fixed: on WordPress 7.0 the comparison table's scrolling area can be reached with the keyboard again (it lost its tabindex in the late HTML filter)."
     ]
   },
   {
