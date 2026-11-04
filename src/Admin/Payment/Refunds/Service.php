@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Booking\Core\PaymentView;
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Emails\Notifications\RefundNotifications;
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger as Logger;
@@ -76,37 +77,44 @@ final class Service {
 			);
 		}
 
-		return self::withLock(
-			$bookingId,
-			static function () use ( $bookingId, $amountKurus, $reason, $surface ): array {
-				// The flag goes up before validation, not after. Validation resolves a
-				// PaymentState and touches WooCommerce objects, so it is part of the
-				// operation this booking owns; a throw there has to unwind the flag
-				// exactly like a throw in the refund loop. Raising it after validation
-				// leaves a window the finally block does not cover.
-				self::$inFlight[ $bookingId ] = true;
+		// Payment-history scope (PaymentView) around the locked refund; the
+		// WooCommerce refund hook it fires stays inside (one row).
+		$scope = PaymentView::begin( $bookingId );
+		try {
+			return self::withLock(
+				$bookingId,
+				static function () use ( $bookingId, $amountKurus, $reason, $surface ): array {
+					// The flag goes up before validation, not after. Validation resolves a
+					// PaymentState and touches WooCommerce objects, so it is part of the
+					// operation this booking owns; a throw there has to unwind the flag
+					// exactly like a throw in the refund loop. Raising it after validation
+					// leaves a window the finally block does not cover.
+					self::$inFlight[ $bookingId ] = true;
 
-				try {
-					$validation = RefundValidator::validatePartialRefund( $bookingId, $amountKurus );
+					try {
+						$validation = RefundValidator::validatePartialRefund( $bookingId, $amountKurus );
 
-					if ( ! $validation['valid'] ) {
-						self::closeRefusedByValidator( $bookingId, $validation['message'], $surface );
+						if ( ! $validation['valid'] ) {
+							self::closeRefusedByValidator( $bookingId, $validation['message'], $surface );
 
-						return array(
-							'mhmrentiva_refund'     => '0',
-							'mhmrentiva_refund_msg' => $validation['message'],
-						);
+							return array(
+								'mhmrentiva_refund'     => '0',
+								'mhmrentiva_refund_msg' => $validation['message'],
+							);
+						}
+
+						$operation = self::runOperation( $bookingId, $validation['amount'], $reason, $surface );
+					} finally {
+						unset( self::$inFlight[ $bookingId ] );
 					}
 
-					$operation = self::runOperation( $bookingId, $validation['amount'], $reason, $surface );
-				} finally {
-					unset( self::$inFlight[ $bookingId ] );
-				}
-
-				return self::finish( $bookingId, $operation, $reason, $surface );
-			},
-			$surface
-		);
+					return self::finish( $bookingId, $operation, $reason, $surface );
+				},
+				$surface
+			);
+		} finally {
+			PaymentView::end( $scope );
+		}
 	}
 
 	public static function processFullRefund( int $bookingId, string $reason, int $actorId, string $surface = '' ): array {
@@ -122,32 +130,39 @@ final class Service {
 			);
 		}
 
-		return self::withLock(
-			$bookingId,
-			static function () use ( $bookingId, $reason, $surface ): array {
-				self::$inFlight[ $bookingId ] = true;
+		// Payment-history scope (PaymentView) around the locked refund; the
+		// WooCommerce refund hook it fires stays inside (one row).
+		$scope = PaymentView::begin( $bookingId );
+		try {
+			return self::withLock(
+				$bookingId,
+				static function () use ( $bookingId, $reason, $surface ): array {
+					self::$inFlight[ $bookingId ] = true;
 
-				try {
-					$validation = RefundValidator::validateFullRefund( $bookingId );
+					try {
+						$validation = RefundValidator::validateFullRefund( $bookingId );
 
-					if ( ! $validation['valid'] ) {
-						self::closeRefusedByValidator( $bookingId, $validation['message'], $surface );
+						if ( ! $validation['valid'] ) {
+							self::closeRefusedByValidator( $bookingId, $validation['message'], $surface );
 
-						return array(
-							'mhmrentiva_refund'     => '0',
-							'mhmrentiva_refund_msg' => $validation['message'],
-						);
+							return array(
+								'mhmrentiva_refund'     => '0',
+								'mhmrentiva_refund_msg' => $validation['message'],
+							);
+						}
+
+						$operation = self::runOperation( $bookingId, $validation['amount'], $reason, $surface );
+					} finally {
+						unset( self::$inFlight[ $bookingId ] );
 					}
 
-					$operation = self::runOperation( $bookingId, $validation['amount'], $reason, $surface );
-				} finally {
-					unset( self::$inFlight[ $bookingId ] );
-				}
-
-				return self::finish( $bookingId, $operation, $reason, $surface );
-			},
-			$surface
-		);
+					return self::finish( $bookingId, $operation, $reason, $surface );
+				},
+				$surface
+			);
+		} finally {
+			PaymentView::end( $scope );
+		}
 	}
 
 	/**

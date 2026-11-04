@@ -4074,6 +4074,27 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
+		// Payment-history scope (PaymentView): the refund's meta writes below
+		// run inside it; the body is its own method so every early return
+		// still closes the scope.
+		$scope = PaymentView::begin($booking_id);
+		try {
+			self::apply_order_refund_to_booking($refund_id, $args, $order, $order_id, $booking_id);
+		} finally {
+			PaymentView::end($scope);
+		}
+	}
+
+	/**
+	 * The booking half of handle_order_refunded(), unchanged, inside the
+	 * caller's payment scope.
+	 *
+	 * @param array<string, mixed> $args
+	 * @param \WC_Order            $order
+	 * @param int|string           $order_id
+	 */
+	private static function apply_order_refund_to_booking(int $refund_id, array $args, $order, $order_id, int $booking_id): void
+	{
 		$currency = $order->get_currency();
 
 		// Kept only for the activity-log entry below, which records what THIS
