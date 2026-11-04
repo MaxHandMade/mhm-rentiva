@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-11-04T03:35:30+00:00\n"
+"POT-Creation-Date: 2026-11-04T07:38:11+00:00\n"
 "PO-Revision-Date: 2026-10-24 18:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -362,7 +362,7 @@ msgid "Contact Form"
 msgstr "İletişim formu"
 
 #: src/Admin/About/Tabs/SupportTab.php:121
-#: src/Admin/Booking/Meta/BookingMeta.php:696
+#: src/Admin/Booking/Meta/BookingMeta.php:707
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:55
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:93
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:1005
@@ -575,7 +575,7 @@ msgstr ""
 "alınamaz."
 
 #: src/Admin/Addons/AddonListTable.php:82 src/Admin/Addons/AddonManager.php:281
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:118
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:123
 #: src/Admin/Core/AssetManager.php:1209 src/Admin/Core/AssetManager.php:1698
 #: src/Admin/Emails/Core/EmailTemplates.php:562
 #: src/Admin/Frontend/Account/AccountController.php:289
@@ -601,7 +601,7 @@ msgid "Error updating price"
 msgstr "Fiyat güncellenirken hata oluştu"
 
 #: src/Admin/Addons/AddonListTable.php:88 src/Admin/Addons/AddonManager.php:287
-#: src/Admin/Booking/Meta/BookingMeta.php:193
+#: src/Admin/Booking/Meta/BookingMeta.php:204
 #: src/Admin/Frontend/Account/AccountController.php:298
 msgid "Unknown error"
 msgstr "Bilinmeyen hata"
@@ -670,14 +670,13 @@ msgstr "\"%s\" ek hizmeti gereklidir."
 #: src/Admin/Addons/AddonScreen.php:372 src/Admin/Addons/AddonScreen.php:471
 #: src/Admin/Addons/AddonScreen.php:509
 #: src/Admin/Booking/Actions/BookingActionGuard.php:76
-#: src/Admin/Booking/Meta/BookingMeta.php:743
-#: src/Admin/Booking/Meta/BookingMeta.php:1034
-#: src/Admin/Booking/Meta/BookingMeta.php:1783
-#: src/Admin/Booking/Meta/BookingMeta.php:1832
-#: src/Admin/Booking/Meta/BookingMeta.php:1916
+#: src/Admin/Booking/Meta/BookingMeta.php:754
+#: src/Admin/Booking/Meta/BookingMeta.php:1687
+#: src/Admin/Booking/Meta/BookingMeta.php:1736
+#: src/Admin/Booking/Meta/BookingMeta.php:1820
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:124
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:742
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:850
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:771
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:879
 #: src/Admin/Core/SecurityHelper.php:140
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:36
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:133
@@ -688,7 +687,7 @@ msgstr "\"%s\" ek hizmeti gereklidir."
 #: src/Admin/Frontend/Account/AccountController.php:927
 #: src/Admin/Frontend/Account/AccountController.php:1069
 #: src/Admin/Frontend/Account/AccountController.php:1130
-#: src/Admin/Frontend/Account/AccountController.php:1247
+#: src/Admin/Frontend/Account/AccountController.php:1248
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:125
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1090
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1465
@@ -756,7 +755,7 @@ msgstr "Fiyat başarıyla güncellendi."
 #: src/Admin/Addons/AddonMenu.php:87 src/Admin/Addons/AddonPostType.php:59
 #: src/Admin/Addons/AddonScreen.php:598
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:267
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:628
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:657
 #: src/Admin/Utilities/Menu/Menu.php:105 src/Admin/Utilities/Menu/Menu.php:106
 #: templates/shortcodes/booking-form.php:139
 #: src-react/admin/dashboard/components/QuickActions.jsx:19
@@ -816,8 +815,8 @@ msgstr "Ek hizmet ayarları"
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1775
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:39
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:165
-#: src-react/admin/customers/components/CustomerTable.jsx:25
-#: src-react/admin/customers/CustomersPage.jsx:13
+#: src-react/admin/customers/components/CustomerTable.jsx:29
+#: src-react/admin/customers/CustomersPage.jsx:15
 #: src-react/admin/shortcode-pages/components/StatsBar.jsx:11
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:7
 msgid "Active"
@@ -832,12 +831,12 @@ msgid "Only active additional services are visible in booking form."
 msgstr "Sadece aktif ek hizmetler rezervasyon formunda görünür."
 
 #: src/Admin/Addons/AddonMeta.php:144
-#: src/Admin/Customers/AddCustomerPage.php:146
-#: src/Admin/Customers/AddCustomerPage.php:151
-#: src/Admin/Customers/AddCustomerPage.php:156
-#: src/Admin/Customers/CustomersPage.php:556
-#: src/Admin/Customers/CustomersPage.php:561
-#: src/Admin/Customers/CustomersPage.php:566
+#: src/Admin/Customers/AddCustomerPage.php:150
+#: src/Admin/Customers/AddCustomerPage.php:155
+#: src/Admin/Customers/AddCustomerPage.php:160
+#: src/Admin/Customers/CustomersPage.php:559
+#: src/Admin/Customers/CustomersPage.php:564
+#: src/Admin/Customers/CustomersPage.php:569
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:353
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:358
 #: src/Admin/Setup/SetupWizard.php:1090
@@ -909,7 +908,7 @@ msgstr "“%s” çöpe taşınsın mı?"
 #. translators: %d: number of selected services.
 #. translators: %d = number of selected customers.
 #: src/Admin/Addons/AddonScreen.php:124
-#: src-react/admin/customers/CustomersPage.jsx:136
+#: src-react/admin/customers/CustomersPage.jsx:128
 #, php-format
 msgid "%d selected"
 msgid_plural "%d selected"
@@ -1064,7 +1063,7 @@ msgstr "%s hizmetini sil"
 #: src/Admin/Booking/Helpers/CancellationHandler.php:107
 #: src/Admin/Frontend/Account/AccountController.php:764
 #: src/Admin/Frontend/Account/AccountController.php:1076
-#: src/Admin/Frontend/Account/AccountController.php:1306
+#: src/Admin/Frontend/Account/AccountController.php:1307
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4358
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4417
 msgid "Invalid booking ID."
@@ -1072,11 +1071,10 @@ msgstr "Geçersiz rezervasyon kimliği."
 
 #: src/Admin/Booking/Actions/BookingActionGuard.php:88
 #: src/Admin/Booking/Actions/BookingApproveAjax.php:77
-#: src/Admin/Booking/Meta/BookingMeta.php:761
-#: src/Admin/Booking/Meta/BookingMeta.php:1052
-#: src/Admin/Booking/Meta/BookingMeta.php:1805
-#: src/Admin/Booking/Meta/BookingMeta.php:1854
-#: src/Admin/Booking/Meta/BookingMeta.php:1938
+#: src/Admin/Booking/Meta/BookingMeta.php:772
+#: src/Admin/Booking/Meta/BookingMeta.php:1709
+#: src/Admin/Booking/Meta/BookingMeta.php:1758
+#: src/Admin/Booking/Meta/BookingMeta.php:1842
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:141
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:49
 #: src/Admin/Emails/Templates/EmailPreview.php:109
@@ -1240,9 +1238,9 @@ msgstr "Bekleyen ödeme"
 #: src/Admin/Booking/Core/Status.php:124
 #: src/Admin/Booking/ListTable/BookingColumns.php:1087
 #: src/Admin/Booking/ListTable/BookingColumns.php:1193
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:484
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:457
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:256
-#: src/Admin/Booking/Meta/BookingMeta.php:1638
+#: src/Admin/Booking/Meta/BookingMeta.php:1571
 #: src/Admin/Core/AssetManager.php:1226
 #: src/Admin/Emails/Core/EmailTemplates.php:504
 #: src/Admin/Emails/Notifications/BookingNotifications.php:207
@@ -1261,7 +1259,7 @@ msgstr "Bekleyen"
 
 #: src/Admin/Booking/Core/Status.php:125
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:257
-#: src/Admin/Booking/Meta/BookingMeta.php:1639
+#: src/Admin/Booking/Meta/BookingMeta.php:1572
 #: src/Admin/Core/AssetManager.php:1227
 #: src/Admin/Emails/Core/EmailTemplates.php:505
 #: src/Admin/Emails/Notifications/BookingNotifications.php:208
@@ -1276,7 +1274,7 @@ msgstr "Onaylandı"
 
 #: src/Admin/Booking/Core/Status.php:126
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:258
-#: src/Admin/Booking/Meta/BookingMeta.php:1640
+#: src/Admin/Booking/Meta/BookingMeta.php:1573
 #: src/Admin/Core/AssetManager.php:1228
 #: src/Admin/Emails/Notifications/BookingNotifications.php:209
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:81
@@ -1288,7 +1286,7 @@ msgstr "Devam ediyor"
 #: src/Admin/Booking/Core/Status.php:127
 #: src/Admin/Booking/ListTable/BookingColumns.php:1206
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:259
-#: src/Admin/Booking/Meta/BookingMeta.php:1641
+#: src/Admin/Booking/Meta/BookingMeta.php:1574
 #: src/Admin/Core/AssetManager.php:1229
 #: src/Admin/Emails/Notifications/BookingNotifications.php:210
 #: src/Admin/Frontend/Account/AccountRenderer.php:935
@@ -1308,7 +1306,7 @@ msgstr "Tamamlandı"
 #: src/Admin/Booking/Core/Status.php:128
 #: src/Admin/Booking/ListTable/BookingColumns.php:1088
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:260
-#: src/Admin/Booking/Meta/BookingMeta.php:1642
+#: src/Admin/Booking/Meta/BookingMeta.php:1575
 #: src/Admin/Core/AssetManager.php:1230
 #: src/Admin/Emails/Notifications/BookingNotifications.php:211
 #: src/Admin/Emails/Templates/EmailPreview.php:231
@@ -1326,8 +1324,7 @@ msgstr "İptal edildi"
 
 #: src/Admin/Booking/Core/Status.php:129
 #: src/Admin/Booking/ListTable/BookingColumns.php:1084
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:486
-#: src/Admin/Booking/Meta/BookingMeta.php:1680
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:459
 #: templates/emails/booking-created-admin.html.php:68
 msgid "Refunded"
 msgstr "İade edildi"
@@ -1455,7 +1452,7 @@ msgid "[ADMIN] Booking Cancelled - #%d"
 msgstr "[ADMIN] Rezervasyon iptal edildi - #%d"
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:678
-#: src/Admin/Booking/Meta/BookingMeta.php:712
+#: src/Admin/Booking/Meta/BookingMeta.php:723
 msgid "Booking Cancelled"
 msgstr "Rezervasyon iptal edildi"
 
@@ -1488,8 +1485,8 @@ msgid "Booking ID:"
 msgstr "Rezervasyon kimliği:"
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:686
-#: src/Admin/Booking/Meta/BookingMeta.php:396
-#: src/Admin/Booking/Meta/BookingMeta.php:472
+#: src/Admin/Booking/Meta/BookingMeta.php:407
+#: src/Admin/Booking/Meta/BookingMeta.php:483
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:1017
 #: src/Admin/Settings/Groups/EmailSettings.php:134
 #: src/Admin/Settings/Groups/EmailSettings.php:178
@@ -1712,7 +1709,7 @@ msgstr ""
 "deneyin."
 
 #: src/Admin/Booking/Helpers/Util.php:264
-#: src/Admin/Booking/Meta/BookingMeta.php:1759
+#: src/Admin/Booking/Meta/BookingMeta.php:1663
 msgid ""
 "This vehicle is not available for rental. Please select another vehicle."
 msgstr "Bu araç kiralanamaz. Lütfen başka bir araç seçin."
@@ -1757,11 +1754,11 @@ msgstr "Onayla"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:274
 #: src/Admin/Booking/ListTable/BookingColumns.php:384
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:503
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:532
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:709 src/Plugin.php:1157
 #: templates/account/booking-summary.php:59
 #: templates/admin/partials/booking-popup.php:52
-#: src-react/admin/customers/components/CustomerTable.jsx:5
+#: src-react/admin/customers/components/CustomerTable.jsx:9
 #: src-react/admin/dashboard/components/RecentBookings.jsx:62
 msgid "Customer"
 msgstr "Müşteri"
@@ -1805,13 +1802,13 @@ msgid "Total"
 msgstr "Toplam"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:280
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:240
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:242
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:340
 msgid "Deposit Amount"
 msgstr "Kapora tutarı"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:281
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:246
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:248
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:341
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:536
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:607
@@ -1827,16 +1824,16 @@ msgstr "Ödeme"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:283
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:254
-#: src/Admin/Booking/Meta/BookingMeta.php:349
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:694
+#: src/Admin/Booking/Meta/BookingMeta.php:360
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:723
 #: src/Admin/Setup/SetupWizard.php:235 src/Admin/Setup/SetupWizard.php:277
 #: src/Admin/Setup/SetupWizard.php:546
 #: src/Admin/Utilities/ListTable/LogColumns.php:76
 #: src/Admin/Utilities/ListTable/LogColumns.php:145
 #: templates/account/payment-history.php:72
 #: templates/partials/rvs/account-bookings.php:58
-#: src-react/admin/contact-messages/components/ContactTable.jsx:55
-#: src-react/admin/customers/components/CustomerTable.jsx:86
+#: src-react/admin/contact-messages/components/ContactTable.jsx:68
+#: src-react/admin/customers/components/CustomerTable.jsx:82
 #: src-react/admin/dashboard/components/RecentBookings.jsx:65
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:15
 msgid "Status"
@@ -1905,16 +1902,14 @@ msgstr[1] "%d gün"
 #: src/Admin/Booking/ListTable/BookingColumns.php:553
 #: src/Admin/Booking/ListTable/BookingColumns.php:1083
 #: src/Admin/Booking/ListTable/BookingColumns.php:1091
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:485
-#: src/Admin/Booking/Meta/BookingMeta.php:1678
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:458
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:94
 msgid "Paid"
 msgstr "Ödendi"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:576
 #: src/Admin/Booking/ListTable/BookingColumns.php:1082
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:483
-#: src/Admin/Booking/Meta/BookingMeta.php:1676
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:456
 msgid "Unpaid"
 msgstr "Ödenmemiş"
 
@@ -1956,8 +1951,8 @@ msgstr "Takvim"
 #: assets/blocks/my-bookings/index.js:37
 #: assets/blocks/payment-history/index.js:37
 #: assets/blocks/testimonials/index.js:52
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:140
-#: src-react/admin/customers/CustomersPage.jsx:12
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:144
+#: src-react/admin/customers/CustomersPage.jsx:14
 msgid "All"
 msgstr "Tümü"
 
@@ -1971,7 +1966,7 @@ msgid "All payment methods"
 msgstr "Tüm ödeme yöntemleri"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1085
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:487
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:460
 #: src/Admin/Emails/PostTypes/EmailLog.php:69
 #: templates/emails/booking-created-admin.html.php:66
 #: templates/emails/booking-created-customer.html.php:93
@@ -1979,13 +1974,12 @@ msgid "Failed"
 msgstr "Başarısız"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1086
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:490
-#: src/Admin/Booking/Meta/BookingMeta.php:1677
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:463
 msgid "Pending Verification"
 msgstr "Bekleyen doğrulama"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1089
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:488
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:461
 #: src/Admin/Settings/Groups/FrontendSettings.php:343
 #: templates/emails/refund-customer.html.php:34
 msgid "Processing"
@@ -1996,9 +1990,9 @@ msgid "On Hold"
 msgstr "Beklemede"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1102
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:226
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:228
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:93
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:686
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:715
 msgid "Offline"
 msgstr "Çevrim dışı"
 
@@ -2127,58 +2121,58 @@ msgstr "Rezervasyon #%d"
 msgid "Deposit Management"
 msgstr "Kapora yönetimi"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:110
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:115
 msgid "Do you confirm this action?"
 msgstr "Bu eylemi onaylıyor musunuz?"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:111
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:116
 msgid "Confirm receipt of remaining payment?"
 msgstr "Kalan ödemenin alındığını onaylıyor musunuz?"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:112
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:117
 msgid "Confirm receipt of deposit payment?"
 msgstr "Kapora ödemesinin alındığını onaylıyor musunuz?"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:113
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:118
 msgid "Are you sure you want to cancel this booking?"
 msgstr "Bu rezervasyonu iptal etmek istediğinize emin misiniz?"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:114
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:119
 msgid "Confirm this refund was handed over and is complete?"
 msgstr ""
 "Bu iadenin elden teslim edildiğini ve tamamlandığını onaylıyor musunuz?"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:115
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:120
 msgid "Cancel this booking and start the refund?"
 msgstr "Bu rezervasyonu iptal edip iadeyi başlatmak istiyor musunuz?"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:116
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:121
 msgid "Confirm no refund is due for this booking?"
 msgstr "Bu rezervasyon için iade yapılmayacağını onaylıyor musunuz?"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:117
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:122
 #: src/Admin/Core/AssetManager.php:1220
 msgid "Dismiss this notice"
 msgstr "Bu uyarıyı kapat"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:119
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:124
 msgid "Operation successful!"
 msgstr "İşlem başarıyla tamamlandı!"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:120
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:125
 #: src/Admin/Core/AssetManager.php:1501
 msgid "An error occurred!"
 msgstr "Bir hata oluştu!"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:121
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:126
 msgid "Copy Link"
 msgstr "Bağlantıyı kopyala"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:122
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:127
 msgid "Link copied to clipboard!"
 msgstr "Bağlantı panoya kopyalandı!"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:198
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:200
 msgid ""
 "This booking was created with the old system. Deposit system information is "
 "not available."
@@ -2186,17 +2180,17 @@ msgstr ""
 "Bu rezervasyon eski sistemle oluşturulmuştur. Kapora sistemi bilgileri "
 "mevcut değildir."
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:209
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:676
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:211
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:705
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:527
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:598
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:934
 msgid "Payment Type"
 msgstr "Ödeme türü"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:212
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:214
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:241
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:679
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:708
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:626
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:75
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:136
@@ -2210,9 +2204,9 @@ msgstr "Ödeme türü"
 msgid "Deposit"
 msgstr "Kapora"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:214
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:501
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:678
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:216
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:474
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:707
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:524
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:595
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:933
@@ -2223,133 +2217,133 @@ msgstr "Kapora"
 msgid "Full Payment"
 msgstr "Tam ödeme"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:221
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:684
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:223
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:713
 #: src/Admin/Utilities/ListTable/LogColumns.php:74
 #: templates/account/payment-history.php:70
 msgid "Payment Method"
 msgstr "Ödeme yöntemi"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:224
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:226
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:181
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:687
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:716
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:159
 msgid "Online"
 msgstr "Çevrim içi"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:233
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:235
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:339
 msgid "Total Amount"
 msgstr "Toplam tutar"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:255
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:257
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:236
 msgid "Rental Days"
 msgstr "Kiralama günleri"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:256
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:258
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:237
 #: templates/emails/booking-created-admin.html.php:50
 #: templates/emails/booking-created-customer.html.php:37
 msgid "days"
 msgstr "gün"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:263
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:265
 msgid "Deposit Type"
 msgstr "Kapora türü"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:272
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:274
 msgid "Payment Status"
 msgstr "Ödeme durumu"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:281
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:283
 msgid "Cancellation Policy"
 msgstr "İptal politikası"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:282
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:284
 msgid "Cancellation Deadline:"
 msgstr "İptal son tarihi:"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:287
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:289
 msgid "This booking can be cancelled."
 msgstr "Bu rezervasyon iptal edilebilir."
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:289
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:291
 msgid "Cancellation period expired."
 msgstr "İptal süresi doldu."
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:297
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:299
 msgid "Payment Deadline"
 msgstr "Ödeme son tarihi"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:298
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:300
 msgid "Deadline:"
 msgstr "Son tarih:"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:303
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:305
 msgid "Payment period expired. Booking can be cancelled."
 msgstr "Ödeme süresi doldu. Rezervasyon iptal edilebilir."
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:319
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:321
 msgid "Deposit History"
 msgstr "Kapora geçmişi"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:327
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:329
 msgid "Booking Created"
 msgstr "Rezervasyon oluşturuldu"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:328
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:330
 msgid "Booking successfully created and deposit information saved."
 msgstr "Rezervasyon başarıyla oluşturuldu ve kapora bilgileri kaydedildi."
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:339
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:341
 msgid "Payment Received"
 msgstr "Ödeme alındı"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:340
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:342
 msgid "Deposit payment successfully received."
 msgstr "Kapora ödemesi başarıyla alındı."
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:347
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:349
 #: templates/emails/booking-created-admin.html.php:64
 msgid "Payment Pending"
 msgstr "Bekleyen ödeme"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:348
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:350
 msgid "Deposit payment not yet received."
 msgstr "Kapora ödemesi henüz alınmadı."
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:358
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:360
 msgid "Remaining Amount Payment"
 msgstr "Kalan tutar ödemesi"
 
 #. translators: %s: formatted price
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:360
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:362
 #, php-format
 msgid "Remaining amount: %s"
 msgstr "Kalan tutar: %s"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:366
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:368
 msgid "All Payments Completed"
 msgstr "Tüm ödemeler tamamlandı"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:367
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:369
 msgid "Deposit and remaining amount payments completed."
 msgstr "Kapora ve kalan tutar ödemeleri tamamlandı."
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:385
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:387
 msgid "Mark Payment Received"
 msgstr "Ödeme alındı olarak işaretle"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:393
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:395
 msgid "Process Remaining Amount"
 msgstr "Kalan tutarı işle"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:399
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:401
 msgid "Send Payment Link"
 msgstr "Ödeme bağlantısı gönder"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:402
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:404
 msgid ""
 "The deposit was paid outside WooCommerce, so no payment link can be sent for "
 "the remaining balance; use \"Process Remaining Amount\" instead to record it "
@@ -2359,34 +2353,33 @@ msgstr ""
 "gönderilemez; bunun yerine ödemeyi tahsil edilmiş olarak kaydetmek için "
 "\"Kalan tutarı işle\" düğmesini kullanın."
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:427
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:429
 #: src/Admin/Settings/Groups/FrontendSettings.php:323
 msgid "Cancel Booking"
 msgstr "Rezervasyonu iptal et"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:437
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:439
 msgid "Process Refund"
 msgstr "İadeyi işle"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:489
-#: src/Admin/Booking/Meta/BookingMeta.php:1679
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:462
 msgid "Partially Paid"
 msgstr "Kısmen ödendi"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:502
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:475
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:186
 msgid "Percentage"
 msgstr "Yüzde"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:503
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:476
 msgid "Fixed Amount"
 msgstr "Sabit tutar"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:504
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:477
 msgid "Both"
 msgstr "Her ikisi de"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:505
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:478
 msgid "None"
 msgstr "Yok"
 
@@ -2436,7 +2429,7 @@ msgid "Manual"
 msgstr "Manuel"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:204
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:488
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:517
 #: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:426
 #: src/Admin/Settings/Groups/FrontendSettings.php:381
 #: templates/shortcodes/booking-form.php:73
@@ -2444,8 +2437,8 @@ msgid "Select Vehicle"
 msgstr "Araç seç"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:221
-#: src/Admin/Booking/Meta/BookingMeta.php:385
-#: src/Admin/Booking/Meta/BookingMeta.php:432
+#: src/Admin/Booking/Meta/BookingMeta.php:396
+#: src/Admin/Booking/Meta/BookingMeta.php:443
 #: templates/admin/partials/booking-popup.php:34
 #: templates/emails/booking-status-changed-customer.html.php:28
 #: templates/emails/receipt-status-email.html.php:243
@@ -2453,35 +2446,35 @@ msgid "Booking Details"
 msgstr "Rezervasyon detayları"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:225
-#: src/Admin/Booking/Meta/BookingMeta.php:436
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:564
+#: src/Admin/Booking/Meta/BookingMeta.php:447
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:593
 #: templates/shortcodes/booking-form.php:97
 msgid "Pickup Date"
 msgstr "Araç teslim alma tarihi"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:230
-#: src/Admin/Booking/Meta/BookingMeta.php:441
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:569
+#: src/Admin/Booking/Meta/BookingMeta.php:452
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:598
 #: templates/shortcodes/booking-form.php:102
 msgid "Pickup Time"
 msgstr "Teslim alma saati"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:237
-#: src/Admin/Booking/Meta/BookingMeta.php:448
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:575
+#: src/Admin/Booking/Meta/BookingMeta.php:459
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:604
 #: templates/shortcodes/booking-form.php:114
 msgid "Return Date"
 msgstr "Araç dönüş tarihi"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:242
-#: src/Admin/Booking/Meta/BookingMeta.php:453
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:580
+#: src/Admin/Booking/Meta/BookingMeta.php:464
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:609
 #: templates/shortcodes/booking-form.php:119
 msgid "Return Time"
 msgstr "Araç dönüş saati"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:249
-#: src/Admin/Booking/Meta/BookingMeta.php:459
+#: src/Admin/Booking/Meta/BookingMeta.php:470
 msgid "Number of Guests"
 msgstr "Misafir sayısı"
 
@@ -2492,7 +2485,7 @@ msgid "%s (inactive)"
 msgstr "%s (pasif)"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:351
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:633
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:662
 msgid "Select the additional services needed for this booking."
 msgstr "Bu rezervasyon için gerekli olan ek hizmetleri seçin."
 
@@ -2502,13 +2495,13 @@ msgstr "Adet"
 
 #. translators: %s: additional service name.
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:390
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:647
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:676
 #, php-format
 msgid "Quantity: %s"
 msgstr "Adet: %s"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:400
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:657
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:686
 msgid "Additional Services Total:"
 msgstr "Ek hizmetler toplamı:"
 
@@ -2541,76 +2534,98 @@ msgstr "Rezervasyon - %s"
 msgid "Booking Status"
 msgstr "Rezervasyon durumu"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:142
+#: src/Admin/Booking/Meta/BookingMeta.php:138
 msgid "Send Email to Customer"
 msgstr "Müşteriye e-posta gönder"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:152
+#: src/Admin/Booking/Meta/BookingMeta.php:148
 msgid "Payment Receipt"
 msgstr "Ödeme makbuzu"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:186
+#: src/Admin/Booking/Meta/BookingMeta.php:158
+msgid "Booking History"
+msgstr "Rezervasyon geçmişi"
+
+#: src/Admin/Booking/Meta/BookingMeta.php:192
 msgid "Create a WordPress account for this customer?"
 msgstr "Bu müşteri için bir WordPress hesabı oluşturmak ister misiniz?"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:187
+#: src/Admin/Booking/Meta/BookingMeta.php:193
 msgid "Proceed with refund?"
 msgstr "İade işlemine devam etmek ister misiniz?"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:190
+#: src/Admin/Booking/Meta/BookingMeta.php:196
+msgid "Please enter a note."
+msgstr "Bir not girin."
+
+#: src/Admin/Booking/Meta/BookingMeta.php:197
+msgid "Note added."
+msgstr "Not eklendi."
+
+#. translators: %s: the error message the server returned.
+#: src/Admin/Booking/Meta/BookingMeta.php:199
+#, php-format
+msgid "Error: %s"
+msgstr "Hata: %s"
+
+#: src/Admin/Booking/Meta/BookingMeta.php:200
+msgid "The note could not be added."
+msgstr "Not eklenemedi."
+
+#: src/Admin/Booking/Meta/BookingMeta.php:201
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:690
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:137
 msgid "Sending..."
 msgstr "Gönderiliyor..."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:191
-#: src/Admin/Booking/Meta/BookingMeta.php:1750
-#: src/Admin/Booking/Meta/BookingMeta.php:1902
+#: src/Admin/Booking/Meta/BookingMeta.php:202
+#: src/Admin/Booking/Meta/BookingMeta.php:1657
+#: src/Admin/Booking/Meta/BookingMeta.php:1806
 msgid "Email sent successfully!"
 msgstr "E-posta başarıyla gönderildi!"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:192
+#: src/Admin/Booking/Meta/BookingMeta.php:203
 #: src/Admin/Core/AssetManager.php:1500
 msgid "Error:"
 msgstr "Hata:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:194
+#: src/Admin/Booking/Meta/BookingMeta.php:205
 msgid "An error occurred:"
 msgstr "Hata oluştu:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:195
+#: src/Admin/Booking/Meta/BookingMeta.php:206
 msgid "Loading template..."
 msgstr "Şablon yükleniyor..."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:217
+#: src/Admin/Booking/Meta/BookingMeta.php:228
 #: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:464
 msgid "Submitted"
 msgstr "Gönderildi"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:218
+#: src/Admin/Booking/Meta/BookingMeta.php:229
 msgid "Approved"
 msgstr "Onaylandı"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:219
+#: src/Admin/Booking/Meta/BookingMeta.php:230
 msgid "Rejected"
 msgstr "Reddedildi"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:252
+#: src/Admin/Booking/Meta/BookingMeta.php:263
 #: templates/admin/booking-meta/receipt-box.php:24
 msgid "Receipt file:"
 msgstr "Makbuz dosyası:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:253
+#: src/Admin/Booking/Meta/BookingMeta.php:264
 #: templates/admin/booking-meta/receipt-box.php:26
 msgid "View / Download"
 msgstr "Görüntüle / indir"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:255
+#: src/Admin/Booking/Meta/BookingMeta.php:266
 #: templates/admin/booking-meta/receipt-box.php:30
 msgid "No receipt uploaded."
 msgstr "Makbuz yüklenmedi."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:258
+#: src/Admin/Booking/Meta/BookingMeta.php:269
 #: src/Admin/Settings/Groups/EmailSettings.php:237
 #: templates/admin/booking-meta/receipt-box.php:34
 #: templates/emails/receipt-status-email.html.php:249
@@ -2619,36 +2634,36 @@ msgstr "Makbuz yüklenmedi."
 msgid "Status:"
 msgstr "Durum:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:259
-#: src/Admin/Booking/Meta/BookingMeta.php:356
+#: src/Admin/Booking/Meta/BookingMeta.php:270
+#: src/Admin/Booking/Meta/BookingMeta.php:367
 #: templates/admin/booking-meta/receipt-box.php:40
 #: templates/emails/receipt-status-email.html.php:259
 msgid "Admin Note"
 msgstr "Yönetici notu"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:262
+#: src/Admin/Booking/Meta/BookingMeta.php:273
 #: templates/admin/booking-meta/receipt-box.php:49
 msgid "Approve Receipt"
 msgstr "Makbuzu onayla"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:263
+#: src/Admin/Booking/Meta/BookingMeta.php:274
 #: templates/admin/booking-meta/receipt-box.php:52
 msgid "Reject Receipt"
 msgstr "Makbuzu reddet"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:296
-#: src/Admin/Booking/Meta/BookingMeta.php:341
+#: src/Admin/Booking/Meta/BookingMeta.php:307
+#: src/Admin/Booking/Meta/BookingMeta.php:352
 #: templates/emails/receipt-status-email.html.php:26
 msgid "Your payment receipt has been approved"
 msgstr "Ödeme makbuzunuz onaylandı"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:297
-#: src/Admin/Booking/Meta/BookingMeta.php:342
+#: src/Admin/Booking/Meta/BookingMeta.php:308
+#: src/Admin/Booking/Meta/BookingMeta.php:353
 #: templates/emails/receipt-status-email.html.php:27
 msgid "Your payment receipt has been rejected"
 msgstr "Ödeme makbuzunuz reddedildi"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:347
+#: src/Admin/Booking/Meta/BookingMeta.php:358
 #: src/Admin/Booking/PostType/Booking.php:23
 #: src/Admin/Core/ShortcodeServiceProvider.php:425
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:55
@@ -2661,7 +2676,7 @@ msgstr "Ödeme makbuzunuz reddedildi"
 msgid "Booking"
 msgstr "Rezervasyon"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:351
+#: src/Admin/Booking/Meta/BookingMeta.php:362
 #: src/Admin/Core/AssetManager.php:1564
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:250
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:447
@@ -2669,24 +2684,24 @@ msgstr "Rezervasyon"
 msgid "Details"
 msgstr "Detaylar"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:390
-#: src/Admin/Booking/Meta/BookingMeta.php:466
+#: src/Admin/Booking/Meta/BookingMeta.php:401
+#: src/Admin/Booking/Meta/BookingMeta.php:477
 msgid "Booking Summary"
 msgstr "Rezervasyon özeti"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:483
+#: src/Admin/Booking/Meta/BookingMeta.php:494
 msgid "Days:"
 msgstr "Gün sayısı:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:488
+#: src/Admin/Booking/Meta/BookingMeta.php:499
 msgid "Total:"
 msgstr "Toplam:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:687
+#: src/Admin/Booking/Meta/BookingMeta.php:698
 msgid "No customer email found."
 msgstr "Müşteri e-postası bulunamadı."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:695
+#: src/Admin/Booking/Meta/BookingMeta.php:706
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:52
 #: src/Admin/Settings/Groups/EmailSettings.php:177
 #: templates/emails/booking-status-changed-admin.html.php:17
@@ -2695,96 +2710,96 @@ msgstr "Müşteri e-postası bulunamadı."
 msgid "Customer:"
 msgstr "Müşteri:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:701
-#: src/Admin/Booking/Meta/BookingMeta.php:728
+#: src/Admin/Booking/Meta/BookingMeta.php:712
+#: src/Admin/Booking/Meta/BookingMeta.php:739
 #: src-react/admin/customers/components/CustomerPanel.jsx:157
 msgid "Send Email"
 msgstr "E-posta gönder"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:707
+#: src/Admin/Booking/Meta/BookingMeta.php:718
 msgid "Email Type:"
 msgstr "E-posta türü:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:709
+#: src/Admin/Booking/Meta/BookingMeta.php:720
 msgid "Booking Confirmation"
 msgstr "Rezervasyon onayı"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:710
+#: src/Admin/Booking/Meta/BookingMeta.php:721
 msgid "Payment Reminder"
 msgstr "Ödeme hatırlatması"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:711
+#: src/Admin/Booking/Meta/BookingMeta.php:722
 msgid "Booking Reminder"
 msgstr "Rezervasyon hatırlatması"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:713
+#: src/Admin/Booking/Meta/BookingMeta.php:724
 msgid "Custom Message"
 msgstr "Özel ileti"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:718
+#: src/Admin/Booking/Meta/BookingMeta.php:729
 #: src/Admin/Emails/Core/EmailTemplates.php:570
 #: src/Admin/Emails/Templates/EmailPreview.php:119
 msgid "Subject:"
 msgstr "Konu:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:719
+#: src/Admin/Booking/Meta/BookingMeta.php:730
 msgid "Email subject..."
 msgstr "E-posta konusu..."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:723
+#: src/Admin/Booking/Meta/BookingMeta.php:734
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:1045
 msgid "Message:"
 msgstr "İleti:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:724
+#: src/Admin/Booking/Meta/BookingMeta.php:735
 msgid "Your message..."
 msgstr "İletiniz..."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:754
+#: src/Admin/Booking/Meta/BookingMeta.php:765
 msgid "You do not have permission to send emails."
 msgstr "E-posta gönderme izniniz yok."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:774
-#: src/Admin/Booking/Meta/BookingMeta.php:1875
+#: src/Admin/Booking/Meta/BookingMeta.php:785
+#: src/Admin/Booking/Meta/BookingMeta.php:1779
 msgid "Customer email not found."
 msgstr "Müşteri e-postası bulunamadı."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:814
+#: src/Admin/Booking/Meta/BookingMeta.php:825
 msgid "Failed to send email."
 msgstr "E-posta gönderilemedi."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:849
+#: src/Admin/Booking/Meta/BookingMeta.php:860
 #: src/Admin/Frontend/Account/BookingSummaryPage.php:208
 #: templates/account/booking-detail.php:149
 msgid "Unknown Vehicle"
 msgstr "Bilinmeyen araç"
 
 #. translators: %s: vehicle name
-#: src/Admin/Booking/Meta/BookingMeta.php:858
+#: src/Admin/Booking/Meta/BookingMeta.php:869
 #, php-format
 msgid "Booking Confirmation - %s"
 msgstr "Rezervasyon onayı - %s"
 
 #. translators: %s: vehicle name
-#: src/Admin/Booking/Meta/BookingMeta.php:860
+#: src/Admin/Booking/Meta/BookingMeta.php:871
 #, php-format
 msgid "Payment Reminder - %s"
 msgstr "Ödeme hatırlatması - %s"
 
 #. translators: %s: vehicle name
-#: src/Admin/Booking/Meta/BookingMeta.php:862
+#: src/Admin/Booking/Meta/BookingMeta.php:873
 #, php-format
 msgid "Booking Reminder - %s"
 msgstr "Rezervasyon hatırlatması - %s"
 
 #. translators: %s: blog name.
-#: src/Admin/Booking/Meta/BookingMeta.php:864
+#: src/Admin/Booking/Meta/BookingMeta.php:875
 #, php-format
 msgid "Message from %s"
 msgstr "%s sitesinden ileti"
 
 #. translators: 1: customer name; 2: vehicle name; 3: pickup date; 4: return date; 5: total amount.
-#: src/Admin/Booking/Meta/BookingMeta.php:871
+#: src/Admin/Booking/Meta/BookingMeta.php:882
 #, php-format
 msgid ""
 "Hello %1$s,<br><br>Your booking for %2$s has been confirmed.<br><br>Pickup "
@@ -2796,7 +2811,7 @@ msgstr ""
 "%5$s<br><br>Bizi tercih ettiğiniz için teşekkür ederiz!"
 
 #. translators: 1: customer name; 2: vehicle name; 3: total amount.
-#: src/Admin/Booking/Meta/BookingMeta.php:880
+#: src/Admin/Booking/Meta/BookingMeta.php:891
 #, php-format
 msgid ""
 "Hello %1$s,<br><br>This is a reminder about your payment for %2$s."
@@ -2808,7 +2823,7 @@ msgstr ""
 "olan en kısa sürede tamamlayın."
 
 #. translators: 1: customer name; 2: vehicle name; 3: pickup date; 4: return date.
-#: src/Admin/Booking/Meta/BookingMeta.php:887
+#: src/Admin/Booking/Meta/BookingMeta.php:898
 #, php-format
 msgid ""
 "Hello %1$s,<br><br>This is a reminder about your upcoming booking for %2$s."
@@ -2820,7 +2835,7 @@ msgstr ""
 "ağırlamaktan mutluluk duyarız!"
 
 #. translators: 1: customer name; 2: vehicle name.
-#: src/Admin/Booking/Meta/BookingMeta.php:895
+#: src/Admin/Booking/Meta/BookingMeta.php:906
 #, php-format
 msgid ""
 "Hello %1$s,<br><br>We regret to inform you that your booking for %2$s has "
@@ -2831,85 +2846,81 @@ msgstr ""
 "iletişime geçin."
 
 #. translators: %s: blog name
-#: src/Admin/Booking/Meta/BookingMeta.php:900
+#: src/Admin/Booking/Meta/BookingMeta.php:911
 #, php-format
 msgid "You have received a message from %s"
 msgstr "%s sitesinden bir ileti aldınız"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:924
-#: src/Admin/Booking/Meta/BookingMeta.php:947
+#: src/Admin/Booking/Meta/BookingMeta.php:937
+#: src/Admin/Booking/Meta/BookingMeta.php:958
 msgid "Add Note"
 msgstr "Not ekle"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:931
+#: src/Admin/Booking/Meta/BookingMeta.php:942
 #: src/Admin/Settings/Groups/AddonSettings.php:98
 msgid "Note:"
 msgstr "Not:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:932
+#: src/Admin/Booking/Meta/BookingMeta.php:943
 msgid "Add a note about this booking..."
 msgstr "Bu rezervasyonla ilgili bir not ekleyin..."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:936
+#: src/Admin/Booking/Meta/BookingMeta.php:947
 msgid "Type:"
 msgstr "Tür:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:938
-#: src/Admin/Booking/Meta/BookingMeta.php:1016
-#: src/Admin/Booking/Meta/BookingMeta.php:1023
+#: src/Admin/Booking/Meta/BookingMeta.php:949
+#: src/Admin/Booking/Meta/BookingMeta.php:1029
+#: src/Admin/Booking/Meta/BookingMeta.php:1036
 msgid "Note"
 msgstr "Not"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:939
-#: src/Admin/Booking/Meta/BookingMeta.php:1017
+#: src/Admin/Booking/Meta/BookingMeta.php:950
+#: src/Admin/Booking/Meta/BookingMeta.php:1030
 msgid "Status Change"
 msgstr "Durum değişikliği"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:940
-#: src/Admin/Booking/Meta/BookingMeta.php:1018
+#: src/Admin/Booking/Meta/BookingMeta.php:951
+#: src/Admin/Booking/Meta/BookingMeta.php:1031
 msgid "Payment Update"
 msgstr "Ödeme güncellemesi"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:941
-#: src/Admin/Booking/Meta/BookingMeta.php:1019
+#: src/Admin/Booking/Meta/BookingMeta.php:952
+#: src/Admin/Booking/Meta/BookingMeta.php:1032
 msgid "Customer Contact"
 msgstr "Müşteri iletişimi"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:942
-#: src/Admin/Booking/Meta/BookingMeta.php:974
-#: src/Admin/Booking/Meta/BookingMeta.php:1020
+#: src/Admin/Booking/Meta/BookingMeta.php:953
+#: src/Admin/Booking/Meta/BookingMeta.php:984
+#: src/Admin/Booking/Meta/BookingMeta.php:1033
 #: src/Layout/CLI/LayoutImportCommand.php:426
 msgid "System"
 msgstr "Sistem"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:959
+#: src/Admin/Booking/Meta/BookingMeta.php:969
 msgid "History"
 msgstr "Geçmiş"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:962
+#: src/Admin/Booking/Meta/BookingMeta.php:972
 msgid "No history found."
 msgstr "Geçmiş kaydı bulunamadı."
 
 #. translators: %s: user display name
-#: src/Admin/Booking/Meta/BookingMeta.php:990
+#: src/Admin/Booking/Meta/BookingMeta.php:1000
 #, php-format
 msgid "By %s"
 msgstr "%s tarafından"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1001
+#: src/Admin/Booking/Meta/BookingMeta.php:1011
 msgid "more entries"
 msgstr "daha fazla kayıt"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1045
-msgid "You do not have permission to add notes."
-msgstr "Not ekleme izniniz yok."
-
-#: src/Admin/Booking/Meta/BookingMeta.php:1059
-msgid "Invalid booking ID or empty note."
-msgstr "Geçersiz rezervasyon kimliği veya boş not."
+#: src/Admin/Booking/Meta/BookingMeta.php:1019
+msgid "These notes are included in the customer's personal data export."
+msgstr "Bu notlar müşterinin kişisel veri dışa aktarımında yer alır."
 
 #. translators: %s: list of the vehicle's closed days, joined by the site's list format ("1 June, 2 June and 3 June").
-#: src/Admin/Booking/Meta/BookingMeta.php:1525
+#: src/Admin/Booking/Meta/BookingMeta.php:1486
 #, php-format
 msgid ""
 "This vehicle has closed days in this period: %s. The booking was saved "
@@ -2917,30 +2928,13 @@ msgid ""
 msgstr ""
 "Bu araç için bu dönemde kapalı gün var: %s. Rezervasyon yine de kaydedildi."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1625
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:219
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1209
-msgid "Booking created"
-msgstr "Rezervasyon oluşturuldu"
-
 #. translators: 1: old status, 2: new status
-#: src/Admin/Booking/Meta/BookingMeta.php:1650
+#: src/Admin/Booking/Meta/BookingMeta.php:1583
 #, php-format
 msgid "Status changed from %1$s to %2$s"
 msgstr "Durum değişti: %1$s → %2$s"
 
-#. translators: 1: old payment status, 2: new payment status
-#: src/Admin/Booking/Meta/BookingMeta.php:1688
-#, php-format
-msgid "Payment status changed from %1$s to %2$s"
-msgstr "Ödeme durumu değişti: %1$s → %2$s"
-
-#: src/Admin/Booking/Meta/BookingMeta.php:1753
-#: src/Admin/Booking/Meta/BookingMeta.php:1953
-msgid "Note added successfully!"
-msgstr "Not başarıyla eklendi!"
-
-#: src/Admin/Booking/Meta/BookingMeta.php:1756
+#: src/Admin/Booking/Meta/BookingMeta.php:1660
 msgid ""
 "The vehicle is already booked for these dates. The booking details were not "
 "saved."
@@ -2948,7 +2942,7 @@ msgstr ""
 "Araç bu tarihler için zaten rezerve edilmiş. Rezervasyon bilgileri "
 "kaydedilmedi."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1762
+#: src/Admin/Booking/Meta/BookingMeta.php:1666
 msgid ""
 "Vehicle availability could not be checked. The booking details were not "
 "saved. Please try again."
@@ -2956,9 +2950,9 @@ msgstr ""
 "Araç müsaitliği kontrol edilemedi. Rezervasyon bilgileri kaydedilmedi. "
 "Lütfen yeniden deneyin."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1795
-#: src/Admin/Booking/Meta/BookingMeta.php:1844
-#: src/Admin/Booking/Meta/BookingMeta.php:1928
+#: src/Admin/Booking/Meta/BookingMeta.php:1699
+#: src/Admin/Booking/Meta/BookingMeta.php:1748
+#: src/Admin/Booking/Meta/BookingMeta.php:1832
 #: src/Admin/Core/Utilities/UXHelper.php:138
 #: src/Admin/Emails/Core/EmailTemplates.php:176
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:29
@@ -2966,19 +2960,23 @@ msgstr ""
 msgid "You do not have permission to perform this action."
 msgstr "Bu eylemi gerçekleştirmek için izniniz yok."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1811
-#: src/Admin/Booking/Meta/BookingMeta.php:1864
-#: src/Admin/Booking/Meta/BookingMeta.php:1945
+#: src/Admin/Booking/Meta/BookingMeta.php:1715
+#: src/Admin/Booking/Meta/BookingMeta.php:1768
+#: src/Admin/Booking/Meta/BookingMeta.php:1849
 msgid "Missing required fields."
 msgstr "Gerekli alanlar eksik."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1904
+#: src/Admin/Booking/Meta/BookingMeta.php:1808
 msgid "Failed to send email. Please check your WordPress email configuration."
 msgstr ""
 "E-posta gönderilemedi. Lütfen WordPress e-posta yapılandırmanızı kontrol "
 "edin."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1955
+#: src/Admin/Booking/Meta/BookingMeta.php:1857
+msgid "Note added successfully!"
+msgstr "Not başarıyla eklendi!"
+
+#: src/Admin/Booking/Meta/BookingMeta.php:1859
 msgid "Failed to add note."
 msgstr "Not eklenemedi."
 
@@ -3018,8 +3016,8 @@ msgstr "Müşteri hesabı oluştur"
 
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:117
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:146
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:747
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:855
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:776
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:884
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:40
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:137
 msgid "Permission denied."
@@ -3033,7 +3031,7 @@ msgstr "Geçersiz rezervasyon veya e-posta."
 msgid "Existing account linked to booking."
 msgstr "Mevcut hesap rezervasyona bağlandı."
 
-#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:195
+#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:196
 msgid "Customer account created and linked to booking."
 msgstr "Müşteri hesabı oluşturuldu ve rezervasyona bağlandı."
 
@@ -3120,8 +3118,13 @@ msgstr "İade yapılmayacak"
 msgid "Create Manual Booking"
 msgstr "Manuel rezervasyon oluştur"
 
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:219
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1248
+msgid "Booking created"
+msgstr "Rezervasyon oluşturuldu"
+
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:220
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:726
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:755
 msgid "Calculate Price"
 msgstr "Fiyatı hesapla"
 
@@ -3130,7 +3133,7 @@ msgid "Creating..."
 msgstr "Oluşturuluyor..."
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:222
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:727
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:756
 msgid "Create Booking"
 msgstr "Rezervasyon oluştur"
 
@@ -3197,85 +3200,86 @@ msgstr "Kalan"
 msgid "Add-on Services Total"
 msgstr "Ek hizmetler toplamı"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:275
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:304
 msgid "State"
 msgstr "İl"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:276
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:305
 msgid "State / region"
 msgstr "Eyalet / bölge"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:277
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:306
 msgid "State or region"
 msgstr "Eyalet veya bölge"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:278
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:307
 msgid "Select a state..."
 msgstr "Bir il seçin..."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:351
-msgid "(optional)"
-msgstr "(isteğe bağlı)"
-
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:354
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:383
 msgid "Country"
 msgstr "Ülke"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:356
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:383
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:398
+msgid "(optional)"
+msgstr "(isteğe bağlı)"
+
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:385
 msgid "Select a country..."
 msgstr "Bir ülke seçin..."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:435
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:464
 #: src/Admin/Booking/PostType/Booking.php:27
 #: src/Admin/Utilities/Menu/Menu.php:91 src/Admin/Utilities/Menu/Menu.php:92
-#: src-react/admin/customers/components/CustomerTable.jsx:6
+#: src-react/admin/customers/components/CustomerTable.jsx:10
 msgid "Bookings"
 msgstr "Rezervasyonlar"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:436
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:465
 msgid "New record · added by an administrator"
 msgstr "Yeni kayıt · yönetici tarafından"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:482
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:511
 msgid "Vehicle & Customer"
 msgstr "Araç ve müşteri"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:490
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:519
 msgid "Select a vehicle..."
 msgstr "Bir araç seçin..."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:493
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:522
 msgid "day"
 msgstr "gün"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:505
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:534
 msgid "Select a customer..."
 msgstr "Bir müşteri seçin..."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:506
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:535
 msgid "+ Create New Customer"
 msgstr "+ Yeni müşteri oluştur"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:521
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:550
 msgid "New Customer Information"
 msgstr "Yeni müşteri bilgileri"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:527
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:556
 #: src/Admin/Settings/Groups/FrontendSettings.php:362
 #: templates/account/account-details.php:76
 msgid "First Name"
 msgstr "Ad"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:531
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:560
 #: src/Admin/Settings/Groups/FrontendSettings.php:363
 #: templates/account/account-details.php:84
 msgid "Last Name"
 msgstr "Soyadı"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:537
-#: src/Admin/Customers/AddCustomerPage.php:151
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:566
+#: src/Admin/Customers/AddCustomerPage.php:155
 #: src/Admin/Customers/CustomersPage.php:372
-#: src/Admin/Customers/CustomersPage.php:561
+#: src/Admin/Customers/CustomersPage.php:564
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:879
 #: src/Admin/Frontend/Shortcodes/ContactFormView.php:217
 #: src/Admin/Settings/Groups/FrontendSettings.php:364
@@ -3285,61 +3289,61 @@ msgstr "Soyadı"
 msgid "Email"
 msgstr "E-posta"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:542
-#: src/Admin/Customers/AddCustomerPage.php:156
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:571
+#: src/Admin/Customers/AddCustomerPage.php:160
 #: src/Admin/Customers/CustomersPage.php:373
-#: src/Admin/Customers/CustomersPage.php:566
+#: src/Admin/Customers/CustomersPage.php:569
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:880
 #: src/Admin/Frontend/Shortcodes/ContactFormView.php:214
 #: src/Admin/Settings/Groups/FrontendSettings.php:365
 #: templates/admin/partials/booking-popup.php:64
 #: src-react/admin/contact-messages/components/SenderWidget.jsx:72
 #: src-react/admin/customers/components/CustomerPanel.jsx:90
-#: src-react/admin/customers/components/CustomerTable.jsx:83
+#: src-react/admin/customers/components/CustomerTable.jsx:79
 msgid "Phone"
 msgstr "Telefon"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:557
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:586
 msgid "Dates & Duration"
 msgstr "Tarihler ve süre"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:671
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:700
 msgid "Payment & Notes"
 msgstr "Ödeme ve notlar"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:689
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:718
 msgid "Online: the payment link is sent separately."
 msgstr "Çevrim içi: ödeme bağlantısı ayrıca gönderilir."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:708
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:737
 msgid "Notes"
 msgstr "Notlar"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:709
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:738
 msgid "Special notes about the booking..."
 msgstr "Rezervasyonla ilgili özel notlar..."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:720
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:749
 msgid "Price Calculation"
 msgstr "Fiyat hesaplama"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:759
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:873
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:788
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:902
 msgid "Required fields are missing."
 msgstr "Gerekli alanlar eksik."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:795
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1084
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:824
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1123
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1360
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1569
 msgid "Price could not be calculated."
 msgstr "Fiyat hesaplanamadı."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:885
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:914
 msgid "Invalid booking status."
 msgstr "Geçersiz rezervasyon durumu."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:906
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:935
 msgid ""
 "You do not have permission to create new customer accounts. Please select an "
 "existing customer instead."
@@ -3347,15 +3351,15 @@ msgstr ""
 "Yeni müşteri hesabı oluşturma izniniz yok. Lütfen bunun yerine mevcut bir "
 "müşteri seçin."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:922
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:951
 msgid "New customer information is missing."
 msgstr "Yeni müşteri bilgileri eksik."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:927
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:956
 msgid "This email address is already registered."
 msgstr "Bu e-posta adresi zaten kayıtlı."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:942
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:971
 #: src/Admin/Customers/CustomersPage.php:336
 #: src/Admin/Customers/CustomersPage.php:489
 #: src/Admin/Customers/REST/CustomersRestController.php:161
@@ -3364,26 +3368,26 @@ msgid "Customer not found."
 msgstr "Müşteri bulunamadı."
 
 #. translators: %s: the error message wp_update_user() returned.
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1039
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1087
 #, php-format
 msgid "wp_update_user failed while creating a manual booking: %s"
 msgstr "wp_update_user, manuel rezervasyon oluşturulurken başarısız oldu: %s"
 
 #. translators: %s: vehicle title
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1096
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1135
 #, php-format
 msgid "Manual Booking - %s"
 msgstr "Manuel rezervasyon - %s"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1181
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1220
 msgid "This vehicle has just been booked for the selected dates."
 msgstr "Bu araç seçilen tarihler için az önce rezerve edildi."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1185
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1224
 msgid "Booking could not be created."
 msgstr "Rezervasyon oluşturulamadı."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1233
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1272
 msgid "Booking created successfully."
 msgstr "Rezervasyon başarıyla oluşturuldu."
 
@@ -3438,6 +3442,7 @@ msgstr "Geçersiz dosya türü."
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:103
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:109
 #: src/Admin/Utilities/Menu/Menu.php:128
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:226
 msgid "Contact Messages"
 msgstr "İletişim iletileri"
 
@@ -3458,25 +3463,25 @@ msgstr "Sitedeki iletişim formundan gelen talepler"
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:90
 #: src/Admin/Vehicle/Helpers/RatingConfidenceHelper.php:84
 #: src-react/admin/contact-messages/components/ContactStats.jsx:8
-#: src-react/admin/contact-messages/components/ContactTable.jsx:76
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:141
-#: src-react/admin/customers/components/CustomerTable.jsx:24
-#: src-react/admin/customers/CustomersPage.jsx:14
+#: src-react/admin/contact-messages/components/ContactTable.jsx:88
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:145
+#: src-react/admin/customers/components/CustomerTable.jsx:28
+#: src-react/admin/customers/CustomersPage.jsx:16
 msgid "New"
 msgstr "Yeni"
 
 #: src/Admin/ContactMessages/ContactStatus.php:44
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:145
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:149
 msgid "Replied"
 msgstr "Yanıtlandı"
 
 #: src/Admin/ContactMessages/ContactStatus.php:46
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:146
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:150
 msgid "Spam"
 msgstr "Spam"
 
 #: src/Admin/ContactMessages/ContactStatus.php:48
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:144
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:148
 msgid "Read"
 msgstr "Okundu"
 
@@ -3857,8 +3862,8 @@ msgstr "Emin misiniz?"
 
 #: src/Admin/Core/AssetManager.php:1206 src/Admin/Core/AssetManager.php:1513
 #: src/Admin/Core/AssetManager.php:1677
-#: src/Admin/Customers/AddCustomerPage.php:167
-#: src/Admin/Customers/CustomersPage.php:577
+#: src/Admin/Customers/AddCustomerPage.php:171
+#: src/Admin/Customers/CustomersPage.php:580
 #: src/Admin/Emails/Core/EmailTemplates.php:567
 #: templates/account/account-details.php:189
 #: templates/shortcodes/vehicle-rating-form.php:168
@@ -4510,7 +4515,7 @@ msgid "Confirm"
 msgstr "Onayla"
 
 #: src/Admin/Core/AssetManager.php:1683
-#: src/Admin/Customers/CustomersPage.php:576
+#: src/Admin/Customers/CustomersPage.php:579
 msgid "Update"
 msgstr "Güncelle"
 
@@ -4552,7 +4557,7 @@ msgstr "Geri"
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:595
 #: templates/account/payment-history.php:209
 #: templates/partials/rvs/account-bookings.php:147
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:263
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:264
 msgid "Next"
 msgstr "Sonraki"
 
@@ -4561,7 +4566,7 @@ msgstr "Sonraki"
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:594
 #: templates/account/payment-history.php:200
 #: templates/partials/rvs/account-bookings.php:138
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:260
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:261
 msgid "Previous"
 msgstr "Önceki"
 
@@ -6031,41 +6036,41 @@ msgstr "Ödemeyi yeniden dene"
 msgid "Customer name, email and phone fields are required."
 msgstr "Müşteri adı, e-posta ve telefon alanları gereklidir."
 
-#: src/Admin/Customers/AddCustomerPage.php:122
+#: src/Admin/Customers/AddCustomerPage.php:126
 msgid "Customer added successfully!"
 msgstr "Müşteri başarıyla eklendi!"
 
-#: src/Admin/Customers/AddCustomerPage.php:123
+#: src/Admin/Customers/AddCustomerPage.php:127
 #: src-react/admin/customers/components/CustomerPanel.jsx:154
 msgid "Open Profile"
 msgstr "Profili aç"
 
-#: src/Admin/Customers/AddCustomerPage.php:124
+#: src/Admin/Customers/AddCustomerPage.php:128
 msgid "← Back to customers list"
 msgstr "← Müşteri listesine dön"
 
-#: src/Admin/Customers/AddCustomerPage.php:126
+#: src/Admin/Customers/AddCustomerPage.php:130
 msgid "Error occurred while adding customer: "
 msgstr "Müşteri eklenirken hata oluştu: "
 
-#: src/Admin/Customers/AddCustomerPage.php:132
+#: src/Admin/Customers/AddCustomerPage.php:136
 msgid "Add New Customer"
 msgstr "Yeni müşteri ekle"
 
-#: src/Admin/Customers/AddCustomerPage.php:146
-#: src/Admin/Customers/CustomersPage.php:556
+#: src/Admin/Customers/AddCustomerPage.php:150
+#: src/Admin/Customers/CustomersPage.php:559
 msgid "Customer Name"
 msgstr "Müşteri adı"
 
-#: src/Admin/Customers/AddCustomerPage.php:161
+#: src/Admin/Customers/AddCustomerPage.php:165
 #: src/Admin/Customers/CustomersPage.php:374
-#: src/Admin/Customers/CustomersPage.php:571
+#: src/Admin/Customers/CustomersPage.php:574
 #: templates/account/account-details.php:123
 #: src-react/admin/customers/components/CustomerPanel.jsx:94
 msgid "Address"
 msgstr "Adres"
 
-#: src/Admin/Customers/AddCustomerPage.php:166
+#: src/Admin/Customers/AddCustomerPage.php:170
 #: src-react/admin/customers/components/FilterBar.jsx:16
 msgid "Add Customer"
 msgstr "Müşteri ekle"
@@ -6081,8 +6086,8 @@ msgstr ""
 "href=\"%2$s\">← Müşteri profiline dön</a>"
 
 #: src/Admin/Customers/CustomersPage.php:251
-#: src-react/admin/customers/components/CustomerTable.jsx:23
-#: src-react/admin/customers/CustomersPage.jsx:15
+#: src-react/admin/customers/components/CustomerTable.jsx:27
+#: src-react/admin/customers/CustomersPage.jsx:17
 msgid "VIP"
 msgstr "VIP"
 
@@ -6157,15 +6162,15 @@ msgstr "Geri dön"
 msgid "You do not have permission to edit customers."
 msgstr "Müşterileri düzenleme izniniz yok."
 
-#: src/Admin/Customers/CustomersPage.php:533
+#: src/Admin/Customers/CustomersPage.php:536
 msgid "Customer information updated successfully."
 msgstr "Müşteri bilgileri başarıyla güncellendi."
 
-#: src/Admin/Customers/CustomersPage.php:533
+#: src/Admin/Customers/CustomersPage.php:536
 msgid "← Back to customer details"
 msgstr "← Müşteri detaylarına dön"
 
-#: src/Admin/Customers/CustomersPage.php:542
+#: src/Admin/Customers/CustomersPage.php:545
 #: templates/account/payment-history.php:178
 #: templates/partials/rvs/account-booking-detail.php:151
 #: templates/partials/rvs/account-bookings.php:120
@@ -6175,7 +6180,7 @@ msgstr "← Müşteri detaylarına dön"
 msgid "View"
 msgstr "Görüntüle"
 
-#: src/Admin/Customers/CustomersPage.php:549
+#: src/Admin/Customers/CustomersPage.php:552
 msgid "Edit Customer"
 msgstr "Müşteriyi düzenle"
 
@@ -6998,29 +7003,29 @@ msgstr "Lütfen giriş yapın."
 msgid "Profile editing is currently disabled."
 msgstr "Profil düzenleme şu anda etkisizleştirilmiş."
 
-#: src/Admin/Frontend/Account/AccountController.php:1187
+#: src/Admin/Frontend/Account/AccountController.php:1188
 msgid "An error occurred while updating your account."
 msgstr "Hesabınız güncellenirken bir hata oluştu."
 
-#: src/Admin/Frontend/Account/AccountController.php:1196
+#: src/Admin/Frontend/Account/AccountController.php:1197
 msgid "Account updated successfully."
 msgstr "Hesap başarıyla güncellendi."
 
-#: src/Admin/Frontend/Account/AccountController.php:1214
-#: src/Admin/Frontend/Account/AccountController.php:1227
+#: src/Admin/Frontend/Account/AccountController.php:1215
+#: src/Admin/Frontend/Account/AccountController.php:1228
 msgid "This endpoint is deprecated. Please refresh your page."
 msgstr "Bu uç nokta kullanımdan kaldırılmıştır. Lütfen sayfanızı yenileyin."
 
-#: src/Admin/Frontend/Account/AccountController.php:1284
+#: src/Admin/Frontend/Account/AccountController.php:1285
 msgid "You must be logged in to cancel a booking."
 msgstr "Rezervasyonu iptal etmek için oturum açmanız gerekir."
 
-#: src/Admin/Frontend/Account/AccountController.php:1295
+#: src/Admin/Frontend/Account/AccountController.php:1296
 msgid "Security verification failed. Please refresh and try again."
 msgstr ""
 "Güvenlik doğrulaması başarısız. Lütfen sayfayı yenileyin ve yeniden deneyin."
 
-#: src/Admin/Frontend/Account/AccountController.php:1347
+#: src/Admin/Frontend/Account/AccountController.php:1348
 msgid ""
 "Booking cancelled, but the refund could not be completed automatically. We "
 "will contact you separately about your refund."
@@ -7028,7 +7033,7 @@ msgstr ""
 "Rezervasyon iptal edildi, ancak iade otomatik olarak tamamlanamadı. "
 "İadenizle ilgili sizinle ayrıca iletişime geçeceğiz."
 
-#: src/Admin/Frontend/Account/AccountController.php:1363
+#: src/Admin/Frontend/Account/AccountController.php:1364
 msgid "Booking cancelled successfully. A confirmation email has been sent."
 msgstr "Rezervasyon başarıyla iptal edildi. Onay e-postası gönderildi."
 
@@ -8225,7 +8230,7 @@ msgstr "Tercih edilen tarih"
 
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:886
 #: src/Admin/Utilities/ListTable/LogColumns.php:79
-#: src-react/admin/contact-messages/components/ContactTable.jsx:53
+#: src-react/admin/contact-messages/components/ContactTable.jsx:66
 #: src-react/admin/contact-messages/ContactMessageDetail.jsx:300
 msgid "Message"
 msgstr "İleti"
@@ -9723,7 +9728,7 @@ msgstr "Güven puanı"
 #: templates/account/payment-history.php:67
 #: assets/blocks/payment-history/index.js:48
 #: assets/blocks/testimonials/index.js:63
-#: src-react/admin/contact-messages/components/ContactTable.jsx:56
+#: src-react/admin/contact-messages/components/ContactTable.jsx:69
 #: src-react/admin/contact-messages/components/ContactToolbar.jsx:35
 #: src-react/admin/dashboard/components/RecentBookings.jsx:63
 msgid "Date"
@@ -13221,7 +13226,7 @@ msgid "Next Execution"
 msgstr "Sonraki yürütme"
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:108
-#: src-react/admin/contact-messages/components/ContactTable.jsx:57
+#: src-react/admin/contact-messages/components/ContactTable.jsx:70
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:16
 msgid "Actions"
 msgstr "Eylemler"
@@ -13578,7 +13583,7 @@ msgstr ""
 "sayfalara bağlantı verin."
 
 #: src/Admin/Setup/SetupWizard.php:275
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:261
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:262
 #: src-react/admin/customers/components/Pagination.jsx:17
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:14
 msgid "Page"
@@ -14138,6 +14143,7 @@ msgid "Vehicle Categories"
 msgstr "Araç kategorileri"
 
 #: src/Admin/Utilities/Menu/Menu.php:141 src/Admin/Utilities/Menu/Menu.php:142
+#: src-react/admin/customers/components/CustomerTable.jsx:67
 #: src-react/admin/dashboard/components/QuickActions.jsx:18
 msgid "Customers"
 msgstr "Müşteriler"
@@ -15140,7 +15146,7 @@ msgid "Invalid post"
 msgstr "Geçersiz gönderi"
 
 #: src/Admin/Vehicle/Templates/vehicle-gallery.php:44
-#: src-react/admin/customers/CustomersPage.jsx:141
+#: src-react/admin/customers/CustomersPage.jsx:133
 msgid "Delete Selected"
 msgstr "Seçilenleri sil"
 
@@ -17571,50 +17577,50 @@ msgid "Last 7 days"
 msgstr "Son 7 gün"
 
 #. translators: %s: sender name, or e-mail address when the sender gave no name.
-#: src-react/admin/contact-messages/components/ContactTable.jsx:18
+#: src-react/admin/contact-messages/components/ContactTable.jsx:20
 msgid "Select the message from %s"
 msgstr "%s tarafından gönderilen iletiyi seç"
 
-#: src-react/admin/contact-messages/components/ContactTable.jsx:21
+#: src-react/admin/contact-messages/components/ContactTable.jsx:23
 msgid "Select this message"
 msgstr "Bu iletiyi seç"
 
 #. translators: %s: sender name, or e-mail address when the sender gave no name.
-#: src-react/admin/contact-messages/components/ContactTable.jsx:28
+#: src-react/admin/contact-messages/components/ContactTable.jsx:30
 msgid "Open the message from %s"
 msgstr "%s tarafından gönderilen iletiyi aç"
 
-#: src-react/admin/contact-messages/components/ContactTable.jsx:31
+#: src-react/admin/contact-messages/components/ContactTable.jsx:33
 msgid "Open this message"
 msgstr "Bu iletiyi aç"
 
-#: src-react/admin/contact-messages/components/ContactTable.jsx:50
+#: src-react/admin/contact-messages/components/ContactTable.jsx:61
 msgid "Select all messages"
 msgstr "Tüm iletileri seç"
 
-#: src-react/admin/contact-messages/components/ContactTable.jsx:52
+#: src-react/admin/contact-messages/components/ContactTable.jsx:65
 #: src-react/admin/contact-messages/components/SenderWidget.jsx:47
 msgid "Sender"
 msgstr "Gönderen"
 
-#: src-react/admin/contact-messages/components/ContactTable.jsx:54
+#: src-react/admin/contact-messages/components/ContactTable.jsx:67
 #: src-react/admin/contact-messages/ContactMessageDetail.jsx:153
 #: src-react/admin/contact-messages/ContactMessageDetail.jsx:166
 msgid "Related vehicle"
 msgstr "İlgili araç"
 
-#: src-react/admin/contact-messages/components/ContactTable.jsx:91
+#: src-react/admin/contact-messages/components/ContactTable.jsx:103
 #: src-react/admin/contact-messages/ContactMessageDetail.jsx:331
 msgctxt "contact message"
 msgid "Attachment"
 msgstr "Ek dosya"
 
 #. translators: %d: rating out of 5.
-#: src-react/admin/contact-messages/components/ContactTable.jsx:99
+#: src-react/admin/contact-messages/components/ContactTable.jsx:111
 msgid "%d/5"
 msgstr "%d/5"
 
-#: src-react/admin/contact-messages/components/ContactTable.jsx:117
+#: src-react/admin/contact-messages/components/ContactTable.jsx:129
 msgid "Open"
 msgstr "Aç"
 
@@ -17642,7 +17648,7 @@ msgstr "Son 30 gün"
 #. translators: %d: number of messages in the current view.
 #. translators: %d: number of messages (always 0 here).
 #: src-react/admin/contact-messages/components/ContactToolbar.jsx:45
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:157
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:161
 msgid "%d message"
 msgid_plural "%d messages"
 msgstr[0] "%d ileti"
@@ -17840,63 +17846,63 @@ msgstr "Başka ayrıntı girilmemiş."
 msgid "Fields left empty on the form are not shown."
 msgstr "Formda boş bırakılan alanlar gösterilmez."
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:69
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:73
 msgid "Contact messages could not be loaded."
 msgstr "İletişim iletileri yüklenemedi."
 
 #. translators: %d: number of messages the action could not change.
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:122
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:126
 msgid "%d message could not be changed."
 msgid_plural "%d messages could not be changed."
 msgstr[0] "%d ileti değiştirilemedi."
 msgstr[1] "%d ileti değiştirilemedi."
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:130
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:134
 msgid "The bulk action could not be completed."
 msgstr "Toplu işlem tamamlanamadı."
 
 #. translators: %d: number of new messages.
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:143
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:147
 msgid "%d new"
 msgstr "%d yeni"
 
 #. translators: 1: first message number on this page, 2: last message number on this page, 3: total number of messages.
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:162
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:166
 msgid "%1$d–%2$d of %3$d message"
 msgid_plural "%1$d–%2$d of %3$d messages"
 msgstr[0] "%1$d–%2$d / %3$d ileti"
 msgstr[1] "%1$d–%2$d / %3$d ileti"
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:173
-#: src-react/admin/customers/CustomersPage.jsx:123
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:177
+#: src-react/admin/customers/CustomersPage.jsx:115
 msgid "Filter by status"
 msgstr "Duruma göre süz"
 
 #. translators: %d: number of messages in the trash.
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:199
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:203
 msgid "Trash (%d)"
 msgstr "Çöp kutusu (%d)"
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:239
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:240
 msgid "No contact messages yet"
 msgstr "Henüz iletişim iletisi yok"
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:240
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:241
 msgid "No messages in this view"
 msgstr "Bu görünümde ileti yok"
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:244
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:245
 msgid ""
 "Add the contact form to a page; every request sent through it is listed here."
 msgstr ""
 "İletişim formunu bir sayfaya ekleyin; bu form üzerinden gönderilen her talep "
 "burada listelenir."
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:246
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:247
 msgid "Go to shortcode pages"
 msgstr "Kısa kod sayfalarına git"
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:259
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:260
 msgid "Contact messages pages"
 msgstr "İletişim iletileri sayfaları"
 
@@ -17909,19 +17915,19 @@ msgid "Select a customer to see the details"
 msgstr "Detayları görmek için bir müşteri seçin"
 
 #: src-react/admin/customers/components/CustomerPanel.jsx:119
-#: src-react/admin/customers/CustomersPage.jsx:147
+#: src-react/admin/customers/CustomersPage.jsx:139
 msgid "Loading…"
 msgstr "Yükleniyor…"
 
-#: src-react/admin/customers/components/CustomerTable.jsx:7
+#: src-react/admin/customers/components/CustomerTable.jsx:11
 msgid "Total Spent"
 msgstr "Toplam harcama"
 
-#: src-react/admin/customers/components/CustomerTable.jsx:64
+#: src-react/admin/customers/components/CustomerTable.jsx:61
 msgid "No customers found."
 msgstr "Müşteri bulunamadı."
 
-#: src-react/admin/customers/components/CustomerTable.jsx:79
+#: src-react/admin/customers/components/CustomerTable.jsx:74
 msgid "Select all customers"
 msgstr "Tüm müşterileri seç"
 
@@ -17972,18 +17978,18 @@ msgstr "Ort. harcama"
 msgid "per customer"
 msgstr "müşteri başı"
 
-#: src-react/admin/customers/CustomersPage.jsx:37
+#: src-react/admin/customers/CustomersPage.jsx:38
 msgid "Failed to load customers."
 msgstr "Müşteriler yüklenemedi."
 
 #. translators: %d = number of customers to delete.
-#: src-react/admin/customers/CustomersPage.jsx:83
+#: src-react/admin/customers/CustomersPage.jsx:76
 msgid "Delete %d customer? This cannot be undone."
 msgid_plural "Delete %d customers? This cannot be undone."
 msgstr[0] "%d müşteri silinsin mi? Bu işlem geri alınamaz."
 msgstr[1] "%d müşteri silinsin mi? Bu işlem geri alınamaz."
 
-#: src-react/admin/customers/CustomersPage.jsx:95
+#: src-react/admin/customers/CustomersPage.jsx:88
 msgid "Bulk delete failed."
 msgstr "Toplu silme başarısız oldu."
 
@@ -18370,6 +18376,16 @@ msgstr "Araç listesi"
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste yerleşiminde görüntüleyin."
+
+#~ msgid "You do not have permission to add notes."
+#~ msgstr "Not ekleme izniniz yok."
+
+#~ msgid "Invalid booking ID or empty note."
+#~ msgstr "Geçersiz rezervasyon kimliği veya boş not."
+
+#, php-format
+#~ msgid "Payment status changed from %1$s to %2$s"
+#~ msgstr "Ödeme durumu değişti: %1$s → %2$s"
 
 #~ msgid "Update PHP to 7.4 or higher."
 #~ msgstr "PHP'yi 7.4 veya üstü bir sürüme güncelleyin."

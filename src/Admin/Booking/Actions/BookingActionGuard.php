@@ -55,9 +55,9 @@ use MHMRentiva\Admin\Core\Security\VerifiedRequest;
  * using a token their own browser holds.
  *
  * What binding it would cost: the action string would have to be built from a
- * booking id read out of $_POST BEFORE the nonce check, and the three minting
- * sites (BookingDepositMetaBox's AJAX payload and its wp_nonce_field, plus
- * BookingRefundMetaBox, which reuses this action) would have to move in the
+ * booking id read out of $_POST BEFORE the nonce check, and the two minting
+ * sites (BookingDepositMetaBox's AJAX payload, plus BookingRefundMetaBox,
+ * which reuses this action) would have to move in the
  * same commit as all eight verifiers. Any admin screen still open at that
  * moment sends the old action and every money endpoint rejects it with
  * "Security check failed" -- a self-inflicted outage on the refund path, in

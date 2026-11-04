@@ -127,13 +127,14 @@
 		$(document).off('click', '.mhm-add-history-btn').on('click', '.mhm-add-history-btn', function (e) {
 			e.preventDefault();
 			var $container = $(this).closest('.mhm-add-history-note');
-			var bookingId = $container.find('form').data('booking-id') || $('#post_ID').val();
-			var noteContent = $container.find('#note_content').val();
+			var bookingId = $container.data('booking-id') || $('#post_ID').val();
+			var noteContent = String($container.find('#note_content').val() || '').trim();
 			var noteType = $container.find('#note_type').val();
 			var nonce = $container.find('input[name="mhmrentiva_history_nonce"]').val();
+			var noteStrings = (window.mhmBookingEmail && window.mhmBookingEmail.strings) || {};
 
 			if (!noteContent) {
-				alert('Please enter a note.');
+				alert(noteStrings.noteEmpty || 'Please enter a note.');
 				return;
 			}
 
@@ -152,15 +153,15 @@
 				},
 				success: function (response) {
 					if (response.success) {
-						alert('Note added successfully!');
+						alert(noteStrings.noteAdded || 'Note added.');
 						location.reload();
 					} else {
-						alert('Error: ' + response.data);
+						alert((noteStrings.noteError || 'Error: %s').replace('%s', String(response.data || '')));
 						$btn.prop('disabled', false);
 					}
 				},
 				error: function () {
-					alert('An error occurred!');
+					alert(noteStrings.noteFailed || 'The note could not be added.');
 					$btn.prop('disabled', false);
 				}
 			});

@@ -54,6 +54,11 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		// Load required assets
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ) );
 
+		// No save_post hook, on purpose: the box has no form fields (every
+		// action is an AJAX button carrying mhmDepositManagement.nonce), and
+		// parent::register() would wire AbstractMetaBox::save_meta() to box
+		// definitions from get_fields() that are not fields.
+
 		// AJAX handlers
 	}
 
@@ -171,9 +176,6 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 	}
 
 	public static function render_deposit_management( \WP_Post $post ): void {
-		// Nonce field
-		wp_nonce_field( 'mhmrentiva_deposit_management_action', 'mhmrentiva_deposit_management_nonce' );
-
 		// Fetch deposit details
 		$payment_type          = get_post_meta( $post->ID, '_mhmrentiva_payment_type', true );
 		$payment_method        = get_post_meta( $post->ID, '_mhmrentiva_payment_method', true );
@@ -440,35 +442,6 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 
 		echo '</div>';
 		echo '</div>';
-	}
-
-	public static function save_meta( int $post_id, \WP_Post $post ): void {
-		// Nonce check
-		$nonce = sanitize_text_field( wp_unslash( $_POST['mhmrentiva_deposit_management_nonce'] ?? '' ) );
-		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_deposit_management_action' ) ) {
-			return;
-		}
-
-		// Capability check
-		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return;
-		}
-
-		// This override drops the parent's type check (AbstractMetaBox::save_meta tests
-		// $post->post_type first), and register() here does not call parent::register(),
-		// so nothing hooks it today -- it is unreachable. The check is here anyway: the
-		// day someone wires it up, the M-1 defect would arrive with it, and an anchor
-		// added after the wiring is an anchor added after the incident.
-		if ( 'mhmrentiva_booking' !== $post->post_type ) {
-			return;
-		}
-
-		// Autosave / revision guard
-		if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
-			return;
-		}
-
-		// Deposit actions are handled over AJAX; only meta can be stored here if needed.
 	}
 
 	private static function format_price( float $price ): string {
