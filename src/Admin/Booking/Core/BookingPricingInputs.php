@@ -38,17 +38,23 @@ final class BookingPricingInputs {
 	/**
 	 * The price inputs as one comparable string.
 	 */
+	/**
+	 * Current key => the keys BookingEditMetaBox::render() falls back to, in order.
+	 */
+	private const LEGACY_KEYS = array(
+		'_mhmrentiva_vehicle_id'   => array( '_mhmrentiva_booking_vehicle_id' ),
+		'_mhmrentiva_pickup_date'  => array( '_mhmrentiva_booking_pickup_date' ),
+		'_mhmrentiva_start_time'   => array( '_mhmrentiva_pickup_time', '_mhmrentiva_booking_pickup_time' ),
+		'_mhmrentiva_dropoff_date' => array( '_mhmrentiva_booking_dropoff_date' ),
+		'_mhmrentiva_end_time'     => array( '_mhmrentiva_dropoff_time', '_mhmrentiva_booking_dropoff_time' ),
+	);
+
+	/** The legacy add-on selection key (render() and AddonBooking fall back to it). */
+	private const LEGACY_ADDONS_KEY = 'mhmrentiva_selected_addons';
+
 	public static function fingerprint(int $booking_id): string {
-		// The values the edit box shows -- BookingEditMetaBox::render() falls back
-		// to the legacy keys -- or the first Update of a legacy booking, writing
-		// the same values under the current keys, would read as a change.
-		$legacy_ids = get_post_meta($booking_id, '_mhmrentiva_selected_addons', true)
-			?: get_post_meta($booking_id, 'mhmrentiva_selected_addons', true);
-		$selection  = AddonSelection::of(
-			array_map('intval', is_array($legacy_ids) ? $legacy_ids : array()),
-			(array) get_post_meta($booking_id, MetaKeys::BOOKING_ADDON_QUANTITIES, true)
-		);
-		$addons     = $selection->quantities();
+		$selection = AddonSelection::for_booking($booking_id);
+		$addons    = $selection->quantities();
 		ksort($addons);
 		// A set, not a sequence: the edit box posts add-ons in menu order.
 		$ids = $selection->ids();
@@ -56,11 +62,11 @@ final class BookingPricingInputs {
 
 		return (string) wp_json_encode(
 			array(
-				'vehicle'  => (int) self::first($booking_id, '_mhmrentiva_vehicle_id', '_mhmrentiva_booking_vehicle_id'),
-				'pickup'   => self::first($booking_id, '_mhmrentiva_pickup_date', '_mhmrentiva_booking_pickup_date'),
-				'start'    => self::first($booking_id, '_mhmrentiva_start_time', '_mhmrentiva_pickup_time', '_mhmrentiva_booking_pickup_time'),
-				'dropoff'  => self::first($booking_id, '_mhmrentiva_dropoff_date', '_mhmrentiva_booking_dropoff_date'),
-				'end'      => self::first($booking_id, '_mhmrentiva_end_time', '_mhmrentiva_dropoff_time', '_mhmrentiva_booking_dropoff_time'),
+				'vehicle'  => (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true),
+				'pickup'   => (string) get_post_meta($booking_id, '_mhmrentiva_pickup_date', true),
+				'start'    => (string) get_post_meta($booking_id, '_mhmrentiva_start_time', true),
+				'dropoff'  => (string) get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true),
+				'end'      => (string) get_post_meta($booking_id, '_mhmrentiva_end_time', true),
 				'addons'   => $ids,
 				'quantity' => $addons,
 				'payment'  => (string) get_post_meta($booking_id, '_mhmrentiva_payment_type', true),
@@ -74,6 +80,7 @@ final class BookingPricingInputs {
 		}
 		if (empty(self::$depth[ $post_id ])) {
 			wp_cache_delete($post_id, 'post_meta');
+			self::adopt_legacy_keys($post_id);
 			self::$before[ $post_id ] = self::fingerprint($post_id);
 		}
 		self::$depth[ $post_id ] = ( self::$depth[ $post_id ] ?? 0 ) + 1;
@@ -106,6 +113,42 @@ final class BookingPricingInputs {
 	public static function reset(): void {
 		self::$before = array();
 		self::$depth  = array();
+	}
+
+	/**
+	 * Before anything reads the booking, carry the values the edit box shows
+	 * from legacy keys into the current ones -- once, before the fingerprint.
+	 *
+	 * render() falls back to legacy keys; the writers (this fingerprint, the
+	 * vehicle-change check, the add-on quantity cap via for_booking()) read
+	 * the current keys. On a booking with only legacy keys the first Update
+	 * therefore saw a change where the operator made none and re-priced it
+	 * (Codex review of #171). Adopting the legacy values makes every reader
+	 * agree. The legacy add-on list is then deleted: left behind, it would
+	 * shadow a selection cleared later (`?:` treats [] as missing). The
+	 * legacy date/time/vehicle keys stay -- list columns and queries still
+	 * read them, and the edit box keeps writing them.
+	 */
+	private static function adopt_legacy_keys(int $booking_id): void {
+		foreach (self::LEGACY_KEYS as $current => $legacy) {
+			if (self::first($booking_id, $current) !== '') {
+				continue;
+			}
+			$value = self::first($booking_id, ...$legacy);
+			if ('' !== $value) {
+				update_post_meta($booking_id, $current, $value);
+			}
+		}
+
+		$legacy_addons = get_post_meta($booking_id, self::LEGACY_ADDONS_KEY, true);
+		if ('' === $legacy_addons || false === $legacy_addons) {
+			return;
+		}
+		$current = get_post_meta($booking_id, MetaKeys::BOOKING_SELECTED_ADDONS, true);
+		if (empty($current)) {
+			update_post_meta($booking_id, MetaKeys::BOOKING_SELECTED_ADDONS, array_values(array_map('intval', (array) $legacy_addons)));
+		}
+		delete_post_meta($booking_id, self::LEGACY_ADDONS_KEY);
 	}
 
 	/**

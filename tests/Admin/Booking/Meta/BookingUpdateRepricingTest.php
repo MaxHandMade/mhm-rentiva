@@ -162,6 +162,15 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 		$this->assertSame(5, has_action('save_post', array( BookingEditMetaBox::class, 'save_booking_details' )));
 		$this->assertSame(10, has_action('save_post', array( BookingMeta::class, 'save_meta' )));
 		$this->assertSame(99, has_action('save_post', array( BookingPricingInputs::class, 'close' )));
+		// open/close take ($post_id, $post): one accepted arg would be a TypeError.
+		global $wp_filter;
+		foreach (array( 1 => 'open', 99 => 'close' ) as $priority => $method) {
+			$entries = array_filter(
+				$wp_filter['save_post']->callbacks[ $priority ],
+				static fn($cb) => array( BookingPricingInputs::class, $method ) === $cb['function']
+			);
+			$this->assertSame(2, current($entries)['accepted_args'], $method);
+		}
 		// The customer e-mail entry points BookingCustomerEmailTemplateTest drives.
 		$this->assertSame(10, has_action('wp_ajax_mhmrentiva_get_email_template', array( BookingMeta::class, 'ajax_get_email_template' )));
 		$this->assertSame(10, has_action('wp_ajax_mhmrentiva_send_customer_email', array( BookingMeta::class, 'ajax_send_customer_email' )));
@@ -211,13 +220,74 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 	public function test_a_legacy_booking_keeps_its_price_on_a_status_only_update(): void
 	{
 		// The edit box shows legacy-key values; the first Update writes them under
-		// the current keys -- not a change of price input (Codex #171 bulgu 2).
+		// the current keys -- not a change of price input (Codex #171 r1 bulgu 2).
 		$a = $this->addon();
 		delete_post_meta($this->booking, '_mhmrentiva_start_time');
 		delete_post_meta($this->booking, '_mhmrentiva_end_time');
 		update_post_meta($this->booking, '_mhmrentiva_pickup_time', '10:00');
 		update_post_meta($this->booking, '_mhmrentiva_dropoff_time', '10:00');
 		update_post_meta($this->booking, 'mhmrentiva_selected_addons', array( $a ));
+
+		$this->update(array(
+			'mhmrentiva_edit_status'          => 'completed',
+			'mhmrentiva_edit_selected_addons' => array( $a ),
+		));
+
+		$this->assertSame('2550', $this->total());
+	}
+
+	public function test_a_legacy_vehicle_key_is_not_a_vehicle_change(): void
+	{
+		// Codex #171 r2 bulgu 3: the vehicle-change branch re-priced directly.
+		delete_post_meta($this->booking, '_mhmrentiva_vehicle_id');
+		update_post_meta($this->booking, '_mhmrentiva_booking_vehicle_id', (string) $this->vehicle);
+
+		$this->update(array( 'mhmrentiva_edit_status' => 'completed' ));
+
+		$this->assertSame('2550', $this->total());
+		$this->assertSame((string) $this->vehicle, (string) get_post_meta($this->booking, '_mhmrentiva_vehicle_id', true));
+	}
+
+	public function test_a_legacy_add_on_keeps_its_quantity_under_a_lowered_maximum(): void
+	{
+		// Codex #171 r2 bulgu 2: the cap read the booked quantity through the
+		// current id list only, so a legacy list dropped 3 to the new maximum 1.
+		$a = $this->addon();
+		update_post_meta($a, \MHMRentiva\Admin\Core\MetaKeys::ADDON_MAX_QUANTITY, '1');
+		update_post_meta($this->booking, 'mhmrentiva_selected_addons', array( $a ));
+		update_post_meta($this->booking, '_mhmrentiva_addon_quantities', array( $a => 3 ));
+
+		$this->update(array(
+			'mhmrentiva_edit_status'          => 'completed',
+			'mhmrentiva_edit_selected_addons' => array( $a ),
+			'mhmrentiva_edit_addon_qty'       => array( $a => '3' ),
+		));
+
+		$this->assertSame('2550', $this->total());
+		$this->assertSame(array( $a => 3 ), get_post_meta($this->booking, '_mhmrentiva_addon_quantities', true));
+	}
+
+	public function test_a_legacy_add_on_list_does_not_shadow_its_removal(): void
+	{
+		// Codex #171 r2 bulgu 1: the legacy list stayed behind and brought back,
+		// on screen and in the fingerprint, an add-on the operator unticked.
+		$a = $this->addon();
+		update_post_meta($this->booking, '_mhmrentiva_selected_addons', array( $a ));
+		update_post_meta($this->booking, 'mhmrentiva_selected_addons', array( $a ));
+
+		$this->update(array( 'mhmrentiva_edit_status' => 'completed' ));
+
+		$this->assertSame('', get_post_meta($this->booking, 'mhmrentiva_selected_addons', true), 'The legacy list is gone.');
+		$this->assertSame(array(), \MHMRentiva\Admin\Addons\AddonSelection::for_booking($this->booking)->ids());
+		$this->assertNotSame('2550', $this->total(), 'Removing an add-on is a price input.');
+	}
+
+	public function test_a_single_legacy_add_on_id_is_read_as_a_list(): void
+	{
+		// Codex #171 r2 bulgu 4: render() casts with (array); a scalar legacy
+		// id must not read as "no add-ons" in the fingerprint.
+		$a = $this->addon();
+		update_post_meta($this->booking, 'mhmrentiva_selected_addons', (string) $a);
 
 		$this->update(array(
 			'mhmrentiva_edit_status'          => 'completed',
