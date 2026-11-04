@@ -1,6 +1,8 @@
 import { __, _x, sprintf } from '@wordpress/i18n';
 import Button from '../../../../vendor/mhm/ui-core/src-react/components/Button';
 import StatusBadge from '../../../../vendor/mhm/ui-core/src-react/components/StatusBadge';
+import SelectAll from '../../../../vendor/mhm/ui-core/src-react/components/SelectAll';
+import RowSelect from '../../../../vendor/mhm/ui-core/src-react/components/RowSelect';
 
 const TONE = { new: 'warning', read: 'neutral', replied: 'success', spam: 'danger' };
 
@@ -32,7 +34,13 @@ const openLabel = ( r ) => {
 };
 
 export default function ContactTable( { rows, selected, onToggle, onToggleAll, onOpen } ) {
-	const all = rows.length > 0 && selected.length === rows.length;
+	const picked = rows.filter( ( r ) => selected.includes( r.id ) ).length;
+	let selectState = 'some';
+	if ( picked === 0 ) {
+		selectState = 'none';
+	} else if ( picked === rows.length ) {
+		selectState = 'all';
+	}
 	const pageUrl = window.mhmRentivaContactMessages?.pageUrl ?? '';
 	const openHref = ( id ) => `${ pageUrl }${ pageUrl.includes( '?' ) ? '&' : '?' }id=${ id }`;
 	const open = ( e, id ) => {
@@ -46,8 +54,13 @@ export default function ContactTable( { rows, selected, onToggle, onToggleAll, o
 		<>
 			<thead>
 				<tr>
-					<th scope="col" className="check-column">
-						<input type="checkbox" aria-label={ __( 'Select all messages', 'mhm-rentiva' ) } checked={ all } onChange={ ( e ) => onToggleAll( e.target.checked ) } />
+					<th scope="col" className="mhmui-table__select">
+						<SelectAll
+							state={ selectState }
+							onChange={ onToggleAll }
+							label={ __( 'Select all messages', 'mhm-rentiva' ) }
+							disabled={ rows.length === 0 }
+						/>
 					</th>
 					<th scope="col" className="mhm-contact-messages__th-sender">{ __( 'Sender', 'mhm-rentiva' ) }</th>
 					<th scope="col" className="mhm-contact-messages__th-message">{ __( 'Message', 'mhm-rentiva' ) }</th>
@@ -60,12 +73,11 @@ export default function ContactTable( { rows, selected, onToggle, onToggleAll, o
 			<tbody>
 				{ rows.map( ( r ) => (
 					<tr key={ r.id } className={ r.status === 'new' ? 'is-new' : undefined }>
-						<td className="check-column">
-							<input
-								type="checkbox"
-								aria-label={ selectLabel( r ) }
+						<td className="mhmui-table__select">
+							<RowSelect
 								checked={ selected.includes( r.id ) }
 								onChange={ () => onToggle( r.id ) }
+								label={ selectLabel( r ) }
 							/>
 						</td>
 						<td>
