@@ -75,9 +75,9 @@
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1.1",
-        "phpunit/phpunit": "^9.6",
+        "phpunit/phpunit": "^9.6.33",
         "php-stubs/woocommerce-stubs": "^10.4",
-        "wp-coding-standards/wpcs": "^3.2",
+        "wp-coding-standards/wpcs": "^3.4.1",
         "yoast/phpunit-polyfills": "^2.0",
         "phpcompatibility/phpcompatibility-wp": "*",
         "phpstan/phpstan": "^2.0",
@@ -85,7 +85,8 @@
         "php-stubs/wordpress-stubs": "^6.7",
         "php-stubs/wp-cli-stubs": "^2.12",
         "composer/installers": "^2.3",
-        "wpackagist-plugin/elementor": "*"
+        "wpackagist-plugin/elementor": "*",
+        "squizlabs/php_codesniffer": "^3.13.6"
     },
     "require": {
         "mhm/ui-core": "^0.17"
