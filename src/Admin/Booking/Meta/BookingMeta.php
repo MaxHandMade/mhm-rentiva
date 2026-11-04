@@ -44,6 +44,13 @@ final class BookingMeta extends AbstractMetaBox {
 	private static bool $registered = false;
 
 	/**
+	 * The "Send email to customer" types: the select's options, and the keys
+	 * prepare_email_content() has a default subject and message for. Anything
+	 * else is refused before a template is looked up.
+	 */
+	private const CUSTOMER_EMAIL_TYPES = array( 'booking_confirmation', 'payment_reminder', 'booking_reminder', 'booking_cancelled', 'custom' );
+
+	/**
 	 * Flag to ensure admin_action_editpost hook is registered only once
 	 */
 	private static bool $editpostHookRegistered = false;
@@ -876,6 +883,8 @@ final class BookingMeta extends AbstractMetaBox {
 			'payment_reminder'     => sprintf(__('Payment Reminder - %s', 'mhm-rentiva'), $vehicle_name),
 			/* translators: %s: vehicle name */
 			'booking_reminder'     => sprintf(__('Booking Reminder - %s', 'mhm-rentiva'), $vehicle_name),
+			/* translators: %s: vehicle name */
+			'booking_cancelled'    => sprintf(__('Booking Cancelled - %s', 'mhm-rentiva'), $vehicle_name),
 			/* translators: %s: blog name. */
 			'custom'               => $subject ? $subject : sprintf(__('Message from %s', 'mhm-rentiva'), get_bloginfo('name')),
 		);
@@ -1718,7 +1727,7 @@ final class BookingMeta extends AbstractMetaBox {
 
 		$email_type = $req->text('email_type');
 
-		if (! $booking_id || ! $email_type) {
+		if (! $booking_id || ! in_array($email_type, self::CUSTOMER_EMAIL_TYPES, true)) {
 			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));
 			return;
 		}
@@ -1771,7 +1780,7 @@ final class BookingMeta extends AbstractMetaBox {
 		// rich-text field and its HTML formatting has to survive into the email.
 		$message = wp_kses_post( (string) ( $req->raw('email_message') ?? '' ) );
 
-		if (! $email_type) {
+		if (! in_array($email_type, self::CUSTOMER_EMAIL_TYPES, true)) {
 			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));
 			return;
 		}
