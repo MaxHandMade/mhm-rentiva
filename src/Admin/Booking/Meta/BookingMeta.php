@@ -197,6 +197,11 @@ final class BookingMeta extends AbstractMetaBox {
 					'confirmRefund'        => __( 'Proceed with refund?', 'mhm-rentiva' ),
 					'priceDecimals'        => \MHMRentiva\Admin\Payment\Core\Money::decimals(),
 					'strings'              => array(
+						'noteEmpty'       => __( 'Please enter a note.', 'mhm-rentiva' ),
+						'noteAdded'       => __( 'Note added.', 'mhm-rentiva' ),
+						/* translators: %s: the error message the server returned. */
+						'noteError'       => __( 'Error: %s', 'mhm-rentiva' ),
+						'noteFailed'      => __( 'The note could not be added.', 'mhm-rentiva' ),
 						'sending'         => __( 'Sending...', 'mhm-rentiva' ),
 						'success'         => __( 'Email sent successfully!', 'mhm-rentiva' ),
 						'error'           => __( 'Error:', 'mhm-rentiva' ),
