@@ -251,6 +251,7 @@ src/Admin/Booking/Actions/BookingActionGuard.php
 src/Admin/Booking/Actions/BookingApproveAjax.php
 src/Admin/Booking/Actions/DepositManagementAjax.php
 src/Admin/Booking/Addons/AddonBooking.php
+src/Admin/Booking/Core/BookingPricingInputs.php
 src/Admin/Booking/Core/Handler.php
 src/Admin/Booking/Core/Hooks.php
 src/Admin/Booking/Core/PaymentView.php

@@ -44,6 +44,13 @@ final class BookingMeta extends AbstractMetaBox {
 	private static bool $registered = false;
 
 	/**
+	 * The "Send email to customer" types: the select's options, and the keys
+	 * prepare_email_content() has a default subject and message for. Anything
+	 * else is refused before a template is looked up.
+	 */
+	private const CUSTOMER_EMAIL_TYPES = array( 'booking_confirmation', 'payment_reminder', 'booking_reminder', 'booking_cancelled', 'custom' );
+
+	/**
 	 * Flag to ensure admin_action_editpost hook is registered only once
 	 */
 	private static bool $editpostHookRegistered = false;
@@ -100,6 +107,11 @@ final class BookingMeta extends AbstractMetaBox {
 		// before the writers at 5 and 10, closes after them.
 		add_action('save_post', array( \MHMRentiva\Admin\Booking\Core\PaymentView::class, 'open_update_scope' ), 1, 2);
 		add_action('save_post', array( \MHMRentiva\Admin\Booking\Core\PaymentView::class, 'close_update_scope' ), 99, 2);
+
+		// Re-pricing only when a price input moved (BookingPricingInputs): the
+		// fingerprint is taken before the writers at 5 and 10.
+		add_action('save_post', array( \MHMRentiva\Admin\Booking\Core\BookingPricingInputs::class, 'open' ), 1, 2);
+		add_action('save_post', array( \MHMRentiva\Admin\Booking\Core\BookingPricingInputs::class, 'close' ), 99, 2);
 
 		// Email sending handler
 		add_action('admin_post_mhmrentiva_send_customer_email', array( self::class, 'handle_send_customer_email' ));
@@ -564,8 +576,10 @@ final class BookingMeta extends AbstractMetaBox {
 		update_post_meta($post_id, '_mhmrentiva_guests', $guests);
 		update_post_meta($post_id, '_mhmrentiva_special_notes', $special_notes);
 
-		// ✅ Auto calculation - When date is changed
-		if ($pickup_date && $dropoff_date) {
+		// Re-price only when a price input moved (BookingPricingInputs): the
+		// dates are filled in on every Update, and re-pricing a paid booking at
+		// today's rates on a status-only change rewrote what it had cost.
+		if ($pickup_date && $dropoff_date && \MHMRentiva\Admin\Booking\Core\BookingPricingInputs::changed($post_id)) {
 			self::recalculate_booking_costs($post_id, $pickup_date, $dropoff_date);
 		}
 
@@ -778,7 +792,10 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		$email_type = $req->text('email_type');
-		$subject    = $req->text('email_subject');
+		if (! in_array($email_type, self::CUSTOMER_EMAIL_TYPES, true)) {
+			wp_die(esc_html__('Missing required fields.', 'mhm-rentiva'));
+		}
+		$subject = $req->text('email_subject');
 		// wp_kses_post rather than sanitize_text_field: the body is authored in a
 		// rich-text field and its HTML formatting has to survive into the email.
 		$message = wp_kses_post( (string) ( $req->raw('email_message') ?? '' ) );
@@ -876,6 +893,8 @@ final class BookingMeta extends AbstractMetaBox {
 			'payment_reminder'     => sprintf(__('Payment Reminder - %s', 'mhm-rentiva'), $vehicle_name),
 			/* translators: %s: vehicle name */
 			'booking_reminder'     => sprintf(__('Booking Reminder - %s', 'mhm-rentiva'), $vehicle_name),
+			/* translators: %s: vehicle name */
+			'booking_cancelled'    => sprintf(__('Booking Cancelled - %s', 'mhm-rentiva'), $vehicle_name),
 			/* translators: %s: blog name. */
 			'custom'               => $subject ? $subject : sprintf(__('Message from %s', 'mhm-rentiva'), get_bloginfo('name')),
 		);
@@ -1566,7 +1585,10 @@ final class BookingMeta extends AbstractMetaBox {
 	 */
 	public static function on_booking_meta_updated(int $post_id, string $pickup_date, string $dropoff_date): void
 	{
-		self::recalculate_booking_costs($post_id, $pickup_date, $dropoff_date);
+		// Same rule as save_booking_fields(): no re-pricing without a moved input.
+		if (\MHMRentiva\Admin\Booking\Core\BookingPricingInputs::changed($post_id)) {
+			self::recalculate_booking_costs($post_id, $pickup_date, $dropoff_date);
+		}
 	}
 
 	/**
@@ -1718,7 +1740,7 @@ final class BookingMeta extends AbstractMetaBox {
 
 		$email_type = $req->text('email_type');
 
-		if (! $booking_id || ! $email_type) {
+		if (! $booking_id || ! in_array($email_type, self::CUSTOMER_EMAIL_TYPES, true)) {
 			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));
 			return;
 		}
@@ -1771,7 +1793,7 @@ final class BookingMeta extends AbstractMetaBox {
 		// rich-text field and its HTML formatting has to survive into the email.
 		$message = wp_kses_post( (string) ( $req->raw('email_message') ?? '' ) );
 
-		if (! $email_type) {
+		if (! in_array($email_type, self::CUSTOMER_EMAIL_TYPES, true)) {
 			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));
 			return;
 		}
