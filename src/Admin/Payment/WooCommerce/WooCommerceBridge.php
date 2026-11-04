@@ -3504,7 +3504,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// ⭐ Handle existing booking (has booking_id)
 		$booking_id = self::get_booking_id_from_cart();
 		if ($booking_id) {
-			update_post_meta($booking_id, '_mhmrentiva_payment_type', $payment_type);
+			$scope = PaymentView::begin($booking_id);
+			try {
+				update_post_meta($booking_id, '_mhmrentiva_payment_type', $payment_type);
+			} finally {
+				PaymentView::end($scope);
+			}
 		}
 
 		// ⭐ Handle pending booking (cart data) - update cart data before booking creation
@@ -3605,17 +3610,22 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					? 'deposit'
 					: 'full';
 
-				// Update DB
-				update_post_meta($booking_id, '_mhmrentiva_payment_type', $effective_payment_type);
+				// Update DB (one payment-history scope per booking in the cart)
+				$scope = PaymentView::begin($booking_id);
+				try {
+					update_post_meta($booking_id, '_mhmrentiva_payment_type', $effective_payment_type);
 
-				// For full payment, clear remaining amount immediately. For deposit,
-				// (re)compute remaining so switching full->deposit restores it instead
-				// of leaving it at a stale 0 from a prior full-payment selection.
-				update_post_meta(
-					$booking_id,
-					'_mhmrentiva_remaining_amount',
-					$effective_payment_type === 'full' ? 0 : max(0, round($total_price - $deposit_amount, 2))
-				);
+					// For full payment, clear remaining amount immediately. For deposit,
+					// (re)compute remaining so switching full->deposit restores it instead
+					// of leaving it at a stale 0 from a prior full-payment selection.
+					update_post_meta(
+						$booking_id,
+						'_mhmrentiva_remaining_amount',
+						$effective_payment_type === 'full' ? 0 : max(0, round($total_price - $deposit_amount, 2))
+					);
+				} finally {
+					PaymentView::end($scope);
+				}
 
 				$item_amount_to_pay = ( $effective_payment_type === 'deposit' ) ? $deposit_amount : $total_price;
 
