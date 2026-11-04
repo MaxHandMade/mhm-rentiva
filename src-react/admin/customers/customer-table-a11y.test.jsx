@@ -123,6 +123,22 @@ describe( 'customers page sorting and selection', () => {
 		) );
 	} );
 
+	test( 'a new sort clears the selection even when the same rows come back', async () => {
+		// The rows' ids do not change, so the kit's pruning keeps them; only
+		// the page's clear() on a new request empties the selection.
+		const CustomersPage = require( './CustomersPage' ).default;
+		const { container } = render( <CustomersPage /> );
+
+		fireEvent.click( await screen.findByRole( 'checkbox', { name: 'Ayşe Kaya' } ) );
+		await waitFor( () => expect( container.querySelector( '.rv-cust-bulk-bar' ) ).not.toBeNull() );
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Customer' } ) );
+		await screen.findByRole( 'checkbox', { name: 'Ayşe Kaya' } );
+
+		await waitFor( () => expect( container.querySelector( '.rv-cust-bulk-bar' ) ).toBeNull() );
+		expect( screen.getByRole( 'checkbox', { name: 'Ayşe Kaya' } ).checked ).toBe( false );
+	} );
+
 	test( 'moving to the next page carries no selection over', async () => {
 		const CustomersPage = require( './CustomersPage' ).default;
 		const { container } = render( <CustomersPage /> );

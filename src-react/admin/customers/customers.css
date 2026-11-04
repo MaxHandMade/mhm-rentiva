@@ -187,7 +187,6 @@
 	white-space: nowrap;
 }
 
-:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th.is-right,
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table td.is-right {
 	text-align: right;
 }
