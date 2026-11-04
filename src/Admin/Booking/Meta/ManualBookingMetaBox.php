@@ -347,11 +347,10 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			return;
 		}
 
-		$base     = isset($data['countries'][ $data['base'] ]) ? $data['base'] : '';
-		$optional = '<span class="mhm-field-optional">' . esc_html__('(optional)', 'mhm-rentiva') . '</span>';
+		$base = isset($data['countries'][ $data['base'] ]) ? $data['base'] : '';
 
 		echo '<div class="mhm-field-group">';
-		echo '<label for="mhmrentiva_new_customer_country" class="mhm-field-label">' . esc_html__('Country', 'mhm-rentiva') . ' ' . $optional . '</label>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $optional is built from esc_html__() above.
+		echo '<label for="mhmrentiva_new_customer_country" class="mhm-field-label">' . esc_html__('Country', 'mhm-rentiva') . ' <span class="mhm-field-optional">' . esc_html__('(optional)', 'mhm-rentiva') . '</span></label>';
 		echo '<select id="mhmrentiva_new_customer_country" name="mhmrentiva_new_customer_country" class="mhm-field-select">';
 		echo '<option value="">' . esc_html__('Select a country...', 'mhm-rentiva') . '</option>';
 		foreach ($data['countries'] as $code => $name) {
@@ -366,7 +365,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		$no_state = '' === $base || in_array($base, $data['noState'], true);
 
 		echo '<div id="mhmrentiva_new_customer_state_field" class="mhm-field-group' . ( $no_state ? ' mhm-hidden' : '' ) . '">';
-		echo '<label for="mhmrentiva_new_customer_state" class="mhm-field-label"><span id="mhmrentiva_new_customer_state_label">' . esc_html($has_list ? $data['labels']['state'] : $data['labels']['region']) . '</span> ' . $optional . '</label>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $optional is built from esc_html__() above.
+		echo '<label for="mhmrentiva_new_customer_state" class="mhm-field-label"><span id="mhmrentiva_new_customer_state_label">' . esc_html($has_list ? $data['labels']['state'] : $data['labels']['region']) . '</span> <span class="mhm-field-optional">' . esc_html__('(optional)', 'mhm-rentiva') . '</span></label>';
 		if ($has_list) {
 			echo '<select id="mhmrentiva_new_customer_state" name="mhmrentiva_new_customer_state" class="mhm-field-select">';
 			echo '<option value="">' . esc_html($data['labels']['selectState']) . '</option>';
