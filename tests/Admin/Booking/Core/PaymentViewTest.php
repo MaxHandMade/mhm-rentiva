@@ -254,6 +254,22 @@ final class PaymentViewTest extends WP_UnitTestCase
 		$this->assertSame(array(), $this->payment_rows());
 	}
 
+	public function test_the_list_column_and_the_deposit_box_show_the_derived_view(): void
+	{
+		$this->view('paid', 'deposit', '50');
+
+		ob_start();
+		\MHMRentiva\Admin\Booking\ListTable\BookingColumns::render('mhmrentiva_booking_payment', $this->booking);
+		$column = (string) ob_get_clean();
+		$this->assertStringContainsString('payment-status-partially_paid', $column);
+		$this->assertStringContainsString('>Partially paid<', $column);
+
+		ob_start();
+		\MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox::render_deposit_management(get_post($this->booking));
+		$box = (string) ob_get_clean();
+		$this->assertMatchesRegularExpression('/payment-status-indicator partially_paid">\s*Partially paid/', $box);
+	}
+
 	public function test_a_payment_row_never_reaches_the_customer_timeline(): void
 	{
 		$this->view('pending');
