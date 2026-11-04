@@ -103,6 +103,19 @@ final class PaymentHistoryScopesTest extends WP_Ajax_UnitTestCase
 		$this->assertOneRow($this->rows($id), 'partially_paid', 'paid');
 	}
 
+	public function test_auto_cancel_writes_one_row_as_the_system(): void
+	{
+		$id = $this->booking('pending', 'deposit', 500);
+		wp_set_current_user(0); // cron
+		$cancel = new \ReflectionMethod(\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::class, 'cancel_booking_with_orders');
+		$cancel->setAccessible(true);
+		$cancel->invoke(null, $id, 'payment deadline passed');
+
+		$rows = $this->rows($id);
+		$this->assertOneRow($rows, 'pending', 'cancelled');
+		$this->assertSame(0, (int) $rows[0]['user_id']);
+	}
+
 	public function test_a_refused_request_writes_nothing_and_leaves_no_scope_open(): void
 	{
 		$id = $this->booking('paid', 'full', 0);
