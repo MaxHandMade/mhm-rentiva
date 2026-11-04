@@ -89,6 +89,6 @@
         "squizlabs/php_codesniffer": "^3.13.6"
     },
     "require": {
-        "mhm/ui-core": "^0.19"
+        "mhm/ui-core": "^0.20"
     }
 }

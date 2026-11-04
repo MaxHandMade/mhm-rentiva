@@ -35,7 +35,7 @@
       "Değişti: Rezervasyonlarım her bölümde kendi sırasıyla listelenir: Yaklaşan en yakın teslim alma ilk, Geçmiş ve İptal en yeni ilk. Eski varsayılan sırayı kullanan kayıtlı bloklar ve bileşenler de bu sırayı izler. Yeni \"Otomatik\" sıra seçeneği varsayılandır; açıkça seçilmiş sıra geçerliliğini korur.",
       "Kaldırıldı: pano artık kayıtlı olmayan mhmrentiva_customer_dashboard_welcome, mhmrentiva_customer_favorites ve mhmrentiva_customer_booking_history seçeneklerini okumuyor. Bunları yazan bir ayar ekranı yoktu; elle girilmiş değerin artık etkisi yok.",
       "Değişti: yeni ön yüz sayfaları Plus Jakarta Sans yazı tipini kullanır; yazı tipi kendi sitenizden sunulur (yönetim ekranlarının zaten kullandığı dosya). Kullanılmayan Source Serif 4 yazı tipi dosyaları artık pakete girmez.",
-      "Değişti: Müşteriler ve İletişim Mesajları tabloları ekran okuyucuya adıyla tanıtılıyor ve sayfanın bir kısmı seçiliyken tümünü seç kutusu bunu gösteriyor; Müşteriler tablosu gerçek bir düğmeyle sıralanıyor ve sıralanan sütun duyuruluyor. mhm/ui-core 0.19.1."
+      "Değişti: Müşteriler ve İletişim Mesajları tabloları ekran okuyucuya adıyla tanıtılıyor ve sayfanın bir kısmı seçiliyken tümünü seç kutusu bunu gösteriyor; Müşteriler tablosu gerçek bir düğmeyle sıralanıyor ve sıralanan sütun duyuruluyor. mhm/ui-core 0.20.1."
     ]
   },
   {
