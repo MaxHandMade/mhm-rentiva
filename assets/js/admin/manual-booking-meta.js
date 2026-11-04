@@ -66,6 +66,11 @@
 
 			// Müşteri seçimi değiştiğinde
 			$( document ).on( 'change', '#mhmrentiva_manual_customer_id', this.onCustomerChange );
+
+			// The new customer's state control follows the chosen country.
+			$( document ).on( 'change', '#mhmrentiva_new_customer_country', function () {
+				ManualBooking.renderStateField( $( this ).val() );
+			} );
 		},
 
 		setupDateDefaults: function () {
@@ -168,15 +173,56 @@
 			const customerId        = $( '#mhmrentiva_manual_customer_id' ).val();
 			const newCustomerFields = $( '#mhmrentiva_new_customer_fields' );
 
+			// Only these four are required: the card also holds the optional
+			// country and state, which a blanket `input` selector made required.
+			const required = $( '#mhmrentiva_new_customer_first_name, #mhmrentiva_new_customer_last_name, #mhmrentiva_new_customer_email, #mhmrentiva_new_customer_phone' );
+
 			if (customerId === 'new_customer') {
 				newCustomerFields.removeClass( 'mhm-hidden' );
-				// Yeni müşteri alanlarını zorunlu yap
-				newCustomerFields.find( 'input' ).prop( 'required', true );
+				required.prop( 'required', true );
 			} else {
 				newCustomerFields.addClass( 'mhm-hidden' );
-				// Yeni müşteri alanlarını zorunlu olmaktan çıkar
-				newCustomerFields.find( 'input' ).prop( 'required', false );
+				required.prop( 'required', false );
 			}
+		},
+
+		/**
+		 * Rebuild the state control for a country, as WooCommerce checkout
+		 * does: a state list is a select, an empty list hides the field, no
+		 * list is free text. The id and name stay, the value starts empty, so
+		 * a state never travels with a country it does not belong to.
+		 */
+		renderStateField: function ( countryCode ) {
+			const data   = window.mhmManualBookingLocations || {};
+			const labels = data.labels || {};
+			const states = ( data.states || {} )[ countryCode ];
+			const $field = $( '#mhmrentiva_new_customer_state_field' );
+			const $old   = $( '#mhmrentiva_new_customer_state' );
+			let $control;
+
+			if ( ! countryCode || ( data.noState || [] ).indexOf( countryCode ) !== -1 ) {
+				$field.addClass( 'mhm-hidden' );
+				$control = $( '<input type="text">' ).val( '' );
+			} else if ( states ) {
+				$field.removeClass( 'mhm-hidden' );
+				$control = $( '<select>' );
+				$control.append( $( '<option>' ).val( '' ).text( labels.selectState || '' ) );
+				Object.keys( states ).forEach( ( code ) => {
+					$control.append( $( '<option>' ).val( code ).text( states[ code ] ) );
+				} );
+				$( '#mhmrentiva_new_customer_state_label' ).text( labels.state || '' );
+			} else {
+				$field.removeClass( 'mhm-hidden' );
+				$control = $( '<input type="text">' ).val( '' ).attr( 'placeholder', labels.regionPlaceholder || '' );
+				$( '#mhmrentiva_new_customer_state_label' ).text( labels.region || '' );
+			}
+
+			$control.attr( {
+				id: 'mhmrentiva_new_customer_state',
+				name: 'mhmrentiva_new_customer_state',
+				class: $control.is( 'select' ) ? 'mhm-field-select' : 'mhm-field-input',
+			} );
+			$old.replaceWith( $control );
 		},
 
 		/**
@@ -484,6 +530,11 @@
 				formData.new_customer_last_name  = $( '#mhmrentiva_new_customer_last_name' ).val();
 				formData.new_customer_email      = $( '#mhmrentiva_new_customer_email' ).val();
 				formData.new_customer_phone      = $( '#mhmrentiva_new_customer_phone' ).val();
+				formData.new_customer_country    = $( '#mhmrentiva_new_customer_country' ).val() || '';
+				// A hidden field (a country WooCommerce gives no state) sends none.
+				formData.new_customer_state      = $( '#mhmrentiva_new_customer_state_field' ).hasClass( 'mhm-hidden' )
+					? ''
+					: ( $( '#mhmrentiva_new_customer_state' ).val() || '' );
 			}
 
 			// Loading state

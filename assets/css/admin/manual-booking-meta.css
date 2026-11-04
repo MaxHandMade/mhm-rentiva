@@ -190,6 +190,12 @@
 	color: var(--mhmui-danger-ink);
 }
 
+/* The new customer's country and state are optional (spec K6). */
+.mhm-field-label .mhm-field-optional {
+	color: var(--mhmui-text-muted);
+	font-weight: 400;
+}
+
 .mhm-manual-booking-form .mhm-field-input,
 .mhm-manual-booking-form .mhm-field-select,
 .mhm-manual-booking-form .mhm-field-textarea {

@@ -244,7 +244,139 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 					),
 				)
 			);
+
+			// WooCommerce's state table for the new-customer card. Data, not
+			// strings, so it travels as an inline script rather than through
+			// wp_localize_script.
+			wp_add_inline_script(
+				'mhm-rentiva-manual-booking-meta',
+				'window.mhmManualBookingLocations = ' . wp_json_encode(self::location_data()) . ';',
+				'before'
+			);
 		}
+	}
+
+	/**
+	 * Country and state data for the new-customer card, all from WooCommerce:
+	 * the countries the store sells to, the base country, and per country
+	 * either a state list (select), an empty list (WooCommerce shows no state
+	 * field) or no list at all (free text) -- the same three cases as checkout.
+	 *
+	 * @return array{base: string, countries: array<string, string>, states: array<string, array<string, string>>, noState: list<string>, labels: array{state: string, region: string, regionPlaceholder: string, selectState: string}}
+	 */
+	public static function location_data(): array
+	{
+		$data = array(
+			'base'      => '',
+			'countries' => array(),
+			'states'    => array(),
+			'noState'   => array(),
+			'labels'    => array(
+				'state'             => __('State', 'mhm-rentiva'),
+				'region'            => __('State / region', 'mhm-rentiva'),
+				'regionPlaceholder' => __('State or region', 'mhm-rentiva'),
+				'selectState'       => __('Select a state...', 'mhm-rentiva'),
+			),
+		);
+
+		if (! function_exists('WC') || ! WC()->countries instanceof \WC_Countries) {
+			return $data;
+		}
+
+		$wc_countries      = WC()->countries;
+		$data['countries'] = $wc_countries->get_allowed_countries();
+		$data['base']      = (string) $wc_countries->get_base_country();
+
+		foreach (array_keys($data['countries']) as $code) {
+			$states = $wc_countries->get_states( (string) $code);
+			if (is_array($states) && array() !== $states) {
+				$data['states'][ (string) $code ] = $states;
+			} elseif (is_array($states)) {
+				$data['noState'][] = (string) $code;
+			}
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Keep a posted country only if the store sells to it, and a state only
+	 * if it belongs to that country: a code from the country's list, or free
+	 * text where WooCommerce has no list. An unknown or empty country also
+	 * reads as "no list", so the state is looked at only once the country was
+	 * kept -- otherwise a state code would be saved with no country.
+	 *
+	 * @return array{country: string, state: string}
+	 */
+	private static function sanitize_location(string $country, string $state): array
+	{
+		$clean = array(
+			'country' => '',
+			'state'   => '',
+		);
+
+		if (! function_exists('WC') || ! WC()->countries instanceof \WC_Countries || '' === $country) {
+			return $clean;
+		}
+
+		$wc_countries = WC()->countries;
+		if (! array_key_exists($country, $wc_countries->get_allowed_countries())) {
+			return $clean;
+		}
+		$clean['country'] = $country;
+
+		$states = $wc_countries->get_states($country);
+		if (is_array($states) && array() !== $states) {
+			$clean['state'] = array_key_exists($state, $states) ? $state : '';
+		} elseif (false === $states) {
+			$clean['state'] = mb_substr(trim($state), 0, 100);
+		}
+
+		return $clean;
+	}
+
+	/**
+	 * The optional country and state fields of the new-customer card
+	 * (spec K6). The base country is preselected; the state starts empty so
+	 * nothing the admin never chose is saved.
+	 */
+	private static function render_location_fields(): void
+	{
+		$data = self::location_data();
+		if (array() === $data['countries']) {
+			return;
+		}
+
+		$base = isset($data['countries'][ $data['base'] ]) ? $data['base'] : '';
+
+		echo '<div class="mhm-field-group">';
+		echo '<label for="mhmrentiva_new_customer_country" class="mhm-field-label">' . esc_html__('Country', 'mhm-rentiva') . ' <span class="mhm-field-optional">' . esc_html__('(optional)', 'mhm-rentiva') . '</span></label>';
+		echo '<select id="mhmrentiva_new_customer_country" name="mhmrentiva_new_customer_country" class="mhm-field-select">';
+		echo '<option value="">' . esc_html__('Select a country...', 'mhm-rentiva') . '</option>';
+		foreach ($data['countries'] as $code => $name) {
+			// WooCommerce's names carry HTML entities (Cura&ccedil;ao); esc_html()
+			// leaves an existing entity alone, so the browser shows the letter.
+			echo '<option value="' . esc_attr( (string) $code) . '"' . selected($base, (string) $code, false) . '>' . esc_html( (string) $name) . '</option>';
+		}
+		echo '</select>';
+		echo '</div>';
+
+		$has_list = '' !== $base && isset($data['states'][ $base ]);
+		$no_state = '' === $base || in_array($base, $data['noState'], true);
+
+		echo '<div id="mhmrentiva_new_customer_state_field" class="mhm-field-group' . ( $no_state ? ' mhm-hidden' : '' ) . '">';
+		echo '<label for="mhmrentiva_new_customer_state" class="mhm-field-label"><span id="mhmrentiva_new_customer_state_label">' . esc_html($has_list ? $data['labels']['state'] : $data['labels']['region']) . '</span> <span class="mhm-field-optional">' . esc_html__('(optional)', 'mhm-rentiva') . '</span></label>';
+		if ($has_list) {
+			echo '<select id="mhmrentiva_new_customer_state" name="mhmrentiva_new_customer_state" class="mhm-field-select">';
+			echo '<option value="">' . esc_html($data['labels']['selectState']) . '</option>';
+			foreach ($data['states'][ $base ] as $code => $name) {
+				echo '<option value="' . esc_attr( (string) $code) . '">' . esc_html( (string) $name) . '</option>';
+			}
+			echo '</select>';
+		} else {
+			echo '<input type="text" id="mhmrentiva_new_customer_state" name="mhmrentiva_new_customer_state" class="mhm-field-input" placeholder="' . esc_attr($data['labels']['regionPlaceholder']) . '">';
+		}
+		echo '</div>';
 	}
 
 	/**
@@ -409,6 +541,8 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		echo '<label for="mhmrentiva_new_customer_phone" class="mhm-field-label">' . esc_html__( 'Phone', 'mhm-rentiva' ) . ' <span class="required">*</span></label>';
 		echo '<input type="tel" id="mhmrentiva_new_customer_phone" name="mhmrentiva_new_customer_phone" class="mhm-field-input">';
 		echo '</div>';
+
+		self::render_location_fields();
 
 		echo '</div>'; // .mhm-form-card-body (nested)
 		echo '</div>'; // #mhmrentiva_new_customer_fields
@@ -777,6 +911,11 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			$customer_name       = trim($customer_first_name . ' ' . $customer_last_name);
 			$customer_email      = isset($_POST['new_customer_email']) ? sanitize_email(wp_unslash( (string) $_POST['new_customer_email'])) : '';
 			$customer_phone      = isset($_POST['new_customer_phone']) ? sanitize_text_field(wp_unslash( (string) $_POST['new_customer_phone'])) : '';
+			// Optional (spec K6); checked against WooCommerce, never trusted.
+			$customer_location = self::sanitize_location(
+				isset($_POST['new_customer_country']) ? sanitize_text_field(wp_unslash( (string) $_POST['new_customer_country'])) : '',
+				isset($_POST['new_customer_state']) ? sanitize_text_field(wp_unslash( (string) $_POST['new_customer_state'])) : ''
+			);
 
 			if (! $customer_first_name || ! $customer_last_name || ! $customer_email || ! $customer_phone) {
 				wp_send_json_error(array( 'message' => esc_html__('New customer information is missing.', 'mhm-rentiva') ));
@@ -914,6 +1053,15 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			// Save meta information (same as normal booking form)
 			update_user_meta($user_id, 'mhmrentiva_phone', $customer_phone);
 			update_user_meta($user_id, 'mhmrentiva_customer', true);
+
+			// WooCommerce's own customer fields, so checkout and the account
+			// pages show the same country and state.
+			if ('' !== $customer_location['country']) {
+				update_user_meta($user_id, 'billing_country', $customer_location['country']);
+			}
+			if ('' !== $customer_location['state']) {
+				update_user_meta($user_id, 'billing_state', $customer_location['state']);
+			}
 
 			$customer = get_userdata($user_id);
 		}
