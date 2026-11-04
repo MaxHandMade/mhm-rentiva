@@ -164,12 +164,17 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 		$this->assertSame(99, has_action('save_post', array( BookingPricingInputs::class, 'close' )));
 		// open/close take ($post_id, $post): one accepted arg would be a TypeError.
 		global $wp_filter;
-		foreach (array( 1 => 'open', 99 => 'close' ) as $priority => $method) {
+		foreach (array(
+			array( 1, BookingPricingInputs::class, 'open', 2 ),
+			array( 5, BookingEditMetaBox::class, 'save_booking_details', 1 ),
+			array( 10, BookingMeta::class, 'save_meta', 2 ),
+			array( 99, BookingPricingInputs::class, 'close', 2 ),
+		) as list( $priority, $class, $method, $args )) {
 			$entries = array_filter(
 				$wp_filter['save_post']->callbacks[ $priority ],
-				static fn($cb) => array( BookingPricingInputs::class, $method ) === $cb['function']
+				static fn($cb) => array( $class, $method ) === $cb['function']
 			);
-			$this->assertSame(2, current($entries)['accepted_args'], $method);
+			$this->assertSame($args, current($entries)['accepted_args'], $method);
 		}
 		// The customer e-mail entry points BookingCustomerEmailTemplateTest drives.
 		$this->assertSame(10, has_action('wp_ajax_mhmrentiva_get_email_template', array( BookingMeta::class, 'ajax_get_email_template' )));
@@ -280,6 +285,47 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 		$this->assertSame('', get_post_meta($this->booking, 'mhmrentiva_selected_addons', true), 'The legacy list is gone.');
 		$this->assertSame(array(), \MHMRentiva\Admin\Addons\AddonSelection::for_booking($this->booking)->ids());
 		$this->assertNotSame('2550', $this->total(), 'Removing an add-on is a price input.');
+	}
+
+	/**
+	 * @dataProvider time_keys
+	 */
+	public function test_a_zero_time_reads_as_the_empty_time_the_form_posts(string $key, string $field): void
+	{
+		// Codex #171 r3 bulgu 1: render() treats '0' as empty and posts ''.
+		update_post_meta($this->booking, $key, '0');
+
+		$this->update(array(
+			'mhmrentiva_edit_status' => 'completed',
+			$field                   => '',
+		));
+
+		$this->assertSame('2550', $this->total());
+	}
+
+	/** @return iterable<string, array{0: string, 1: string}> */
+	public static function time_keys(): iterable
+	{
+		yield 'start' => array( '_mhmrentiva_start_time', 'mhmrentiva_edit_pickup_time' );
+		yield 'end' => array( '_mhmrentiva_end_time', 'mhmrentiva_edit_dropoff_time' );
+	}
+
+	public function test_a_refused_copy_keeps_the_legacy_add_on_list(): void
+	{
+		// Codex #171 r3 bulgu 2: the legacy list was deleted even when the copy
+		// to the current key was refused -- the selection was lost.
+		$a = $this->addon();
+		update_post_meta($this->booking, 'mhmrentiva_selected_addons', array( $a ));
+		$refuse = static fn($check, $id, $key) => '_mhmrentiva_selected_addons' === $key ? false : $check;
+		add_filter('update_post_metadata', $refuse, 10, 3);
+		add_filter('add_post_metadata', $refuse, 10, 3);
+
+		BookingPricingInputs::open($this->booking, get_post($this->booking));
+		BookingPricingInputs::close($this->booking, get_post($this->booking));
+
+		remove_filter('update_post_metadata', $refuse, 10);
+		remove_filter('add_post_metadata', $refuse, 10);
+		$this->assertSame(array( $a ), get_post_meta($this->booking, 'mhmrentiva_selected_addons', true));
 	}
 
 	public function test_a_single_legacy_add_on_id_is_read_as_a_list(): void

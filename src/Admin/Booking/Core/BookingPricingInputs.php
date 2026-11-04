@@ -36,9 +36,6 @@ final class BookingPricingInputs {
 	private static array $depth = array();
 
 	/**
-	 * The price inputs as one comparable string.
-	 */
-	/**
 	 * Current key => the keys BookingEditMetaBox::render() falls back to, in order.
 	 */
 	private const LEGACY_KEYS = array(
@@ -52,6 +49,11 @@ final class BookingPricingInputs {
 	/** The legacy add-on selection key (render() and AddonBooking fall back to it). */
 	private const LEGACY_ADDONS_KEY = 'mhmrentiva_selected_addons';
 
+	/**
+	 * The price inputs as one comparable string. Scalars go through first():
+	 * '' and '0' are the same "empty" the edit box's `?:` reads -- a stored
+	 * '0' time renders empty and is posted back as ''.
+	 */
 	public static function fingerprint(int $booking_id): string {
 		$selection = AddonSelection::for_booking($booking_id);
 		$addons    = $selection->quantities();
@@ -62,14 +64,14 @@ final class BookingPricingInputs {
 
 		return (string) wp_json_encode(
 			array(
-				'vehicle'  => (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true),
-				'pickup'   => (string) get_post_meta($booking_id, '_mhmrentiva_pickup_date', true),
-				'start'    => (string) get_post_meta($booking_id, '_mhmrentiva_start_time', true),
-				'dropoff'  => (string) get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true),
-				'end'      => (string) get_post_meta($booking_id, '_mhmrentiva_end_time', true),
+				'vehicle'  => (int) self::first($booking_id, '_mhmrentiva_vehicle_id'),
+				'pickup'   => self::first($booking_id, '_mhmrentiva_pickup_date'),
+				'start'    => self::first($booking_id, '_mhmrentiva_start_time'),
+				'dropoff'  => self::first($booking_id, '_mhmrentiva_dropoff_date'),
+				'end'      => self::first($booking_id, '_mhmrentiva_end_time'),
 				'addons'   => $ids,
 				'quantity' => $addons,
-				'payment'  => (string) get_post_meta($booking_id, '_mhmrentiva_payment_type', true),
+				'payment'  => self::first($booking_id, '_mhmrentiva_payment_type'),
 			)
 		);
 	}
@@ -144,9 +146,15 @@ final class BookingPricingInputs {
 		if ('' === $legacy_addons || false === $legacy_addons) {
 			return;
 		}
-		$current = get_post_meta($booking_id, MetaKeys::BOOKING_SELECTED_ADDONS, true);
-		if (empty($current)) {
-			update_post_meta($booking_id, MetaKeys::BOOKING_SELECTED_ADDONS, array_values(array_map('intval', (array) $legacy_addons)));
+		if (empty(get_post_meta($booking_id, MetaKeys::BOOKING_SELECTED_ADDONS, true))) {
+			$adopted = array_values(array_map('intval', (array) $legacy_addons));
+			update_post_meta($booking_id, MetaKeys::BOOKING_SELECTED_ADDONS, $adopted);
+			// Delete the source only once the copy is really stored: a write a
+			// filter refused would otherwise lose the selection.
+			wp_cache_delete($booking_id, 'post_meta');
+			if (get_post_meta($booking_id, MetaKeys::BOOKING_SELECTED_ADDONS, true) !== $adopted) {
+				return;
+			}
 		}
 		delete_post_meta($booking_id, self::LEGACY_ADDONS_KEY);
 	}
