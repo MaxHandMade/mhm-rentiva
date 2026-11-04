@@ -257,10 +257,34 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 	}
 
 	/**
+	 * How checkout asks for a country's state: 'list' (a select), 'none' (no
+	 * field) or 'text' (free text). The country locale's `hidden` wins over
+	 * the list, as in WooCommerce's address-i18n.js -- Bosnia, Botswana and
+	 * Cyprus have no list and a hidden state, and a store filter can hide a
+	 * listed one.
+	 *
+	 * @return 'list'|'none'|'text'
+	 */
+	private static function state_mode(\WC_Countries $wc_countries, string $code): string
+	{
+		$locale = $wc_countries->get_country_locale();
+		if (! empty($locale[ $code ]['state']['hidden'])) {
+			return 'none';
+		}
+
+		$states = $wc_countries->get_states($code);
+		if (is_array($states)) {
+			return array() === $states ? 'none' : 'list';
+		}
+
+		return 'text';
+	}
+
+	/**
 	 * Country and state data for the new-customer card, all from WooCommerce:
 	 * the countries the store sells to, the base country, and per country
-	 * either a state list (select), an empty list (WooCommerce shows no state
-	 * field) or no list at all (free text) -- the same three cases as checkout.
+	 * either a state list (select), no state field, or free text -- the same
+	 * three cases as checkout (state_mode()).
 	 *
 	 * @return array{base: string, countries: array<string, string>, states: array<string, array<string, string>>, noState: list<string>, labels: array{state: string, region: string, regionPlaceholder: string, selectState: string}}
 	 */
@@ -288,11 +312,12 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		$data['base']      = (string) $wc_countries->get_base_country();
 
 		foreach (array_keys($data['countries']) as $code) {
-			$states = $wc_countries->get_states( (string) $code);
-			if (is_array($states) && array() !== $states) {
-				$data['states'][ (string) $code ] = $states;
-			} elseif (is_array($states)) {
-				$data['noState'][] = (string) $code;
+			$code = (string) $code;
+			$mode = self::state_mode($wc_countries, $code);
+			if ('list' === $mode) {
+				$data['states'][ $code ] = (array) $wc_countries->get_states($code);
+			} elseif ('none' === $mode) {
+				$data['noState'][] = $code;
 			}
 		}
 
@@ -325,10 +350,10 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		}
 		$clean['country'] = $country;
 
-		$states = $wc_countries->get_states($country);
-		if (is_array($states) && array() !== $states) {
-			$clean['state'] = array_key_exists($state, $states) ? $state : '';
-		} elseif (false === $states) {
+		$mode = self::state_mode($wc_countries, $country);
+		if ('list' === $mode) {
+			$clean['state'] = array_key_exists($state, (array) $wc_countries->get_states($country)) ? $state : '';
+		} elseif ('text' === $mode) {
 			$clean['state'] = mb_substr(trim($state), 0, 100);
 		}
 
@@ -1055,12 +1080,19 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			update_user_meta($user_id, 'mhmrentiva_customer', true);
 
 			// WooCommerce's own customer fields, so checkout and the account
-			// pages show the same country and state.
-			if ('' !== $customer_location['country']) {
-				update_user_meta($user_id, 'billing_country', $customer_location['country']);
-			}
-			if ('' !== $customer_location['state']) {
-				update_user_meta($user_id, 'billing_state', $customer_location['state']);
+			// pages show the same country and state. Through WC_Customer, not
+			// update_user_meta(): its save() slashes the value (a free-text
+			// "North\West" keeps its backslash) and fires
+			// woocommerce_update_customer, which refreshes the Analytics
+			// customer row -- wp_update_user() above ran before the location
+			// existed.
+			if ('' !== $customer_location['country'] && class_exists('\WC_Customer')) {
+				$wc_customer = new \WC_Customer($user_id);
+				$wc_customer->set_billing_country($customer_location['country']);
+				if ('' !== $customer_location['state']) {
+					$wc_customer->set_billing_state($customer_location['state']);
+				}
+				$wc_customer->save();
 			}
 
 			$customer = get_userdata($user_id);

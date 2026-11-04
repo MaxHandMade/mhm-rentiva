@@ -57,6 +57,42 @@ final class ManualBookingLocationFieldsTest extends WP_UnitTestCase
 		$this->assertSame(array( 'state', 'region', 'regionPlaceholder', 'selectState' ), array_keys($data['labels']));
 	}
 
+	public function test_a_state_the_country_locale_hides_is_no_field(): void
+	{
+		// Checkout hides the state where the country locale says so
+		// (address-i18n.js), list or not. WooCommerce's own data has three
+		// such countries with no list at all: Bosnia, Botswana, Cyprus.
+		$data = ManualBookingMetaBox::location_data();
+		foreach (array( 'BA', 'BW', 'CY' ) as $code) {
+			$this->assertContains($code, $data['noState'], $code . ': locale hides the state.');
+			$this->assertArrayNotHasKey($code, $data['states']);
+		}
+
+		// A store filter that hides a country's listed states hides the field too.
+		$hide_tr = static function (array $locale): array {
+			$locale['TR']['state']['hidden'] = true;
+			return $locale;
+		};
+		add_filter('woocommerce_get_country_locale', $hide_tr);
+		$this->reset_country_locale();
+		try {
+			$data = ManualBookingMetaBox::location_data();
+		} finally {
+			remove_filter('woocommerce_get_country_locale', $hide_tr);
+			$this->reset_country_locale();
+		}
+		$this->assertContains('TR', $data['noState']);
+		$this->assertArrayNotHasKey('TR', $data['states']);
+	}
+
+	/**
+	 * WC_Countries caches the merged locale on the instance (public $locale).
+	 */
+	private function reset_country_locale(): void
+	{
+		WC()->countries->locale = array();
+	}
+
 	public function test_new_customer_card_renders_country_and_state(): void
 	{
 		$html = $this->html();

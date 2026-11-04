@@ -126,6 +126,44 @@ final class ManualBookingCustomerLocationTest extends WP_Ajax_UnitTestCase
 		$this->assertFalse(metadata_exists('user', $user, 'billing_state'));
 	}
 
+	public function test_no_state_where_the_country_locale_hides_it(): void
+	{
+		// CY has no state list (free text by the list alone), but its locale
+		// hides the field, as checkout does.
+		$user = $this->customer_of($this->create(array( 'new_customer_country' => 'CY', 'new_customer_state' => 'Nicosia' )));
+
+		$this->assertSame('CY', get_user_meta($user, 'billing_country', true));
+		$this->assertFalse(metadata_exists('user', $user, 'billing_state'));
+	}
+
+	public function test_a_backslash_in_a_free_text_state_is_kept(): void
+	{
+		// A real request arrives slashed; the handler unslashes once and the
+		// meta API must not take a second backslash away.
+		$user = $this->customer_of($this->create(array( 'new_customer_country' => 'GB', 'new_customer_state' => wp_slash('North\West') )));
+
+		$this->assertSame('North\West', get_user_meta($user, 'billing_state', true));
+	}
+
+	public function test_the_location_is_saved_through_woocommerce(): void
+	{
+		// WooCommerce Analytics refreshes its customer row on
+		// woocommerce_update_customer; a bare update_user_meta() after
+		// wp_update_user() leaves that row without the country.
+		$saved = array();
+		$probe = static function ($customer_id, $customer) use (&$saved): void {
+			$saved[] = array( (int) $customer_id, $customer->get_billing_country(), $customer->get_billing_state() );
+		};
+		add_action('woocommerce_update_customer', $probe, 10, 2);
+		try {
+			$user = $this->customer_of($this->create(array( 'new_customer_country' => 'TR', 'new_customer_state' => 'TR34' )));
+		} finally {
+			remove_action('woocommerce_update_customer', $probe, 10);
+		}
+
+		$this->assertContains(array( $user, 'TR', 'TR34' ), $saved);
+	}
+
 	public function test_a_state_of_another_country_is_dropped(): void
 	{
 		$user = $this->customer_of($this->create(array( 'new_customer_country' => 'DE', 'new_customer_state' => 'TR34' )));
