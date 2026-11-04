@@ -145,23 +145,45 @@ final class ManualBookingCustomerLocationTest extends WP_Ajax_UnitTestCase
 		$this->assertSame('North\West', get_user_meta($user, 'billing_state', true));
 	}
 
-	public function test_the_location_is_saved_through_woocommerce(): void
+	public function test_the_profile_update_already_sees_the_location(): void
 	{
-		// WooCommerce Analytics refreshes its customer row on
-		// woocommerce_update_customer; a bare update_user_meta() after
-		// wp_update_user() leaves that row without the country.
-		$saved = array();
-		$probe = static function ($customer_id, $customer) use (&$saved): void {
-			$saved[] = array( (int) $customer_id, $customer->get_billing_country(), $customer->get_billing_state() );
+		// WooCommerce Analytics refreshes its customer row on profile_update,
+		// reading a fresh WC_Customer; a location written after
+		// wp_update_user() leaves that row without it. One profile_update
+		// only: no second customer save.
+		$seen  = array();
+		$probe = static function ($user_id) use (&$seen): void {
+			$customer = new \WC_Customer( (int) $user_id);
+			$seen[]   = array( (int) $user_id, $customer->get_billing_country(), $customer->get_billing_state() );
 		};
-		add_action('woocommerce_update_customer', $probe, 10, 2);
+		add_action('profile_update', $probe);
 		try {
 			$user = $this->customer_of($this->create(array( 'new_customer_country' => 'TR', 'new_customer_state' => 'TR34' )));
 		} finally {
-			remove_action('woocommerce_update_customer', $probe, 10);
+			remove_action('profile_update', $probe);
 		}
 
-		$this->assertContains(array( $user, 'TR', 'TR34' ), $saved);
+		$mine = array_values(array_filter($seen, static fn (array $s): bool => $s[0] === $user));
+		$this->assertSame(array( array( $user, 'TR', 'TR34' ) ), $mine);
+	}
+
+	public function test_no_state_when_the_default_locale_hides_it(): void
+	{
+		$hide = static function (array $fields): array {
+			$fields['state']['hidden'] = true;
+			return $fields;
+		};
+		add_filter('woocommerce_get_country_locale_default', $hide);
+		WC()->countries->locale = array();
+		try {
+			$user = $this->customer_of($this->create(array( 'new_customer_country' => 'GB', 'new_customer_state' => 'Kent' )));
+		} finally {
+			remove_filter('woocommerce_get_country_locale_default', $hide);
+			WC()->countries->locale = array();
+		}
+
+		$this->assertSame('GB', get_user_meta($user, 'billing_country', true));
+		$this->assertFalse(metadata_exists('user', $user, 'billing_state'));
 	}
 
 	public function test_a_state_of_another_country_is_dropped(): void

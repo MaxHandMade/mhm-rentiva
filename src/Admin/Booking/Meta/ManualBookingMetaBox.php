@@ -258,17 +258,22 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 
 	/**
 	 * How checkout asks for a country's state: 'list' (a select), 'none' (no
-	 * field) or 'text' (free text). The country locale's `hidden` wins over
-	 * the list, as in WooCommerce's address-i18n.js -- Bosnia, Botswana and
-	 * Cyprus have no list and a hidden state, and a store filter can hide a
-	 * listed one.
+	 * field) or 'text' (free text). A hidden state wins over the list, as in
+	 * WooCommerce's address-i18n.js, which reads the country's state settings
+	 * merged over the default ones -- Bosnia, Botswana and Cyprus have no list
+	 * and a hidden state, a store filter can hide a listed one, and a hidden
+	 * default hides every country that does not set `hidden` itself.
 	 *
 	 * @return 'list'|'none'|'text'
 	 */
 	private static function state_mode(\WC_Countries $wc_countries, string $code): string
 	{
 		$locale = $wc_countries->get_country_locale();
-		if (! empty($locale[ $code ]['state']['hidden'])) {
+		$state  = array_merge(
+			(array) ( $locale['default']['state'] ?? array() ),
+			(array) ( $locale[ $code ]['state'] ?? array() )
+		);
+		if (! empty($state['hidden'])) {
 			return 'none';
 		}
 
@@ -1037,6 +1042,20 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			// answers yes for 'administrator' too.
 			$default_role = \MHMRentiva\Admin\Customers\CustomerIdentity::default_customer_role();
 
+			// WooCommerce's own customer fields, so checkout and the account
+			// pages show the same country and state. Written BEFORE
+			// wp_update_user(): its profile_update is what refreshes the
+			// WooCommerce Analytics customer row, which then reads the
+			// location too (a meta write after it triggers nothing). The meta
+			// API unslashes, so the value is slashed first -- a free-text
+			// "North\West" keeps its backslash.
+			if ('' !== $customer_location['country']) {
+				update_user_meta($user_id, 'billing_country', wp_slash($customer_location['country']));
+			}
+			if ('' !== $customer_location['state']) {
+				update_user_meta($user_id, 'billing_state', wp_slash($customer_location['state']));
+			}
+
 			// Update user information (same as normal booking form)
 			$update_result = wp_update_user(
 				array(
@@ -1078,22 +1097,6 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			// Save meta information (same as normal booking form)
 			update_user_meta($user_id, 'mhmrentiva_phone', $customer_phone);
 			update_user_meta($user_id, 'mhmrentiva_customer', true);
-
-			// WooCommerce's own customer fields, so checkout and the account
-			// pages show the same country and state. Through WC_Customer, not
-			// update_user_meta(): its save() slashes the value (a free-text
-			// "North\West" keeps its backslash) and fires
-			// woocommerce_update_customer, which refreshes the Analytics
-			// customer row -- wp_update_user() above ran before the location
-			// existed.
-			if ('' !== $customer_location['country'] && class_exists('\WC_Customer')) {
-				$wc_customer = new \WC_Customer($user_id);
-				$wc_customer->set_billing_country($customer_location['country']);
-				if ('' !== $customer_location['state']) {
-					$wc_customer->set_billing_state($customer_location['state']);
-				}
-				$wc_customer->save();
-			}
 
 			$customer = get_userdata($user_id);
 		}

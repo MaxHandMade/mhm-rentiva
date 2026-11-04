@@ -85,6 +85,33 @@ final class ManualBookingLocationFieldsTest extends WP_UnitTestCase
 		$this->assertArrayNotHasKey('TR', $data['states']);
 	}
 
+	public function test_a_hidden_default_state_hides_it_unless_the_country_says_otherwise(): void
+	{
+		// Checkout merges the country's state settings over the default ones.
+		$hide_default = static function (array $fields): array {
+			$fields['state']['hidden'] = true;
+			return $fields;
+		};
+		$show_tr = static function (array $locale): array {
+			$locale['TR']['state']['hidden'] = false;
+			return $locale;
+		};
+		add_filter('woocommerce_get_country_locale_default', $hide_default);
+		add_filter('woocommerce_get_country_locale', $show_tr);
+		$this->reset_country_locale();
+		try {
+			$data = ManualBookingMetaBox::location_data();
+		} finally {
+			remove_filter('woocommerce_get_country_locale_default', $hide_default);
+			remove_filter('woocommerce_get_country_locale', $show_tr);
+			$this->reset_country_locale();
+		}
+
+		$this->assertContains('GB', $data['noState'], 'GB inherits the hidden default.');
+		$this->assertContains('DE', $data['noState'], 'DE has a list but inherits the hidden default.');
+		$this->assertArrayHasKey('TR', $data['states'], 'TR sets hidden=false itself.');
+	}
+
 	/**
 	 * WC_Countries caches the merged locale on the instance (public $locale).
 	 */
