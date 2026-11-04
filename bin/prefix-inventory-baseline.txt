@@ -638,7 +638,6 @@
 'mhmrentiva_deposit'
 'mhmrentiva_deposit_management'
 'mhmrentiva_deposit_management_action'
-'mhmrentiva_deposit_management_nonce'
 'mhmrentiva_dismiss_permalink_notice'
 'mhmrentiva_doors'
 'mhmrentiva_edit_customer'

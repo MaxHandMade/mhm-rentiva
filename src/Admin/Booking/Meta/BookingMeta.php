@@ -99,9 +99,6 @@ final class BookingMeta extends AbstractMetaBox {
 		// Email sending handler
 		add_action('admin_post_mhmrentiva_send_customer_email', array( self::class, 'handle_send_customer_email' ));
 
-		// History note adding handler
-		add_action('admin_post_mhmrentiva_add_booking_history_note', array( self::class, 'handle_add_booking_history_note' ));
-
 		// AJAX handlers
 		add_action('wp_ajax_mhmrentiva_send_customer_email', array( self::class, 'ajax_send_customer_email' ));
 		add_action('wp_ajax_mhmrentiva_get_email_template', array( self::class, 'ajax_get_email_template' ));
@@ -110,9 +107,8 @@ final class BookingMeta extends AbstractMetaBox {
 		// Note: "Booking created" note is added manually (in ManualBookingMetaBox and BookingForm).
 		// The status-change note is hooked in Core\Hooks: transitions happen in every context.
 		// `mhmrentiva_payment_status_changed` was listened for here but fired by nothing in
-		// either edition, so `auto_add_payment_note()` never ran and no payment note
-		// was ever written. Rather than invent a firing site, the listener goes; the
-		// method stays available for a caller that means it.
+		// either edition, so no payment note was ever written; the listener and its
+		// method are gone. Payment notes come from the payment view's scopes (PR 3a).
 
 		// Show admin notices
 		add_action('admin_notices', array( self::class, 'show_admin_notices' ));
@@ -1041,58 +1037,6 @@ final class BookingMeta extends AbstractMetaBox {
 	}
 
 	/**
-	 * History note adding handler
-	 */
-	public static function handle_add_booking_history_note(): void
-	{
-		// Nonce check
-		$nonce = sanitize_text_field(wp_unslash($_POST['mhmrentiva_history_nonce'] ?? ''));
-		if (! wp_verify_nonce($nonce, 'mhmrentiva_add_history_note')) {
-			wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
-		}
-
-		$req = VerifiedRequest::from($_POST);
-
-		$booking_id = $req->int('booking_id');
-
-		// edit_post on the booking the request actually names, not the blanket
-		// edit_posts: this handler acts on whichever booking_id arrives, so a
-		// generic "can edit something" check was not a check on this object.
-		if (! $booking_id || ! current_user_can('edit_post', $booking_id)) {
-			wp_die(esc_html__('You do not have permission to add notes.', 'mhm-rentiva'));
-		}
-
-		// edit_post answers "may this user edit that post", never "is that post a
-		// booking". map_meta_cap grants it for any post the caller owns, so without a
-		// type check this handler acts on whatever id arrives.
-		if ('mhmrentiva_booking' !== get_post_type($booking_id)) {
-			wp_die(esc_html__('Booking not found.', 'mhm-rentiva'));
-		}
-
-		$note = $req->textarea('history_note');
-		$type = $req->text('history_type', 'note');
-
-		if (! $note) {
-			wp_die(esc_html__('Invalid booking ID or empty note.', 'mhm-rentiva'));
-		}
-
-		// One writer for the history (plan r3 y5).
-		self::add_history_note($booking_id, $note, $type);
-
-		self::queue_admin_notice('note_added');
-		$redirect_url = add_query_arg(
-			array(
-				'post'   => $booking_id,
-				'action' => 'edit',
-			),
-			admin_url('post.php')
-		);
-
-		wp_safe_redirect( $redirect_url );
-		exit;
-	}
-
-	/**
 	 * Add history note (programmatically) -- the only writer of
 	 * `_mhmrentiva_booking_history`.
 	 *
@@ -1619,34 +1563,6 @@ final class BookingMeta extends AbstractMetaBox {
 	}
 
 	/**
-	 * Auto add booking notes
-	 */
-	public static function auto_add_booking_notes(int $post_id, \WP_Post $post): void
-	{
-		// Only for booking post type
-		if ($post->post_type !== 'mhmrentiva_booking') {
-			return;
-		}
-
-		// Autosave and revision check
-		if (wp_is_post_autosave($post_id) || wp_is_post_revision($post_id)) {
-			return;
-		}
-
-		$already_created = get_post_meta($post_id, '_mhmrentiva_booking_created', true);
-
-		// When new booking is created
-		if ($post->post_status === 'publish' && $already_created !== '1') {
-			self::add_history_note(
-				$post_id,
-				__('Booking created', 'mhm-rentiva'),
-				'system'
-			);
-			update_post_meta($post_id, '_mhmrentiva_booking_created', '1');
-		}
-	}
-
-	/**
 	 * Add status change note
 	 */
 	public static function auto_add_status_change_note(int $booking_id, string $old_status, string $new_status): void
@@ -1682,32 +1598,6 @@ final class BookingMeta extends AbstractMetaBox {
 				'at'          => time(),
 			)
 		);
-	}
-
-	/**
-	 * Add payment status change note
-	 */
-	public static function auto_add_payment_note(int $booking_id, string $old_status, string $new_status): void
-	{
-		$status_labels = array(
-			'unpaid'               => __('Unpaid', 'mhm-rentiva'),
-			'pending_verification' => __('Pending Verification', 'mhm-rentiva'),
-			'paid'                 => __('Paid', 'mhm-rentiva'),
-			'partially_paid'       => __('Partially Paid', 'mhm-rentiva'),
-			'refunded'             => __('Refunded', 'mhm-rentiva'),
-		);
-
-		$old_label = $status_labels[ $old_status ] ?? $old_status;
-		$new_label = $status_labels[ $new_status ] ?? $new_status;
-
-		$note = sprintf(
-			/* translators: 1: old payment status, 2: new payment status */
-			__('Payment status changed from %1$s to %2$s', 'mhm-rentiva'),
-			$old_label,
-			$new_label
-		);
-
-		self::add_history_note($booking_id, $note, 'payment_update');
 	}
 
 	/**
@@ -1765,9 +1655,6 @@ final class BookingMeta extends AbstractMetaBox {
 		switch ($message) {
 			case 'email_sent':
 				echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Email sent successfully!', 'mhm-rentiva') . '</p></div>';
-				break;
-			case 'note_added':
-				echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Note added successfully!', 'mhm-rentiva') . '</p></div>';
 				break;
 			case 'availability_conflict':
 				echo '<div class="notice notice-error"><p>' . esc_html__('The vehicle is already booked for these dates. The booking details were not saved.', 'mhm-rentiva') . '</p></div>';
