@@ -36,6 +36,9 @@ final class PaymentView {
 	/** @var array<int, string> Booking id => status when its first token opened. */
 	private static array $before = array();
 
+	/** @var array<int, list<string>> Post id => stacked Update-scope tokens. */
+	private static array $update_tokens = array();
+
 	private static int $sequence = 0;
 
 	private static bool $hooked = false;
@@ -131,6 +134,33 @@ final class PaymentView {
 	}
 
 	/**
+	 * The Update scope: generic `save_post` at 1 opens, at 99 closes. Core
+	 * fires save_post_{type} before the generic hook, and the booking's
+	 * writers (BookingEditMetaBox at 5, BookingMeta::save_meta at 10) are on
+	 * the generic one. A save inside the save (wp_update_post() from a
+	 * writer) nests: tokens stack per post, last opened closes first.
+	 */
+	public static function open_update_scope(int $post_id, \WP_Post $post): void {
+		if (! self::is_booking_save($post_id, $post)) {
+			return;
+		}
+		self::$update_tokens[ $post_id ][] = self::begin($post_id);
+	}
+
+	public static function close_update_scope(int $post_id, \WP_Post $post): void {
+		if (! self::is_booking_save($post_id, $post) || empty(self::$update_tokens[ $post_id ])) {
+			return;
+		}
+		self::end( (string) array_pop(self::$update_tokens[ $post_id ]));
+	}
+
+	private static function is_booking_save(int $post_id, \WP_Post $post): bool {
+		return 'mhmrentiva_booking' === $post->post_type
+			&& ! wp_is_post_revision($post_id)
+			&& ! wp_is_post_autosave($post_id);
+	}
+
+	/**
 	 * Close every scope still open (the request is ending).
 	 */
 	public static function flush(): void {
@@ -143,8 +173,9 @@ final class PaymentView {
 	 * @internal Tests only.
 	 */
 	public static function reset(): void {
-		self::$open     = array();
-		self::$before   = array();
+		self::$open          = array();
+		self::$before        = array();
+		self::$update_tokens = array();
 		self::$sequence = 0;
 		if (self::$hooked) {
 			remove_action('shutdown', array( self::class, 'flush' ), 0);

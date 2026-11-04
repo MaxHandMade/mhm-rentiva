@@ -191,6 +191,69 @@ final class PaymentViewTest extends WP_UnitTestCase
 		$this->assertCount(1, $this->payment_rows());
 	}
 
+	public function test_an_update_scope_surrounds_the_generic_save_post_writers(): void
+	{
+		// BookingEditMetaBox (5) and BookingMeta::save_meta (10) write on the
+		// GENERIC save_post, which core fires after save_post_{type}; a
+		// re-pricing that clears the balance must leave one row.
+		add_action('save_post', array( PaymentView::class, 'open_update_scope' ), 1, 2);
+		add_action('save_post', array( PaymentView::class, 'close_update_scope' ), 99, 2);
+		$this->view('paid', 'deposit', '50');
+		$reprice = function (int $post_id): void {
+			if ($post_id === $this->booking) {
+				update_post_meta($this->booking, '_mhmrentiva_remaining_amount', '0');
+			}
+		};
+		add_action('save_post', $reprice, 5);
+
+		wp_update_post(array( 'ID' => $this->booking, 'post_title' => 'Updated' ));
+
+		$rows = $this->payment_rows();
+		$this->assertCount(1, $rows);
+		$this->assertSame(array( 'partially_paid', 'paid' ), array( $rows[0]['payment_from'], $rows[0]['payment_to'] ));
+	}
+
+	public function test_a_nested_update_inside_the_save_writes_one_row(): void
+	{
+		// BookingEditMetaBox::save_booking_details() calls wp_update_post()
+		// from inside save_post (a vehicle change): save_post runs again.
+		add_action('save_post', array( PaymentView::class, 'open_update_scope' ), 1, 2);
+		add_action('save_post', array( PaymentView::class, 'close_update_scope' ), 99, 2);
+		$this->view('paid', 'deposit', '50');
+		$nested = 0;
+		$inner  = function (int $post_id) use (&$nested): void {
+			if ($post_id !== $this->booking || $nested++ > 0) {
+				return;
+			}
+			wp_update_post(array( 'ID' => $this->booking, 'post_excerpt' => 'vehicle changed' ));
+			update_post_meta($this->booking, '_mhmrentiva_remaining_amount', '0');
+		};
+		add_action('save_post', $inner, 5);
+
+		wp_update_post(array( 'ID' => $this->booking, 'post_title' => 'Updated' ));
+
+		$this->assertCount(1, $this->payment_rows());
+	}
+
+	public function test_an_update_of_another_post_type_opens_no_scope(): void
+	{
+		add_action('save_post', array( PaymentView::class, 'open_update_scope' ), 1, 2);
+		add_action('save_post', array( PaymentView::class, 'close_update_scope' ), 99, 2);
+		$page = (int) self::factory()->post->create(array( 'post_type' => 'page' ));
+		wp_update_post(array( 'ID' => $page, 'post_title' => 'x' ));
+		$this->assertFalse(has_action('shutdown', array( PaymentView::class, 'flush' )), 'No scope was opened.');
+	}
+
+	public function test_an_autosave_revision_writes_no_row(): void
+	{
+		add_action('save_post', array( PaymentView::class, 'open_update_scope' ), 1, 2);
+		add_action('save_post', array( PaymentView::class, 'close_update_scope' ), 99, 2);
+		$this->view('paid', 'deposit', '50');
+		$revision = (int) _wp_put_post_revision(get_post($this->booking), true);
+		$this->assertGreaterThan(0, $revision);
+		$this->assertSame(array(), $this->payment_rows());
+	}
+
 	public function test_a_payment_row_never_reaches_the_customer_timeline(): void
 	{
 		$this->view('pending');

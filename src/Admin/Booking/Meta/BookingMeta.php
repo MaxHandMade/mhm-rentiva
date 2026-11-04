@@ -96,6 +96,11 @@ final class BookingMeta extends AbstractMetaBox {
 		// Save meta
 		add_action('save_post', array( self::class, 'save_meta' ), 10, 2);
 
+		// Payment history around every booking Update (PaymentView): opens
+		// before the writers at 5 and 10, closes after them.
+		add_action('save_post', array( \MHMRentiva\Admin\Booking\Core\PaymentView::class, 'open_update_scope' ), 1, 2);
+		add_action('save_post', array( \MHMRentiva\Admin\Booking\Core\PaymentView::class, 'close_update_scope' ), 99, 2);
+
 		// Email sending handler
 		add_action('admin_post_mhmrentiva_send_customer_email', array( self::class, 'handle_send_customer_email' ));
 
