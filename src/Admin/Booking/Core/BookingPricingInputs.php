@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Admin\Booking\Core;
 
 use MHMRentiva\Admin\Addons\AddonSelection;
+use MHMRentiva\Admin\Core\MetaKeys;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -38,8 +39,16 @@ final class BookingPricingInputs {
 	 * The price inputs as one comparable string.
 	 */
 	public static function fingerprint(int $booking_id): string {
-		$selection = AddonSelection::for_booking($booking_id);
-		$addons    = $selection->quantities();
+		// The values the edit box shows -- BookingEditMetaBox::render() falls back
+		// to the legacy keys -- or the first Update of a legacy booking, writing
+		// the same values under the current keys, would read as a change.
+		$legacy_ids = get_post_meta($booking_id, '_mhmrentiva_selected_addons', true)
+			?: get_post_meta($booking_id, 'mhmrentiva_selected_addons', true);
+		$selection  = AddonSelection::of(
+			array_map('intval', is_array($legacy_ids) ? $legacy_ids : array()),
+			(array) get_post_meta($booking_id, MetaKeys::BOOKING_ADDON_QUANTITIES, true)
+		);
+		$addons     = $selection->quantities();
 		ksort($addons);
 		// A set, not a sequence: the edit box posts add-ons in menu order.
 		$ids = $selection->ids();
@@ -47,11 +56,11 @@ final class BookingPricingInputs {
 
 		return (string) wp_json_encode(
 			array(
-				'vehicle'  => (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true),
-				'pickup'   => (string) get_post_meta($booking_id, '_mhmrentiva_pickup_date', true),
-				'start'    => (string) get_post_meta($booking_id, '_mhmrentiva_start_time', true),
-				'dropoff'  => (string) get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true),
-				'end'      => (string) get_post_meta($booking_id, '_mhmrentiva_end_time', true),
+				'vehicle'  => (int) self::first($booking_id, '_mhmrentiva_vehicle_id', '_mhmrentiva_booking_vehicle_id'),
+				'pickup'   => self::first($booking_id, '_mhmrentiva_pickup_date', '_mhmrentiva_booking_pickup_date'),
+				'start'    => self::first($booking_id, '_mhmrentiva_start_time', '_mhmrentiva_pickup_time', '_mhmrentiva_booking_pickup_time'),
+				'dropoff'  => self::first($booking_id, '_mhmrentiva_dropoff_date', '_mhmrentiva_booking_dropoff_date'),
+				'end'      => self::first($booking_id, '_mhmrentiva_end_time', '_mhmrentiva_dropoff_time', '_mhmrentiva_booking_dropoff_time'),
 				'addons'   => $ids,
 				'quantity' => $addons,
 				'payment'  => (string) get_post_meta($booking_id, '_mhmrentiva_payment_type', true),
@@ -97,6 +106,19 @@ final class BookingPricingInputs {
 	public static function reset(): void {
 		self::$before = array();
 		self::$depth  = array();
+	}
+
+	/**
+	 * The first non-empty value of the keys, in order (the edit box's `?:` chain).
+	 */
+	private static function first(int $booking_id, string ...$keys): string {
+		foreach ($keys as $key) {
+			$value = (string) get_post_meta($booking_id, $key, true);
+			if ('' !== $value && '0' !== $value) {
+				return $value;
+			}
+		}
+		return '';
 	}
 
 	private static function is_booking_save(int $post_id, \WP_Post $post): bool {

@@ -113,8 +113,8 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 			'post_type'   => 'mhmrentiva_addon',
 			'post_status' => 'publish',
 		));
-		update_post_meta($addon, 'addon_price', '50');
-		update_post_meta($addon, 'addon_enabled', '1');
+		update_post_meta($addon, 'mhmrentiva_addon_price', '50');
+		update_post_meta($addon, 'mhmrentiva_addon_enabled', '1');
 		update_post_meta($this->booking, '_mhmrentiva_selected_addons', array( $addon ));
 		update_post_meta($this->booking, '_mhmrentiva_addon_quantities', array( $addon => 1 ));
 		$lines = array( array( 'id' => $addon, 'title' => 'Old', 'price' => 40.0, 'line_total' => 120.0 ) );
@@ -162,6 +162,10 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 		$this->assertSame(5, has_action('save_post', array( BookingEditMetaBox::class, 'save_booking_details' )));
 		$this->assertSame(10, has_action('save_post', array( BookingMeta::class, 'save_meta' )));
 		$this->assertSame(99, has_action('save_post', array( BookingPricingInputs::class, 'close' )));
+		// The customer e-mail entry points BookingCustomerEmailTemplateTest drives.
+		$this->assertSame(10, has_action('wp_ajax_mhmrentiva_get_email_template', array( BookingMeta::class, 'ajax_get_email_template' )));
+		$this->assertSame(10, has_action('wp_ajax_mhmrentiva_send_customer_email', array( BookingMeta::class, 'ajax_send_customer_email' )));
+		$this->assertSame(10, has_action('admin_post_mhmrentiva_send_customer_email', array( BookingMeta::class, 'handle_send_customer_email' )));
 	}
 
 	private function addon(): int
@@ -170,8 +174,8 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 			'post_type'   => 'mhmrentiva_addon',
 			'post_status' => 'publish',
 		));
-		update_post_meta($id, 'addon_price', '50');
-		update_post_meta($id, 'addon_enabled', '1');
+		update_post_meta($id, 'mhmrentiva_addon_price', '50');
+		update_post_meta($id, 'mhmrentiva_addon_enabled', '1');
 		return $id;
 	}
 
@@ -190,16 +194,37 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 
 	public function test_an_add_on_change_reprices(): void
 	{
-		$addon = (int) self::factory()->post->create(array(
-			'post_type'   => 'mhmrentiva_addon',
-			'post_status' => 'publish',
-		));
-		update_post_meta($addon, 'addon_price', '50');
-		update_post_meta($addon, 'addon_enabled', '1');
+		$addon = $this->addon();
 
 		$this->update(array( 'mhmrentiva_edit_selected_addons' => array( $addon ) ));
+		$with        = (float) $this->total();
+		$addon_total = (float) get_post_meta($this->booking, '_mhmrentiva_addon_total', true);
 
-		$this->assertNotSame('2550', $this->total(), 'Adding an add-on is a price input: the booking is re-priced.');
+		// Taking it off again re-prices too: the difference is the add-on's line.
+		$this->update();
+		$without = (float) $this->total();
+
+		$this->assertSame(50.0, $addon_total, 'The add-on is priced (per booking, 50).');
+		$this->assertSame($addon_total, $with - $without, 'The add-on moves the total by its line.');
+	}
+
+	public function test_a_legacy_booking_keeps_its_price_on_a_status_only_update(): void
+	{
+		// The edit box shows legacy-key values; the first Update writes them under
+		// the current keys -- not a change of price input (Codex #171 bulgu 2).
+		$a = $this->addon();
+		delete_post_meta($this->booking, '_mhmrentiva_start_time');
+		delete_post_meta($this->booking, '_mhmrentiva_end_time');
+		update_post_meta($this->booking, '_mhmrentiva_pickup_time', '10:00');
+		update_post_meta($this->booking, '_mhmrentiva_dropoff_time', '10:00');
+		update_post_meta($this->booking, 'mhmrentiva_selected_addons', array( $a ));
+
+		$this->update(array(
+			'mhmrentiva_edit_status'          => 'completed',
+			'mhmrentiva_edit_selected_addons' => array( $a ),
+		));
+
+		$this->assertSame('2550', $this->total());
 	}
 
 	public function test_fingerprint_follows_every_price_input(): void
