@@ -1056,14 +1056,19 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 				update_user_meta($user_id, 'billing_state', wp_slash($customer_location['state']));
 			}
 
-			// Update user information (same as normal booking form)
+			// Update user information (same as normal booking form). The
+			// values were unslashed once on input; wp_update_user() unslashes
+			// again, so they are slashed back (a name "Ali\Veli" keeps its
+			// backslash).
 			$update_result = wp_update_user(
-				array(
-					'ID'           => $user_id,
-					'display_name' => $customer_name,
-					'first_name'   => $customer_first_name,
-					'last_name'    => $customer_last_name,
-					'role'         => $default_role,
+				wp_slash(
+					array(
+						'ID'           => $user_id,
+						'display_name' => $customer_name,
+						'first_name'   => $customer_first_name,
+						'last_name'    => $customer_last_name,
+						'role'         => $default_role,
+					)
 				)
 			);
 			// Non-fatal: log but don't abort booking creation. Routed to the plugin's
@@ -1095,7 +1100,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			}
 
 			// Save meta information (same as normal booking form)
-			update_user_meta($user_id, 'mhmrentiva_phone', $customer_phone);
+			update_user_meta($user_id, 'mhmrentiva_phone', wp_slash($customer_phone));
 			update_user_meta($user_id, 'mhmrentiva_customer', true);
 
 			$customer = get_userdata($user_id);

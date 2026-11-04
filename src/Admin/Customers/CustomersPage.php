@@ -274,7 +274,7 @@ final class CustomersPage {
 		// runs, so an untouched "+90  555" would otherwise read as changed.
 		$normalise = static fn( string $v ): string => (string) preg_replace( '/\s+/u', ' ', trim( $v ) );
 		if ( ( is_scalar( $own ) && '' !== trim( (string) $own ) ) || $normalise( $submitted ) !== $normalise( $resolved ) ) {
-			update_user_meta( $user_id, $key, $submitted );
+			update_user_meta( $user_id, $key, wp_slash( $submitted ) );
 		}
 	}
 
@@ -506,13 +506,16 @@ final class CustomersPage {
 			if (empty($customer_name) || empty($customer_email) || empty($customer_phone)) {
 				echo '<div class="notice notice-error"><p>' . esc_html__('Customer name, email and phone fields are required.', 'mhm-rentiva') . '</p></div>';
 			} else {
-				// Update user information
+				// Update user information. Unslashed once on input;
+				// wp_update_user() unslashes again.
 				wp_update_user(
-					array(
-						'ID'           => $customer_id,
-						'display_name' => $customer_name,
-						'user_email'   => $customer_email,
-						'first_name'   => $customer_name,
+					wp_slash(
+						array(
+							'ID'           => $customer_id,
+							'display_name' => $customer_name,
+							'user_email'   => $customer_email,
+							'first_name'   => $customer_name,
+						)
 					)
 				);
 

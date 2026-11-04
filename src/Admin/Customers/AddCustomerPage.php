@@ -94,13 +94,16 @@ final class AddCustomerPage {
 					// 'administrator' too.
 					$default_role = \MHMRentiva\Admin\Customers\CustomerIdentity::default_customer_role();
 
-					// Update user information
+					// Update user information. Unslashed once on input;
+					// wp_update_user() and update_user_meta() unslash again.
 					wp_update_user(
-						array(
-							'ID'           => $user_id,
-							'display_name' => $customer_name,
-							'first_name'   => $customer_name,
-							'role'         => $default_role,
+						wp_slash(
+							array(
+								'ID'           => $user_id,
+								'display_name' => $customer_name,
+								'first_name'   => $customer_name,
+								'role'         => $default_role,
+							)
 						)
 					);
 
@@ -111,8 +114,8 @@ final class AddCustomerPage {
 					}
 
 					// Add meta information
-					update_user_meta( $user_id, 'mhmrentiva_phone', $customer_phone );
-					update_user_meta( $user_id, 'mhmrentiva_address', $customer_address );
+					update_user_meta( $user_id, 'mhmrentiva_phone', wp_slash( $customer_phone ) );
+					update_user_meta( $user_id, 'mhmrentiva_address', wp_slash( $customer_address ) );
 
 					// Clear cache
 					\MHMRentiva\Admin\Customers\CustomersOptimizer::clear_cache();
