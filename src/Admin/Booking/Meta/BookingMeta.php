@@ -155,6 +155,16 @@ final class BookingMeta extends AbstractMetaBox {
 			'side',
 			'default'
 		);
+
+		// Booking history: notes, status changes and payment updates (spec PR 3a).
+		add_meta_box(
+			'mhmrentiva_booking_history_box',
+			__('Booking History', 'mhm-rentiva'),
+			array( self::class, 'render_booking_history_box' ),
+			self::get_post_type(),
+			'side',
+			'default'
+		);
 	}
 
 	public static function enqueue_scripts(string $hook): void
@@ -919,17 +929,17 @@ final class BookingMeta extends AbstractMetaBox {
 
 		echo '<div class="mhm-booking-history-box">';
 
-		// Yeni not ekleme formu
-		echo '<div class="mhm-add-history-note">';
-		echo '<h4>' . esc_html__('Add Note', 'mhm-rentiva') . '</h4>';
-
+		// Add-note controls. Not a form of their own: the box sits inside the
+		// post form, so nothing here may be `required` (that blocked Update);
+		// "Add note" refuses an empty note on its own (JS and server).
 		echo '<div class="mhm-add-history-note" data-booking-id="' . (int) $post->ID . '">';
+		echo '<h4>' . esc_html__('Add Note', 'mhm-rentiva') . '</h4>';
 
 		wp_nonce_field('mhmrentiva_add_history_note', 'mhmrentiva_history_nonce');
 
 		echo '<p>';
 		echo '<label for="note_content">' . esc_html__('Note:', 'mhm-rentiva') . '</label><br/>';
-		echo '<textarea id="note_content" name="note_content" rows="3" class="widefat" placeholder="' . esc_attr__('Add a note about this booking...', 'mhm-rentiva') . '" required></textarea>';
+		echo '<textarea id="note_content" name="note_content" rows="3" class="widefat" placeholder="' . esc_attr__('Add a note about this booking...', 'mhm-rentiva') . '"></textarea>';
 		echo '</p>';
 
 		echo '<p>';
@@ -947,7 +957,6 @@ final class BookingMeta extends AbstractMetaBox {
 		echo '<button type="button" class="button button-primary mhm-add-history-btn">' . esc_html__('Add Note', 'mhm-rentiva') . '</button>';
 		echo '</p>';
 
-		echo '</div>';
 		echo '</div>';
 
 		// JavaScript for AJAX forms
@@ -1004,6 +1013,9 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		echo '</div>';
+
+		// K4: the notes are not private to the staff.
+		echo '<p class="description mhm-history-privacy">' . esc_html__("These notes are included in the customer's personal data export.", 'mhm-rentiva') . '</p>';
 		echo '</div>';
 	}
 
