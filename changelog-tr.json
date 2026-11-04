@@ -34,8 +34,7 @@
       "Değişti: Rezervasyonlarım Yaklaşan, Geçmiş ve İptal bölümlerine ayrıldı (her biri sayısıyla; bölüm adreste mhmrentiva_view olarak taşınıyor), iki tam tarih ve müşterinin e-postada gördüğü rezervasyon numarasını gösteriyor, telefonda her rezervasyon bir kart. Menü yaklaşan rezervasyon ve kayıtlı araç sayısını gösteriyor. Eski süzgeç kutusu ve arama alanı kalktı; bu değerleri taşıyan bağlantılar listeyi yine daraltıyor. Favorilerim aynı düzeni kullanıyor.",
       "Değişti: Rezervasyonlarım her bölümde kendi sırasıyla listelenir: Yaklaşan en yakın teslim alma ilk, Geçmiş ve İptal en yeni ilk. Eski varsayılan sırayı kullanan kayıtlı bloklar ve bileşenler de bu sırayı izler. Yeni \"Otomatik\" sıra seçeneği varsayılandır; açıkça seçilmiş sıra geçerliliğini korur.",
       "Kaldırıldı: pano artık kayıtlı olmayan mhmrentiva_customer_dashboard_welcome, mhmrentiva_customer_favorites ve mhmrentiva_customer_booking_history seçeneklerini okumuyor. Bunları yazan bir ayar ekranı yoktu; elle girilmiş değerin artık etkisi yok.",
-      "Değişti: yeni ön yüz sayfaları Plus Jakarta Sans yazı tipini kullanır; yazı tipi kendi sitenizden sunulur (yönetim ekranlarının zaten kullandığı dosya). Kullanılmayan Source Serif 4 yazı tipi dosyaları artık pakete girmez.",
-      "Düzeltildi: WordPress 7.0'da karşılaştırma tablosunun kaydırma alanına yeniden klavyeyle ulaşılabiliyor (geç çalışan HTML filtresinde tabindex'i siliniyordu)."
+      "Değişti: yeni ön yüz sayfaları Plus Jakarta Sans yazı tipini kullanır; yazı tipi kendi sitenizden sunulur (yönetim ekranlarının zaten kullandığı dosya). Kullanılmayan Source Serif 4 yazı tipi dosyaları artık pakete girmez."
     ]
   },
   {
