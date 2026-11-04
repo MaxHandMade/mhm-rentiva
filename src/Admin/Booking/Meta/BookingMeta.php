@@ -795,7 +795,7 @@ final class BookingMeta extends AbstractMetaBox {
 		if (! in_array($email_type, self::CUSTOMER_EMAIL_TYPES, true)) {
 			wp_die(esc_html__('Missing required fields.', 'mhm-rentiva'));
 		}
-		$subject    = $req->text('email_subject');
+		$subject = $req->text('email_subject');
 		// wp_kses_post rather than sanitize_text_field: the body is authored in a
 		// rich-text field and its HTML formatting has to survive into the email.
 		$message = wp_kses_post( (string) ( $req->raw('email_message') ?? '' ) );
