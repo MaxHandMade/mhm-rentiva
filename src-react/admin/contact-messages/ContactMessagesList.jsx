@@ -5,6 +5,8 @@ import Tabs from '../../../vendor/mhm/ui-core/src-react/components/Tabs';
 import Button from '../../../vendor/mhm/ui-core/src-react/components/Button';
 import Pagination from '../../../vendor/mhm/ui-core/src-react/components/Pagination';
 import Notice from '../../../vendor/mhm/ui-core/src-react/components/Notice';
+import DataTable from '../../../vendor/mhm/ui-core/src-react/components/DataTable';
+import { useTableSelection } from '../../../vendor/mhm/ui-core/src-react/hooks/useTableSelection';
 import ContactStats from './components/ContactStats';
 import ContactToolbar from './components/ContactToolbar';
 import ContactBulkBar from './components/ContactBulkBar';
@@ -22,8 +24,10 @@ export default function ContactMessagesList( { status, initialPage = 1, initialS
 	const [ page, setPage ] = useState( initialPage );
 	const [ filters, setFilters ] = useState( { search: initialSearch, type: '', period: '' } );
 	const [ data, setData ] = useState( null );
-	const [ selected, setSelected ] = useState( [] );
 	const [ error, setError ] = useState( null );
+	// Page-scoped: the kit prunes the selection to the rows on screen, so a
+	// bulk action can never reach a row the operator no longer sees.
+	const { selected, toggle, setAll, clear } = useTableSelection( ( data?.items ?? [] ).map( ( r ) => r.id ) );
 	// Kept apart from `error`: load() clears that one first thing, and the
 	// reload that follows a bulk call would wipe the partial-failure notice
 	// before anyone could read it.
@@ -82,24 +86,24 @@ export default function ContactMessagesList( { status, initialPage = 1, initialS
 		if ( lastStatus.current !== status ) {
 			lastStatus.current = status;
 			viewSeq.current++;
-			setSelected( [] );
+			clear();
 			setBulkNotice( null );
 			setPage( 1 );
 		}
-	}, [ status ] );
+	}, [ status, clear ] );
 
 	const changePage = ( next ) => {
 		viewSeq.current++;
 		// Like a status/filter change: the selection belongs to the rows the
 		// operator is leaving, and a retired bulk result no longer clears it.
-		setSelected( [] );
+		clear();
 		setPage( next );
 	};
 
 	const changeFilters = ( patch ) => {
 		viewSeq.current++;
 		setFilters( ( f ) => ( { ...f, ...patch } ) );
-		setSelected( [] );
+		clear();
 		setBulkNotice( null );
 		setPage( 1 );
 	};
@@ -123,7 +127,7 @@ export default function ContactMessagesList( { status, initialPage = 1, initialS
 					failed
 				) );
 			}
-			setSelected( [] );
+			clear();
 			await load( page );
 		} catch {
 			if ( view === viewSeq.current ) {
@@ -209,7 +213,7 @@ export default function ContactMessagesList( { status, initialPage = 1, initialS
 					inSpam={ status === 'spam' }
 					busy={ busy }
 					onAction={ runBulk }
-					onClear={ () => setSelected( [] ) }
+					onClear={ () => clear() }
 				/>
 			) : (
 				<ContactToolbar filters={ filters } total={ data?.total ?? 0 } onChange={ changeFilters } />
@@ -218,52 +222,59 @@ export default function ContactMessagesList( { status, initialPage = 1, initialS
 			{ bulkNotice && <Notice tone="warning">{ bulkNotice }</Notice> }
 			{ ! data && ! error && <Spinner /> }
 			{ data && (
-				<div className="mhm-contact-messages__table-wrap">
-					<table className="mhm-contact-messages__table">
-						<ContactTable
-							rows={ data.items }
-							selected={ selected }
-							onToggle={ ( id ) => setSelected( ( s ) => ( s.includes( id ) ? s.filter( ( x ) => x !== id ) : [ ...s, id ] ) ) }
-							onToggleAll={ ( on ) => setSelected( on ? data.items.map( ( r ) => r.id ) : [] ) }
-							onOpen={ onOpen }
-						/>
-					</table>
-					{ data.items.length === 0 && (
-						<div className="mhm-contact-messages__empty">
-							<svg aria-hidden="true" focusable="false" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-								<rect x="3" y="5.5" width="18" height="13" rx="2" />
-								<path d="M3.5 7l8.5 6 8.5-6" />
-							</svg>
-							<strong>
-								{ firstRun
-									? __( 'No contact messages yet', 'mhm-rentiva' )
-									: __( 'No messages in this view', 'mhm-rentiva' ) }
-							</strong>
-							{ firstRun && (
-								<>
-									<p>{ __( 'Add the contact form to a page; every request sent through it is listed here.', 'mhm-rentiva' ) }</p>
-									{ shortcodePagesUrl && (
-										<Button href={ shortcodePagesUrl }>{ __( 'Go to shortcode pages', 'mhm-rentiva' ) }</Button>
+				<DataTable
+					caption={ __( 'Contact Messages', 'mhm-rentiva' ) }
+					captionHidden
+					className="mhm-contact-messages__table"
+					layout="scroll"
+					footer={
+						<>
+							{ data.items.length === 0 && (
+								<div className="mhm-contact-messages__empty">
+									<svg aria-hidden="true" focusable="false" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+										<rect x="3" y="5.5" width="18" height="13" rx="2" />
+										<path d="M3.5 7l8.5 6 8.5-6" />
+									</svg>
+									<strong>
+										{ firstRun
+											? __( 'No contact messages yet', 'mhm-rentiva' )
+											: __( 'No messages in this view', 'mhm-rentiva' ) }
+									</strong>
+									{ firstRun && (
+										<>
+											<p>{ __( 'Add the contact form to a page; every request sent through it is listed here.', 'mhm-rentiva' ) }</p>
+											{ shortcodePagesUrl && (
+												<Button href={ shortcodePagesUrl }>{ __( 'Go to shortcode pages', 'mhm-rentiva' ) }</Button>
+											) }
+										</>
 									) }
-								</>
+								</div>
 							) }
-						</div>
-					) }
-					<Pagination
-						variant="footer"
-						page={ page }
-						totalPages={ data.pages }
-						onChange={ changePage }
-						summary={ summary }
-						labels={ {
-							navigation: __( 'Contact messages pages', 'mhm-rentiva' ),
-							previous: __( 'Previous', 'mhm-rentiva' ),
-							page: __( 'Page', 'mhm-rentiva' ),
-							of: '/',
-							next: __( 'Next', 'mhm-rentiva' ),
-						} }
+							<Pagination
+								variant="footer"
+								page={ page }
+								totalPages={ data.pages }
+								onChange={ changePage }
+								summary={ summary }
+								labels={ {
+									navigation: __( 'Contact messages pages', 'mhm-rentiva' ),
+									previous: __( 'Previous', 'mhm-rentiva' ),
+									page: __( 'Page', 'mhm-rentiva' ),
+									of: '/',
+									next: __( 'Next', 'mhm-rentiva' ),
+								} }
+							/>
+						</>
+					}
+				>
+					<ContactTable
+						rows={ data.items }
+						selected={ selected }
+						onToggle={ toggle }
+						onToggleAll={ setAll }
+						onOpen={ onOpen }
 					/>
-				</div>
+				</DataTable>
 			) }
 		</div>
 	);

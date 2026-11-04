@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { rentivaApi } from '../../shared/api/rentiva';
+import { useTableSelection } from '../../../vendor/mhm/ui-core/src-react/hooks/useTableSelection';
+import { nextSort } from '../../../vendor/mhm/ui-core/src-react/components/SortHeader';
 import StatsCards from './components/StatsCards';
 import SearchBar from './components/SearchBar';
 import FilterBar from './components/FilterBar';
@@ -23,7 +25,6 @@ export default function CustomersPage() {
 	const [status, setStatus] = useState( 'all' );
 	const [sortBy, setSortBy] = useState( 'last_booking' );
 	const [sortDir, setSortDir] = useState( 'desc' );
-	const [selected, setSelected] = useState( [] );
 	const [panelId, setPanelId] = useState( null );
 	const [data, setData] = useState( null );
 	const [loading, setLoading] = useState( false );
@@ -38,10 +39,14 @@ export default function CustomersPage() {
 			.finally( () => setLoading( false ) );
 	}, [page, search, sortBy, sortDir, status] );
 
+	const items = data?.items ?? [];
+	const selection = useTableSelection( items.map( ( c ) => c.id ) );
+	const { selected, clear } = selection;
+
 	useEffect( () => {
-		setSelected( [] );
+		clear();
 		fetchList();
-	}, [fetchList] );
+	}, [fetchList, clear] );
 
 	const handleSearchChange = ( v ) => {
 		setPage( 1 );
@@ -53,24 +58,12 @@ export default function CustomersPage() {
 		setStatus( v );
 	};
 
+	// A new column starts descending (largest first), the same column turns.
 	const handleSort = ( col ) => {
-		if ( col === sortBy ) {
-			setSortDir( ( d ) => ( d === 'asc' ? 'desc' : 'asc' ) );
-		} else {
-			setSortBy( col );
-			setSortDir( 'desc' );
-		}
+		const next = nextSort( { key: sortBy, direction: sortDir }, col, 'desc' );
+		setSortBy( next.key );
+		setSortDir( next.direction );
 		setPage( 1 );
-	};
-
-	const handleSelectAll = ( checked ) => {
-		setSelected( checked ? ( data?.items ?? [] ).map( ( c ) => c.id ) : [] );
-	};
-
-	const handleSelect = ( id, checked ) => {
-		setSelected( ( prev ) =>
-			checked ? [...prev, id] : prev.filter( ( x ) => x !== id )
-		);
 	};
 
 	const handleBulkDelete = () => {
@@ -88,14 +81,13 @@ export default function CustomersPage() {
 		}
 		rentivaApi.customers.bulkDelete( selected )
 			.then( () => {
-				setSelected( [] );
+				clear();
 				setPanelId( null );
 				fetchList();
 			} )
 			.catch( () => setError( __( 'Bulk delete failed.', 'mhm-rentiva' ) ) );
 	};
 
-	const items = data?.items ?? [];
 	const panelRow = items.find( ( c ) => c.id === panelId ) ?? null;
 
 	return (
@@ -149,13 +141,13 @@ export default function CustomersPage() {
 						{ ! loading && (
 							<CustomerTable
 								items={ items }
-								sortBy={ sortBy }
-								sortDir={ sortDir }
-								selected={ selected }
+								sort={ { key: sortBy, direction: sortDir } }
+								isSelected={ selection.isSelected }
+								selectState={ selection.state }
 								panelId={ panelId }
 								onSort={ handleSort }
-								onSelect={ handleSelect }
-								onSelectAll={ handleSelectAll }
+								onToggle={ selection.toggle }
+								onSelectAll={ selection.setAll }
 								onRowClick={ setPanelId }
 							/>
 						) }

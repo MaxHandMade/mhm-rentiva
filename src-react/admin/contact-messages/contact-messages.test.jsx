@@ -179,7 +179,7 @@ describe( 'contact messages list', () => {
 		contactApi.list.mockResolvedValue( sixPage() );
 		const { container } = render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
 		await screen.findByText( 'Sender 1' );
-		expect( container.querySelector( '.mhm-contact-messages__table-wrap .mhmui-pagination--footer .mhmui-pagination__summary' ).textContent ).toBe( '1–6 of 6 messages' );
+		expect( container.querySelector( '.mhmui-table-card .mhmui-pagination--footer .mhmui-pagination__summary' ).textContent ).toBe( '1–6 of 6 messages' );
 	} );
 
 	test( 'the footer summary carries the count for 1, 2 (C-1) and 0', async () => {
