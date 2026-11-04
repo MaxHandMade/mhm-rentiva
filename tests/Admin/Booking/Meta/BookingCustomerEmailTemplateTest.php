@@ -107,6 +107,24 @@ final class BookingCustomerEmailTemplateTest extends WP_Ajax_UnitTestCase
 		$this->assertNotSame('', trim((string) $this->sent[0]['subject']));
 	}
 
+	public function test_the_admin_post_handler_refuses_an_unknown_type(): void
+	{
+		$_POST = array(
+			'mhmrentiva_email_nonce' => wp_create_nonce('mhmrentiva_send_email'),
+			'booking_id'             => (string) $this->booking,
+			'email_type'             => 'no_such_type',
+		);
+		$this->expectException(\WPDieException::class);
+		$this->expectExceptionMessage('Missing required fields.');
+		// The ajax die handler collects the response with ob_get_clean().
+		ob_start();
+		try {
+			BookingMeta::handle_send_customer_email();
+		} finally {
+			$this->assertSame(array(), $this->sent);
+		}
+	}
+
 	public function test_an_unknown_type_is_refused_not_a_server_error(): void
 	{
 		$response = $this->ajax('mhmrentiva_get_email_template', array(

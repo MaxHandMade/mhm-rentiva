@@ -130,6 +130,51 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 		$this->assertSame('120', (string) get_post_meta($this->booking, '_mhmrentiva_addon_total', true));
 	}
 
+	public function test_add_ons_posted_in_another_order_keep_the_price(): void
+	{
+		// The edit box lists add-ons by menu_order and appends unpublished ones,
+		// so the posted order can differ from the stored one (Fable Ö1, #171).
+		$a = $this->addon();
+		$b = $this->addon();
+		update_post_meta($this->booking, '_mhmrentiva_selected_addons', array( $a, $b ));
+		update_post_meta($this->booking, '_mhmrentiva_addon_quantities', array( $a => 1, $b => 1 ));
+
+		$this->update(array(
+			'mhmrentiva_edit_status'          => 'completed',
+			'mhmrentiva_edit_selected_addons' => array( $b, $a ),
+		));
+
+		$this->assertSame('2550', $this->total());
+	}
+
+	public function test_production_registers_the_scope_around_the_writers(): void
+	{
+		$registered = new \ReflectionProperty(BookingMeta::class, 'registered');
+		$registered->setAccessible(true);
+		$was = $registered->getValue();
+		$registered->setValue(null, false);
+		remove_all_actions('save_post');
+		BookingMeta::register();
+		BookingEditMetaBox::register();
+		$registered->setValue(null, $was);
+
+		$this->assertSame(1, has_action('save_post', array( BookingPricingInputs::class, 'open' )));
+		$this->assertSame(5, has_action('save_post', array( BookingEditMetaBox::class, 'save_booking_details' )));
+		$this->assertSame(10, has_action('save_post', array( BookingMeta::class, 'save_meta' )));
+		$this->assertSame(99, has_action('save_post', array( BookingPricingInputs::class, 'close' )));
+	}
+
+	private function addon(): int
+	{
+		$id = (int) self::factory()->post->create(array(
+			'post_type'   => 'mhmrentiva_addon',
+			'post_status' => 'publish',
+		));
+		update_post_meta($id, 'addon_price', '50');
+		update_post_meta($id, 'addon_enabled', '1');
+		return $id;
+	}
+
 	public function test_an_unchanged_update_keeps_the_price(): void
 	{
 		$this->update();

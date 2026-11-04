@@ -41,6 +41,9 @@ final class BookingPricingInputs {
 		$selection = AddonSelection::for_booking($booking_id);
 		$addons    = $selection->quantities();
 		ksort($addons);
+		// A set, not a sequence: the edit box posts add-ons in menu order.
+		$ids = $selection->ids();
+		sort($ids);
 
 		return (string) wp_json_encode(
 			array(
@@ -49,7 +52,7 @@ final class BookingPricingInputs {
 				'start'    => (string) get_post_meta($booking_id, '_mhmrentiva_start_time', true),
 				'dropoff'  => (string) get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true),
 				'end'      => (string) get_post_meta($booking_id, '_mhmrentiva_end_time', true),
-				'addons'   => $selection->ids(),
+				'addons'   => $ids,
 				'quantity' => $addons,
 				'payment'  => (string) get_post_meta($booking_id, '_mhmrentiva_payment_type', true),
 			)
