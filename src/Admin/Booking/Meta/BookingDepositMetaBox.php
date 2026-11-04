@@ -199,6 +199,8 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			echo '<div class="notice notice-info">';
 			echo '<p>' . esc_html__( 'This booking was created with the old system. Deposit system information is not available.', 'mhm-rentiva' ) . '</p>';
 			echo '</div>';
+			// The history is not a payment section: it stays on an old booking too.
+			BookingMeta::render_history_section( $post );
 			echo '</div>';
 			return;
 		}

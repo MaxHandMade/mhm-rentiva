@@ -95,6 +95,22 @@ final class BookingHistoryBoxTest extends WP_Ajax_UnitTestCase
 		$this->assertLessThan($action, $history);
 	}
 
+	public function test_a_booking_without_payment_type_keeps_its_history(): void
+	{
+		// The payment box returns before its payment sections on a pre-deposit
+		// booking; the history (a box of its own until PR 3b-1) must not go
+		// with them (Codex plan audit 3b-1, finding 1).
+		delete_post_meta($this->booking, '_mhmrentiva_payment_type');
+		ob_start();
+		\MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox::render_deposit_management(get_post($this->booking));
+		$html = (string) ob_get_clean();
+
+		$this->assertStringContainsString('mhm-add-history-btn', $html);
+		$this->assertStringContainsString('mhmrentiva_history_nonce', $html);
+		$this->assertStringContainsString('personal data export', $html);
+		$this->assertStringNotContainsString('id="approve-payment"', $html);
+	}
+
 	public function test_note_type_select_offers_note_and_customer_contact_only(): void
 	{
 		preg_match_all('/<option value="([a-z_]+)"/', $this->html(), $m);
