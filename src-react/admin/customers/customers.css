@@ -195,7 +195,7 @@
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th.is-check,
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table td.is-check {
 	width: 34px;
-	padding: 11px 8px 11px 16px;
+	padding: 8px 4px 8px 12px;
 }
 
 /* A sortable header is the kit's button: the cell gives up its padding to
@@ -206,7 +206,6 @@
 }
 
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th .mhmui-table__sort {
-	min-height: 40px;
 	padding: 0 14px;
 }
 
