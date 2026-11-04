@@ -126,6 +126,66 @@ final class ManualBookingCustomerLocationTest extends WP_Ajax_UnitTestCase
 		$this->assertFalse(metadata_exists('user', $user, 'billing_state'));
 	}
 
+	public function test_no_state_where_the_country_locale_hides_it(): void
+	{
+		// CY has no state list (free text by the list alone), but its locale
+		// hides the field, as checkout does.
+		$user = $this->customer_of($this->create(array( 'new_customer_country' => 'CY', 'new_customer_state' => 'Nicosia' )));
+
+		$this->assertSame('CY', get_user_meta($user, 'billing_country', true));
+		$this->assertFalse(metadata_exists('user', $user, 'billing_state'));
+	}
+
+	public function test_a_backslash_in_a_free_text_state_is_kept(): void
+	{
+		// A real request arrives slashed; the handler unslashes once and the
+		// meta API must not take a second backslash away.
+		$user = $this->customer_of($this->create(array( 'new_customer_country' => 'GB', 'new_customer_state' => wp_slash('North\West') )));
+
+		$this->assertSame('North\West', get_user_meta($user, 'billing_state', true));
+	}
+
+	public function test_the_profile_update_already_sees_the_location(): void
+	{
+		// WooCommerce Analytics refreshes its customer row on profile_update,
+		// reading a fresh WC_Customer; a location written after
+		// wp_update_user() leaves that row without it. One profile_update
+		// only: no second customer save.
+		$seen  = array();
+		$probe = static function ($user_id) use (&$seen): void {
+			$customer = new \WC_Customer( (int) $user_id);
+			$seen[]   = array( (int) $user_id, $customer->get_billing_country(), $customer->get_billing_state() );
+		};
+		add_action('profile_update', $probe);
+		try {
+			$user = $this->customer_of($this->create(array( 'new_customer_country' => 'TR', 'new_customer_state' => 'TR34' )));
+		} finally {
+			remove_action('profile_update', $probe);
+		}
+
+		$mine = array_values(array_filter($seen, static fn (array $s): bool => $s[0] === $user));
+		$this->assertSame(array( array( $user, 'TR', 'TR34' ) ), $mine);
+	}
+
+	public function test_no_state_when_the_default_locale_hides_it(): void
+	{
+		$hide = static function (array $fields): array {
+			$fields['state']['hidden'] = true;
+			return $fields;
+		};
+		add_filter('woocommerce_get_country_locale_default', $hide);
+		WC()->countries->locale = array();
+		try {
+			$user = $this->customer_of($this->create(array( 'new_customer_country' => 'GB', 'new_customer_state' => 'Kent' )));
+		} finally {
+			remove_filter('woocommerce_get_country_locale_default', $hide);
+			WC()->countries->locale = array();
+		}
+
+		$this->assertSame('GB', get_user_meta($user, 'billing_country', true));
+		$this->assertFalse(metadata_exists('user', $user, 'billing_state'));
+	}
+
 	public function test_a_state_of_another_country_is_dropped(): void
 	{
 		$user = $this->customer_of($this->create(array( 'new_customer_country' => 'DE', 'new_customer_state' => 'TR34' )));
