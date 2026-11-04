@@ -162,8 +162,12 @@
 
 /* ── Table ─────────────────────────────────────────────────────────── */
 
-:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table-wrap {
-	overflow-x: auto;
+/* The kit's DataTable (ui-core 0.19) draws the table; it sits in this
+   screen's card next to the toolbar, so the kit card's own frame goes. */
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-card .mhmui-table-card {
+	border: 0;
+	border-radius: 0;
+	background: transparent;
 }
 
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table {
@@ -194,22 +198,20 @@
 	padding: 11px 8px 11px 16px;
 }
 
-:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th.sortable {
-	cursor: pointer;
-	user-select: none;
+/* A sortable header is the kit's button: the cell gives up its padding to
+   it, the button keeps this screen's spacing. The sorted column (aria-sort)
+   keeps the screen's accent. */
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th.mhmui-table__th--sortable {
+	padding: 0;
 }
 
-:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th.sortable:hover {
-	color: #2271b1;
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th .mhmui-table__sort {
+	min-height: 40px;
+	padding: 0 14px;
 }
 
-:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th .sort-icon {
-	font-size: 11px;
-	color: #b6bcc3;
-}
-
-:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th.sort-active,
-:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th.sort-active .sort-icon {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th .mhmui-table__sort:hover,
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th[aria-sort] {
 	color: #2271b1;
 }
 
@@ -221,7 +223,6 @@
 
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table tbody tr {
 	cursor: pointer;
-	background: #fff;
 }
 
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table tbody tr:hover {
@@ -230,10 +231,6 @@
 
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table tbody tr.is-open {
 	background: #eff5fc;
-}
-
-:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table tbody tr.is-checked {
-	background: #f5f9ff;
 }
 
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-phone {

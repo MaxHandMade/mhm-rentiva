@@ -1,10 +1,14 @@
 import { __ } from '@wordpress/i18n';
+import DataTable from '../../../../vendor/mhm/ui-core/src-react/components/DataTable';
+import SortHeader from '../../../../vendor/mhm/ui-core/src-react/components/SortHeader';
+import SelectAll from '../../../../vendor/mhm/ui-core/src-react/components/SelectAll';
+import RowSelect from '../../../../vendor/mhm/ui-core/src-react/components/RowSelect';
 import CustomerBadges from './CustomerBadges';
 
 const SORTABLE = [
 	{ key: 'name',        label: __( 'Customer', 'mhm-rentiva' ) },
-	{ key: 'bookings',    label: __( 'Bookings', 'mhm-rentiva' ), align: 'right' },
-	{ key: 'total_spent', label: __( 'Total Spent', 'mhm-rentiva' ), align: 'right' },
+	{ key: 'bookings',    label: __( 'Bookings', 'mhm-rentiva' ), align: 'end' },
+	{ key: 'total_spent', label: __( 'Total Spent', 'mhm-rentiva' ), align: 'end' },
 ];
 
 // Avatar background/foreground pairs cycled by customer id.
@@ -39,24 +43,17 @@ export function avatarColors( id ) {
 	return AVATAR_PALETTE[ Math.abs( id ) % AVATAR_PALETTE.length ];
 }
 
-export default function CustomerTable( { items, sortBy, sortDir, selected, panelId, onSort, onSelect, onSelectAll, onRowClick } ) {
-	const allSelected = items.length > 0 && items.every( ( c ) => selected.includes( c.id ) );
-
-	const SortTh = ( { col } ) => {
-		const isActive = sortBy === col.key;
-		let icon = '⇅';
-		if ( isActive ) {
-			icon = sortDir === 'asc' ? '▲' : '▼';
-		}
-		return (
-			<th
-				className={ `rv-cust-th sortable${ isActive ? ' sort-active' : '' }${ col.align === 'right' ? ' is-right' : '' }` }
-				onClick={ () => onSort( col.key ) }
-			>
-				{ col.label } <span className="sort-icon">{ icon }</span>
-			</th>
-		);
-	};
+export default function CustomerTable( { items, sort, isSelected, selectState, panelId, onSort, onToggle, onSelectAll, onRowClick } ) {
+	const sortTh = ( col ) => (
+		<SortHeader
+			label={ col.label }
+			sortKey={ col.key }
+			sort={ sort }
+			onSort={ onSort }
+			align={ col.align }
+			className="rv-cust-th"
+		/>
+	);
 
 	if ( items.length === 0 ) {
 		return (
@@ -67,23 +64,22 @@ export default function CustomerTable( { items, sortBy, sortDir, selected, panel
 	}
 
 	return (
-		<div className="rv-cust-table-wrap">
-			<table className="rv-cust-table">
+		<DataTable caption={ __( 'Customers', 'mhm-rentiva' ) } captionHidden className="rv-cust-table">
 				<thead>
 					<tr>
-						<th className="rv-cust-th is-check">
-							<input
-								type="checkbox"
-								checked={ allSelected }
-								onChange={ ( e ) => onSelectAll( e.target.checked ) }
-								aria-label={ __( 'Select all customers', 'mhm-rentiva' ) }
+						<th scope="col" className="rv-cust-th is-check mhmui-table__select">
+							<SelectAll
+								state={ selectState }
+								onChange={ onSelectAll }
+								label={ __( 'Select all customers', 'mhm-rentiva' ) }
+								disabled={ items.length === 0 }
 							/>
 						</th>
-						<SortTh col={ SORTABLE[0] } />
-						<th className="rv-cust-th">{ __( 'Phone', 'mhm-rentiva' ) }</th>
-						<SortTh col={ SORTABLE[1] } />
-						<SortTh col={ SORTABLE[2] } />
-						<th className="rv-cust-th">{ __( 'Status', 'mhm-rentiva' ) }</th>
+						{ sortTh( SORTABLE[ 0 ] ) }
+						<th scope="col" className="rv-cust-th">{ __( 'Phone', 'mhm-rentiva' ) }</th>
+						{ sortTh( SORTABLE[ 1 ] ) }
+						{ sortTh( SORTABLE[ 2 ] ) }
+						<th scope="col" className="rv-cust-th">{ __( 'Status', 'mhm-rentiva' ) }</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -92,15 +88,14 @@ export default function CustomerTable( { items, sortBy, sortDir, selected, panel
 						return (
 							<tr
 								key={ c.id }
-								className={ `${ selected.includes( c.id ) ? 'is-checked ' : '' }${ panelId === c.id ? 'is-open' : '' }` }
+								className={ panelId === c.id ? 'is-open' : undefined }
 								onClick={ () => onRowClick( c.id ) }
 							>
-								<td className="is-check" onClick={ ( e ) => e.stopPropagation() }>
-									<input
-										type="checkbox"
-										checked={ selected.includes( c.id ) }
-										onChange={ ( e ) => onSelect( c.id, e.target.checked ) }
-										aria-label={ c.name }
+								<td className="is-check mhmui-table__select" onClick={ ( e ) => e.stopPropagation() }>
+									<RowSelect
+										checked={ isSelected( c.id ) }
+										onChange={ () => onToggle( c.id ) }
+										label={ c.name }
 									/>
 								</td>
 								<td>
@@ -132,7 +127,6 @@ export default function CustomerTable( { items, sortBy, sortDir, selected, panel
 						);
 					} ) }
 				</tbody>
-			</table>
-		</div>
+		</DataTable>
 	);
 }
