@@ -15,7 +15,7 @@
 </p>
 
 ![Version](https://img.shields.io/badge/version-6.4.0-blue.svg)
-![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
+![WordPress](https://img.shields.io/badge/WordPress-7.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
 
@@ -724,7 +724,7 @@ mhm-rentiva/
 ## Requirements
 
 ### WordPress & PHP
-- **WordPress**: 6.7 minimum (Tested up to 7.1)
+- **WordPress**: 7.0 minimum (Tested up to 7.1)
 - **PHP**: 8.1 minimum (8.2+ recommended)
 - **Memory Limit**: 128MB minimum (256MB recommended)
 

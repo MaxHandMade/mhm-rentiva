@@ -460,20 +460,14 @@ jobs:
         include:
           - php: '8.1'
             os: ubuntu-26.04
-          # The floor the plugin promises: readme `Requires at least: 6.7` and
-          # `Requires PHP: 8.1`, with the newest WooCommerce and Elementor that
-          # still install on WordPress 6.7 (WooCommerce 10.4+ needs 6.8, 11.0+
-          # 6.9; Elementor 4.1+ needs 6.8 -- measured 2026-11-04). Raise all
-          # four together when the readme floor moves.
-          - php: '8.1'
-            os: ubuntu-latest
-            wp: '6.7.11'
-            wc: '10.3.8'
-            elementor: '4.0.9'
-          # PROBE (temporary, this PR only): where does the suite turn green?
-          - php: '8.1'
-            os: ubuntu-latest
-            wp: '6.9.11'
+          # The floor the plugin promises: readme `Requires at least: 7.0` and
+          # `Requires PHP: 8.1`. The pinned WooCommerce (11.0.1, needs 6.9) and
+          # Elementor (4.3.5, needs 6.8) install here as they are. The floor was
+          # 6.7 until 2026-11-04: measured on 6.7.11 / 6.9.11 the suite was red
+          # (61 / 56), on 7.0.8 green after one real fix, and the current
+          # WooCommerce (11.2) itself needs 7.0 -- the user raised it. Move this
+          # row with the readme floor; `wc` / `elementor` keys pin older
+          # releases when a floor ever needs them.
           - php: '8.1'
             os: ubuntu-latest
             wp: '7.0.8'
