@@ -30,7 +30,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 	}
 
 	protected static function get_title(): string {
-		return __( 'Deposit Management', 'mhm-rentiva' );
+		return __( 'Payment Management', 'mhm-rentiva' );
 	}
 
 	protected static function get_fields(): array {
@@ -263,7 +263,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		if ( $deposit_type ) {
 			echo '<div class="deposit-info-item">';
 			echo '<div class="deposit-info-label">' . esc_html__( 'Deposit Type', 'mhm-rentiva' ) . '</div>';
-			echo '<div class="deposit-info-value">' . esc_html( self::get_deposit_type_label( $deposit_type ) ) . '</div>';
+			echo '<div class="deposit-info-value">' . esc_html( self::deposit_type_text( $post->ID ) ) . '</div>';
 			echo '</div>';
 		}
 
@@ -313,6 +313,9 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		// Deposit timeline
 		self::render_deposit_timeline( $post->ID );
 
+		// Booking history, under the payment history (canvas v135).
+		BookingMeta::render_history_section( $post );
+
 		// Deposit actions
 		self::render_deposit_actions( $post->ID, $payment_type, $remaining_amount, $payment_status, $booking_status );
 
@@ -321,7 +324,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 
 	private static function render_deposit_timeline( int $post_id ): void {
 		echo '<div class="deposit-timeline-section">';
-		echo '<h4>' . esc_html__( 'Deposit History', 'mhm-rentiva' ) . '</h4>';
+		echo '<h4>' . esc_html__( 'Payment History', 'mhm-rentiva' ) . '</h4>';
 		echo '<div class="deposit-timeline">';
 
 		// Booking created
@@ -475,6 +478,32 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 	/**
 	 * Get translated deposit type label
 	 */
+	/**
+	 * The deposit type as the Payment Management box shows it. A percentage
+	 * deposit names its rate ("Percentage · 10%"); only the type is stored, so
+	 * the rate is derived from the deposit and the total.
+	 */
+	public static function deposit_type_text( int $post_id ): string {
+		$type  = (string) get_post_meta( $post_id, '_mhmrentiva_deposit_type', true );
+		$label = self::get_deposit_type_label( $type );
+		if ( 'percentage' !== $type ) {
+			return $label;
+		}
+		$deposit = (float) get_post_meta( $post_id, '_mhmrentiva_deposit_amount', true );
+		$total   = (float) get_post_meta( $post_id, '_mhmrentiva_total_price', true );
+		if ( $total <= 0.0 || $deposit <= 0.0 ) {
+			return $label;
+		}
+		$rate = round( $deposit / $total * 100, 1 );
+
+		return sprintf(
+			/* translators: 1: deposit type label ("Percentage"), 2: the deposit rate, e.g. 10 or 12.5 -- place the percent sign as your language does. */
+			_x( '%1$s · %2$s%%', 'deposit type with its rate', 'mhm-rentiva' ),
+			$label,
+			number_format_i18n( $rate, floor( $rate ) === $rate ? 0 : 1 )
+		);
+	}
+
 	private static function get_deposit_type_label( string $deposit_type ): string {
 		$labels = array(
 			'full_payment' => __( 'Full Payment', 'mhm-rentiva' ),

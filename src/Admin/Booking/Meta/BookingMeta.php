@@ -50,6 +50,9 @@ final class BookingMeta extends AbstractMetaBox {
 	 */
 	private const CUSTOMER_EMAIL_TYPES = array( 'booking_confirmation', 'payment_reminder', 'booking_reminder', 'booking_cancelled', 'custom' );
 
+	/** Note types an operator may add by hand ('manual' is the AJAX default). */
+	private const NOTE_TYPES = array( 'note', 'manual', 'customer_contact' );
+
 	/**
 	 * Flag to ensure admin_action_editpost hook is registered only once
 	 */
@@ -169,15 +172,8 @@ final class BookingMeta extends AbstractMetaBox {
 			'default'
 		);
 
-		// Booking history: notes, status changes and payment updates (spec PR 3a).
-		add_meta_box(
-			'mhmrentiva_booking_history_box',
-			__('Booking History', 'mhm-rentiva'),
-			array( self::class, 'render_booking_history_box' ),
-			self::get_post_type(),
-			'side',
-			'default'
-		);
+		// Booking history (spec PR 3a) is not a box of its own any more: the
+		// Payment Management box draws it (render_history_section(), PR 3b-1).
 	}
 
 	public static function enqueue_scripts(string $hook): void
@@ -947,6 +943,17 @@ final class BookingMeta extends AbstractMetaBox {
 	/**
 	 * Booking history meta box
 	 */
+	/**
+	 * The history as a section of the Payment Management box (canvas v135).
+	 */
+	public static function render_history_section(\WP_Post $post): void
+	{
+		echo '<div class="mhm-payment-history-section">';
+		echo '<h4>' . esc_html__('Booking History', 'mhm-rentiva') . '</h4>';
+		self::render_booking_history_box($post);
+		echo '</div>';
+	}
+
 	public static function render_booking_history_box(\WP_Post $post): void
 	{
 		// Newest first, by when each entry happened -- not by its array key.
@@ -970,11 +977,9 @@ final class BookingMeta extends AbstractMetaBox {
 		echo '<p>';
 		echo '<label for="note_type">' . esc_html__('Type:', 'mhm-rentiva') . '</label><br/>';
 		echo '<select id="note_type" name="note_type" class="widefat" style="margin-bottom: 10px;">';
+		// Status, payment and system rows are Rentiva's own (PR 3b-1).
 		echo '<option value="note">' . esc_html__('Note', 'mhm-rentiva') . '</option>';
-		echo '<option value="status_change">' . esc_html__('Status Change', 'mhm-rentiva') . '</option>';
-		echo '<option value="payment_update">' . esc_html__('Payment Update', 'mhm-rentiva') . '</option>';
 		echo '<option value="customer_contact">' . esc_html__('Customer Contact', 'mhm-rentiva') . '</option>';
-		echo '<option value="system">' . esc_html__('System', 'mhm-rentiva') . '</option>';
 		echo '</select>';
 		echo '</p>';
 
@@ -1873,6 +1878,12 @@ final class BookingMeta extends AbstractMetaBox {
 
 		$note_type    = $req->text('note_type', 'manual');
 		$note_content = $req->textarea('note_content');
+
+		// A hand-made status/payment/system row would read as Rentiva's own.
+		if (! in_array($note_type, self::NOTE_TYPES, true)) {
+			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));
+			return;
+		}
 
 		if (! $note_content) {
 			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));

@@ -76,6 +76,8 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		add_action( 'save_post', array( self::class, 'save_booking_details' ), 5 );
 
 		add_action( 'edit_form_top', array( self::class, 'render_header_strip' ) );
+
+		BookingEditLayout::register();
 	}
 
 	/**
