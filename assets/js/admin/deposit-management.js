@@ -66,15 +66,15 @@
                 success: (response) => {
                     this.hideLoading($button);
                     if (response.success) {
-                        this.showMessage('success', response.data.message);
+                        this.showMessage('success', response.data.message, $button);
                         this.refreshPage();
                     } else {
-                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error);
+                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error, $button);
                     }
                 },
                 error: () => {
                     this.hideLoading($button);
-                    this.showMessage('error', mhmDepositManagement.strings.error);
+                    this.showMessage('error', mhmDepositManagement.strings.error, $button);
                 }
             });
         }
@@ -98,15 +98,15 @@
                 success: (response) => {
                     this.hideLoading($button);
                     if (response.success) {
-                        this.showMessage('success', response.data.message);
+                        this.showMessage('success', response.data.message, $button);
                         this.showPaymentLink(response.data.payment_url);
                     } else {
-                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error);
+                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error, $button);
                     }
                 },
                 error: () => {
                     this.hideLoading($button);
-                    this.showMessage('error', mhmDepositManagement.strings.error);
+                    this.showMessage('error', mhmDepositManagement.strings.error, $button);
                 }
             });
         }
@@ -166,15 +166,15 @@
                 success: (response) => {
                     this.hideLoading($button);
                     if (response.success) {
-                        this.showMessage('success', response.data.message);
+                        this.showMessage('success', response.data.message, $button);
                         this.refreshPage();
                     } else {
-                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error);
+                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error, $button);
                     }
                 },
                 error: () => {
                     this.hideLoading($button);
-                    this.showMessage('error', mhmDepositManagement.strings.error);
+                    this.showMessage('error', mhmDepositManagement.strings.error, $button);
                 }
             });
         }
@@ -202,15 +202,15 @@
                 success: (response) => {
                     this.hideLoading($button);
                     if (response.success) {
-                        this.showMessage('success', response.data.message);
+                        this.showMessage('success', response.data.message, $button);
                         this.refreshPage();
                     } else {
-                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error);
+                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error, $button);
                     }
                 },
                 error: () => {
                     this.hideLoading($button);
-                    this.showMessage('error', mhmDepositManagement.strings.error);
+                    this.showMessage('error', mhmDepositManagement.strings.error, $button);
                 }
             });
         }
@@ -238,15 +238,15 @@
                 success: (response) => {
                     this.hideLoading($button);
                     if (response.success) {
-                        this.showMessage('success', response.data.message);
+                        this.showMessage('success', response.data.message, $button);
                         this.refreshPage();
                     } else {
-                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error);
+                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error, $button);
                     }
                 },
                 error: () => {
                     this.hideLoading($button);
-                    this.showMessage('error', mhmDepositManagement.strings.error);
+                    this.showMessage('error', mhmDepositManagement.strings.error, $button);
                 }
             });
         }
@@ -276,15 +276,15 @@
                 success: (response) => {
                     this.hideLoading($button);
                     if (response.success) {
-                        this.showMessage('success', response.data.message);
+                        this.showMessage('success', response.data.message, $button);
                         this.refreshPage();
                     } else {
-                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error);
+                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error, $button);
                     }
                 },
                 error: () => {
                     this.hideLoading($button);
-                    this.showMessage('error', mhmDepositManagement.strings.error);
+                    this.showMessage('error', mhmDepositManagement.strings.error, $button);
                 }
             });
         }
@@ -312,15 +312,15 @@
                 success: (response) => {
                     this.hideLoading($button);
                     if (response.success) {
-                        this.showMessage('success', response.data.message);
+                        this.showMessage('success', response.data.message, $button);
                         this.refreshPage();
                     } else {
-                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error);
+                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error, $button);
                     }
                 },
                 error: () => {
                     this.hideLoading($button);
-                    this.showMessage('error', mhmDepositManagement.strings.error);
+                    this.showMessage('error', mhmDepositManagement.strings.error, $button);
                 }
             });
         }
@@ -350,15 +350,15 @@
                 success: (response) => {
                     this.hideLoading($button);
                     if (response.success) {
-                        this.showMessage('success', response.data.message);
+                        this.showMessage('success', response.data.message, $button);
                         this.refreshPage();
                     } else {
-                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error);
+                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error, $button);
                     }
                 },
                 error: () => {
                     this.hideLoading($button);
-                    this.showMessage('error', mhmDepositManagement.strings.error);
+                    this.showMessage('error', mhmDepositManagement.strings.error, $button);
                 }
             });
         }
@@ -378,7 +378,10 @@
             $button.find('.dashicons').css('animation', '');
         }
 
-        showMessage(type, message) {
+        // The notice lands in the box of the button that asked: the cancel
+        // button sits in Booking Status and the refund button in Refund
+        // (PR 3b-1), not in the deposit box any more.
+        showMessage(type, message, $from) {
             const dismissText = (mhmDepositManagement.strings && mhmDepositManagement.strings.dismiss) || 'Dismiss this notice';
             const $notice = $(`
                 <div class="notice notice-${type} is-dismissible">
@@ -389,7 +392,8 @@
                 </div>
             `);
 
-            $('.deposit-management-metabox').prepend($notice);
+            const $home = $from && $from.length ? $from.closest('.postbox').find('.inside').first() : $();
+            ($home.length ? $home : $('.deposit-management-metabox')).prepend($notice);
 
             // Otomatik kapatma
             setTimeout(() => {

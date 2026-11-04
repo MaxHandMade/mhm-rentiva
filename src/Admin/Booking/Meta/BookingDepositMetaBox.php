@@ -425,13 +425,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		// question's home is MoneyAuthorization.
 		$may_move_money = MoneyAuthorization::mayMoveMoney( $post_id, get_current_user_id(), 'admin_deposit' );
 
-		// Cancel button
-		if ( $may_move_money && in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) {
-			echo '<button type="button" class="deposit-action-btn warning" id="cancel-booking" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
-			echo '<span class="dashicons dashicons-no"></span>';
-			echo esc_html__( 'Cancel Booking', 'mhm-rentiva' );
-			echo '</button>';
-		}
+		// The cancel button lives in the Booking Status box (render_cancel_button()).
 
 		// Refund button. The rule lives in can_refund_from_deposit_screen() so
 		// this screen, the refund box's link and the AJAX handler cannot drift
@@ -445,6 +439,30 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 
 		echo '</div>';
 		echo '</div>';
+	}
+
+	/**
+	 * The cancel button, in the Booking Status box (canvas v135). The same rule
+	 * that drew it here: the booking has a payment type (render_deposit_management()
+	 * returns before any button otherwise), the actor may move money on it, and
+	 * it is pending or confirmed. Markup and id unchanged: deposit-management.js
+	 * binds #cancel-booking on the document and reads only data-booking-id.
+	 */
+	public static function render_cancel_button( int $post_id ): void {
+		if ( '' === (string) get_post_meta( $post_id, '_mhmrentiva_payment_type', true ) ) {
+			return;
+		}
+		if ( ! MoneyAuthorization::mayMoveMoney( $post_id, get_current_user_id(), 'admin_deposit' ) ) {
+			return;
+		}
+		if ( ! in_array( (string) get_post_meta( $post_id, '_mhmrentiva_status', true ), array( 'pending', 'confirmed' ), true ) ) {
+			return;
+		}
+
+		echo '<button type="button" class="deposit-action-btn warning" id="cancel-booking" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
+		echo '<span class="dashicons dashicons-no"></span>';
+		echo esc_html__( 'Cancel Booking', 'mhm-rentiva' );
+		echo '</button>';
 	}
 
 	private static function format_price( float $price ): string {

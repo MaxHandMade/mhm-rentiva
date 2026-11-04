@@ -481,3 +481,24 @@
 body.post-type-mhmrentiva_booking.post-php #titlediv {
 	display: none;
 }
+
+/* Booking Status = core submitdiv (PR 3b-1) ------------------- */
+
+/* Rows that mean nothing for a booking. Their inputs stay in the form,
+   so edit_post() keeps post_status, visibility and the password. */
+body.post-type-mhmrentiva_booking.post-php #submitdiv #minor-publishing-actions,
+body.post-type-mhmrentiva_booking.post-php #submitdiv #misc-publishing-actions {
+	display: none;
+}
+
+.mhm-booking-status-summary {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+	padding: 14px 8px 12px;
+}
+
+.mhm-booking-status-summary #cancel-booking {
+	margin-top: 8px;
+}

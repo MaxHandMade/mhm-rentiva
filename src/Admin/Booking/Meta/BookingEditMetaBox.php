@@ -503,7 +503,10 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		$dropoff_date   = $request->text( 'mhmrentiva_edit_dropoff_date' );
 		$dropoff_time   = $request->text( 'mhmrentiva_edit_dropoff_time' );
 		$guests         = max( 1, $request->int( 'mhmrentiva_edit_guests', 1 ) );
-		$status         = $request->text( 'mhmrentiva_edit_status', 'pending' );
+		// Without the status field (a form that does not carry it) the booking
+		// keeps its status -- the old 'pending' default silently reset it.
+		$status_posted  = $request->has( 'mhmrentiva_edit_status' );
+		$status         = $status_posted ? $request->text( 'mhmrentiva_edit_status', 'pending' ) : Status::get( $post_id );
 
 		// Get special notes - always save if field exists
 		$special_notes = $request->textarea( 'mhmrentiva_edit_special_notes' );
@@ -608,7 +611,9 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		// mhmrentiva_booking_status_changed hook update_status() fires
 		// (BookingMeta::auto_add_status_change_note); calling it here as well
 		// wrote every change twice.
-		Status::update_status( $post_id, $status, get_current_user_id() );
+		if ( $status_posted ) {
+			Status::update_status( $post_id, $status, get_current_user_id() );
+		}
 
 		// Update legacy meta keys for backward compatibility
 		update_post_meta( $post_id, '_mhmrentiva_booking_pickup_date', $pickup_date );
