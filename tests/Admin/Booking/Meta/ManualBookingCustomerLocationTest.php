@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Admin\Booking\Meta;
 
 use MHMRentiva\Admin\Booking\Meta\ManualBookingMetaBox;
+use MHMRentiva\Tests\Support\UserManagementCapabilities;
 use WP_Ajax_UnitTestCase;
 
 /**
@@ -17,6 +18,8 @@ use WP_Ajax_UnitTestCase;
  */
 final class ManualBookingCustomerLocationTest extends WP_Ajax_UnitTestCase
 {
+	use UserManagementCapabilities;
+
 	/** @var string */
 	protected $_last_response;
 
@@ -25,6 +28,11 @@ final class ManualBookingCustomerLocationTest extends WP_Ajax_UnitTestCase
 	public function setUp(): void
 	{
 		parent::setUp();
+		// On multisite only a super admin -- or a site admin when the network
+		// allows add_new_users -- may create users; the create path checks
+		// create_users before reading any field. Same choice as
+		// ManualBookingAtomicityTest. No-op on a single site.
+		$this->allow_site_admins_to_create_users();
 
 		$this->vehicle_id = (int) self::factory()->post->create(
 			array(
@@ -44,6 +52,12 @@ final class ManualBookingCustomerLocationTest extends WP_Ajax_UnitTestCase
 
 		ManualBookingMetaBox::register();
 		wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
+	}
+
+	public function tearDown(): void
+	{
+		$this->forbid_site_admins_from_creating_users();
+		parent::tearDown();
 	}
 
 	/**
