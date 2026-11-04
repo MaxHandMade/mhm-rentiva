@@ -128,6 +128,25 @@ final class BookingTimelineTest extends WP_UnitTestCase
 		$this->assertStringNotContainsString('Called the customer', (string) $text);
 	}
 
+	public function test_payment_updates_never_shown(): void
+	{
+		$id = $this->booking('confirmed');
+		BookingMeta::add_history_note(
+			$id,
+			'Payment: Pending → Paid',
+			'payment_update',
+			null,
+			array( 'payment_from' => 'pending', 'payment_to' => 'paid' )
+		);
+
+		$timeline = BookingTimeline::for_booking($id);
+		$text     = wp_json_encode($timeline);
+
+		$this->assertStringNotContainsString('Payment: Pending', (string) $text);
+		// The confirmed step comes from the booking status, not from this row.
+		$this->assertNull(self::by_key($timeline)['confirmed']['at']);
+	}
+
 	public function test_cancelled_with_refund_branch(): void
 	{
 		// Deposit paid offline, then cancelled and refunded by hand.

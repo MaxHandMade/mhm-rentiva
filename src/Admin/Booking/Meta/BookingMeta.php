@@ -1065,7 +1065,9 @@ final class BookingMeta extends AbstractMetaBox {
 			'user_id'   => $user_id,
 			'timestamp' => $timestamp,
 		);
-		foreach (array( 'status_from', 'status_to' ) as $field) {
+		// payment_from/payment_to: PaymentView's rows. Not status_*: the
+		// customer timeline reads status_to and must not see payments.
+		foreach (array( 'status_from', 'status_to', 'payment_from', 'payment_to' ) as $field) {
 			if (isset($fields[ $field ])) {
 				$entry[ $field ] = (string) $fields[ $field ];
 			}
