@@ -108,6 +108,11 @@ final class BookingMeta extends AbstractMetaBox {
 		add_action('save_post', array( \MHMRentiva\Admin\Booking\Core\PaymentView::class, 'open_update_scope' ), 1, 2);
 		add_action('save_post', array( \MHMRentiva\Admin\Booking\Core\PaymentView::class, 'close_update_scope' ), 99, 2);
 
+		// Re-pricing only when a price input moved (BookingPricingInputs): the
+		// fingerprint is taken before the writers at 5 and 10.
+		add_action('save_post', array( \MHMRentiva\Admin\Booking\Core\BookingPricingInputs::class, 'open' ), 1, 2);
+		add_action('save_post', array( \MHMRentiva\Admin\Booking\Core\BookingPricingInputs::class, 'close' ), 99, 2);
+
 		// Email sending handler
 		add_action('admin_post_mhmrentiva_send_customer_email', array( self::class, 'handle_send_customer_email' ));
 
@@ -571,8 +576,10 @@ final class BookingMeta extends AbstractMetaBox {
 		update_post_meta($post_id, '_mhmrentiva_guests', $guests);
 		update_post_meta($post_id, '_mhmrentiva_special_notes', $special_notes);
 
-		// ✅ Auto calculation - When date is changed
-		if ($pickup_date && $dropoff_date) {
+		// Re-price only when a price input moved (BookingPricingInputs): the
+		// dates are filled in on every Update, and re-pricing a paid booking at
+		// today's rates on a status-only change rewrote what it had cost.
+		if ($pickup_date && $dropoff_date && \MHMRentiva\Admin\Booking\Core\BookingPricingInputs::changed($post_id)) {
 			self::recalculate_booking_costs($post_id, $pickup_date, $dropoff_date);
 		}
 
@@ -1575,7 +1582,10 @@ final class BookingMeta extends AbstractMetaBox {
 	 */
 	public static function on_booking_meta_updated(int $post_id, string $pickup_date, string $dropoff_date): void
 	{
-		self::recalculate_booking_costs($post_id, $pickup_date, $dropoff_date);
+		// Same rule as save_booking_fields(): no re-pricing without a moved input.
+		if (\MHMRentiva\Admin\Booking\Core\BookingPricingInputs::changed($post_id)) {
+			self::recalculate_booking_costs($post_id, $pickup_date, $dropoff_date);
+		}
 	}
 
 	/**

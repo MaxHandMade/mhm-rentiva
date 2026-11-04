@@ -561,25 +561,29 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		update_post_meta( $post_id, '_mhmrentiva_guests', $guests );
 		update_post_meta( $post_id, '_mhmrentiva_special_notes', $special_notes );
 
-		// Recalculate rental days if dates changed
-		if ( $pickup_date && $dropoff_date ) {
-			$start       = new \DateTime( $pickup_date );
-			$end         = new \DateTime( $dropoff_date );
-			$rental_days = $start->diff( $end )->days ?: 1;
-			update_post_meta( $post_id, '_mhmrentiva_rental_days', $rental_days );
-		}
-
-		// Save add-on meta data
-		$addon_details = AddonManager::build_addon_details(
-			$selection->ids(),
-			array(
-				'rental_days'      => (int) get_post_meta( $post_id, '_mhmrentiva_rental_days', true ),
-				'addon_quantities' => $selection->quantities(),
-			)
-		);
 		$selection->store( $post_id );
-		update_post_meta( $post_id, '_mhmrentiva_addon_details', $addon_details );
-		update_post_meta( $post_id, '_mhmrentiva_addon_total', (float) array_sum( array_column( $addon_details, 'line_total' ) ) );
+
+		// Days and add-on lines are priced at today's rates: only when a price
+		// input moved (BookingPricingInputs), or a status-only Update rewrites
+		// the lines of a booking whose total it keeps.
+		if ( \MHMRentiva\Admin\Booking\Core\BookingPricingInputs::changed( $post_id ) ) {
+			if ( $pickup_date && $dropoff_date ) {
+				$start       = new \DateTime( $pickup_date );
+				$end         = new \DateTime( $dropoff_date );
+				$rental_days = $start->diff( $end )->days ?: 1;
+				update_post_meta( $post_id, '_mhmrentiva_rental_days', $rental_days );
+			}
+
+			$addon_details = AddonManager::build_addon_details(
+				$selection->ids(),
+				array(
+					'rental_days'      => (int) get_post_meta( $post_id, '_mhmrentiva_rental_days', true ),
+					'addon_quantities' => $selection->quantities(),
+				)
+			);
+			update_post_meta( $post_id, '_mhmrentiva_addon_details', $addon_details );
+			update_post_meta( $post_id, '_mhmrentiva_addon_total', (float) array_sum( array_column( $addon_details, 'line_total' ) ) );
+		}
 
 		// Update status. The status-change history note is written by the
 		// mhmrentiva_booking_status_changed hook update_status() fires
