@@ -140,11 +140,9 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 				'mhm-rentiva-booking-edit-meta',
 				'mhmBookingEdit',
 				array(
-					'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
-					'nonce'     => wp_create_nonce( 'mhmrentiva_booking_edit_nonce' ),
-					// Site-local current date (Y-m-d) for the "pickup in the past" check.
-					'siteToday' => \MHMRentiva\Admin\Booking\Helpers\SiteTime::today(),
-					'text'      => array(
+					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+					'nonce'   => wp_create_nonce( 'mhmrentiva_booking_edit_nonce' ),
+					'text'    => array(
 						'saving'              => __( 'Saving...', 'mhm-rentiva' ),
 						'error'               => __( 'An error occurred', 'mhm-rentiva' ),
 						'success'             => __( 'Booking updated', 'mhm-rentiva' ),
@@ -152,6 +150,31 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 					),
 				)
 			);
+
+			// The date check's data (not strings, so not localize): the range the
+			// server drew -- the baseline an untouched form is compared to, set
+			// before the script runs so input made before the page was ready still
+			// counts as a change -- and Util::parse_datetimes()'s empty-time
+			// defaults (Codex r4).
+			global $post;
+			if ( $post instanceof \WP_Post ) {
+				list( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) = BookingEditDates::stored( (int) $post->ID );
+				wp_add_inline_script(
+					'mhm-rentiva-booking-edit-meta',
+					'window.mhmBookingEditDates = ' . wp_json_encode(
+						array(
+							'initial'      => array(
+								'pickup_date'  => $pickup_date,
+								'pickup_time'  => $pickup_time,
+								'dropoff_date' => $dropoff_date,
+								'dropoff_time' => $dropoff_time,
+							),
+							'defaultTimes' => BookingEditDates::default_times(),
+						)
+					) . ';',
+					'before'
+				);
+			}
 		}
 	}
 
@@ -159,11 +182,9 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		wp_nonce_field( 'mhmrentiva_booking_edit_action', 'mhmrentiva_booking_edit_meta_nonce' );
 
 		// Fetch current booking data
-		$vehicle_id   = get_post_meta( $post->ID, '_mhmrentiva_vehicle_id', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_vehicle_id', true );
-		$pickup_date  = get_post_meta( $post->ID, '_mhmrentiva_pickup_date', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_pickup_date', true );
-		$pickup_time  = get_post_meta( $post->ID, '_mhmrentiva_start_time', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_pickup_time', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_pickup_time', true );
-		$dropoff_date = get_post_meta( $post->ID, '_mhmrentiva_dropoff_date', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_dropoff_date', true );
-		$dropoff_time = get_post_meta( $post->ID, '_mhmrentiva_end_time', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_dropoff_time', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_dropoff_time', true );
+		$vehicle_id = get_post_meta( $post->ID, '_mhmrentiva_vehicle_id', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_vehicle_id', true );
+		// The one reader the date rule compares against (BookingEditDates).
+		list( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) = BookingEditDates::stored( (int) $post->ID );
 
 		$status = Status::get( $post->ID );
 
@@ -272,7 +293,14 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		echo '<option value="confirmed"' . selected( $status, 'confirmed', false ) . '>' . esc_html__( 'Confirmed', 'mhm-rentiva' ) . '</option>';
 		echo '<option value="in_progress"' . selected( $status, 'in_progress', false ) . '>' . esc_html__( 'In Progress', 'mhm-rentiva' ) . '</option>';
 		echo '<option value="completed"' . selected( $status, 'completed', false ) . '>' . esc_html__( 'Completed', 'mhm-rentiva' ) . '</option>';
-		echo '<option value="cancelled"' . selected( $status, 'cancelled', false ) . '>' . esc_html__( 'Cancelled', 'mhm-rentiva' ) . '</option>';
+		// Only an actor who may cancel is offered "Cancelled" (user decision
+		// 2026-11-07). A booking that already IS cancelled always shows it,
+		// selected: without the option the browser would post the first one
+		// (pending), and cancelled -> pending is an allowed transition -- a
+		// notes-only Update would silently re-book it (Fable r2-C1).
+		if ( 'cancelled' === $status || BookingEditCancellation::actor_may_cancel( (int) $post->ID ) ) {
+			echo '<option value="cancelled"' . selected( $status, 'cancelled', false ) . '>' . esc_html__( 'Cancelled', 'mhm-rentiva' ) . '</option>';
+		}
 		echo '</select>';
 		echo '</div>';
 		echo '</div>';
@@ -470,6 +498,35 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 	}
 
 	/**
+	 * The add-on selection the form posts, as the save writes it: only real
+	 * add-ons, each once, quantities held to the add-on's maximum (a booked
+	 * quantity above a maximum lowered since stays). Shared with the
+	 * cancellation request's "did the form change anything" check.
+	 */
+	public static function posted_selection( int $post_id, VerifiedRequest $request ): AddonSelection {
+		$selected_addons = array();
+		$quantities      = array();
+		$posted_qty      = $request->arr( 'mhmrentiva_edit_addon_qty' );
+		// What the booking already carries is kept: a maximum lowered since
+		// must not re-price a booking on its next unrelated save.
+		$stored = AddonSelection::for_booking( $post_id );
+		foreach ( $request->intList( 'mhmrentiva_edit_selected_addons' ) as $addon_id ) {
+			if ( 'mhmrentiva_addon' !== get_post_type( $addon_id ) || in_array( $addon_id, $selected_addons, true ) ) {
+				continue;
+			}
+			$selected_addons[] = $addon_id;
+			$booked            = $stored->quantity( $addon_id );
+			$raw               = $posted_qty[ $addon_id ] ?? max( 1, $booked );
+			$cap               = max( AddonSelection::max_quantity( $addon_id ), $booked );
+			$quantity          = is_scalar( $raw ) ? max( 1, min( (int) $raw, $cap ) ) : max( 1, $booked );
+			if ( $quantity > 1 ) {
+				$quantities[ $addon_id ] = $quantity;
+			}
+		}
+		return AddonSelection::of( $selected_addons, $quantities );
+	}
+
+	/**
 	 * Persist booking edits.
 	 */
 	public static function save_booking_details( int $post_id ): void {
@@ -498,6 +555,20 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 			return;
 		}
 
+		// "Cancelled" + Update is a cancellation request and nothing else: the
+		// cancellation path refunds from the stored total and frees the stored
+		// dates, so no field that moves money may be written first. See
+		// BookingEditCancellation.
+		// Already handled in this request (a listener re-saved the booking):
+		// the cancellation request still writes nothing here.
+		if ( BookingEditCancellation::handled( $post_id ) ) {
+			return;
+		}
+		if ( BookingEditCancellation::requested( $post_id, $request ) ) {
+			BookingEditCancellation::run( $post_id, $request );
+			return;
+		}
+
 		// Fetch and persist data
 		$new_vehicle_id = $request->int( 'mhmrentiva_edit_vehicle_id' );
 		$pickup_date    = $request->text( 'mhmrentiva_edit_pickup_date' );
@@ -517,10 +588,21 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		// Get special notes - always save if field exists
 		$special_notes = $request->textarea( 'mhmrentiva_edit_special_notes' );
 
+		// A return before the pickup is not saved; the stored range stands and
+		// the rest of the Update goes on (function scan H4).
+		if ( BookingEditDates::is_refused( $post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) ) {
+			BookingEditNotice::queue( $post_id, BookingEditDates::notice(), 'warning' );
+		}
+		// Refused or untouched: the database values stand (BookingEditDates::to_write());
+		// the availability check reads a range it can parse (to_check()).
+		$posted_range = array( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time );
+		$check_range  = BookingEditDates::to_check( $post_id, $posted_range );
+		list( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) = BookingEditDates::to_write( $post_id, $posted_range );
+
 		// This handler runs first (priority 5) and writes the vehicle and dates
 		// before anything else does, so the availability check has to come before
 		// that. A refused edit writes nothing; see guard_edit_availability().
-		if ( ! BookingMeta::guard_edit_availability( $post_id, $new_vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time, $status ) ) {
+		if ( ! BookingMeta::guard_edit_availability( $post_id, $new_vehicle_id, $check_range[0], $check_range[1], $check_range[2], $check_range[3], $status ) ) {
 			return;
 		}
 
@@ -558,26 +640,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		// quantity is held to its add-on's maximum; the rows are priced for the
 		// rental the way every other path prices them (they used to be written
 		// at the unit price, so a per-day service read as one day).
-		$selected_addons = array();
-		$quantities      = array();
-		$posted_qty      = $request->arr( 'mhmrentiva_edit_addon_qty' );
-		// What the booking already carries is kept: a maximum lowered since
-		// must not re-price a booking on its next unrelated save.
-		$stored = AddonSelection::for_booking( $post_id );
-		foreach ( $request->intList( 'mhmrentiva_edit_selected_addons' ) as $addon_id ) {
-			if ( 'mhmrentiva_addon' !== get_post_type( $addon_id ) || in_array( $addon_id, $selected_addons, true ) ) {
-				continue;
-			}
-			$selected_addons[] = $addon_id;
-			$booked            = $stored->quantity( $addon_id );
-			$raw               = $posted_qty[ $addon_id ] ?? max( 1, $booked );
-			$cap               = max( AddonSelection::max_quantity( $addon_id ), $booked );
-			$quantity          = is_scalar( $raw ) ? max( 1, min( (int) $raw, $cap ) ) : max( 1, $booked );
-			if ( $quantity > 1 ) {
-				$quantities[ $addon_id ] = $quantity;
-			}
-		}
-		$selection = AddonSelection::of( $selected_addons, $quantities );
+		$selection = self::posted_selection( $post_id, $request );
 
 		// Update meta values
 		update_post_meta( $post_id, '_mhmrentiva_pickup_date', $pickup_date );

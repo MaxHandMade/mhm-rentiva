@@ -194,4 +194,13 @@ final class BookingHistoryBoxTest extends WP_Ajax_UnitTestCase
 			strpos($html, 'id="note_type"')
 		);
 	}
+
+	/** Codex code audit 3b-2, Minor 6: the history writer keeps a backslash. */
+	public function test_a_history_note_keeps_its_backslash(): void
+	{
+		BookingMeta::add_history_note($this->booking, 'ref BANK\2026', 'note');
+
+		$notes = array_column((array) get_post_meta($this->booking, '_mhmrentiva_booking_history', true), 'note');
+		$this->assertContains('ref BANK\2026', $notes);
+	}
 }

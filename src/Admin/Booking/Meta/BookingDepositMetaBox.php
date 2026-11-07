@@ -168,7 +168,9 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			return false;
 		}
 
-		if ( '' === (string) get_post_meta( $booking_id, '_mhmrentiva_payment_type', true ) ) {
+		// The Payment Management box's own rule (PR 3b-2, Fable N1): '0' is
+		// "old system" too, so the handler refuses what the button hides.
+		if ( ! self::uses_deposit_system( $booking_id ) ) {
 			return false;
 		}
 
@@ -445,7 +447,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		echo '</button>';
 		// What the button does, as CancellationHandler::cancel_booking() does it:
 		// the cancellation e-mail goes out and the refund of what was paid starts.
-		echo '<p class="description mhm-cancel-hint">' . esc_html__( 'Cancelling starts the refund of the amount paid and sends the customer a notification.', 'mhm-rentiva' ) . '</p>';
+		echo '<p class="description mhm-cancel-hint">' . esc_html__( 'Cancelling starts the refund of the amount paid and sends the customer a notification.', 'mhm-rentiva' ) . ' ' . esc_html__( 'Choosing Cancelled in the status list and pressing Update does the same.', 'mhm-rentiva' ) . '</p>';
 	}
 
 	/**

@@ -4,6 +4,7 @@
  * The booking history box's "Add note" (spec PR 3a): its four notices were
  * plain English; they now come from mhmBookingEmail.strings. An all-space
  * note counts as empty, and the booking id comes from the add-note container.
+ * PR 3b-2: the notices are shown inside the box, not as browser alerts.
  */
 
 const flush = () => new Promise( ( r ) => setTimeout( r, 20 ) );
@@ -55,6 +56,11 @@ describe( 'booking history add note', () => {
 		delete global.ajaxurl;
 	} );
 
+	const notice = () => {
+		const el = document.querySelector( '.mhm-add-history-note .mhm-history-notice' );
+		return el ? { text: el.textContent, error: el.classList.contains( 'notice-error' ) } : null;
+	};
+
 	const clickAdd = async ( text ) => {
 		await flush(); // jQuery ready binds asynchronously in jsdom.
 		document.getElementById( 'note_content' ).value = text;
@@ -64,7 +70,8 @@ describe( 'booking history add note', () => {
 
 	it( 'refuses an all-space note with the localized notice', async () => {
 		await clickAdd( '   ' );
-		expect( alertSpy ).toHaveBeenCalledWith( 'X1' );
+		expect( notice() ).toEqual( { text: 'X1', error: true } );
+		expect( alertSpy ).not.toHaveBeenCalled();
 		expect( ajax ).not.toHaveBeenCalled();
 	} );
 
@@ -75,20 +82,20 @@ describe( 'booking history add note', () => {
 		expect( opts.data.booking_id ).toBe( 42 );
 		expect( opts.data.note_content ).toBe( 'Called' );
 		opts.success( { success: true } );
-		expect( alertSpy ).toHaveBeenCalledWith( 'X2' );
-		// The reload that follows: jsdom reports navigation as not implemented.
-		expect( console ).toHaveErrored();
+		expect( notice() ).toEqual( { text: 'X2', error: false } );
+		expect( alertSpy ).not.toHaveBeenCalled();
 	} );
 
 	it( 'puts the server message into the localized error', async () => {
 		await clickAdd( 'Called' );
-		ajax.mock.calls[ 0 ][ 0 ].success( { success: false, data: 'nope' } );
-		expect( alertSpy ).toHaveBeenCalledWith( 'X3 nope' );
+		ajax.mock.calls[ 0 ][ 0 ].success( { success: false, data: '<b>nope</b>' } );
+		expect( notice() ).toEqual( { text: 'X3 <b>nope</b>', error: true } );
+		expect( document.querySelector( '.mhm-history-notice b' ) ).toBeNull();
 	} );
 
 	it( 'shows the localized failure on a network error', async () => {
 		await clickAdd( 'Called' );
 		ajax.mock.calls[ 0 ][ 0 ].error();
-		expect( alertSpy ).toHaveBeenCalledWith( 'X4' );
+		expect( notice() ).toEqual( { text: 'X4', error: true } );
 	} );
 } );

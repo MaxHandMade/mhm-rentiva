@@ -696,4 +696,18 @@ final class RefundReviewActionsTest extends WP_Ajax_UnitTestCase
 
         $this->assertNull($row, 'A matrix refusal must not leave the lock standing either.');
     }
+
+    /**
+     * Function scan H16: the operator's action was written only to meta and
+     * _mhmrentiva_booking_logs, neither shown on the screen. It is now a row
+     * in the booking history the Payment Management box draws.
+     */
+    public function test_dismiss_writes_a_history_row_with_the_reason(): void
+    {
+        $response = $this->call('mhmrentiva_review_dismiss', array( 'reason' => 'Paid in cash at the desk.' ));
+        $this->assertTrue((bool) ( $response['success'] ?? false ), 'Raw: ' . $this->_last_response);
+
+        $notes = array_column((array) get_post_meta($this->booking_id, '_mhmrentiva_booking_history', true), 'note');
+        $this->assertContains('Recorded that no refund is due. Reason: Paid in cash at the desk.', $notes);
+    }
 }

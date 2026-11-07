@@ -102,6 +102,7 @@ final class BookingPortalMetaBox {
 				echo ' data-nonce="' . esc_attr( $nonce ) . '">';
 				echo '<span class="dashicons dashicons-plus-alt" aria-hidden="true"></span> ';
 				echo esc_html__( 'Create Customer Account', 'mhm-rentiva' ) . '</button></p>';
+				echo '<p class="description mhm-portal-create-hint">' . esc_html__( 'The customer receives an e-mail to set their password.', 'mhm-rentiva' ) . '</p>';
 			}
 		}
 
@@ -192,8 +193,13 @@ final class BookingPortalMetaBox {
 		// Link the new user to the booking
 		update_post_meta( $booking_id, '_mhmrentiva_customer_user_id', $user_id );
 
+		// The account has a random password nobody knows (function scan H6):
+		// core's own set-password e-mail goes to the customer -- 'user' sends
+		// that one only, no copy to the site admin.
+		wp_new_user_notification( $user_id, null, 'user' );
+
 		wp_send_json_success( array(
-			'message' => __( 'Customer account created and linked to booking.', 'mhm-rentiva' ),
+			'message' => __( 'Customer account created and linked to booking. The customer was sent an e-mail to set their password.', 'mhm-rentiva' ),
 		) );
 	}
 }

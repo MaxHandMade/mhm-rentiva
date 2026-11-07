@@ -165,6 +165,24 @@ final class RefundAmountComesFromStateTest extends WP_Ajax_UnitTestCase
     }
 
     /**
+     * Function scan H7: an offline refund said "Refund completed successfully"
+     * while the money had not been handed over -- the refund row read
+     * "waiting for hand transfer" at the same time. The message now says what
+     * happened: a refund record is open until the hand transfer is confirmed.
+     */
+    public function test_an_offline_refund_says_it_waits_for_the_hand_transfer(): void
+    {
+        $booking_id = $this->make_full_payment_booking('500');
+
+        $message = (string) ( $this->call_refund($booking_id)['data']['message'] ?? '' );
+
+        $this->assertSame(\MHMRentiva\Admin\Payment\Core\RefundStatus::MANUAL_PENDING, \MHMRentiva\Admin\Payment\Core\RefundStatus::get($booking_id), 'Fixture: offline money goes to manual_pending.');
+        $this->assertStringNotContainsString('Refund completed successfully', $message);
+        $this->assertStringContainsString('Confirm hand transfer', $message);
+        $this->assertStringContainsString(CurrencyHelper::format_price(500.0, 2), $message);
+    }
+
+    /**
      * Defect 3, first half. The cancellation-policy sentence is correct here
      * and stays -- but the log must stop claiming a refund was processed.
      * RED before the fix: the handler wrote `refund_processed` with

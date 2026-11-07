@@ -394,4 +394,18 @@ final class ManualRefundCloseTest extends WP_Ajax_UnitTestCase
         $this->assertSame(191, strlen($stored), 'The reference must be capped at 191 characters, not stored verbatim.');
         $this->assertSame(str_repeat('a', 191), $stored);
     }
+
+    /**
+     * Function scan H16: the operator's action was written only to meta and
+     * _mhmrentiva_booking_logs, neither shown on the screen. It is now a row
+     * in the booking history the Payment Management box draws.
+     */
+    public function test_close_writes_a_history_row_with_the_reference(): void
+    {
+        $response = $this->call_close($this->booking_id, array( 'reference' => 'CASH-0002' ));
+        $this->assertTrue((bool) ( $response['success'] ?? false ), 'Raw: ' . $this->_last_response);
+
+        $notes = array_column((array) get_post_meta($this->booking_id, '_mhmrentiva_booking_history', true), 'note');
+        $this->assertContains('Hand transfer of the refund confirmed. Reference: CASH-0002', $notes);
+    }
 }

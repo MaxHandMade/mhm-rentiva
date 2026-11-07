@@ -76,6 +76,51 @@ final class BookingPricingInputs {
 		);
 	}
 
+	/**
+	 * The price inputs a form edits, normalised the way fingerprint() reads
+	 * them: an empty or '0' value is "not set", the add-on set is unordered.
+	 * The payment type is left out -- the edit form does not post it.
+	 *
+	 * Called with only $booking_id it reads the stored booking; with posted
+	 * values it describes what the form would write. Two equal results mean
+	 * the form changes nothing that moves money (PR 3b-2: a cancellation
+	 * request tells the operator when it ignored such a change).
+	 *
+	 * @param array{vehicle?: int, pickup?: string, start?: string, dropoff?: string, end?: string, selection?: AddonSelection}|null $posted
+	 * @return array<string, mixed>
+	 */
+	public static function form_view(int $booking_id, ?array $posted = null): array {
+		$selection = $posted['selection'] ?? AddonSelection::for_booking($booking_id);
+		$quantity  = $selection->quantities();
+		ksort($quantity);
+		$ids = $selection->ids();
+		sort($ids);
+
+		$value = static function (string $field, string $key) use ($booking_id, $posted): string {
+			if (null === $posted) {
+				return self::first($booking_id, $key);
+			}
+			$raw = (string) ( $posted[ $field ] ?? '' );
+			return ( '' === $raw || '0' === $raw ) ? '' : $raw;
+		};
+
+		$vehicle = null === $posted ? (int) self::first($booking_id, '_mhmrentiva_vehicle_id') : (int) ( $posted['vehicle'] ?? 0 );
+		if (null !== $posted && $vehicle <= 0) {
+			// The form posts no vehicle when it is not changed.
+			$vehicle = (int) self::first($booking_id, '_mhmrentiva_vehicle_id');
+		}
+
+		return array(
+			'vehicle'  => $vehicle,
+			'pickup'   => $value('pickup', '_mhmrentiva_pickup_date'),
+			'start'    => $value('start', '_mhmrentiva_start_time'),
+			'dropoff'  => $value('dropoff', '_mhmrentiva_dropoff_date'),
+			'end'      => $value('end', '_mhmrentiva_end_time'),
+			'addons'   => $ids,
+			'quantity' => $quantity,
+		);
+	}
+
 	public static function open(int $post_id, \WP_Post $post): void {
 		if (! self::is_booking_save($post_id, $post)) {
 			return;

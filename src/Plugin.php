@@ -333,6 +333,9 @@ final class Plugin {
 		if ($this->is_class_available('\MHMRentiva\Admin\Booking\Meta\BookingStatusBox')) {
 			\MHMRentiva\Admin\Booking\Meta\BookingStatusBox::register();
 		}
+		if ($this->is_class_available('\MHMRentiva\Admin\Booking\Meta\BookingEditNotice')) {
+			\MHMRentiva\Admin\Booking\Meta\BookingEditNotice::register();
+		}
 		if ($this->is_class_available('\MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox')) {
 			\MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox::register();
 		}

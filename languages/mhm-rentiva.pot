@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-07T17:02:37+00:00\n"
+"POT-Creation-Date: 2026-11-07T22:01:35+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -141,7 +141,7 @@ msgid "Could not calculate"
 msgstr ""
 
 #: src/Admin/About/SystemInfo.php:223
-#: src/Admin/Core/AssetManager.php:1671
+#: src/Admin/Core/AssetManager.php:1670
 #: src/Admin/Frontend/Account/AccountController.php:297
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:596
 #: src/Admin/Settings/Groups/FrontendSettings.php:345
@@ -352,7 +352,7 @@ msgid "Contact Form"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:121
-#: src/Admin/Booking/Meta/BookingMeta.php:733
+#: src/Admin/Booking/Meta/BookingMeta.php:760
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:55
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:93
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:1005
@@ -569,7 +569,7 @@ msgstr ""
 #: src/Admin/Addons/AddonManager.php:281
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:123
 #: src/Admin/Core/AssetManager.php:1209
-#: src/Admin/Core/AssetManager.php:1698
+#: src/Admin/Core/AssetManager.php:1697
 #: src/Admin/Emails/Core/EmailTemplates.php:562
 #: src/Admin/Frontend/Account/AccountController.php:289
 #: src/Admin/Frontend/Account/AccountController.php:348
@@ -580,8 +580,8 @@ msgstr ""
 #: src/Admin/Addons/AddonListTable.php:83
 #: src/Admin/Addons/AddonManager.php:282
 #: src/Admin/Addons/AddonScreen.php:112
-#: src/Admin/Core/AssetManager.php:1374
-#: src/Admin/Core/AssetManager.php:1420
+#: src/Admin/Core/AssetManager.php:1373
+#: src/Admin/Core/AssetManager.php:1419
 #: src/Admin/Emails/Core/EmailTemplates.php:563
 #: src/Admin/Frontend/Account/AccountController.php:326
 msgid "An error occurred. Please try again."
@@ -682,11 +682,11 @@ msgstr ""
 #: src/Admin/Addons/AddonScreen.php:471
 #: src/Admin/Addons/AddonScreen.php:509
 #: src/Admin/Booking/Actions/BookingActionGuard.php:76
-#: src/Admin/Booking/Meta/BookingMeta.php:780
-#: src/Admin/Booking/Meta/BookingMeta.php:1733
-#: src/Admin/Booking/Meta/BookingMeta.php:1782
-#: src/Admin/Booking/Meta/BookingMeta.php:1866
-#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:124
+#: src/Admin/Booking/Meta/BookingMeta.php:807
+#: src/Admin/Booking/Meta/BookingMeta.php:1762
+#: src/Admin/Booking/Meta/BookingMeta.php:1811
+#: src/Admin/Booking/Meta/BookingMeta.php:1902
+#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:125
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:771
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:879
 #: src/Admin/Core/SecurityHelper.php:140
@@ -719,10 +719,10 @@ msgstr ""
 #: src/Admin/Addons/AddonScreen.php:513
 #: src/Admin/Booking/Actions/BookingActionGuard.php:93
 #: src/Admin/Booking/Actions/BookingApproveAjax.php:61
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:86
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:526
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:648
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:768
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:87
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:556
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:687
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:807
 msgid "You do not have permission for this action."
 msgstr ""
 
@@ -772,7 +772,7 @@ msgstr ""
 #: src/Admin/Addons/AddonMenu.php:87
 #: src/Admin/Addons/AddonPostType.php:59
 #: src/Admin/Addons/AddonScreen.php:598
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:282
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:287
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:657
 #: src/Admin/Utilities/Menu/Menu.php:105
 #: src/Admin/Utilities/Menu/Menu.php:106
@@ -819,7 +819,7 @@ msgstr ""
 #: src/Admin/Addons/AddonScreen.php:108
 #: src/Admin/Addons/AddonScreen.php:1035
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:67
-#: src/Admin/Core/AssetManager.php:1527
+#: src/Admin/Core/AssetManager.php:1526
 #: src/Admin/Customers/CustomersPage.php:255
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
 #: src/Admin/Setup/SetupWizard.php:999
@@ -903,7 +903,7 @@ msgid "Inactive"
 msgstr ""
 
 #: src/Admin/Addons/AddonScreen.php:110
-#: src/Admin/Core/AssetManager.php:1554
+#: src/Admin/Core/AssetManager.php:1553
 msgid "Saving…"
 msgstr ""
 
@@ -1038,15 +1038,15 @@ msgstr ""
 #: src/Admin/Addons/AddonScreen.php:763
 #: src/Admin/Addons/AddonScreen.php:1054
 #: src/Admin/Core/AssetManager.php:1208
-#: src/Admin/Core/AssetManager.php:1366
-#: src/Admin/Core/AssetManager.php:1680
+#: src/Admin/Core/AssetManager.php:1365
+#: src/Admin/Core/AssetManager.php:1679
 #: templates/partials/rvs/review-card.php:81
 #: templates/partials/rvs/review-delete-dialog.php:25
 msgid "Delete"
 msgstr ""
 
 #: src/Admin/Addons/AddonScreen.php:979
-#: src/Admin/Core/AssetManager.php:1575
+#: src/Admin/Core/AssetManager.php:1574
 msgid "Drag to reorder"
 msgstr ""
 
@@ -1068,7 +1068,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Admin/Addons/AddonScreen.php:1044
-#: src/Admin/Core/AssetManager.php:1681
+#: src/Admin/Core/AssetManager.php:1680
 #: src/Admin/Customers/CustomersPage.php:447
 #: src/Admin/Setup/SetupWizard.php:297
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:971
@@ -1095,11 +1095,11 @@ msgstr ""
 
 #: src/Admin/Booking/Actions/BookingActionGuard.php:88
 #: src/Admin/Booking/Actions/BookingApproveAjax.php:77
-#: src/Admin/Booking/Meta/BookingMeta.php:798
-#: src/Admin/Booking/Meta/BookingMeta.php:1755
-#: src/Admin/Booking/Meta/BookingMeta.php:1804
-#: src/Admin/Booking/Meta/BookingMeta.php:1888
-#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:141
+#: src/Admin/Booking/Meta/BookingMeta.php:825
+#: src/Admin/Booking/Meta/BookingMeta.php:1784
+#: src/Admin/Booking/Meta/BookingMeta.php:1833
+#: src/Admin/Booking/Meta/BookingMeta.php:1924
+#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:142
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:49
 #: src/Admin/Emails/Templates/EmailPreview.php:109
 msgid "Booking not found."
@@ -1110,74 +1110,94 @@ msgstr ""
 msgid "This booking could not be approved. It may have changed — reload the list."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:121
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:174
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:122
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:175
 msgid "This booking does not use deposit system."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:126
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:179
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:127
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:180
 msgid "No remaining amount found."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:156
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:157
 msgid "Remaining amount processed successfully."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:210
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:216
+msgid "Payment link for the remaining amount e-mailed to the customer."
+msgstr ""
+
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:217
+msgid "Payment link for the remaining amount created; the e-mail to the customer could not be sent."
+msgstr ""
+
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:224
 msgid "Payment link generated and emailed to the customer."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:241
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:225
+msgid "Payment link generated, but the e-mail could not be sent. Copy the link and send it to the customer yourself."
+msgstr ""
+
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:256
 msgid "This booking is not awaiting payment."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:266
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:281
 msgid "Payment confirmed successfully."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:283
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:298
+#: src/Admin/Booking/Meta/BookingEditCancellation.php:144
 msgid "This booking cannot be cancelled."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:319
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:710
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:334
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:749
+#: src/Admin/Booking/Meta/BookingEditCancellation.php:170
 msgid "Booking cancelled, but the refund could not be completed. See the refund status on this screen."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:326
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:341
 msgid "Booking cancelled successfully."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:350
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:365
 msgid "Refund cannot be processed for this booking."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:351
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:366
 msgid "This booking has no refundable balance left."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:395
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:410
 msgid "Refund not processed due to cancellation policy."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:420
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:435
 msgid "Refund issued from the deposit management screen."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:445
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:460
 msgid "Refund failed."
 msgstr ""
 
+#. translators: %s: refund amount.
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:489
+#, php-format
+msgid "A refund record was opened for %s. Close it with \"Confirm hand transfer\" once the money has been handed over."
+msgstr ""
+
 #. translators: %s placeholder.
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:467
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:497
 #, php-format
 msgid "Refund completed successfully. Refund amount: %s"
 msgstr ""
 
 #. translators: %d: minutes until an orphaned refund lock clears on its own.
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:550
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:806
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:580
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:845
 #: src/Admin/Payment/Refunds/Service.php:223
 #, php-format
 msgid "This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within %d minute."
@@ -1186,41 +1206,52 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: operator-supplied payment reference
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:590
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:620
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:638
 #, php-format
 msgid "Hand transfer of the refund confirmed. Reference: %s"
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:610
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:639
+msgid "Hand transfer of the refund confirmed."
+msgstr ""
+
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:649
 msgid "This refund is not awaiting a hand transfer."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:613
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:652
 msgid "Hand transfer recorded."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:652
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:860
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:691
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:906
 msgid "This booking is not awaiting review."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:714
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:753
 msgid "Booking cancelled. No refund was found to process, so the review is still open."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:717
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:756
 msgid "Booking cancelled and the refund started."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:783
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:822
 msgid "Say why no refund is due. This closes a money obligation and the reason is the record of it."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:871
+#. translators: %s: the operator's reason
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:895
+#, php-format
+msgid "Recorded that no refund is due. Reason: %s"
+msgstr ""
+
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:917
 msgid "Could not record this decision. Please refresh the page and try again."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:874
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:920
 msgid "Recorded: no refund is due."
 msgstr ""
 
@@ -1231,9 +1262,9 @@ msgstr ""
 #: src/Admin/Booking/Core/PaymentView.php:86
 #: src/Admin/Booking/Core/Status.php:124
 #: src/Admin/Booking/ListTable/BookingColumns.php:1176
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:271
-#: src/Admin/Booking/Meta/BookingMeta.php:1617
-#: src/Admin/Core/AssetManager.php:1226
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:269
+#: src/Admin/Booking/Meta/BookingMeta.php:1646
+#: src/Admin/Core/AssetManager.php:1225
 #: src/Admin/Emails/Core/EmailTemplates.php:504
 #: src/Admin/Emails/Notifications/BookingNotifications.php:207
 #: src/Admin/Frontend/Account/AccountRenderer.php:934
@@ -1276,9 +1307,9 @@ msgstr ""
 
 #: src/Admin/Booking/Core/PaymentView.php:92
 #: src/Admin/Booking/Core/Status.php:128
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:275
-#: src/Admin/Booking/Meta/BookingMeta.php:1621
-#: src/Admin/Core/AssetManager.php:1230
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:279
+#: src/Admin/Booking/Meta/BookingMeta.php:1650
+#: src/Admin/Core/AssetManager.php:1229
 #: src/Admin/Emails/Notifications/BookingNotifications.php:211
 #: src/Admin/Emails/Templates/EmailPreview.php:231
 #: src/Admin/Frontend/Account/AccountRenderer.php:936
@@ -1321,9 +1352,9 @@ msgid "Pending Payment"
 msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:125
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:272
-#: src/Admin/Booking/Meta/BookingMeta.php:1618
-#: src/Admin/Core/AssetManager.php:1227
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:270
+#: src/Admin/Booking/Meta/BookingMeta.php:1647
+#: src/Admin/Core/AssetManager.php:1226
 #: src/Admin/Emails/Core/EmailTemplates.php:505
 #: src/Admin/Emails/Notifications/BookingNotifications.php:208
 #: src/Admin/Frontend/Account/BookingTimeline.php:70
@@ -1336,9 +1367,9 @@ msgid "Confirmed"
 msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:126
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:273
-#: src/Admin/Booking/Meta/BookingMeta.php:1619
-#: src/Admin/Core/AssetManager.php:1228
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:271
+#: src/Admin/Booking/Meta/BookingMeta.php:1648
+#: src/Admin/Core/AssetManager.php:1227
 #: src/Admin/Emails/Notifications/BookingNotifications.php:209
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:81
 #: assets/blocks/my-bookings/index.js:40
@@ -1348,9 +1379,9 @@ msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:127
 #: src/Admin/Booking/ListTable/BookingColumns.php:1189
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:274
-#: src/Admin/Booking/Meta/BookingMeta.php:1620
-#: src/Admin/Core/AssetManager.php:1229
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:272
+#: src/Admin/Booking/Meta/BookingMeta.php:1649
+#: src/Admin/Core/AssetManager.php:1228
 #: src/Admin/Emails/Notifications/BookingNotifications.php:210
 #: src/Admin/Frontend/Account/AccountRenderer.php:935
 #: src/Admin/Frontend/Account/BookingTimeline.php:107
@@ -1461,7 +1492,7 @@ msgid "[ADMIN] Booking Cancelled - #%d"
 msgstr ""
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:678
-#: src/Admin/Booking/Meta/BookingMeta.php:749
+#: src/Admin/Booking/Meta/BookingMeta.php:776
 msgid "Booking Cancelled"
 msgstr ""
 
@@ -1663,7 +1694,7 @@ msgid "Sorry, no vehicle found for selected dates. Please try different dates."
 msgstr ""
 
 #: src/Admin/Booking/Helpers/Util.php:264
-#: src/Admin/Booking/Meta/BookingMeta.php:1709
+#: src/Admin/Booking/Meta/BookingMeta.php:1738
 msgid "This vehicle is not available for rental. Please select another vehicle."
 msgstr ""
 
@@ -1702,7 +1733,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:384
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:532
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:709
-#: src/Plugin.php:1160
+#: src/Plugin.php:1163
 #: templates/account/booking-summary.php:59
 #: templates/admin/partials/booking-popup.php:52
 #: src-react/admin/customers/components/CustomerTable.jsx:9
@@ -1717,7 +1748,7 @@ msgid "Booking ID"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:277
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:210
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:208
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:235
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:882
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:207
@@ -1749,13 +1780,13 @@ msgid "Total"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:280
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:244
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:246
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:340
 msgid "Deposit Amount"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:281
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:250
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:252
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:341
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:537
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:608
@@ -1770,7 +1801,7 @@ msgid "Payment"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:283
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:269
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:267
 #: src/Admin/Booking/Meta/BookingMeta.php:377
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:723
 #: src/Admin/Setup/SetupWizard.php:235
@@ -1788,7 +1819,7 @@ msgid "Status"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:284
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:198
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:196
 msgid "Booking Type"
 msgstr ""
 
@@ -1877,7 +1908,7 @@ msgid "Calendar"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:901
-#: src/Admin/Core/AssetManager.php:1563
+#: src/Admin/Core/AssetManager.php:1562
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:338
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:78
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1098
@@ -1899,7 +1930,7 @@ msgid "All payment methods"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1085
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:230
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:232
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:108
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:715
 msgid "Offline"
@@ -2047,7 +2078,7 @@ msgid "Confirm no refund is due for this booking?"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:122
-#: src/Admin/Core/AssetManager.php:1220
+#: src/Admin/Core/AssetManager.php:1219
 msgid "Dismiss this notice"
 msgstr ""
 
@@ -2056,7 +2087,7 @@ msgid "Operation successful!"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:125
-#: src/Admin/Core/AssetManager.php:1501
+#: src/Admin/Core/AssetManager.php:1500
 msgid "An error occurred!"
 msgstr ""
 
@@ -2068,11 +2099,11 @@ msgstr ""
 msgid "Link copied to clipboard!"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:200
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:202
 msgid "This booking was created with the old system. Deposit system information is not available."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:213
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:215
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:705
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:528
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:599
@@ -2080,7 +2111,7 @@ msgstr ""
 msgid "Payment Type"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:216
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:218
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:241
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:708
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:626
@@ -2096,8 +2127,8 @@ msgstr ""
 msgid "Deposit"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:218
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:537
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:220
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:539
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:707
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:525
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:596
@@ -2109,173 +2140,193 @@ msgstr ""
 msgid "Full Payment"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:225
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:227
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:713
 #: src/Admin/Utilities/ListTable/LogColumns.php:74
 #: templates/account/payment-history.php:70
 msgid "Payment Method"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:228
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:201
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:230
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:199
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:716
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:159
 msgid "Online"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:237
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:239
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:339
 msgid "Total Amount"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:259
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:261
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:236
 msgid "Rental Days"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:260
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:262
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:237
 #: templates/emails/booking-created-admin.html.php:50
 #: templates/emails/booking-created-customer.html.php:37
 msgid "days"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:267
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:269
 msgid "Deposit Type"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:276
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:278
 msgid "Payment Status"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:288
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:290
 msgid "Cancellation Policy"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:289
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:291
 msgid "Cancellation Deadline:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:294
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:296
 msgid "This booking can be cancelled."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:296
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:298
 msgid "Cancellation period expired."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:304
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:306
 msgid "Payment Deadline"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:305
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:307
 msgid "Deadline:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:310
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:312
 msgid "Payment period expired. Booking can be cancelled."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:329
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:331
 #: src/Admin/Frontend/Widgets/Elementor/PaymentHistoryWidget.php:35
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:57
 msgid "Payment History"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:337
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:339
 msgid "Booking Created"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:338
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:340
 msgid "Booking successfully created and deposit information saved."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:349
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:351
 msgid "Payment Received"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:350
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:352
 msgid "Deposit payment successfully received."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:357
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:359
 #: templates/emails/booking-created-admin.html.php:64
 msgid "Payment Pending"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:358
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:360
 msgid "Deposit payment not yet received."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:368
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:370
 msgid "Remaining Amount Payment"
 msgstr ""
 
 #. translators: %s: formatted price
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:370
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:372
 #, php-format
 msgid "Remaining amount: %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:376
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:378
 msgid "All Payments Completed"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:377
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:379
 msgid "Deposit and remaining amount payments completed."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:395
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:397
 msgid "Mark Payment Received"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:403
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:405
 msgid "Process Remaining Amount"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:409
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:411
 msgid "Send Payment Link"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:412
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:414
 msgid "The deposit was paid outside WooCommerce, so no payment link can be sent for the remaining balance; use \"Process Remaining Amount\" instead to record it as settled."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:444
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:446
 #: src/Admin/Settings/Groups/FrontendSettings.php:323
 msgid "Cancel Booking"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:448
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:450
 msgid "Cancelling starts the refund of the amount paid and sends the customer a notification."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:472
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:450
+msgid "Choosing Cancelled in the status list and pressing Update does the same."
+msgstr ""
+
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:474
 msgid "Process Refund"
 msgstr ""
 
 #. translators: 1: deposit type label ("Percentage"), 2: the deposit rate, e.g. 10 or 12.5 -- place the percent sign as your language does.
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:529
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:531
 #, php-format
 msgctxt "deposit type with its rate"
 msgid "%1$s · %2$s%%"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:538
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:540
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:186
 msgid "Percentage"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:539
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:541
 msgid "Fixed Amount"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:540
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:542
 msgid "Both"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:541
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:543
 msgid "None"
+msgstr ""
+
+#: src/Admin/Booking/Meta/BookingEditCancellation.php:130
+msgid "Other changes in the form were not saved."
+msgstr ""
+
+#: src/Admin/Booking/Meta/BookingEditCancellation.php:143
+msgid "A rental that has started cannot be cancelled here."
+msgstr ""
+
+#: src/Admin/Booking/Meta/BookingEditCancellation.php:175
+msgid "The booking was cancelled. Other changes in the form were not saved; edit the booking first, then cancel."
+msgstr ""
+
+#: src/Admin/Booking/Meta/BookingEditDates.php:63
+msgid "The return date and time must be after the pickup. The dates were not changed."
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:39
@@ -2296,15 +2347,15 @@ msgstr ""
 msgid "Customer, vehicle and payment details"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:148
-#: src/Admin/Core/AssetManager.php:1365
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:146
+#: src/Admin/Core/AssetManager.php:1364
 msgid "Saving..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:149
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:147
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:218
 #: src/Admin/Core/AssetManager.php:1203
-#: src/Admin/Core/AssetManager.php:1699
+#: src/Admin/Core/AssetManager.php:1698
 #: src/Admin/Frontend/Account/AccountRenderer.php:505
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:349
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:645
@@ -2313,31 +2364,31 @@ msgstr ""
 msgid "An error occurred"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:150
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:148
 msgid "Booking updated"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:151
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:149
 msgid "Current License Plate:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:172
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:170
 #: src/Admin/Customers/CustomersOptimizer.php:710
 msgid "BK-"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:191
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:189
 msgid "Booking Reference"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:201
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:199
 #: src/Admin/Core/AssetManager.php:1120
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:89
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:195
 msgid "Manual"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:224
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:222
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:517
 #: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:426
 #: src/Admin/Settings/Groups/FrontendSettings.php:381
@@ -2345,7 +2396,7 @@ msgstr ""
 msgid "Select Vehicle"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:241
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:239
 #: src/Admin/Booking/Meta/BookingMeta.php:413
 #: src/Admin/Booking/Meta/BookingMeta.php:460
 #: templates/admin/partials/booking-popup.php:34
@@ -2354,28 +2405,28 @@ msgstr ""
 msgid "Booking Details"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:245
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:243
 #: src/Admin/Booking/Meta/BookingMeta.php:464
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:593
 #: templates/shortcodes/booking-form.php:97
 msgid "Pickup Date"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:250
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:248
 #: src/Admin/Booking/Meta/BookingMeta.php:469
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:598
 #: templates/shortcodes/booking-form.php:102
 msgid "Pickup Time"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:257
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:255
 #: src/Admin/Booking/Meta/BookingMeta.php:476
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:604
 #: templates/shortcodes/booking-form.php:114
 msgid "Return Date"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:262
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:260
 #: src/Admin/Booking/Meta/BookingMeta.php:481
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:609
 #: templates/shortcodes/booking-form.php:119
@@ -2383,51 +2434,51 @@ msgid "Return Time"
 msgstr ""
 
 #. translators: %s: additional service name.
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:351
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:356
 #, php-format
 msgid "%s (inactive)"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:366
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:371
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:662
 msgid "Select the additional services needed for this booking."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:404
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:409
 msgid "Quantity"
 msgstr ""
 
 #. translators: %s: additional service name.
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:405
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:410
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:676
 #, php-format
 msgid "Quantity: %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:420
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:425
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:686
 msgid "Additional Services Total:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:426
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:431
 msgid "No additional services available."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:432
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:437
 msgid "Special Notes / Requests"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:433
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:438
 msgid "Enter any special notes or customer requests..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:434
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:439
 msgid "Add any special notes or customer requests for this booking."
 msgstr ""
 
 #. translators: %s: vehicle title.
 #. translators: %s: vehicle title
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:539
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:594
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2686
 #, php-format
 msgid "Booking - %s"
@@ -2480,13 +2531,13 @@ msgid "Sending..."
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:219
-#: src/Admin/Booking/Meta/BookingMeta.php:1703
-#: src/Admin/Booking/Meta/BookingMeta.php:1852
+#: src/Admin/Booking/Meta/BookingMeta.php:1732
+#: src/Admin/Booking/Meta/BookingMeta.php:1888
 msgid "Email sent successfully!"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:220
-#: src/Admin/Core/AssetManager.php:1500
+#: src/Admin/Core/AssetManager.php:1499
 msgid "Error:"
 msgstr ""
 
@@ -2578,7 +2629,7 @@ msgid "Booking"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:379
-#: src/Admin/Core/AssetManager.php:1564
+#: src/Admin/Core/AssetManager.php:1563
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:250
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:447
 #: templates/partials/rvs/account-next-rental.php:65
@@ -2604,11 +2655,11 @@ msgstr ""
 msgid "Total:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:724
+#: src/Admin/Booking/Meta/BookingMeta.php:751
 msgid "No customer email found."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:732
+#: src/Admin/Booking/Meta/BookingMeta.php:759
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:52
 #: src/Admin/Settings/Groups/EmailSettings.php:177
 #: templates/emails/booking-status-changed-admin.html.php:17
@@ -2617,234 +2668,234 @@ msgstr ""
 msgid "Customer:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:738
 #: src/Admin/Booking/Meta/BookingMeta.php:765
+#: src/Admin/Booking/Meta/BookingMeta.php:792
 #: src-react/admin/customers/components/CustomerPanel.jsx:157
 msgid "Send Email"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:744
+#: src/Admin/Booking/Meta/BookingMeta.php:771
 msgid "Email Type:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:746
+#: src/Admin/Booking/Meta/BookingMeta.php:773
 msgid "Booking Confirmation"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:747
+#: src/Admin/Booking/Meta/BookingMeta.php:774
 msgid "Payment Reminder"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:748
+#: src/Admin/Booking/Meta/BookingMeta.php:775
 msgid "Booking Reminder"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:750
+#: src/Admin/Booking/Meta/BookingMeta.php:777
 msgid "Custom Message"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:755
+#: src/Admin/Booking/Meta/BookingMeta.php:782
 #: src/Admin/Emails/Core/EmailTemplates.php:570
 #: src/Admin/Emails/Templates/EmailPreview.php:119
 msgid "Subject:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:756
+#: src/Admin/Booking/Meta/BookingMeta.php:783
 msgid "Email subject..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:760
+#: src/Admin/Booking/Meta/BookingMeta.php:787
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:1045
 msgid "Message:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:761
+#: src/Admin/Booking/Meta/BookingMeta.php:788
 msgid "Your message..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:791
+#: src/Admin/Booking/Meta/BookingMeta.php:818
 msgid "You do not have permission to send emails."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:803
-#: src/Admin/Booking/Meta/BookingMeta.php:1761
-#: src/Admin/Booking/Meta/BookingMeta.php:1814
-#: src/Admin/Booking/Meta/BookingMeta.php:1897
-#: src/Admin/Booking/Meta/BookingMeta.php:1901
+#: src/Admin/Booking/Meta/BookingMeta.php:830
+#: src/Admin/Booking/Meta/BookingMeta.php:1790
+#: src/Admin/Booking/Meta/BookingMeta.php:1843
+#: src/Admin/Booking/Meta/BookingMeta.php:1933
+#: src/Admin/Booking/Meta/BookingMeta.php:1937
 msgid "Missing required fields."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:814
-#: src/Admin/Booking/Meta/BookingMeta.php:1825
+#: src/Admin/Booking/Meta/BookingMeta.php:841
+#: src/Admin/Booking/Meta/BookingMeta.php:1854
 msgid "Customer email not found."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:854
+#: src/Admin/Booking/Meta/BookingMeta.php:881
 msgid "Failed to send email."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:889
+#: src/Admin/Booking/Meta/BookingMeta.php:916
 #: src/Admin/Frontend/Account/BookingSummaryPage.php:208
 #: templates/account/booking-detail.php:149
 msgid "Unknown Vehicle"
 msgstr ""
 
 #. translators: %s: vehicle name
-#: src/Admin/Booking/Meta/BookingMeta.php:898
+#: src/Admin/Booking/Meta/BookingMeta.php:925
 #, php-format
 msgid "Booking Confirmation - %s"
 msgstr ""
 
 #. translators: %s: vehicle name
-#: src/Admin/Booking/Meta/BookingMeta.php:900
+#: src/Admin/Booking/Meta/BookingMeta.php:927
 #, php-format
 msgid "Payment Reminder - %s"
 msgstr ""
 
 #. translators: %s: vehicle name
-#: src/Admin/Booking/Meta/BookingMeta.php:902
+#: src/Admin/Booking/Meta/BookingMeta.php:929
 #, php-format
 msgid "Booking Reminder - %s"
 msgstr ""
 
 #. translators: %s: vehicle name
-#: src/Admin/Booking/Meta/BookingMeta.php:904
+#: src/Admin/Booking/Meta/BookingMeta.php:931
 #, php-format
 msgid "Booking Cancelled - %s"
 msgstr ""
 
 #. translators: %s: blog name.
-#: src/Admin/Booking/Meta/BookingMeta.php:906
+#: src/Admin/Booking/Meta/BookingMeta.php:933
 #, php-format
 msgid "Message from %s"
 msgstr ""
 
 #. translators: 1: customer name; 2: vehicle name; 3: pickup date; 4: return date; 5: total amount.
-#: src/Admin/Booking/Meta/BookingMeta.php:913
+#: src/Admin/Booking/Meta/BookingMeta.php:940
 #, php-format
 msgid "Hello %1$s,<br><br>Your booking for %2$s has been confirmed.<br><br>Pickup Date: %3$s<br>Return Date: %4$s<br>Total Amount: %5$s<br><br>Thank you for choosing us!"
 msgstr ""
 
 #. translators: 1: customer name; 2: vehicle name; 3: total amount.
-#: src/Admin/Booking/Meta/BookingMeta.php:922
+#: src/Admin/Booking/Meta/BookingMeta.php:949
 #, php-format
 msgid "Hello %1$s,<br><br>This is a reminder about your payment for %2$s.<br><br>Total Amount: %3$s<br><br>Please complete your payment as soon as possible."
 msgstr ""
 
 #. translators: 1: customer name; 2: vehicle name; 3: pickup date; 4: return date.
-#: src/Admin/Booking/Meta/BookingMeta.php:929
+#: src/Admin/Booking/Meta/BookingMeta.php:956
 #, php-format
 msgid "Hello %1$s,<br><br>This is a reminder about your upcoming booking for %2$s.<br><br>Pickup Date: %3$s<br>Return Date: %4$s<br><br>We look forward to serving you!"
 msgstr ""
 
 #. translators: 1: customer name; 2: vehicle name.
-#: src/Admin/Booking/Meta/BookingMeta.php:937
+#: src/Admin/Booking/Meta/BookingMeta.php:964
 #, php-format
 msgid "Hello %1$s,<br><br>We regret to inform you that your booking for %2$s has been cancelled.<br><br>If you have any questions, please contact us."
 msgstr ""
 
 #. translators: %s: blog name
-#: src/Admin/Booking/Meta/BookingMeta.php:942
+#: src/Admin/Booking/Meta/BookingMeta.php:969
 #, php-format
 msgid "You have received a message from %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:963
+#: src/Admin/Booking/Meta/BookingMeta.php:990
 msgid "Booking History"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:979
-#: src/Admin/Booking/Meta/BookingMeta.php:999
+#: src/Admin/Booking/Meta/BookingMeta.php:1006
+#: src/Admin/Booking/Meta/BookingMeta.php:1026
 msgid "Add Note"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:984
+#: src/Admin/Booking/Meta/BookingMeta.php:1011
 #: src/Admin/Settings/Groups/AddonSettings.php:98
 msgid "Note:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:985
+#: src/Admin/Booking/Meta/BookingMeta.php:1012
 msgid "Add a note about this booking..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:989
+#: src/Admin/Booking/Meta/BookingMeta.php:1016
 msgid "Type:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:992
-#: src/Admin/Booking/Meta/BookingMeta.php:1070
-#: src/Admin/Booking/Meta/BookingMeta.php:1077
+#: src/Admin/Booking/Meta/BookingMeta.php:1019
+#: src/Admin/Booking/Meta/BookingMeta.php:1097
+#: src/Admin/Booking/Meta/BookingMeta.php:1104
 msgid "Note"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:993
-#: src/Admin/Booking/Meta/BookingMeta.php:1073
+#: src/Admin/Booking/Meta/BookingMeta.php:1020
+#: src/Admin/Booking/Meta/BookingMeta.php:1100
 msgid "Customer Contact"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:995
+#: src/Admin/Booking/Meta/BookingMeta.php:1022
 msgid "Rentiva writes the status, payment and system rows itself."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1010
+#: src/Admin/Booking/Meta/BookingMeta.php:1037
 msgid "History"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1013
+#: src/Admin/Booking/Meta/BookingMeta.php:1040
 msgid "No history found."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1025
-#: src/Admin/Booking/Meta/BookingMeta.php:1074
+#: src/Admin/Booking/Meta/BookingMeta.php:1052
+#: src/Admin/Booking/Meta/BookingMeta.php:1101
 #: src/Layout/CLI/LayoutImportCommand.php:426
 msgid "System"
 msgstr ""
 
 #. translators: %s: user display name
-#: src/Admin/Booking/Meta/BookingMeta.php:1041
+#: src/Admin/Booking/Meta/BookingMeta.php:1068
 #, php-format
 msgid "By %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1052
+#: src/Admin/Booking/Meta/BookingMeta.php:1079
 msgid "more entries"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1060
+#: src/Admin/Booking/Meta/BookingMeta.php:1087
 msgid "These notes are included in the customer's personal data export."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1071
+#: src/Admin/Booking/Meta/BookingMeta.php:1098
 msgid "Status Change"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1072
+#: src/Admin/Booking/Meta/BookingMeta.php:1099
 msgid "Payment Update"
 msgstr ""
 
 #. translators: %s: list of the vehicle's closed days, joined by the site's list format ("1 June, 2 June and 3 June").
-#: src/Admin/Booking/Meta/BookingMeta.php:1529
+#: src/Admin/Booking/Meta/BookingMeta.php:1558
 #, php-format
 msgid "This vehicle has closed days in this period: %s. The booking was saved anyway."
 msgstr ""
 
 #. translators: 1: old status, 2: new status
-#: src/Admin/Booking/Meta/BookingMeta.php:1629
+#: src/Admin/Booking/Meta/BookingMeta.php:1658
 #, php-format
 msgid "Status changed from %1$s to %2$s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1706
+#: src/Admin/Booking/Meta/BookingMeta.php:1735
 msgid "The vehicle is already booked for these dates. The booking details were not saved."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1712
+#: src/Admin/Booking/Meta/BookingMeta.php:1741
 msgid "Vehicle availability could not be checked. The booking details were not saved. Please try again."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1745
-#: src/Admin/Booking/Meta/BookingMeta.php:1794
-#: src/Admin/Booking/Meta/BookingMeta.php:1878
+#: src/Admin/Booking/Meta/BookingMeta.php:1774
+#: src/Admin/Booking/Meta/BookingMeta.php:1823
+#: src/Admin/Booking/Meta/BookingMeta.php:1914
 #: src/Admin/Core/Utilities/UXHelper.php:138
 #: src/Admin/Emails/Core/EmailTemplates.php:176
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:29
@@ -2852,15 +2903,21 @@ msgstr ""
 msgid "You do not have permission to perform this action."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1854
+#. translators: %s: e-mail subject
+#: src/Admin/Booking/Meta/BookingMeta.php:1885
+#, php-format
+msgid "E-mail sent to the customer: %s"
+msgstr ""
+
+#: src/Admin/Booking/Meta/BookingMeta.php:1890
 msgid "Failed to send email. Please check your WordPress email configuration."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1909
+#: src/Admin/Booking/Meta/BookingMeta.php:1945
 msgid "Note added successfully!"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1911
+#: src/Admin/Booking/Meta/BookingMeta.php:1947
 msgid "Failed to add note."
 msgstr ""
 
@@ -2896,8 +2953,12 @@ msgstr ""
 msgid "Create Customer Account"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:117
-#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:146
+#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:105
+msgid "The customer receives an e-mail to set their password."
+msgstr ""
+
+#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:118
+#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:147
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:776
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:884
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:40
@@ -2905,16 +2966,16 @@ msgstr ""
 msgid "Permission denied."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:134
+#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:135
 msgid "Invalid booking or email."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:155
+#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:156
 msgid "Existing account linked to booking."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:196
-msgid "Customer account created and linked to booking."
+#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:202
+msgid "Customer account created and linked to booking. The customer was sent an e-mail to set their password."
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:28
@@ -3549,7 +3610,7 @@ msgid "Enter value"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1093
-#: src/Admin/Core/AssetManager.php:1502
+#: src/Admin/Core/AssetManager.php:1501
 #: src/Admin/Settings/Core/SettingsHelper.php:236
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:631
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:683
@@ -3641,7 +3702,7 @@ msgid "Electric"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1125
-#: src/Admin/Core/AssetManager.php:1528
+#: src/Admin/Core/AssetManager.php:1527
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1786
 msgid "Passive"
 msgstr ""
@@ -3655,7 +3716,7 @@ msgid "Maintenance"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1127
-#: src/Admin/Core/AssetManager.php:1675
+#: src/Admin/Core/AssetManager.php:1674
 #: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:452
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:127
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:139
@@ -3680,7 +3741,7 @@ msgid "Yes"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1202
-#: src/Admin/Core/AssetManager.php:1670
+#: src/Admin/Core/AssetManager.php:1669
 #: src/Admin/Emails/Core/EmailTemplates.php:571
 #: src/Admin/Frontend/Account/AccountController.php:459
 #: src/Admin/Frontend/Account/AccountRenderer.php:503
@@ -3701,14 +3762,14 @@ msgid "Operation successful"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1205
-#: src/Admin/Core/AssetManager.php:1703
+#: src/Admin/Core/AssetManager.php:1702
 #: src/Admin/Frontend/Account/AccountController.php:462
 msgid "Are you sure?"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1206
-#: src/Admin/Core/AssetManager.php:1513
-#: src/Admin/Core/AssetManager.php:1677
+#: src/Admin/Core/AssetManager.php:1512
+#: src/Admin/Core/AssetManager.php:1676
 #: src/Admin/Customers/AddCustomerPage.php:171
 #: src/Admin/Customers/CustomersPage.php:580
 #: src/Admin/Emails/Core/EmailTemplates.php:567
@@ -3722,8 +3783,8 @@ msgid "Cancel"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1207
-#: src/Admin/Core/AssetManager.php:1514
-#: src/Admin/Core/AssetManager.php:1679
+#: src/Admin/Core/AssetManager.php:1513
+#: src/Admin/Core/AssetManager.php:1678
 #: src/Admin/Emails/Core/EmailTemplates.php:574
 msgid "Save"
 msgstr ""
@@ -3767,292 +3828,288 @@ msgstr ""
 msgid "Dropoff date must be after pickup date"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1219
-msgid "Pickup date cannot be in the past"
-msgstr ""
-
 #. translators: %s: status label.
-#: src/Admin/Core/AssetManager.php:1222
+#: src/Admin/Core/AssetManager.php:1221
 #, php-format
 msgid "Are you sure you want to change the booking status to \"%s\"?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1223
+#: src/Admin/Core/AssetManager.php:1222
 msgid "Changing status..."
 msgstr ""
 
 #. translators: %d: maximum number of images allowed.
-#: src/Admin/Core/AssetManager.php:1270
+#: src/Admin/Core/AssetManager.php:1269
 #, php-format
 msgid "Maximum %d images allowed"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1271
+#: src/Admin/Core/AssetManager.php:1270
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:127
 msgid "Select Images"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1272
+#: src/Admin/Core/AssetManager.php:1271
 msgid "Add to Gallery"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1273
+#: src/Admin/Core/AssetManager.php:1272
 msgid "Error uploading image"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1274
+#: src/Admin/Core/AssetManager.php:1273
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:134
 msgid "Are you sure you want to remove this image?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1275
+#: src/Admin/Core/AssetManager.php:1274
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:129
 #: src/Admin/Vehicle/Templates/vehicle-gallery.php:72
 msgid "Remove Image"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1276
+#: src/Admin/Core/AssetManager.php:1275
 msgid "Error adding image"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1277
+#: src/Admin/Core/AssetManager.php:1276
 msgid "Error removing image"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1278
+#: src/Admin/Core/AssetManager.php:1277
 msgid "Error reordering images"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1315
+#: src/Admin/Core/AssetManager.php:1314
 msgid "Please select at least one item to perform this action on."
 msgstr ""
 
 #. translators: %d: number of selected bookings.
-#: src/Admin/Core/AssetManager.php:1317
+#: src/Admin/Core/AssetManager.php:1316
 #, php-format
 msgid "Move %d selected bookings to Trash?"
 msgstr ""
 
 #. translators: %d: number of selected bookings.
-#: src/Admin/Core/AssetManager.php:1319
+#: src/Admin/Core/AssetManager.php:1318
 #, php-format
 msgid "Permanently delete %d selected bookings?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1320
+#: src/Admin/Core/AssetManager.php:1319
 msgid "Move this booking to Trash?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1321
+#: src/Admin/Core/AssetManager.php:1320
 msgid "Permanently delete this booking?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1322
+#: src/Admin/Core/AssetManager.php:1321
 msgid "Empty Trash for all bookings?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1353
+#: src/Admin/Core/AssetManager.php:1352
 msgid "Category name cannot be empty"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1354
+#: src/Admin/Core/AssetManager.php:1353
 msgid "This category already exists"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1355
+#: src/Admin/Core/AssetManager.php:1354
 msgid "Are you sure you want to delete this category?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1356
+#: src/Admin/Core/AssetManager.php:1355
 msgid "Status name cannot be empty"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1357
+#: src/Admin/Core/AssetManager.php:1356
 msgid "This status already exists"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1358
+#: src/Admin/Core/AssetManager.php:1357
 msgid "Are you sure you want to delete this status?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1359
+#: src/Admin/Core/AssetManager.php:1358
 msgid "Enter a valid admin email address"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1360
+#: src/Admin/Core/AssetManager.php:1359
 msgid "Enter a valid sender email address"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1361
+#: src/Admin/Core/AssetManager.php:1360
 msgid "Enter a valid email address"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1362
+#: src/Admin/Core/AssetManager.php:1361
 msgid "Duplicate category names are not allowed"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1363
+#: src/Admin/Core/AssetManager.php:1362
 msgid "Duplicate status names are not allowed"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1364
+#: src/Admin/Core/AssetManager.php:1363
 msgid "Form errors"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1367
+#: src/Admin/Core/AssetManager.php:1366
 msgid "Template Preview"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1368
+#: src/Admin/Core/AssetManager.php:1367
 msgid "Template content is empty"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1369
+#: src/Admin/Core/AssetManager.php:1368
 msgid "Template reset to default"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1370
+#: src/Admin/Core/AssetManager.php:1369
 msgid "Are you sure you want to reset this tab's settings to default values? This action cannot be undone."
+msgstr ""
+
+#: src/Admin/Core/AssetManager.php:1370
+#: src/Admin/Core/AssetManager.php:1421
+msgid "Resetting..."
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1371
 #: src/Admin/Core/AssetManager.php:1422
-msgid "Resetting..."
+msgid "Settings reset to defaults successfully. Page will reload..."
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1372
 #: src/Admin/Core/AssetManager.php:1423
-msgid "Settings reset to defaults successfully. Page will reload..."
-msgstr ""
-
-#: src/Admin/Core/AssetManager.php:1373
-#: src/Admin/Core/AssetManager.php:1424
 msgid "Failed to reset settings to defaults."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1375
+#: src/Admin/Core/AssetManager.php:1374
 msgid "Admin email address is required"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1376
+#: src/Admin/Core/AssetManager.php:1375
 msgid "Sender name is required"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1377
+#: src/Admin/Core/AssetManager.php:1376
 msgid "Sender email address is required"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1378
+#: src/Admin/Core/AssetManager.php:1377
 msgid "At least one category must be defined"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1379
+#: src/Admin/Core/AssetManager.php:1378
 msgid "At least one status must be defined"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1380
+#: src/Admin/Core/AssetManager.php:1379
 msgid "Are you sure you want to reset this template to default?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1421
+#: src/Admin/Core/AssetManager.php:1420
 msgid "Are you sure you want to reset all REST API settings to default values? This action cannot be undone."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1495
+#: src/Admin/Core/AssetManager.php:1494
 msgid "Are you sure you want to reset all vehicle settings to defaults? Custom field definitions will NOT be deleted."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1496
+#: src/Admin/Core/AssetManager.php:1495
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1207
 msgid "Settings saved successfully!"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1497
+#: src/Admin/Core/AssetManager.php:1496
 msgid "Error saving settings."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1498
-#: src/Admin/Core/AssetManager.php:1547
+#: src/Admin/Core/AssetManager.php:1497
+#: src/Admin/Core/AssetManager.php:1546
 msgid "Select"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1499
-#: src/Admin/Core/AssetManager.php:1546
+#: src/Admin/Core/AssetManager.php:1498
+#: src/Admin/Core/AssetManager.php:1545
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:580
 msgid "Number"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1503
+#: src/Admin/Core/AssetManager.php:1502
 msgid "Custom detail added successfully!"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1504
+#: src/Admin/Core/AssetManager.php:1503
 msgid "Custom feature added successfully!"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1505
+#: src/Admin/Core/AssetManager.php:1504
 msgid "Custom equipment added successfully!"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1506
+#: src/Admin/Core/AssetManager.php:1505
 msgid "Are you sure you want to remove this custom detail?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1507
+#: src/Admin/Core/AssetManager.php:1506
 msgid "Custom detail removed successfully!"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1508
+#: src/Admin/Core/AssetManager.php:1507
 msgid "Are you sure you want to remove this custom feature?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1509
+#: src/Admin/Core/AssetManager.php:1508
 msgid "Custom feature removed successfully!"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1510
+#: src/Admin/Core/AssetManager.php:1509
 msgid "Are you sure you want to remove this custom equipment?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1511
+#: src/Admin/Core/AssetManager.php:1510
 msgid "Custom equipment removed successfully!"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1512
+#: src/Admin/Core/AssetManager.php:1511
 msgid "Edit Field Names"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1515
+#: src/Admin/Core/AssetManager.php:1514
 msgid "Field names updated and saved!"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1516
+#: src/Admin/Core/AssetManager.php:1515
 msgid "Error: Field names could not be saved!"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1519
+#: src/Admin/Core/AssetManager.php:1518
 #: src/Admin/Utilities/Menu/Menu.php:81
 #: src/Admin/Utilities/Menu/Menu.php:82
 msgid "Vehicle Settings"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1520
+#: src/Admin/Core/AssetManager.php:1519
 msgid "Define fields and manage where they appear"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1521
+#: src/Admin/Core/AssetManager.php:1520
 msgid "1 · Field Definitions"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1522
+#: src/Admin/Core/AssetManager.php:1521
 msgid "2 · Display & Preview"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1523
+#: src/Admin/Core/AssetManager.php:1522
 msgid "Choose which fields are collected. Passive fields do not appear on vehicle forms or in the preview. You can also add your own custom field."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1524
+#: src/Admin/Core/AssetManager.php:1523
 #: src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php:36
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:96
 #: src/Admin/Setup/SetupWizard.php:917
@@ -4062,49 +4119,49 @@ msgstr ""
 msgid "Vehicle Details"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1525
+#: src/Admin/Core/AssetManager.php:1524
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:595
 msgid "Vehicle Features"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1526
+#: src/Admin/Core/AssetManager.php:1525
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:647
 msgid "Vehicle Equipment"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1529
+#: src/Admin/Core/AssetManager.php:1528
 msgid "active"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1530
+#: src/Admin/Core/AssetManager.php:1529
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:539
 msgid "Core fields cannot be disabled"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1531
+#: src/Admin/Core/AssetManager.php:1530
 msgid "REQUIRED"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1532
+#: src/Admin/Core/AssetManager.php:1531
 msgid "CUSTOM"
 msgstr ""
 
 #. translators: %s: field name
-#: src/Admin/Core/AssetManager.php:1534
+#: src/Admin/Core/AssetManager.php:1533
 #, php-format
 msgid "The field \"%s\" will be permanently deleted. Are you sure?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1535
+#: src/Admin/Core/AssetManager.php:1534
 msgid "Field deleted."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1536
+#: src/Admin/Core/AssetManager.php:1535
 msgid "Could not delete the field."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1537
-#: src/Admin/Core/AssetManager.php:1693
+#: src/Admin/Core/AssetManager.php:1536
+#: src/Admin/Core/AssetManager.php:1692
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:456
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:550
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:602
@@ -4113,7 +4170,7 @@ msgstr ""
 msgid "Select All"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1538
+#: src/Admin/Core/AssetManager.php:1537
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:459
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:551
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:603
@@ -4121,211 +4178,211 @@ msgstr ""
 msgid "Deselect All"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1539
+#: src/Admin/Core/AssetManager.php:1538
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:552
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:604
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:656
 msgid "Edit Names"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1540
+#: src/Admin/Core/AssetManager.php:1539
 msgid "Add custom field:"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1541
+#: src/Admin/Core/AssetManager.php:1540
 msgid "Field name (e.g. Boot Size)"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1542
-#: src/Admin/Core/AssetManager.php:1569
-#: src/Admin/Core/AssetManager.php:1585
+#: src/Admin/Core/AssetManager.php:1541
+#: src/Admin/Core/AssetManager.php:1568
+#: src/Admin/Core/AssetManager.php:1584
 msgid "Detail"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1543
+#: src/Admin/Core/AssetManager.php:1542
 msgid "Feature"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1544
-#: src/Admin/Core/AssetManager.php:1566
+#: src/Admin/Core/AssetManager.php:1543
+#: src/Admin/Core/AssetManager.php:1565
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:449
 msgid "Equipment"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1545
+#: src/Admin/Core/AssetManager.php:1544
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:579
 msgid "Text"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1548
+#: src/Admin/Core/AssetManager.php:1547
 msgid "Options (comma separated: S, M, L)"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1549
-#: src/Admin/Core/AssetManager.php:1682
+#: src/Admin/Core/AssetManager.php:1548
+#: src/Admin/Core/AssetManager.php:1681
 msgid "Add"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1550
+#: src/Admin/Core/AssetManager.php:1549
 msgid "Please enter a field name."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1551
+#: src/Admin/Core/AssetManager.php:1550
 msgid "Could not add the field."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1552
+#: src/Admin/Core/AssetManager.php:1551
 msgid "Field added. Press Save to persist the selection state."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1553
+#: src/Admin/Core/AssetManager.php:1552
 msgid "Operation failed. Your session may have expired — reload the page."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1555
+#: src/Admin/Core/AssetManager.php:1554
 msgid "You have unsaved changes"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1556
+#: src/Admin/Core/AssetManager.php:1555
 #: src/Admin/Setup/SetupWizard.php:127
 msgid "Settings saved."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1557
+#: src/Admin/Core/AssetManager.php:1556
 msgid "Could not save. Your session may have expired — reload the page and try again."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1558
+#: src/Admin/Core/AssetManager.php:1557
 msgid "Could not save. Check your connection and try again."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1559
+#: src/Admin/Core/AssetManager.php:1558
 msgid "Template:"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1560
+#: src/Admin/Core/AssetManager.php:1559
 msgid "Minimal"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1561
+#: src/Admin/Core/AssetManager.php:1560
 msgid "Standard"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1562
+#: src/Admin/Core/AssetManager.php:1561
 msgid "Detailed"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1565
+#: src/Admin/Core/AssetManager.php:1564
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:251
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:217
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:448
 msgid "Features"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1567
+#: src/Admin/Core/AssetManager.php:1566
 msgid "Field"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1568
-#: src/Admin/Core/AssetManager.php:1584
+#: src/Admin/Core/AssetManager.php:1567
+#: src/Admin/Core/AssetManager.php:1583
 msgid "Card"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1570
+#: src/Admin/Core/AssetManager.php:1569
 msgid "Comp."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1571
+#: src/Admin/Core/AssetManager.php:1570
 msgid "On"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1572
+#: src/Admin/Core/AssetManager.php:1571
 msgid "Off"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1573
+#: src/Admin/Core/AssetManager.php:1572
 msgid "No active fields in this category."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1574
+#: src/Admin/Core/AssetManager.php:1573
 msgid "Switch to \"All\" to reorder"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1576
+#: src/Admin/Core/AssetManager.php:1575
 msgid "Live preview"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1577
+#: src/Admin/Core/AssetManager.php:1576
 msgid "vehicle image"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1578
+#: src/Admin/Core/AssetManager.php:1577
 msgid "Toyota Corolla Hybrid"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1579
+#: src/Admin/Core/AssetManager.php:1578
 msgid "$1,850 / day"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1580
+#: src/Admin/Core/AssetManager.php:1579
 msgid "View →"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1581
+#: src/Admin/Core/AssetManager.php:1580
 msgid "Detail — Highlights"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1582
+#: src/Admin/Core/AssetManager.php:1581
 msgid "No fields selected for the card"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1583
+#: src/Admin/Core/AssetManager.php:1582
 msgid "No fields highlighted in the detail view"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1586
+#: src/Admin/Core/AssetManager.php:1585
 #: templates/shortcodes/search-results.php:313
 msgid "Comparison"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1587
+#: src/Admin/Core/AssetManager.php:1586
 msgid " — Edit Names"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1588
+#: src/Admin/Core/AssetManager.php:1587
 msgid "Names updated."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1589
+#: src/Admin/Core/AssetManager.php:1588
 msgid "Could not update names."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1590
+#: src/Admin/Core/AssetManager.php:1589
 msgid "Reset this tab to defaults?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1591
+#: src/Admin/Core/AssetManager.php:1590
 msgid "Could not reset."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1672
+#: src/Admin/Core/AssetManager.php:1671
 #: src/Admin/Emails/PostTypes/EmailLog.php:69
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:646
 msgid "Success"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1673
+#: src/Admin/Core/AssetManager.php:1672
 #: src/Admin/Settings/Groups/LogsSettings.php:67
 #: src/Admin/Setup/SetupWizard.php:1089
 msgid "Warning"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1674
+#: src/Admin/Core/AssetManager.php:1673
 #: src/Admin/Settings/Groups/LogsSettings.php:68
 msgid "Info"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1676
+#: src/Admin/Core/AssetManager.php:1675
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:128
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:140
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:152
@@ -4348,30 +4405,30 @@ msgstr ""
 msgid "No"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1678
+#: src/Admin/Core/AssetManager.php:1677
 msgid "Confirm"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1683
+#: src/Admin/Core/AssetManager.php:1682
 #: src/Admin/Customers/CustomersPage.php:579
 msgid "Update"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1684
+#: src/Admin/Core/AssetManager.php:1683
 #: templates/shortcodes/unified-search.php:114
 msgid "Search"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1685
+#: src/Admin/Core/AssetManager.php:1684
 msgctxt "verb: apply filter"
 msgid "Filter"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1686
+#: src/Admin/Core/AssetManager.php:1685
 msgid "Reset"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1687
+#: src/Admin/Core/AssetManager.php:1686
 #: src/Admin/Core/Assets/DatepickerAssets.php:422
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1946
 #: src/Blocks/BlockRegistry.php:254
@@ -4384,7 +4441,7 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1688
+#: src/Admin/Core/AssetManager.php:1687
 #: src/Admin/Setup/SetupWizard.php:319
 #: src/Admin/Setup/SetupWizard.php:393
 #: src/Admin/Setup/SetupWizard.php:527
@@ -4392,7 +4449,7 @@ msgstr ""
 msgid "Back"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1689
+#: src/Admin/Core/AssetManager.php:1688
 #: src/Admin/Customers/CustomersPage.php:442
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:595
 #: templates/account/payment-history.php:209
@@ -4401,7 +4458,7 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1690
+#: src/Admin/Core/AssetManager.php:1689
 #: src/Admin/Customers/CustomersPage.php:437
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:594
 #: templates/account/payment-history.php:200
@@ -4410,11 +4467,11 @@ msgstr ""
 msgid "Previous"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1691
+#: src/Admin/Core/AssetManager.php:1690
 msgid "Submit"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1692
+#: src/Admin/Core/AssetManager.php:1691
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1948
 #: templates/shortcodes/search-results.php:175
 #: templates/shortcodes/search-results.php:232
@@ -4422,49 +4479,49 @@ msgstr ""
 msgid "Clear"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1694
+#: src/Admin/Core/AssetManager.php:1693
 msgid "Select None"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1695
+#: src/Admin/Core/AssetManager.php:1694
 msgid "No data found"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1696
+#: src/Admin/Core/AssetManager.php:1695
 msgid "No results found"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1697
+#: src/Admin/Core/AssetManager.php:1696
 msgid "Please wait..."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1700
+#: src/Admin/Core/AssetManager.php:1699
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:350
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:296
 msgid "Please try again"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1701
+#: src/Admin/Core/AssetManager.php:1700
 msgid "Operation completed successfully"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1702
+#: src/Admin/Core/AssetManager.php:1701
 msgid "Operation failed"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1704
+#: src/Admin/Core/AssetManager.php:1703
 msgid "This action cannot be undone"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1705
+#: src/Admin/Core/AssetManager.php:1704
 msgid "Invalid input"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1706
+#: src/Admin/Core/AssetManager.php:1705
 msgid "Required field"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1707
+#: src/Admin/Core/AssetManager.php:1706
 msgid "Please fill all required fields"
 msgstr ""
 
@@ -14807,7 +14864,7 @@ msgstr ""
 msgid "Rollback wrote nothing for this page: the previous manifest no longer resolves to it."
 msgstr ""
 
-#: src/Plugin.php:1174
+#: src/Plugin.php:1177
 msgid "Failed to create the customer role."
 msgstr ""
 

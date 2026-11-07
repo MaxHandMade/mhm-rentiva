@@ -11,6 +11,7 @@ use MHMRentiva\Admin\Booking\Core\PaymentView;
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Booking\Helpers\CancellationHandler;
 use MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox;
+use MHMRentiva\Admin\Booking\Meta\BookingMeta;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 use MHMRentiva\Admin\Core\Utilities\BookingQueryHelper;
 use MHMRentiva\Admin\Payment\Core\Money;
@@ -186,7 +187,7 @@ final class DepositManagementAjax {
 
 		$payment_url = $order->get_checkout_payment_url();
 
-		Mailer::sendBookingEmail(
+		$mailed = Mailer::sendBookingEmail(
 			'remaining_payment_link_customer',
 			$booking_id,
 			'customer',
@@ -204,10 +205,24 @@ final class DepositManagementAjax {
 				'sent_by'  => get_current_user_id(),
 			)
 		);
+		// The operator's action in the booking history too (function scan H16):
+		// the log above is invisible on the screen.
+		// The row and the answer follow what the mailer reported (Codex code
+		// audit 3b-2, Minor 7): a link the customer did not receive is not
+		// "e-mailed".
+		BookingMeta::add_history_note(
+			$booking_id,
+			$mailed
+				? __( 'Payment link for the remaining amount e-mailed to the customer.', 'mhm-rentiva' )
+				: __( 'Payment link for the remaining amount created; the e-mail to the customer could not be sent.', 'mhm-rentiva' ),
+			'payment_update'
+		);
 
 		wp_send_json_success(
 			array(
-				'message'     => __( 'Payment link generated and emailed to the customer.', 'mhm-rentiva' ),
+				'message'     => $mailed
+					? __( 'Payment link generated and emailed to the customer.', 'mhm-rentiva' )
+					: __( 'Payment link generated, but the e-mail could not be sent. Copy the link and send it to the customer yourself.', 'mhm-rentiva' ),
 				'payment_url' => $payment_url,
 			)
 		);
@@ -461,6 +476,21 @@ final class DepositManagementAjax {
 			)
 		);
 
+		// An offline refund is a record, not a payment: the money still has to
+		// be handed over, and the refund row reads "waiting for hand transfer"
+		// (function scan H7). Only a refund the gateway actually made is
+		// "completed". Cache cleared: Refunds\Service wrote the status in this
+		// request.
+		wp_cache_delete( $booking_id, 'post_meta' );
+		if ( RefundStatus::MANUAL_PENDING === RefundStatus::get( $booking_id ) ) {
+			wp_send_json_success(
+				array(
+					/* translators: %s: refund amount. */
+					'message' => sprintf( __( 'A refund record was opened for %s. Close it with "Confirm hand transfer" once the money has been handed over.', 'mhm-rentiva' ), self::format_price( $refund_amount_major ) ),
+				)
+			);
+		}
+
 		wp_send_json_success(
 			array(
 				/* translators: %s placeholder. */
@@ -600,6 +630,15 @@ final class DepositManagementAjax {
 						'reference'    => $reference,
 						'processed_by' => $actor,
 					)
+				);
+				BookingMeta::add_history_note(
+					$booking_id,
+					'' !== $reference
+						/* translators: %s: operator-supplied payment reference */
+						? sprintf( __( 'Hand transfer of the refund confirmed. Reference: %s', 'mhm-rentiva' ), $reference )
+						: __( 'Hand transfer of the refund confirmed.', 'mhm-rentiva' ),
+					'payment_update',
+					$actor
 				);
 			}
 		} finally {
@@ -850,6 +889,13 @@ final class DepositManagementAjax {
 							'processed_by' => $actor,
 						)
 					);
+					BookingMeta::add_history_note(
+						$booking_id,
+						/* translators: %s: the operator's reason */
+						sprintf( __( 'Recorded that no refund is due. Reason: %s', 'mhm-rentiva' ), $reason ),
+						'payment_update',
+						$actor
+					);
 				}
 			}
 		} finally {
@@ -874,7 +920,13 @@ final class DepositManagementAjax {
 		wp_send_json_success( array( 'message' => __( 'Recorded: no refund is due.', 'mhm-rentiva' ) ) );
 	}
 
-	private static function add_booking_log( int $booking_id, string $action, array $data = array() ): void {
+	/**
+	 * Append an operator action to `_mhmrentiva_booking_logs`. Public since PR
+	 * 3b-2: the edit form's cancellation writes the same row the button does.
+	 *
+	 * @param array<string, mixed> $data
+	 */
+	public static function add_booking_log( int $booking_id, string $action, array $data = array() ): void {
 		$logs_meta = get_post_meta( $booking_id, '_mhmrentiva_booking_logs', true );
 		$logs      = is_array( $logs_meta ) ? $logs_meta : array();
 

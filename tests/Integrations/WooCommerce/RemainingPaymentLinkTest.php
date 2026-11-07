@@ -158,4 +158,54 @@ final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
 
 		$this->assertFalse( $response['success'] );
 	}
+
+	/**
+	 * Function scan H16: the payment link is a history row too.
+	 */
+	public function test_admin_send_remaining_payment_link_writes_a_history_row(): void {
+		DepositManagementAjax::register();
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		// A customer address, so the link is really e-mailed (the base fixture has none).
+		update_post_meta( $this->booking_id, '_mhmrentiva_customer_email', 'link-customer@example.test' );
+		reset_phpmailer_instance();
+
+		$_POST['action']     = 'mhmrentiva_send_remaining_payment_link';
+		$_POST['nonce']      = wp_create_nonce( 'mhmrentiva_deposit_management_action' );
+		$_POST['booking_id'] = $this->booking_id;
+
+		try {
+			$this->_handleAjax( 'mhmrentiva_send_remaining_payment_link' );
+		} catch ( \WPAjaxDieContinueException $e ) {
+			// wp_send_json_*() always wp_die()s.
+		}
+		$this->assertTrue( json_decode( $this->_last_response, true )['success'] ?? false );
+
+		$this->assertNotEmpty( tests_retrieve_phpmailer_instance()->mock_sent, 'Fixture: the mail really went out.' );
+		$notes = array_column( (array) get_post_meta( $this->booking_id, '_mhmrentiva_booking_history', true ), 'note' );
+		$this->assertContains( 'Payment link for the remaining amount e-mailed to the customer.', $notes );
+	}
+
+	/** Codex code audit 3b-2, Minor 7: a link that was not e-mailed is not recorded as e-mailed. */
+	public function test_a_payment_link_whose_email_failed_says_so(): void {
+		DepositManagementAjax::register();
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'pre_wp_mail', '__return_false' );
+
+		$_POST['action']     = 'mhmrentiva_send_remaining_payment_link';
+		$_POST['nonce']      = wp_create_nonce( 'mhmrentiva_deposit_management_action' );
+		$_POST['booking_id'] = $this->booking_id;
+
+		try {
+			$this->_handleAjax( 'mhmrentiva_send_remaining_payment_link' );
+		} catch ( \WPAjaxDieContinueException $e ) {
+			// wp_send_json_*() always wp_die()s.
+		}
+		remove_filter( 'pre_wp_mail', '__return_false' );
+		$response = json_decode( $this->_last_response, true );
+
+		$this->assertStringContainsString( 'could not be sent', (string) ( $response['data']['message'] ?? '' ) );
+		$notes = array_column( (array) get_post_meta( $this->booking_id, '_mhmrentiva_booking_history', true ), 'note' );
+		$this->assertContains( 'Payment link for the remaining amount created; the e-mail to the customer could not be sent.', $notes );
+		$this->assertNotContains( 'Payment link for the remaining amount e-mailed to the customer.', $notes );
+	}
 }

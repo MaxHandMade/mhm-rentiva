@@ -1216,7 +1216,6 @@ final class AssetManager {
 					'invalid_phone'        => __('Please enter a valid phone number', 'mhm-rentiva'),
 					'value_range'          => __('Value must be between %min and %max', 'mhm-rentiva'),
 					'dropoff_after_pickup' => __('Dropoff date must be after pickup date', 'mhm-rentiva'),
-					'pickup_not_past'      => __('Pickup date cannot be in the past', 'mhm-rentiva'),
 					'dismiss'              => __('Dismiss this notice', 'mhm-rentiva'),
 					/* translators: %s: status label. */
 					'confirmStatusChange'  => sprintf(__('Are you sure you want to change the booking status to "%s"?', 'mhm-rentiva'), '%s'),

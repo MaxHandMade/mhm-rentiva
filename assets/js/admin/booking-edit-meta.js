@@ -5,10 +5,27 @@
 (function ($) {
     'use strict';
 
+    const DATE_FIELDS = ['pickup_date', 'pickup_time', 'dropoff_date', 'dropoff_time'];
+    // The range the server drew (window.mhmBookingEditDates, printed before
+    // this script): the baseline, so input made before the page was ready
+    // still counts as a change (Codex r4).
+    const dateData = window.mhmBookingEditDates || {};
+    const initialDates = dateData.initial || {};
+
     $(document).ready(function () {
-        // Form validation
-        $('.mhm-booking-edit-form').on('submit', function (e) {
-            if (!validateForm()) {
+        // The edit box is a <div> inside WordPress's own #post form, so a
+        // submit handler on it never ran (function scan H4). Only the date
+        // order is checked on #post: the server applies the same rule
+        // (BookingEditDates::is_refused()), and the field checks below stay
+        // advisory so they cannot block an Update the server accepts.
+        $('#post').on('submit', function (e) {
+            // A cancellation request writes no dates on the server (it keeps
+            // the stored ones), so the date check must not block it (Codex
+            // code audit 3b-2, Important 3).
+            if (isCancellationRequest()) {
+                return true;
+            }
+            if (!validateDateRange()) {
                 e.preventDefault();
                 return false;
             }
@@ -20,7 +37,7 @@
         });
 
         // Date validation
-        $('#mhmrentiva_edit_pickup_date, #mhmrentiva_edit_dropoff_date').on('change', function () {
+        $('#mhmrentiva_booking_edit_pickup_date, #mhmrentiva_booking_edit_pickup_time, #mhmrentiva_booking_edit_dropoff_date, #mhmrentiva_booking_edit_dropoff_time').on('change', function () {
             validateDateRange();
         });
 
@@ -87,25 +104,6 @@
     });
 
     /**
-     * Validate the entire form
-     */
-    function validateForm() {
-        let isValid = true;
-
-        $('.mhm-field-input[required], .mhm-field-select[required]').each(function () {
-            if (!validateField($(this))) {
-                isValid = false;
-            }
-        });
-
-        if (!validateDateRange()) {
-            isValid = false;
-        }
-
-        return isValid;
-    }
-
-    /**
      * Validate individual field
      */
     function validateField($field) {
@@ -157,40 +155,62 @@
      * The site's current date (Y-m-d), localized from PHP. The browser's own
      * date is only a fallback when the localized value is missing.
      */
-    function siteToday() {
-        const localized = window.mhmBookingEdit && window.mhmBookingEdit.siteToday;
-        if (localized) {
-            return localized;
+    /**
+     * "Cancelled" chosen on a booking that was not cancelled when the screen
+     * was drawn: the server treats that Update as a cancellation request.
+     */
+    function isCancellationRequest() {
+        const $status = $('#mhmrentiva_booking_edit_status');
+        if (!$status.length || $status.val() !== 'cancelled') {
+            return false;
         }
-        const now = new Date();
-        return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+        const initial = $status.find('option').filter(function () {
+            return this.defaultSelected;
+        }).val();
+        return initial !== 'cancelled';
     }
 
     /**
-     * Validate date range
+     * Validate date range: the return must come after the pickup (date and
+     * time), the rule BookingEditDates::is_refused() applies on the server.
+     * No "pickup in the past" check: an existing booking may lie in the past,
+     * and its notes must still be editable.
      */
     function validateDateRange() {
-        const pickupDate = $('#mhmrentiva_edit_pickup_date').val();
-        const dropoffDate = $('#mhmrentiva_edit_dropoff_date').val();
+        const $dropoff = $('#mhmrentiva_booking_edit_dropoff_date');
+        const pickupDate = $('#mhmrentiva_booking_edit_pickup_date').val();
+        const dropoffDate = $dropoff.val();
 
-        if (pickupDate && dropoffDate) {
-            const pickup = new Date(pickupDate);
-            const dropoff = new Date(dropoffDate);
+        $dropoff.removeClass('error').next('.error-message').remove();
 
+        if (!pickupDate || !dropoffDate) {
+            return true;
+        }
+
+        // Only a changed range is checked: a booking whose stored range is
+        // already equal (a transfer may carry one) must still save its other
+        // fields. Same rule as the server (BookingEditDates::is_refused()).
+        const changed = DATE_FIELDS.some(function (id) {
+            const el = document.getElementById('mhmrentiva_booking_edit_' + id);
+            return el && el.value !== (initialDates[id] !== undefined ? initialDates[id] : el.value);
+        });
+        if (!changed) {
+            return true;
+        }
+
+        // An empty time is the default Util::parse_datetimes() applies (its
+        // filters, passed in by the server).
+        const defaults = dateData.defaultTimes || {};
+        const pickupTime = $('#mhmrentiva_booking_edit_pickup_time').val() || defaults.pickup || '10:00';
+        const dropoffTime = $('#mhmrentiva_booking_edit_dropoff_time').val() || defaults.dropoff || '10:00';
+
+        // 'YYYY-MM-DD HH:MM' compares correctly as text. The return must come
+        // AFTER the pickup: an equal moment is no rental for pricing,
+        // availability or the timestamps.
+        if ((dropoffDate + ' ' + dropoffTime) <= (pickupDate + ' ' + pickupTime)) {
             const strings = (window.mhmRentivaAdmin && window.mhmRentivaAdmin.strings) || {};
-
-            if (dropoff <= pickup) {
-                showFieldError($('#mhmrentiva_edit_dropoff_date'), strings.dropoff_after_pickup || 'Dropoff date must be after pickup date.');
-                return false;
-            }
-
-            // Check if dates are not in the past (except for existing bookings)
-            // Compared as Y-m-d strings against the site's today: the browser
-            // clock may be on another calendar day than the site.
-            if (pickupDate < siteToday()) {
-                showFieldError($('#mhmrentiva_edit_pickup_date'), strings.pickup_not_past || 'Pickup date cannot be in the past.');
-                return false;
-            }
+            showFieldError($dropoff, strings.dropoff_after_pickup || 'Dropoff date must be after pickup date.');
+            return false;
         }
 
         return true;

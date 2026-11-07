@@ -571,6 +571,15 @@ final class BookingMeta extends AbstractMetaBox {
 		$guests        = max(1, $req->int('mhmrentiva_edit_guests', 1));
 		$special_notes = $req->textarea('mhmrentiva_edit_special_notes');
 
+		// Same rule as the edit box's saver (function scan H4): a reversed range
+		// keeps the stored dates. The notice is queued there.
+		if (BookingEditDates::is_refused($post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time)) {
+			// Queued here too: this saver can run alone (Codex code audit 3b-2, Minor 8).
+			BookingEditNotice::queue($post_id, BookingEditDates::notice(), 'warning');
+		}
+		// Refused or untouched: the database values stand (BookingEditDates::to_write()).
+		list($pickup_date, $pickup_time, $dropoff_date, $dropoff_time) = BookingEditDates::to_write($post_id, array( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ));
+
 		// Update meta data
 		update_post_meta($post_id, '_mhmrentiva_pickup_date', $pickup_date);
 		update_post_meta($post_id, '_mhmrentiva_start_time', $pickup_time); // Correct meta key
@@ -640,19 +649,36 @@ final class BookingMeta extends AbstractMetaBox {
 			return;
 		}
 
+		// A cancellation request writes nothing here (PR 3b-2): the edit box's
+		// saver ran it at priority 5, or -- when that saver did not run -- it is
+		// run now. Either way the status and every price input stay as the
+		// cancellation path left them. See BookingEditCancellation.
+		$cancellation = BookingEditCancellation::handled($post_id);
+		if (! $cancellation && BookingEditCancellation::requested($post_id, $req)) {
+			BookingEditCancellation::run($post_id, $req);
+			$cancellation = true;
+		}
+
 		// An edit that would put the booking on dates its vehicle is no longer free
 		// for writes neither its status nor its dates; see guard_edit_availability().
 		$new_status = $req->text('mhmrentiva_edit_status');
 		if ($new_status === '') {
 			$new_status = $req->text('mhmrentiva_booking_status');
 		}
-		$edit_allowed = self::guard_edit_availability(
-			$post_id,
-			$req->int('mhmrentiva_edit_vehicle_id'),
+		$dates        = array(
 			$req->text('mhmrentiva_edit_pickup_date'),
 			$req->text('mhmrentiva_edit_pickup_time'),
 			$req->text('mhmrentiva_edit_dropoff_date'),
 			$req->text('mhmrentiva_edit_dropoff_time'),
+		);
+		$dates        = BookingEditDates::to_check($post_id, $dates);
+		$edit_allowed = ! $cancellation && self::guard_edit_availability(
+			$post_id,
+			$req->int('mhmrentiva_edit_vehicle_id'),
+			$dates[0],
+			$dates[1],
+			$dates[2],
+			$dates[3],
 			$new_status
 		);
 		if ($edit_allowed) {
@@ -1118,7 +1144,9 @@ final class BookingMeta extends AbstractMetaBox {
 
 		$history[ $timestamp . '-' . wp_generate_password(6, false) ] = $entry;
 
-		return update_post_meta($booking_id, '_mhmrentiva_booking_history', $history) !== false;
+		// The meta API unslashes; a note's backslash must survive (Codex code
+		// audit 3b-2, Minor 6).
+		return update_post_meta($booking_id, '_mhmrentiva_booking_history', wp_slash($history)) !== false;
 	}
 
 	/**
@@ -1849,6 +1877,13 @@ final class BookingMeta extends AbstractMetaBox {
 		);
 
 		if ($sent) {
+			// In the booking history (function scan H16): which e-mail went out.
+			self::add_history_note(
+				$booking_id,
+				/* translators: %s: e-mail subject */
+				sprintf(__('E-mail sent to the customer: %s', 'mhm-rentiva'), (string) $email_content['subject']),
+				'customer_contact'
+			);
 			wp_send_json_success(__('Email sent successfully!', 'mhm-rentiva'));
 		} else {
 			wp_send_json_error(__('Failed to send email. Please check your WordPress email configuration.', 'mhm-rentiva'));
