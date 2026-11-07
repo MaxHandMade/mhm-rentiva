@@ -39,8 +39,9 @@ final class BookingStatusBoxTest extends WP_UnitTestCase
 
 	public function tearDown(): void
 	{
-		global $wp_meta_boxes;
+		global $wp_meta_boxes, $post;
 		$wp_meta_boxes = array();
+		$post          = null;
 		$_POST         = array();
 		parent::tearDown();
 	}
@@ -72,6 +73,9 @@ final class BookingStatusBoxTest extends WP_UnitTestCase
 
 	private function render_status_box(\WP_Post $post): string
 	{
+		// post.php sets the global before any box renders; core's
+		// post_submit_meta_box() -> touch_time() reads it, not its argument.
+		$GLOBALS['post'] = $post;
 		ob_start();
 		BookingStatusBox::render($post, array( 'args' => array() ));
 		return (string) ob_get_clean();

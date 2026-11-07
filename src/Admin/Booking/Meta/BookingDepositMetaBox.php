@@ -413,34 +413,9 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			}
 		}
 
-		// The cancel and refund buttons below pay money OUT and are gated on
-		// the same actor question, asked once. The three buttons above them
-		// (Mark Payment Received, Process Remaining Amount, Send Payment
-		// Link) take money IN rather than paying it out and are deliberately
-		// left ungated here -- this task's scope (Task 9, slice 5) is the two
-		// buttons that offer an action MoneyAuthorization::mayMoveMoney()
-		// would refuse.
-		//
-		// The actor question stays out of can_refund_from_deposit_screen() on
-		// purpose: that method is a pure booking-state predicate with three
-		// other callers (the refund box's link and the AJAX handler among
-		// them), and folding an actor check into it would make it silently
-		// actor-dependent for all of them. "One question, one home" applies
-		// per question -- the state question's home is that method, the actor
-		// question's home is MoneyAuthorization.
-		$may_move_money = MoneyAuthorization::mayMoveMoney( $post_id, get_current_user_id(), 'admin_deposit' );
-
-		// The cancel button lives in the Booking Status box (render_cancel_button()).
-
-		// Refund button. The rule lives in can_refund_from_deposit_screen() so
-		// this screen, the refund box's link and the AJAX handler cannot drift
-		// apart again -- see that method for the two ways they already had.
-		if ( $may_move_money && self::can_refund_from_deposit_screen( $post_id ) ) {
-			echo '<button type="button" class="deposit-action-btn danger" id="process-refund" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
-			echo '<span class="dashicons dashicons-undo"></span>';
-			echo esc_html__( 'Process Refund', 'mhm-rentiva' );
-			echo '</button>';
-		}
+		// The two buttons that pay money OUT live in their own boxes (canvas
+		// v135): cancel in Booking Status (render_cancel_button()), refund in the
+		// Refund box (render_refund_button()). Both keep their ids and markup.
 
 		echo '</div>';
 		echo '</div>';
@@ -467,6 +442,34 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		echo '<button type="button" class="deposit-action-btn warning" id="cancel-booking" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
 		echo '<span class="dashicons dashicons-no"></span>';
 		echo esc_html__( 'Cancel Booking', 'mhm-rentiva' );
+		echo '</button>';
+	}
+
+	/**
+	 * The refund button, in the Refund box (canvas v135). Printed exactly when it
+	 * was printed here before: the actor may move money on the booking
+	 * (MoneyAuthorization, surface 'admin_deposit') and the booking state allows a
+	 * refund (can_refund_from_deposit_screen(), which also requires a payment
+	 * type -- the old early return of render_deposit_management()). Markup and id
+	 * unchanged: deposit-management.js binds #process-refund on the document and
+	 * reads only data-booking-id.
+	 *
+	 * The actor question stays out of can_refund_from_deposit_screen() on
+	 * purpose: that predicate is pure booking state with other callers (the AJAX
+	 * handler among them); folding the actor in would make it silently
+	 * actor-dependent for all of them.
+	 */
+	public static function render_refund_button( int $post_id ): void {
+		if ( ! MoneyAuthorization::mayMoveMoney( $post_id, get_current_user_id(), 'admin_deposit' ) ) {
+			return;
+		}
+		if ( ! self::can_refund_from_deposit_screen( $post_id ) ) {
+			return;
+		}
+
+		echo '<button type="button" class="deposit-action-btn danger" id="process-refund" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
+		echo '<span class="dashicons dashicons-undo"></span>';
+		echo esc_html__( 'Process Refund', 'mhm-rentiva' );
 		echo '</button>';
 	}
 

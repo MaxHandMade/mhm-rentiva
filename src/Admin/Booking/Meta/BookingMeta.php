@@ -162,15 +162,19 @@ final class BookingMeta extends AbstractMetaBox {
 			'default'
 		);
 
-		// Receipt review meta box
-		add_meta_box(
-			'mhmrentiva_receipt_box',
-			__('Payment Receipt', 'mhm-rentiva'),
-			array( self::class, 'render_receipt_box' ),
-			self::get_post_type(),
-			'side',
-			'default'
-		);
+		// Receipt review meta box -- only when the customer uploaded a receipt
+		// (canvas v135). Without one the box only said "no receipt"; the review
+		// controls inside it need an attachment to act on.
+		if ( (int) get_post_meta($post->ID, '_mhmrentiva_receipt_attachment_id', true) > 0 ) {
+			add_meta_box(
+				'mhmrentiva_receipt_box',
+				__('Payment Receipt', 'mhm-rentiva'),
+				array( self::class, 'render_receipt_box' ),
+				self::get_post_type(),
+				'side',
+				'default'
+			);
+		}
 
 		// Booking history (spec PR 3a) is not a box of its own any more: the
 		// Payment Management box draws it (render_history_section(), PR 3b-1).

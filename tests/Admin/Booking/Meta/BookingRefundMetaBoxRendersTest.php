@@ -89,7 +89,7 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
      * whose route did not exist while asserting that the box link to it. Both
      * copies of the gate were wrong in the same direction, so the test passed.
      */
-    public function test_a_paid_cancelled_offline_booking_gets_the_summary_and_the_deposit_link(): void
+    public function test_a_paid_cancelled_offline_booking_gets_the_summary_and_the_refund_button(): void
     {
         update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
         update_post_meta($this->booking_id, '_mhmrentiva_status', 'cancelled');
@@ -100,16 +100,12 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
         $html = $this->render();
 
         $this->assertStringContainsString('Remaining refundable', $html);
-        $this->assertStringContainsString(
-            'Process this refund from the deposit-management screen.',
-            $html,
-            'A paid, cancelled booking has a genuine route to the deposit-management screen; the box must link to it.'
+        $this->assertSame(
+            1,
+            substr_count($html, 'id="process-refund"'),
+            'A paid, cancelled booking is refundable; since PR 3b-1 the refund button itself sits in this box.'
         );
-        $this->assertStringNotContainsString(
-            'refunds for this booking are recorded from',
-            $html,
-            'The precondition sentence is for bookings with no route -- this one has one, and gets the link instead.'
-        );
+        $this->assertStringNotContainsString('deposit-management screen', $html);
         $this->assertStringNotContainsString('No refundable payment found', $html);
     }
 
@@ -124,7 +120,7 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
      * the actor dimension the way they already drifted twice on the state
      * one.
      */
-    public function test_an_unauthorized_actor_gets_no_link_even_for_an_otherwise_routable_booking(): void
+    public function test_an_unauthorized_actor_gets_no_button_even_for_an_otherwise_refundable_booking(): void
     {
         update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
         update_post_meta($this->booking_id, '_mhmrentiva_status', 'cancelled');
@@ -137,9 +133,9 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
         $html = $this->render();
 
         $this->assertStringNotContainsString(
-            'Process this refund from the deposit-management screen.',
+            'id="process-refund"',
             $html,
-            'An unattributed actor fails the MoneyAuthorization hard floor; the link must not render for them even though the state predicate alone would allow it.'
+            'An unattributed actor fails the MoneyAuthorization hard floor; the button must not render for them even though the state predicate alone would allow it.'
         );
     }
 
@@ -164,7 +160,7 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
      * simply false. It now states where refunds are recorded without claiming
      * why this particular booking does not qualify.
      */
-    public function test_a_paid_but_not_cancelled_offline_booking_gets_the_precondition_sentence(): void
+    public function test_a_paid_but_not_cancelled_offline_booking_gets_the_summary_and_no_button(): void
     {
         update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
         update_post_meta($this->booking_id, '_mhmrentiva_status', 'confirmed');
@@ -175,20 +171,11 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
         $html = $this->render();
 
         $this->assertStringContainsString('Remaining refundable', $html);
-        $this->assertStringContainsString(
-            'This amount is refundable; refunds for this booking are recorded from the deposit-management screen.',
-            $html,
-            'No refund button exists for a paid, non-cancelled booking on the deposit-management screen; state the precondition, not a route.'
-        );
+        $this->assertStringNotContainsString('id="process-refund"', $html, 'Not cancelled: no refund button.');
         $this->assertStringNotContainsString(
-            'once the booking is cancelled',
+            'deposit-management screen',
             $html,
-            'That wording is false for the cancelled-but-partially-refunded shape that also reaches this branch.'
-        );
-        $this->assertStringNotContainsString(
-            'Process this refund from the deposit-management screen.',
-            $html,
-            'That sentence claims a route (a clickable link to a working button) that does not exist for this booking; the two branches must not collapse to the same string.'
+            'Since PR 3b-1 the box no longer sends the operator to another screen (spec H17).'
         );
         $this->assertStringNotContainsString('No refundable payment found', $html);
     }
@@ -246,13 +233,13 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
     public function provide_both_gate_branches(): array
     {
         return array(
-            'link branch (a route exists)'      => array(
+            'button branch (refundable now)'    => array(
                 'cancelled',
-                'Process this refund from the deposit-management screen.',
+                'id="process-refund"',
             ),
-            'sentence branch (no route)'        => array(
+            'summary branch (not cancelled)'    => array(
                 'confirmed',
-                'This amount is refundable; refunds for this booking are recorded from the deposit-management screen.',
+                'Remaining refundable',
             ),
         );
     }
@@ -349,5 +336,59 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
             'That sentence is false for a booking whose WooCommerce money is genuinely refundable.'
         );
         $this->assertStringNotContainsString('Remaining refundable', $html);
+    }
+    /**
+     * Fable K1 (plan audit). The box returns early for every booking with a
+     * WooCommerce order, and a cancelled, paid WooCommerce booking is exactly
+     * the one whose gateway refund this button triggers. The button is drawn
+     * before that return; drawn after it, the refund would have no button.
+     */
+    public function test_wc_order_backed_cancelled_paid_booking_keeps_its_refund_button(): void
+    {
+        $this->require_woocommerce();
+
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
+        update_post_meta($this->booking_id, '_mhmrentiva_status', 'cancelled');
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_type', 'full');
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', '80');
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
+
+        $this->create_paid_order_for_booking($this->booking_id, '80');
+
+        $html = $this->render();
+
+        $this->assertSame(1, substr_count($html, 'id="process-refund"'));
+        $this->assertStringContainsString('This booking has a refundable WooCommerce payment.', $html);
+        $this->assertStringNotContainsString('WooCommerce order screen', $html, 'With the button here, no other route is named.');
+        $this->assertStringNotContainsString('Remaining refundable', $html);
+    }
+
+    public function test_a_paid_not_cancelled_wc_booking_is_pointed_at_the_order_screen_only(): void
+    {
+        $this->require_woocommerce();
+
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_type', 'full');
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', '80');
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
+
+        $this->create_paid_order_for_booking($this->booking_id, '80');
+
+        $html = $this->render();
+
+        $this->assertStringNotContainsString('id="process-refund"', $html);
+        $this->assertStringContainsString('It can be refunded from the WooCommerce order screen.', $html);
+        $this->assertStringNotContainsString('deposit-management screen', $html);
+    }
+
+    /** Review Focus 2: no payment type, no button -- in this box as in the old one. */
+    public function test_no_refund_button_without_payment_type(): void
+    {
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
+        update_post_meta($this->booking_id, '_mhmrentiva_status', 'cancelled');
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', '80');
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
+
+        $this->assertStringNotContainsString('id="process-refund"', $this->render());
     }
 }
