@@ -15812,7 +15812,7 @@ msgstr "Tüm favorileri temizle"
 
 #: templates/account/payment-history.php:73
 msgid "Bank receipt"
-msgstr "Dekont"
+msgstr "Makbuz"
 
 #. translators: %s: number of records in the payment history (paid or not).
 #: templates/account/payment-history.php:93
@@ -15839,12 +15839,12 @@ msgstr "Araçları görüntüle"
 #: templates/partials/rvs/account-booking-detail.php:148
 #, php-format
 msgid "Bank receipt: %s"
-msgstr "Dekont: %s"
+msgstr "Makbuz: %s"
 
 #: templates/account/payment-history.php:185
 #: templates/partials/rvs/account-booking-detail.php:158
 msgid "Upload bank receipt"
-msgstr "Dekont yükle"
+msgstr "Makbuz yükle"
 
 #: templates/account/payment-history.php:198
 #: templates/partials/rvs/account-bookings.php:136
