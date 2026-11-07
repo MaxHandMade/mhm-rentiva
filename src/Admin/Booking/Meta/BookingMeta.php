@@ -1893,8 +1893,8 @@ final class BookingMeta extends AbstractMetaBox {
 
 		// A hand-made status/payment/system row would read as Rentiva's own.
 		if (! in_array($note_type, self::NOTE_TYPES, true)) {
+			// wp_send_json_error() ends the request (wp_die()); no return after it.
 			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));
-			return;
 		}
 
 		if (! $note_content) {
