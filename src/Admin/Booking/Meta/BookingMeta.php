@@ -574,7 +574,7 @@ final class BookingMeta extends AbstractMetaBox {
 		// Same rule as the edit box's saver (function scan H4): a reversed range
 		// keeps the stored dates. The notice is queued there.
 		if (BookingEditDates::is_refused($post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time)) {
-			list($pickup_date, $pickup_time, $dropoff_date, $dropoff_time) = BookingEditDates::stored($post_id);
+			list($pickup_date, $pickup_time, $dropoff_date, $dropoff_time) = BookingEditDates::raw($post_id);
 			// Queued here too: this saver can run alone (Codex code audit 3b-2, Minor 8).
 			BookingEditNotice::queue($post_id, BookingEditDates::notice(), 'warning');
 		}
@@ -671,7 +671,7 @@ final class BookingMeta extends AbstractMetaBox {
 			$req->text('mhmrentiva_edit_dropoff_time'),
 		);
 		if (BookingEditDates::is_refused($post_id, ...$dates)) {
-			$dates = BookingEditDates::stored($post_id);
+			$dates = BookingEditDates::raw($post_id);
 		}
 		$edit_allowed = ! $cancellation && self::guard_edit_availability(
 			$post_id,

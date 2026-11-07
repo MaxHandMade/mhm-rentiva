@@ -271,4 +271,40 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		$this->assertSame('', $stored[0]);
 		$this->assertSame('', $stored[2]);
 	}
+
+	/**
+	 * Codex r6: a refused change keeps the meta exactly -- the savers write the
+	 * RAW stored range back, not the input-shaped one (which reads '9:00' as '').
+	 */
+	public function test_a_refused_range_keeps_a_raw_stored_time_and_its_timestamp(): void
+	{
+		$id = $this->booking('2099-06-01', '2099-06-03');
+		update_post_meta($id, '_mhmrentiva_start_time', '9:00');
+		update_post_meta($id, '_mhmrentiva_end_time', '18:00');
+		update_post_meta($id, '_mhmrentiva_start_ts', '4084318800');
+
+		$this->update($id, array(
+			'mhmrentiva_edit_pickup_date'  => '2099-06-05',
+			'mhmrentiva_edit_pickup_time'  => '10:00',
+			'mhmrentiva_edit_dropoff_date' => '2099-06-01',
+			'mhmrentiva_edit_dropoff_time' => '10:00',
+		));
+
+		$this->assertSame('9:00', get_post_meta($id, '_mhmrentiva_start_time', true));
+		$this->assertSame('2099-06-01', get_post_meta($id, '_mhmrentiva_pickup_date', true));
+		$this->assertSame('4084318800', (string) get_post_meta($id, '_mhmrentiva_start_ts', true));
+	}
+
+	/** Codex r6 Minors: \z not $, and years of four digits or more. */
+	public function test_input_shapes_follow_the_html_contract(): void
+	{
+		$id = $this->booking();
+		update_post_meta($id, '_mhmrentiva_pickup_date', "2099-06-01\n");
+		update_post_meta($id, '_mhmrentiva_start_time', "10:00\n");
+		update_post_meta($id, '_mhmrentiva_dropoff_date', '10000-06-01');
+		update_post_meta($id, '_mhmrentiva_end_time', '10:00:30');
+
+		$this->assertSame(array( '', '', '10000-06-01', '10:00:30' ), BookingEditDates::stored($id));
+		$this->assertSame("2099-06-01\n", BookingEditDates::raw($id)[0], 'raw() is the database value.');
+	}
 }

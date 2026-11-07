@@ -56,6 +56,30 @@ final class BookingEditDates {
 	 * @return array{0: string, 1: string, 2: string, 3: string} pickup date, pickup time, return date, return time
 	 */
 	public static function stored( int $booking_id ): array {
+		list( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) = self::raw( $booking_id );
+
+		// As the date and time inputs hold them: a value those inputs cannot
+		// hold ('9:00', '24:00', '2099-13-01') is shown and posted as '', so it
+		// is '' here too -- otherwise an untouched form would look changed
+		// (Codex r5). For comparing and drawing only: a saver keeping the
+		// stored range writes raw(), never this (Codex r6).
+		return array(
+			self::as_date_input( $pickup_date ),
+			self::as_time_input( $pickup_time ),
+			self::as_date_input( $dropoff_date ),
+			self::as_time_input( $dropoff_time ),
+		);
+	}
+
+	/**
+	 * The stored range as it is in the database (current keys, then the older
+	 * ones; '0' as not set) -- what a saver writes back when it keeps the
+	 * stored range, so a refused change leaves the meta and the timestamps
+	 * exactly as they were (Codex r6).
+	 *
+	 * @return array{0: string, 1: string, 2: string, 3: string}
+	 */
+	public static function raw( int $booking_id ): array {
 		$first = static function ( string ...$keys ) use ( $booking_id ): string {
 			foreach ( $keys as $key ) {
 				$value = (string) get_post_meta( $booking_id, $key, true );
@@ -66,23 +90,20 @@ final class BookingEditDates {
 			return '';
 		};
 
-		// As the date and time inputs hold them: a value those inputs cannot
-		// hold ('9:00', '24:00', '2099-13-01') is shown and posted as '', so it
-		// is '' here too -- otherwise an untouched form would look changed
-		// (Codex r5).
 		return array(
-			self::as_date_input( $first( '_mhmrentiva_pickup_date', '_mhmrentiva_booking_pickup_date' ) ),
-			self::as_time_input( $first( '_mhmrentiva_start_time', '_mhmrentiva_pickup_time', '_mhmrentiva_booking_pickup_time' ) ),
-			self::as_date_input( $first( '_mhmrentiva_dropoff_date', '_mhmrentiva_booking_dropoff_date' ) ),
-			self::as_time_input( $first( '_mhmrentiva_end_time', '_mhmrentiva_dropoff_time', '_mhmrentiva_booking_dropoff_time' ) ),
+			$first( '_mhmrentiva_pickup_date', '_mhmrentiva_booking_pickup_date' ),
+			$first( '_mhmrentiva_start_time', '_mhmrentiva_pickup_time', '_mhmrentiva_booking_pickup_time' ),
+			$first( '_mhmrentiva_dropoff_date', '_mhmrentiva_booking_dropoff_date' ),
+			$first( '_mhmrentiva_end_time', '_mhmrentiva_dropoff_time', '_mhmrentiva_booking_dropoff_time' ),
 		);
 	}
 
 	/**
-	 * A value an <input type="date"> holds (a valid YYYY-MM-DD), else ''.
+	 * A value an <input type="date"> holds (a valid date, the year four or
+	 * more digits), else ''. \z, not $: $ lets a trailing newline through.
 	 */
 	private static function as_date_input( string $value ): string {
-		if ( ! preg_match( '/^(\d{4})-(\d{2})-(\d{2})$/', $value, $m ) ) {
+		if ( ! preg_match( '/^(\d{4,})-(\d{2})-(\d{2})\z/', $value, $m ) ) {
 			return '';
 		}
 		return checkdate( (int) $m[2], (int) $m[3], (int) $m[1] ) ? $value : '';
@@ -92,7 +113,7 @@ final class BookingEditDates {
 	 * A value an <input type="time"> holds (HH:MM, optionally :SS), else ''.
 	 */
 	private static function as_time_input( string $value ): string {
-		return preg_match( '/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d(\.\d{1,3})?)?$/', $value ) ? $value : '';
+		return preg_match( '/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d(\.\d{1,3})?)?\z/', $value ) ? $value : '';
 	}
 
 	/**

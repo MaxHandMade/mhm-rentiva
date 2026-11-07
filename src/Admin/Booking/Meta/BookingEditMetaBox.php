@@ -591,7 +591,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		// A return before the pickup is not saved; the stored range stands and
 		// the rest of the Update goes on (function scan H4).
 		if ( BookingEditDates::is_refused( $post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) ) {
-			list( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) = BookingEditDates::stored( $post_id );
+			list( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) = BookingEditDates::raw( $post_id );
 			BookingEditNotice::queue( $post_id, BookingEditDates::notice(), 'warning' );
 		}
 
