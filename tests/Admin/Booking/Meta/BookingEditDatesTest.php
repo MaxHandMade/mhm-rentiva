@@ -353,4 +353,28 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		$this->assertSame('32768-06-01', $stored[0]);
 		$this->assertSame('', $stored[2], '99999 is not a leap year.');
 	}
+
+	/** Fable r8 M-1: the availability check gets a range it can parse. */
+	public function test_the_check_reads_a_parsable_range_when_the_stored_time_is_malformed(): void
+	{
+		$id = $this->booking('2099-06-01', '2099-06-03');
+		update_post_meta($id, '_mhmrentiva_start_time', '9:00');
+		update_post_meta($id, '_mhmrentiva_end_time', '18:00');
+		$untouched = array( '2099-06-01', '', '2099-06-03', '18:00' );
+
+		$this->assertSame(array( '2099-06-01', '9:00', '2099-06-03', '18:00' ), BookingEditDates::to_write($id, $untouched), 'The database value is kept.');
+		$this->assertSame(array( '2099-06-01', '', '2099-06-03', '18:00' ), BookingEditDates::to_check($id, $untouched), 'The check reads the shown range (empty time = default).');
+	}
+
+	/** Codex r8: no integer limit on the year. */
+	public function test_a_huge_leap_year_is_kept(): void
+	{
+		$id = $this->booking();
+		update_post_meta($id, '_mhmrentiva_pickup_date', '9223372036854776000-02-29');
+		update_post_meta($id, '_mhmrentiva_dropoff_date', '9223372036854776100-02-29');
+
+		$stored = BookingEditDates::stored($id);
+		$this->assertSame('9223372036854776000-02-29', $stored[0], 'Divisible by 400.');
+		$this->assertSame('', $stored[2], 'Divisible by 100, not 400.');
+	}
 }

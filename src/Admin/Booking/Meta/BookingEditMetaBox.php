@@ -593,13 +593,16 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		if ( BookingEditDates::is_refused( $post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) ) {
 			BookingEditNotice::queue( $post_id, BookingEditDates::notice(), 'warning' );
 		}
-		// Refused or untouched: the database values stand (BookingEditDates::to_write()).
-		list( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) = BookingEditDates::to_write( $post_id, array( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) );
+		// Refused or untouched: the database values stand (BookingEditDates::to_write());
+		// the availability check reads a range it can parse (to_check()).
+		$posted_range = array( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time );
+		$check_range  = BookingEditDates::to_check( $post_id, $posted_range );
+		list( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) = BookingEditDates::to_write( $post_id, $posted_range );
 
 		// This handler runs first (priority 5) and writes the vehicle and dates
 		// before anything else does, so the availability check has to come before
 		// that. A refused edit writes nothing; see guard_edit_availability().
-		if ( ! BookingMeta::guard_edit_availability( $post_id, $new_vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time, $status ) ) {
+		if ( ! BookingMeta::guard_edit_availability( $post_id, $new_vehicle_id, $check_range[0], $check_range[1], $check_range[2], $check_range[3], $status ) ) {
 			return;
 		}
 

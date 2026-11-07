@@ -671,7 +671,7 @@ final class BookingMeta extends AbstractMetaBox {
 			$req->text('mhmrentiva_edit_dropoff_date'),
 			$req->text('mhmrentiva_edit_dropoff_time'),
 		);
-		$dates        = BookingEditDates::to_write($post_id, $dates);
+		$dates        = BookingEditDates::to_check($post_id, $dates);
 		$edit_allowed = ! $cancellation && self::guard_edit_availability(
 			$post_id,
 			$req->int('mhmrentiva_edit_vehicle_id'),

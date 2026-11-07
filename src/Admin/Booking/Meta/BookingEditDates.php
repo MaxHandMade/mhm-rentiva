@@ -64,6 +64,24 @@ final class BookingEditDates {
 	}
 
 	/**
+	 * What the availability check runs on for the posted range: the values
+	 * to_write() keeps, unless those cannot be parsed (a stored '9:00') --
+	 * then the range as the form shows it, which the check can read. Without
+	 * this an untouched booking with a malformed stored time skipped the
+	 * check on a vehicle change (Fable r8, M-1).
+	 *
+	 * @param array{0: string, 1: string, 2: string, 3: string} $posted
+	 * @return array{0: string, 1: string, 2: string, 3: string}
+	 */
+	public static function to_check( int $booking_id, array $posted ): array {
+		$written = self::to_write( $booking_id, $posted );
+		if ( ! is_wp_error( Util::parse_datetimes( ...$written ) ) ) {
+			return $written;
+		}
+		return self::stored( $booking_id );
+	}
+
+	/**
 	 * The stored range exactly as the edit form shows it -- the form draws its
 	 * fields from this, so an untouched form posts these very values back.
 	 * Current keys first, then the older ones; an empty or '0' value is "not
@@ -125,14 +143,16 @@ final class BookingEditDates {
 			return '';
 		}
 		// The proleptic Gregorian calendar the date input uses, for any year
-		// (checkdate() stops at 32767 -- Codex r7).
-		$year  = (int) ltrim( $m[1], '0' );
+		// (checkdate() stops at 32767 -- Codex r7). The year stays a string:
+		// leap years follow from its last four digits (10000 is a multiple of
+		// 400), so no integer limit applies (Codex r8).
 		$month = (int) $m[2];
 		$day   = (int) $m[3];
-		if ( $year < 1 || $month < 1 || $month > 12 || $day < 1 ) {
+		if ( '' === ltrim( $m[1], '0' ) || $month < 1 || $month > 12 || $day < 1 ) {
 			return '';
 		}
-		$leap = ( 0 === $year % 4 && 0 !== $year % 100 ) || 0 === $year % 400;
+		$tail = (int) substr( $m[1], -4 );
+		$leap = ( 0 === $tail % 4 && 0 !== $tail % 100 ) || 0 === $tail % 400;
 		$days = array( 31, $leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 );
 		return $day <= $days[ $month - 1 ] ? $value : '';
 	}
