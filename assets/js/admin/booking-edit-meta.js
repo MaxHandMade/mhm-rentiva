@@ -91,25 +91,6 @@
     });
 
     /**
-     * Validate the entire form
-     */
-    function validateForm() {
-        let isValid = true;
-
-        $('.mhm-field-input[required], .mhm-field-select[required]').each(function () {
-            if (!validateField($(this))) {
-                isValid = false;
-            }
-        });
-
-        if (!validateDateRange()) {
-            isValid = false;
-        }
-
-        return isValid;
-    }
-
-    /**
      * Validate individual field
      */
     function validateField($field) {
@@ -182,7 +163,7 @@
         const dropoffTime = $('#mhmrentiva_booking_edit_dropoff_time').val() || '00:00';
 
         // 'YYYY-MM-DD HH:MM' compares correctly as text.
-        if ((dropoffDate + ' ' + dropoffTime) <= (pickupDate + ' ' + pickupTime)) {
+        if ((dropoffDate + ' ' + dropoffTime) < (pickupDate + ' ' + pickupTime)) {
             const strings = (window.mhmRentivaAdmin && window.mhmRentivaAdmin.strings) || {};
             showFieldError($dropoff, strings.dropoff_after_pickup || 'Dropoff date must be after pickup date.');
             return false;

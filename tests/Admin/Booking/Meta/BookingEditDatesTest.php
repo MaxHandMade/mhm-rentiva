@@ -81,7 +81,8 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 	public function test_the_rule(): void
 	{
 		$this->assertTrue(BookingEditDates::is_reversed('2099-05-04', '10:00', '2099-05-01', '10:00'));
-		$this->assertTrue(BookingEditDates::is_reversed('2099-05-01', '10:00', '2099-05-01', '10:00'), 'Zero length is not a rental.');
+		$this->assertFalse(BookingEditDates::is_reversed('2099-05-01', '10:00', '2099-05-01', '10:00'), 'Equal is left alone: a transfer or same-day booking may carry it.');
+		$this->assertTrue(BookingEditDates::is_reversed('2099-05-01', '10:00', '2099-05-01', '09:00'), 'Same day, earlier return.');
 		$this->assertFalse(BookingEditDates::is_reversed('2099-05-01', '10:00', '2099-05-01', '18:00'), 'Same day, later return.');
 		$this->assertFalse(BookingEditDates::is_reversed('2099-05-01', '', '2099-05-02', ''));
 		$this->assertFalse(BookingEditDates::is_reversed('', '', '2099-05-02', ''), 'Nothing to compare.');

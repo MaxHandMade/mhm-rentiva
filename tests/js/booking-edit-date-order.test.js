@@ -33,8 +33,10 @@ describe( 'booking edit: return must come after pickup', () => {
 		$( '#mhmrentiva_booking_edit_pickup_time' ).val( pickupTime );
 		$( '#mhmrentiva_booking_edit_dropoff_date' ).val( dropoff );
 		$( '#mhmrentiva_booking_edit_dropoff_time' ).val( dropoffTime );
+		// triggerHandler runs the bound handlers without the browser's own
+		// submit (jsdom would log "form submission not implemented").
 		const event = $.Event( 'submit' );
-		$( '#post' ).trigger( event );
+		$( '#post' ).triggerHandler( event );
 		return event.isDefaultPrevented();
 	};
 

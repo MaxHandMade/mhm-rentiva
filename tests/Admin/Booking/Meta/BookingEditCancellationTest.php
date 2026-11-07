@@ -336,4 +336,37 @@ final class BookingEditCancellationTest extends WP_Ajax_UnitTestCase
 		$location = apply_filters('redirect_post_location', admin_url('post.php?post=' . $id . '&action=edit&message=1'), $id);
 		$this->assertStringNotContainsString('message=1', $location);
 	}
+
+	/**
+	 * Fable code audit M-7: without the edit box's own nonce its saver does not
+	 * run; the priority-10 saver then runs the cancellation itself, through the
+	 * same handler.
+	 */
+	public function test_the_priority_10_saver_alone_runs_the_same_cancellation(): void
+	{
+		$id = $this->booking();
+		$this->update_from_form($id, array( 'mhmrentiva_booking_edit_meta_nonce' => 'not-a-nonce' ));
+
+		$outcome = $this->outcome($id);
+		$this->assertSame(Status::CANCELLED, $outcome['status']);
+		$this->assertTrue($outcome['refund_asked']);
+		$this->assertSame(array( 'booking_cancelled' ), $outcome['logs']);
+	}
+
+	public function test_a_refused_cancellation_writes_only_the_notes(): void
+	{
+		$id = $this->booking('in_progress');
+
+		$this->update_from_form($id, array(
+			'mhmrentiva_edit_pickup_date'   => '2099-06-01',
+			'mhmrentiva_edit_dropoff_date'  => '2099-06-09',
+			'mhmrentiva_edit_special_notes' => 'asked to cancel',
+		));
+
+		$outcome = $this->outcome($id);
+		$this->assertSame('in_progress', $outcome['status']);
+		$this->assertSame('2099-05-01..2099-05-04', $outcome['dates']);
+		$this->assertSame('2550', $outcome['total']);
+		$this->assertSame('asked to cancel', get_post_meta($id, '_mhmrentiva_special_notes', true));
+	}
 }

@@ -14,7 +14,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * A return before (or at) the pickup is not a rental (function scan H4).
+ * A return before the pickup is not a rental (function scan H4). An equal
+ * date and time is left alone: a transfer or a same-day booking may carry it,
+ * and refusing it would warn on every Update of such a booking (Fable code
+ * audit M-2).
  *
  * Both savers ask this one rule; a reversed range keeps the stored dates and
  * the rest of the Update is saved. The browser check in booking-edit-meta.js
@@ -30,7 +33,7 @@ final class BookingEditDates {
 		$pickup  = strtotime( $pickup_date . ' ' . ( '' !== $pickup_time ? $pickup_time : '00:00' ) );
 		$dropoff = strtotime( $dropoff_date . ' ' . ( '' !== $dropoff_time ? $dropoff_time : '00:00' ) );
 
-		return false !== $pickup && false !== $dropoff && $dropoff <= $pickup;
+		return false !== $pickup && false !== $dropoff && $dropoff < $pickup;
 	}
 
 	/**
