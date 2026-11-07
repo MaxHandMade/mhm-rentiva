@@ -502,3 +502,83 @@ body.post-type-mhmrentiva_booking.post-php #submitdiv #misc-publishing-actions {
 .mhm-booking-status-summary #cancel-booking {
 	margin-top: 8px;
 }
+
+/* ------------------------------------------------------------------
+   Canvas v135 (PR 3b-1): the edit screen is flat -- section headings,
+   no inner cards with accent borders. Edit screen only; the new-booking
+   screen keeps its own layout.
+   ------------------------------------------------------------------ */
+body.post-php.post-type-mhmrentiva_booking .mhm-booking-edit-form {
+	margin: 0;
+	padding: 0;
+	background: none;
+	border: 0;
+	box-shadow: none;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-booking-edit-form h4 {
+	margin: 0 0 12px;
+	padding: 0;
+	background: none;
+	border: 0;
+	border-radius: 0;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-booking-details {
+	margin: 0 0 16px;
+	padding: 0;
+	background: none;
+	border: 0;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-booking-info-grid {
+	gap: 10px;
+	margin: 0 0 16px;
+	padding: 0;
+	min-height: 0;
+	background: none;
+	border: 0;
+	border-radius: 0;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-booking-info-item {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 10px 12px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	box-shadow: none;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-booking-info-label {
+	font-size: 12px;
+	font-weight: 400;
+	color: #50575e;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-special-notes-section {
+	margin-top: 16px;
+	padding: 0;
+	background: none;
+	border: 0;
+	border-radius: 0;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-special-notes-section .mhm-field-label {
+	color: inherit;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-special-notes-section .description {
+	color: #50575e;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-add-history-note {
+	margin: 0 0 16px;
+	padding: 0;
+	background: none;
+	border: 0;
+}

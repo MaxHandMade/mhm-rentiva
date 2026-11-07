@@ -391,3 +391,114 @@
 		justify-content: center;
 	}
 }
+/* ------------------------------------------------------------------
+   Canvas v135 (PR 3b-1): Payment Management is flat -- grey info tiles,
+   plain section headings, the payment history a dotted list.
+   ------------------------------------------------------------------ */
+body.post-php.post-type-mhmrentiva_booking .deposit-management-metabox {
+	margin: 0;
+	padding: 0;
+	background: none;
+	border: 0;
+	box-shadow: none;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-info-grid {
+	grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+	gap: 10px;
+	margin: 0 0 16px;
+	padding: 0;
+	background: none;
+	border: 0;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-info-item {
+	gap: 4px;
+	padding: 10px 12px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-info-label {
+	font-size: 12px;
+	font-weight: 400;
+	color: #50575e;
+}
+
+body.post-php.post-type-mhmrentiva_booking .payment-status-section,
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-section,
+body.post-php.post-type-mhmrentiva_booking .deposit-actions-section {
+	margin: 0 0 16px;
+	padding: 0;
+	background: none;
+	border: 0;
+	border-radius: 0;
+}
+
+body.post-php.post-type-mhmrentiva_booking .payment-status-section h4,
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-section h4,
+body.post-php.post-type-mhmrentiva_booking .mhm-payment-history-section h4 {
+	margin: 0 0 10px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline {
+	padding-left: 0;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline::before {
+	content: none;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-item {
+	margin: 0 0 10px;
+	padding-left: 20px;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-item::before {
+	left: 0;
+	top: 5px;
+	width: 10px;
+	height: 10px;
+	border: 0;
+	box-shadow: none;
+	background: var(--mhmui-info, #2271b1);
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-item.completed::before {
+	background: var(--mhmui-success, #00a32a);
+	box-shadow: none;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-item.pending::before {
+	background: #dba617;
+	box-shadow: none;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-content {
+	padding: 0;
+	background: none;
+	border: 0;
+	box-shadow: none;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-title {
+	margin: 0;
+	font-size: 13px;
+	color: #1d2327;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-description {
+	margin: 0;
+	font-size: 13px;
+	color: #50575e;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-date {
+	font-size: 12px;
+	font-style: normal;
+	color: #50575e;
+}
