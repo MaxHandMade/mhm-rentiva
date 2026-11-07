@@ -460,10 +460,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 	 * actor-dependent for all of them.
 	 */
 	public static function render_refund_button( int $post_id ): void {
-		if ( ! MoneyAuthorization::mayMoveMoney( $post_id, get_current_user_id(), 'admin_deposit' ) ) {
-			return;
-		}
-		if ( ! self::can_refund_from_deposit_screen( $post_id ) ) {
+		if ( ! self::refund_button_shows( $post_id ) ) {
 			return;
 		}
 
@@ -471,6 +468,15 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		echo '<span class="dashicons dashicons-undo"></span>';
 		echo esc_html__( 'Process Refund', 'mhm-rentiva' );
 		echo '</button>';
+	}
+
+	/**
+	 * Whether render_refund_button() prints the button for the current actor --
+	 * so a box can word its text around it without buffering the markup.
+	 */
+	public static function refund_button_shows( int $post_id ): bool {
+		return MoneyAuthorization::mayMoveMoney( $post_id, get_current_user_id(), 'admin_deposit' )
+			&& self::can_refund_from_deposit_screen( $post_id );
 	}
 
 	private static function format_price( float $price ): string {

@@ -73,11 +73,11 @@ final class BookingRefundMetaBox {
 		// WooCommerce order, and the gateway refund of a cancelled, paid
 		// WooCommerce booking is exactly what this button triggers. Rendered
 		// after the return, that refund would have no button anywhere.
-		ob_start();
-		BookingDepositMetaBox::render_refund_button( $bid );
-		$refund_button = (string) ob_get_clean();
-		if ( '' !== $refund_button ) {
-			echo '<p class="mhm-refund-action">' . $refund_button . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside render_refund_button().
+		$refund_button = BookingDepositMetaBox::refund_button_shows( $bid );
+		if ( $refund_button ) {
+			echo '<p class="mhm-refund-action">';
+			BookingDepositMetaBox::render_refund_button( $bid );
+			echo '</p>';
 		}
 
 		$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $bid );
@@ -95,7 +95,7 @@ final class BookingRefundMetaBox {
 				// fact is enough; without it (a paid booking not cancelled yet)
 				// WooCommerce's own order screen is the route that works.
 				echo '<p class="description">' . esc_html__( 'This booking has a refundable WooCommerce payment.', 'mhm-rentiva' );
-				if ( '' === $refund_button ) {
+				if ( ! $refund_button ) {
 					echo ' ' . esc_html__( 'It can be refunded from the WooCommerce order screen.', 'mhm-rentiva' );
 				}
 				echo '</p>';
