@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-07T21:35:21+00:00\n"
+"POT-Creation-Date: 2026-11-07T22:01:35+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -2325,8 +2325,8 @@ msgstr ""
 msgid "The booking was cancelled. Other changes in the form were not saved; edit the booking first, then cancel."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditDates.php:54
-msgid "The return date is before the pickup date. The dates were not changed."
+#: src/Admin/Booking/Meta/BookingEditDates.php:63
+msgid "The return date and time must be after the pickup. The dates were not changed."
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:39

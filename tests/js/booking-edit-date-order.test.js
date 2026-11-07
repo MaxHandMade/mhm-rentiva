@@ -3,7 +3,7 @@
  */
 /**
  * PR 3b-2 (function scan H4): the edit form refuses a return before the
- * pickup -- date and time, the rule BookingEditDates::is_reversed() applies on
+ * pickup -- date and time, the rule BookingEditDates::is_refused() applies on
  * the server. The handler sits on WordPress's #post form (the edit box itself
  * is a <div>), and a booking in the past is not refused for being in the past.
  */
@@ -77,5 +77,23 @@ describe( 'booking edit: return must come after pickup', () => {
 		document.querySelector( '#mhmrentiva_booking_edit_status option[value="confirmed"]' ).defaultSelected = false;
 		$( '#mhmrentiva_booking_edit_status' ).val( 'cancelled' );
 		expect( submit( '2099-05-04', '10:00', '2099-05-01', '10:00' ) ).toBe( true );
+	} );
+
+	// Codex code audit 3b-2 r2: an equal moment is no rental for pricing and
+	// availability, so a CHANGED range may not end where it starts.
+	test( 'a changed range that ends where it starts blocks the Update', () => {
+		expect( submit( '2099-06-01', '10:00', '2099-06-01', '10:00' ) ).toBe( true );
+	} );
+
+	// Fable code audit M-2: an equal range the booking already carries (a
+	// transfer) is not touched, so it does not block saving other fields.
+	test( 'an unchanged equal range does not block the Update', () => {
+		[ 'pickup_date', 'dropoff_date' ].forEach( ( id ) => {
+			document.getElementById( 'mhmrentiva_booking_edit_' + id ).defaultValue = '2099-06-01';
+		} );
+		[ 'pickup_time', 'dropoff_time' ].forEach( ( id ) => {
+			document.getElementById( 'mhmrentiva_booking_edit_' + id ).defaultValue = '10:00';
+		} );
+		expect( submit( '2099-06-01', '10:00', '2099-06-01', '10:00' ) ).toBe( false );
 	} );
 } );

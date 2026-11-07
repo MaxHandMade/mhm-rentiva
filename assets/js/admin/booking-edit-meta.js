@@ -9,7 +9,7 @@
         // The edit box is a <div> inside WordPress's own #post form, so a
         // submit handler on it never ran (function scan H4). Only the date
         // order is checked on #post: the server applies the same rule
-        // (BookingEditDates::is_reversed()), and the field checks below stay
+        // (BookingEditDates::is_refused()), and the field checks below stay
         // advisory so they cannot block an Update the server accepts.
         $('#post').on('submit', function (e) {
             // A cancellation request writes no dates on the server (it keeps
@@ -165,7 +165,7 @@
 
     /**
      * Validate date range: the return must come after the pickup (date and
-     * time), the rule BookingEditDates::is_reversed() applies on the server.
+     * time), the rule BookingEditDates::is_refused() applies on the server.
      * No "pickup in the past" check: an existing booking may lie in the past,
      * and its notes must still be editable.
      */
@@ -180,11 +180,26 @@
             return true;
         }
 
-        const pickupTime = $('#mhmrentiva_booking_edit_pickup_time').val() || '00:00';
-        const dropoffTime = $('#mhmrentiva_booking_edit_dropoff_time').val() || '00:00';
+        // Only a changed range is checked: a booking whose stored range is
+        // already equal (a transfer may carry one) must still save its other
+        // fields. Same rule as the server (BookingEditDates::is_refused()).
+        const ids = ['pickup_date', 'pickup_time', 'dropoff_date', 'dropoff_time'];
+        const changed = ids.some(function (id) {
+            const el = document.getElementById('mhmrentiva_booking_edit_' + id);
+            return el && el.value !== el.defaultValue;
+        });
+        if (!changed) {
+            return true;
+        }
 
-        // 'YYYY-MM-DD HH:MM' compares correctly as text.
-        if ((dropoffDate + ' ' + dropoffTime) < (pickupDate + ' ' + pickupTime)) {
+        // An empty time is the default 10:00, as Util::parse_datetimes() reads it.
+        const pickupTime = $('#mhmrentiva_booking_edit_pickup_time').val() || '10:00';
+        const dropoffTime = $('#mhmrentiva_booking_edit_dropoff_time').val() || '10:00';
+
+        // 'YYYY-MM-DD HH:MM' compares correctly as text. The return must come
+        // AFTER the pickup: an equal moment is no rental for pricing,
+        // availability or the timestamps.
+        if ((dropoffDate + ' ' + dropoffTime) <= (pickupDate + ' ' + pickupTime)) {
             const strings = (window.mhmRentivaAdmin && window.mhmRentivaAdmin.strings) || {};
             showFieldError($dropoff, strings.dropoff_after_pickup || 'Dropoff date must be after pickup date.');
             return false;

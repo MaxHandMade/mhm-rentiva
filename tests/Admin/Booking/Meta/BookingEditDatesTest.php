@@ -78,14 +78,60 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		wp_cache_delete($id, 'post_meta');
 	}
 
-	public function test_the_rule(): void
+	public function test_the_rule_is_the_canonical_one_for_a_changed_range(): void
 	{
-		$this->assertTrue(BookingEditDates::is_reversed('2099-05-04', '10:00', '2099-05-01', '10:00'));
-		$this->assertFalse(BookingEditDates::is_reversed('2099-05-01', '10:00', '2099-05-01', '10:00'), 'Equal is left alone: a transfer or same-day booking may carry it.');
-		$this->assertTrue(BookingEditDates::is_reversed('2099-05-01', '10:00', '2099-05-01', '09:00'), 'Same day, earlier return.');
-		$this->assertFalse(BookingEditDates::is_reversed('2099-05-01', '10:00', '2099-05-01', '18:00'), 'Same day, later return.');
-		$this->assertFalse(BookingEditDates::is_reversed('2099-05-01', '', '2099-05-02', ''));
-		$this->assertFalse(BookingEditDates::is_reversed('', '', '2099-05-02', ''), 'Nothing to compare.');
+		$id = $this->booking();
+		$this->assertTrue(BookingEditDates::is_refused($id, '2099-05-04', '10:00', '2099-05-01', '10:00'), 'Reversed.');
+		$this->assertTrue(BookingEditDates::is_refused($id, '2099-06-01', '10:00', '2099-06-01', '10:00'), 'An equal moment is no rental (Util::parse_datetimes).');
+		$this->assertTrue(BookingEditDates::is_refused($id, '2099-05-01', '10:00', '2099-05-01', '09:00'), 'Same day, earlier return.');
+		$this->assertFalse(BookingEditDates::is_refused($id, '2099-05-01', '10:00', '2099-05-01', '18:00'), 'Same day, later return.');
+		$this->assertTrue(BookingEditDates::is_refused($id, '2099-05-02', '', '2099-05-02', ''), 'Empty times are 10:00 each: equal.');
+		$this->assertFalse(BookingEditDates::is_refused($id, '', '', '2099-05-02', ''), 'Nothing to compare.');
+	}
+
+	public function test_an_unchanged_equal_range_is_left_alone(): void
+	{
+		$id = $this->booking('2099-05-01', '2099-05-01');
+
+		$this->assertFalse(BookingEditDates::is_refused($id, '2099-05-01', '10:00', '2099-05-01', '10:00'), 'A transfer may carry it; its other fields must save.');
+	}
+
+	/**
+	 * Codex code audit 3b-2, r2: moving both ends to one moment was saved while
+	 * pricing, the day count and the occupancy timestamps refused it -- the
+	 * screen showed the new dates, occupancy used the old ones.
+	 */
+	public function test_moving_both_ends_to_one_moment_is_refused_and_nothing_drifts(): void
+	{
+		$id = $this->booking();
+		update_post_meta($id, '_mhmrentiva_total_price', '2550');
+		update_post_meta($id, '_mhmrentiva_start_ts', '4081831200');
+		update_post_meta($id, '_mhmrentiva_end_ts', '4082090400');
+
+		$this->update($id, array(
+			'mhmrentiva_edit_pickup_date'  => '2099-06-01',
+			'mhmrentiva_edit_dropoff_date' => '2099-06-01',
+		));
+
+		$this->assertSame('2099-05-01', get_post_meta($id, '_mhmrentiva_pickup_date', true));
+		$this->assertSame('2099-05-04', get_post_meta($id, '_mhmrentiva_dropoff_date', true));
+		$this->assertSame('2550', (string) get_post_meta($id, '_mhmrentiva_total_price', true));
+		$this->assertSame('3', (string) get_post_meta($id, '_mhmrentiva_rental_days', true));
+		$this->assertStringContainsString('The return date and time must be after the pickup.', BookingEditNotice::peek($id));
+	}
+
+	public function test_an_unchanged_equal_booking_saves_its_notes_without_a_warning(): void
+	{
+		$id = $this->booking('2099-05-01', '2099-05-01');
+
+		$this->update($id, array(
+			'mhmrentiva_edit_pickup_date'   => '2099-05-01',
+			'mhmrentiva_edit_dropoff_date'  => '2099-05-01',
+			'mhmrentiva_edit_special_notes' => 'transfer note',
+		));
+
+		$this->assertSame('transfer note', get_post_meta($id, '_mhmrentiva_special_notes', true));
+		$this->assertSame('', BookingEditNotice::peek($id));
 	}
 
 	public function test_a_reversed_range_is_not_saved_and_the_operator_is_told(): void
@@ -102,7 +148,7 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		$this->assertSame('2099-05-04', get_post_meta($id, '_mhmrentiva_dropoff_date', true));
 		$this->assertSame('3', (string) get_post_meta($id, '_mhmrentiva_rental_days', true));
 		$this->assertSame('kept', get_post_meta($id, '_mhmrentiva_special_notes', true), 'The other fields of the Update are saved.');
-		$this->assertStringContainsString('The return date is before the pickup date. The dates were not changed.', BookingEditNotice::peek($id));
+		$this->assertStringContainsString('The return date and time must be after the pickup. The dates were not changed.', BookingEditNotice::peek($id));
 	}
 
 	public function test_same_day_with_a_later_return_time_is_saved(): void
@@ -152,6 +198,6 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		wp_cache_delete($id, 'post_meta');
 
 		$this->assertSame('2099-05-01', get_post_meta($id, '_mhmrentiva_pickup_date', true));
-		$this->assertStringContainsString('The return date is before the pickup date.', BookingEditNotice::peek($id));
+		$this->assertStringContainsString('The return date and time must be after the pickup.', BookingEditNotice::peek($id));
 	}
 }

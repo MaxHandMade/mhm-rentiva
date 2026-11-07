@@ -9,31 +9,40 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Booking\Meta;
 
+use MHMRentiva\Admin\Booking\Helpers\Util;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * A return before the pickup is not a rental (function scan H4). An equal
- * date and time is left alone: a transfer or a same-day booking may carry it,
- * and refusing it would warn on every Update of such a booking (Fable code
- * audit M-2).
+ * A range the rest of Rentiva cannot use is not saved (function scan H4).
  *
- * Both savers ask this one rule; a reversed range keeps the stored dates and
- * the rest of the Update is saved. The browser check in booking-edit-meta.js
- * applies the same rule before the form is sent.
+ * The rule is Util::parse_datetimes() itself -- the one availability, pricing
+ * and the booking timestamps run on: the return must come after the pickup
+ * (an empty time is the default 10:00). An own copy of the rule let an equal
+ * date and time through while those three refused it, so the dates were saved
+ * and the price, days and occupancy stayed on the old range (Codex code audit
+ * 3b-2, r2).
+ *
+ * Only a CHANGED range is refused: a booking whose stored range is already
+ * equal (a transfer may carry one) saves its other fields without a warning
+ * (Fable code audit M-2). Both savers ask this one rule; a refused range keeps
+ * the stored dates and the rest of the Update is saved. The browser check in
+ * booking-edit-meta.js applies the same rule before the form is sent.
  */
 final class BookingEditDates {
 
-	public static function is_reversed( string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time ): bool {
+	public static function is_refused( int $booking_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time ): bool {
 		if ( '' === $pickup_date || '' === $dropoff_date ) {
 			return false;
 		}
 
-		$pickup  = strtotime( $pickup_date . ' ' . ( '' !== $pickup_time ? $pickup_time : '00:00' ) );
-		$dropoff = strtotime( $dropoff_date . ' ' . ( '' !== $dropoff_time ? $dropoff_time : '00:00' ) );
+		if ( ! is_wp_error( Util::parse_datetimes( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) ) ) {
+			return false;
+		}
 
-		return false !== $pickup && false !== $dropoff && $dropoff < $pickup;
+		return array( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) !== self::stored( $booking_id );
 	}
 
 	/**
@@ -51,6 +60,6 @@ final class BookingEditDates {
 	}
 
 	public static function notice(): string {
-		return __( 'The return date is before the pickup date. The dates were not changed.', 'mhm-rentiva' );
+		return __( 'The return date and time must be after the pickup. The dates were not changed.', 'mhm-rentiva' );
 	}
 }

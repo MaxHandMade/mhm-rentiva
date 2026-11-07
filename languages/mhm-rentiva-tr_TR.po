@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-11-07T21:35:21+00:00\n"
+"POT-Creation-Date: 2026-11-07T22:01:35+00:00\n"
 "PO-Revision-Date: 2026-10-24 18:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -1110,7 +1110,9 @@ msgstr "Kalan tutar için ödeme bağlantısı müşteriye e-postayla gönderild
 msgid ""
 "Payment link for the remaining amount created; the e-mail to the customer "
 "could not be sent."
-msgstr "Kalan tutar için ödeme bağlantısı oluşturuldu; müşteriye e-posta gönderilemedi."
+msgstr ""
+"Kalan tutar için ödeme bağlantısı oluşturuldu; müşteriye e-posta "
+"gönderilemedi."
 
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:224
 msgid "Payment link generated and emailed to the customer."
@@ -1120,7 +1122,9 @@ msgstr "Ödeme bağlantısı oluşturuldu ve müşteriye e-postayla gönderildi.
 msgid ""
 "Payment link generated, but the e-mail could not be sent. Copy the link and "
 "send it to the customer yourself."
-msgstr "Ödeme bağlantısı oluşturuldu, ancak e-posta gönderilemedi. Bağlantıyı kopyalayıp müşteriye kendiniz gönderin."
+msgstr ""
+"Ödeme bağlantısı oluşturuldu, ancak e-posta gönderilemedi. Bağlantıyı "
+"kopyalayıp müşteriye kendiniz gönderin."
 
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:256
 msgid "This booking is not awaiting payment."
@@ -2456,9 +2460,11 @@ msgstr ""
 "Rezervasyon iptal edildi. Formdaki diğer değişiklikler kaydedilmedi; önce "
 "rezervasyonu düzenleyin, sonra iptal edin."
 
-#: src/Admin/Booking/Meta/BookingEditDates.php:54
-msgid "The return date is before the pickup date. The dates were not changed."
-msgstr "Dönüş tarihi teslim alma tarihinden önce. Tarihler değiştirilmedi."
+#: src/Admin/Booking/Meta/BookingEditDates.php:63
+msgid ""
+"The return date and time must be after the pickup. The dates were not "
+"changed."
+msgstr "Dönüş tarihi ve saati teslim almadan sonra olmalı. Tarihler değiştirilmedi."
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:39
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:60
@@ -18464,6 +18470,10 @@ msgstr "Araç listesi"
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste yerleşiminde görüntüleyin."
+
+#~ msgid ""
+#~ "The return date is before the pickup date. The dates were not changed."
+#~ msgstr "Dönüş tarihi teslim alma tarihinden önce. Tarihler değiştirilmedi."
 
 #~ msgid "Pickup date cannot be in the past"
 #~ msgstr "Teslim alma tarihi geçmişte olamaz"
