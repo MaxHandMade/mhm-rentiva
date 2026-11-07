@@ -244,4 +244,26 @@ final class BookingStatusBoxTest extends WP_UnitTestCase
 		$html = $this->render_status_box($this->booking(array( '_mhmrentiva_payment_type' => '' )));
 		$this->assertStringNotContainsString('mhm-cancel-hint', $html);
 	}
+	/**
+	 * Codex audit 3b-1. The Payment Management box always read the payment
+	 * type with PHP truthiness, so '0' meant "old system" and no button was
+	 * drawn. Moved out of the box, the buttons must ask the same question.
+	 */
+	public function test_a_zero_payment_type_draws_no_money_button_anywhere(): void
+	{
+		$cancellable = $this->booking(array( '_mhmrentiva_payment_type' => '0' ));
+		$this->assertStringNotContainsString('id="cancel-booking"', $this->render_status_box($cancellable));
+
+		$refundable = $this->booking(array(
+			'_mhmrentiva_payment_type'     => '0',
+			'_mhmrentiva_status'           => 'cancelled',
+			'_mhmrentiva_payment_status'   => 'paid',
+			'_mhmrentiva_remaining_amount' => '0',
+		));
+		ob_start();
+		\MHMRentiva\Admin\Booking\Meta\BookingRefundMetaBox::render($refundable);
+		$this->assertStringNotContainsString('id="process-refund"', (string) ob_get_clean());
+
+		$this->assertStringContainsString('old system', $this->render_deposit_box($refundable));
+	}
 }

@@ -36,7 +36,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 	protected static function get_fields(): array {
 		return array(
 			'mhmrentiva_deposit_management' => array(
-				'title'    => __( 'Deposit Management', 'mhm-rentiva' ),
+				'title'    => __( 'Payment Management', 'mhm-rentiva' ),
 				'context'  => 'normal',
 				'priority' => 'high',
 				'template' => 'render_deposit_management',
@@ -195,7 +195,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		echo '<div class="deposit-management-metabox">';
 
 		// Check if the booking was created with the deposit system
-		if ( ! $payment_type ) {
+		if ( ! self::uses_deposit_system( $post->ID ) ) {
 			echo '<div class="notice notice-info">';
 			echo '<p>' . esc_html__( 'This booking was created with the old system. Deposit system information is not available.', 'mhm-rentiva' ) . '</p>';
 			echo '</div>';
@@ -429,7 +429,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 	 * binds #cancel-booking on the document and reads only data-booking-id.
 	 */
 	public static function render_cancel_button( int $post_id ): void {
-		if ( '' === (string) get_post_meta( $post_id, '_mhmrentiva_payment_type', true ) ) {
+		if ( ! self::uses_deposit_system( $post_id ) ) {
 			return;
 		}
 		if ( ! MoneyAuthorization::mayMoveMoney( $post_id, get_current_user_id(), 'admin_deposit' ) ) {
@@ -478,8 +478,22 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 	 * so a box can word its text around it without buffering the markup.
 	 */
 	public static function refund_button_shows( int $post_id ): bool {
-		return MoneyAuthorization::mayMoveMoney( $post_id, get_current_user_id(), 'admin_deposit' )
+		return self::uses_deposit_system( $post_id )
+			&& MoneyAuthorization::mayMoveMoney( $post_id, get_current_user_id(), 'admin_deposit' )
 			&& self::can_refund_from_deposit_screen( $post_id );
+	}
+
+	/**
+	 * Whether the booking was created with the deposit system -- the one rule
+	 * the Payment Management box, the cancel button and the refund button share.
+	 *
+	 * PHP truthiness, exactly as the box's early return always read it: an empty
+	 * value AND '0' mean "old system". Before PR 3b-1 the two buttons lived after
+	 * that return; moved out, they must keep asking the same question (Codex
+	 * audit 3b-1: a '0' payment type grew both buttons).
+	 */
+	public static function uses_deposit_system( int $post_id ): bool {
+		return (bool) get_post_meta( $post_id, '_mhmrentiva_payment_type', true );
 	}
 
 	private static function format_price( float $price ): string {

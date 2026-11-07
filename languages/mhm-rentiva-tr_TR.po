@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-11-07T16:27:03+00:00\n"
+"POT-Creation-Date: 2026-11-07T17:02:37+00:00\n"
 "PO-Revision-Date: 2026-10-24 18:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -16,7 +16,7 @@ msgstr ""
 "X-Loco-Version: 2.8.3; wp-6.9.4; php-8.2.30\n"
 
 #. Plugin Name of the plugin
-#: mhm-rentiva.php mhm-rentiva.php:629 src/Admin/About/Tabs/GeneralTab.php:128
+#: mhm-rentiva.php mhm-rentiva.php:628 src/Admin/About/Tabs/GeneralTab.php:128
 #: src/Admin/About/Tabs/GeneralTab.php:268 src/Admin/Utilities/Menu/Menu.php:30
 #: src/Admin/Utilities/Menu/Menu.php:31
 #: src-react/admin/dashboard/DashboardPage.jsx:75
@@ -49,13 +49,13 @@ msgid "https://wpalemi.com/"
 msgstr "https://wpalemi.com/"
 
 #. translators: %s: detected PHP version number.
-#: mhm-rentiva.php:105
+#: mhm-rentiva.php:104
 #, php-format
 msgid "MHM Rentiva plugin requires PHP 8.1 or higher. Your version: %s"
 msgstr ""
 "MHM Rentiva eklentisi PHP 8.1 veya üstü gerektiriyor. Mevcut sürümünüz: %s"
 
-#: mhm-rentiva.php:128
+#: mhm-rentiva.php:127
 msgid ""
 "MHM Rentiva requires the PHP mbstring extension, which is not enabled on "
 "this server. Please ask your host to enable it."
@@ -64,16 +64,16 @@ msgstr ""
 "Lütfen barındırma sağlayıcınızdan etkinleştirmesini isteyin."
 
 #. translators: %s: startup exception message.
-#: mhm-rentiva.php:307
+#: mhm-rentiva.php:306
 #, php-format
 msgid "MHM Rentiva plugin error on startup: %s"
 msgstr "Başlangıçta MHM Rentiva eklentisi hatası: %s"
 
-#: mhm-rentiva.php:319
+#: mhm-rentiva.php:318
 msgid "MHM Rentiva plugin failed to load. Please reinstall the plugin."
 msgstr "MHM Rentiva eklentisi yüklenemedi. Lütfen eklentiyi yeniden yükleyin."
 
-#: mhm-rentiva.php:545
+#: mhm-rentiva.php:544
 msgid ""
 "MHM Rentiva could not create its required database tables. The plugin was "
 "not activated. Check database permissions and try again."
@@ -81,26 +81,26 @@ msgstr ""
 "MHM Rentiva gerekli veritabanı tablolarını oluşturamadı. Eklenti "
 "etkinleştirilmedi. Veritabanı izinlerini kontrol edip yeniden deneyin."
 
-#: mhm-rentiva.php:546
+#: mhm-rentiva.php:545
 msgid "Database Setup Failed"
 msgstr "Veritabanı kurulumu başarısız"
 
-#: mhm-rentiva.php:579
+#: mhm-rentiva.php:578
 msgid "MHM Rentiva plugin requires PHP 8.1 or higher."
 msgstr "MHM Rentiva eklentisi PHP 8.1 veya üstü sürüm gerektirir."
 
 #. translators: %s: Plugin name.
-#: mhm-rentiva.php:588
+#: mhm-rentiva.php:587
 #, php-format
 msgid "%s requires WooCommerce to be installed and active."
 msgstr "%s WooCommerce'in kurulu ve etkin olması gerekir."
 
-#: mhm-rentiva.php:591
+#: mhm-rentiva.php:590
 msgid "Plugin Dependency Check"
 msgstr "Eklenti bağımlılık kontrolü"
 
 #. translators: %s: Plugin name.
-#: mhm-rentiva.php:628
+#: mhm-rentiva.php:627
 #, php-format
 msgid ""
 "%s requires WooCommerce to be installed and active. Please install "
@@ -2118,12 +2118,9 @@ msgid "Booking #%d"
 msgstr "Rezervasyon #%d"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:33
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:39
 msgid "Payment Management"
 msgstr "Ödeme yönetimi"
-
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:39
-msgid "Deposit Management"
-msgstr "Kapora yönetimi"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:115
 msgid "Do you confirm this action?"
@@ -2209,7 +2206,7 @@ msgid "Deposit"
 msgstr "Kapora"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:218
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:523
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:537
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:707
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:525
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:596
@@ -2376,26 +2373,26 @@ msgid "Process Refund"
 msgstr "İadeyi işle"
 
 #. translators: 1: deposit type label ("Percentage"), 2: the deposit rate, e.g. 10 or 12.5 -- place the percent sign as your language does.
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:515
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:529
 #, php-format
 msgctxt "deposit type with its rate"
 msgid "%1$s · %2$s%%"
 msgstr "%1$s · %%%2$s"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:524
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:538
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:186
 msgid "Percentage"
 msgstr "Yüzde"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:525
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:539
 msgid "Fixed Amount"
 msgstr "Sabit tutar"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:526
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:540
 msgid "Both"
 msgstr "Her ikisi de"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:527
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:541
 msgid "None"
 msgstr "Yok"
 
@@ -18393,6 +18390,9 @@ msgstr "Araç listesi"
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste yerleşiminde görüntüleyin."
+
+#~ msgid "Deposit Management"
+#~ msgstr "Kapora yönetimi"
 
 #~ msgid "Deposit History"
 #~ msgstr "Kapora geçmişi"

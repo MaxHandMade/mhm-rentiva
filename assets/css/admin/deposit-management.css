@@ -337,7 +337,7 @@
 }
 
 .deposit-action-btn.success:hover {
-	background: var(--mhmui-success-ink, #005c12);
+	background: #005c12;
 }
 
 .deposit-action-btn.warning {

@@ -9,14 +9,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-07T16:27:03+00:00\n"
+"POT-Creation-Date: 2026-11-07T17:02:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
 
 #. Plugin Name of the plugin
 #: mhm-rentiva.php
-#: mhm-rentiva.php:629
+#: mhm-rentiva.php:628
 #: src/Admin/About/Tabs/GeneralTab.php:128
 #: src/Admin/About/Tabs/GeneralTab.php:268
 #: src/Admin/Utilities/Menu/Menu.php:30
@@ -46,49 +46,49 @@ msgid "https://wpalemi.com/"
 msgstr ""
 
 #. translators: %s: detected PHP version number.
-#: mhm-rentiva.php:105
+#: mhm-rentiva.php:104
 #, php-format
 msgid "MHM Rentiva plugin requires PHP 8.1 or higher. Your version: %s"
 msgstr ""
 
-#: mhm-rentiva.php:128
+#: mhm-rentiva.php:127
 msgid "MHM Rentiva requires the PHP mbstring extension, which is not enabled on this server. Please ask your host to enable it."
 msgstr ""
 
 #. translators: %s: startup exception message.
-#: mhm-rentiva.php:307
+#: mhm-rentiva.php:306
 #, php-format
 msgid "MHM Rentiva plugin error on startup: %s"
 msgstr ""
 
-#: mhm-rentiva.php:319
+#: mhm-rentiva.php:318
 msgid "MHM Rentiva plugin failed to load. Please reinstall the plugin."
 msgstr ""
 
-#: mhm-rentiva.php:545
+#: mhm-rentiva.php:544
 msgid "MHM Rentiva could not create its required database tables. The plugin was not activated. Check database permissions and try again."
 msgstr ""
 
-#: mhm-rentiva.php:546
+#: mhm-rentiva.php:545
 msgid "Database Setup Failed"
 msgstr ""
 
-#: mhm-rentiva.php:579
+#: mhm-rentiva.php:578
 msgid "MHM Rentiva plugin requires PHP 8.1 or higher."
 msgstr ""
 
 #. translators: %s: Plugin name.
-#: mhm-rentiva.php:588
+#: mhm-rentiva.php:587
 #, php-format
 msgid "%s requires WooCommerce to be installed and active."
 msgstr ""
 
-#: mhm-rentiva.php:591
+#: mhm-rentiva.php:590
 msgid "Plugin Dependency Check"
 msgstr ""
 
 #. translators: %s: Plugin name.
-#: mhm-rentiva.php:628
+#: mhm-rentiva.php:627
 #, php-format
 msgid "%s requires WooCommerce to be installed and active. Please install WooCommerce to use this plugin."
 msgstr ""
@@ -2014,11 +2014,8 @@ msgid "Booking #%d"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:33
-msgid "Payment Management"
-msgstr ""
-
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:39
-msgid "Deposit Management"
+msgid "Payment Management"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:115
@@ -2100,7 +2097,7 @@ msgid "Deposit"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:218
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:523
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:537
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:707
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:525
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:596
@@ -2258,26 +2255,26 @@ msgid "Process Refund"
 msgstr ""
 
 #. translators: 1: deposit type label ("Percentage"), 2: the deposit rate, e.g. 10 or 12.5 -- place the percent sign as your language does.
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:515
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:529
 #, php-format
 msgctxt "deposit type with its rate"
 msgid "%1$s · %2$s%%"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:524
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:538
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:186
 msgid "Percentage"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:525
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:539
 msgid "Fixed Amount"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:526
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:540
 msgid "Both"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:527
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:541
 msgid "None"
 msgstr ""
 
