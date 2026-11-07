@@ -11,6 +11,7 @@ use MHMRentiva\Admin\Booking\Core\PaymentView;
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Booking\Helpers\CancellationHandler;
 use MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox;
+use MHMRentiva\Admin\Booking\Meta\BookingMeta;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 use MHMRentiva\Admin\Core\Utilities\BookingQueryHelper;
 use MHMRentiva\Admin\Payment\Core\Money;
@@ -204,6 +205,9 @@ final class DepositManagementAjax {
 				'sent_by'  => get_current_user_id(),
 			)
 		);
+		// The operator's action in the booking history too (function scan H16):
+		// the log above is invisible on the screen.
+		BookingMeta::add_history_note( $booking_id, __( 'Payment link for the remaining amount e-mailed to the customer.', 'mhm-rentiva' ), 'payment_update' );
 
 		wp_send_json_success(
 			array(
@@ -616,6 +620,15 @@ final class DepositManagementAjax {
 						'processed_by' => $actor,
 					)
 				);
+				BookingMeta::add_history_note(
+					$booking_id,
+					'' !== $reference
+						/* translators: %s: operator-supplied payment reference */
+						? sprintf( __( 'Hand transfer of the refund confirmed. Reference: %s', 'mhm-rentiva' ), $reference )
+						: __( 'Hand transfer of the refund confirmed.', 'mhm-rentiva' ),
+					'payment_update',
+					$actor
+				);
 			}
 		} finally {
 			RefundLock::release( $booking_id );
@@ -864,6 +877,13 @@ final class DepositManagementAjax {
 							'reason'       => $reason,
 							'processed_by' => $actor,
 						)
+					);
+					BookingMeta::add_history_note(
+						$booking_id,
+						/* translators: %s: the operator's reason */
+						sprintf( __( 'Recorded that no refund is due. Reason: %s', 'mhm-rentiva' ), $reason ),
+						'payment_update',
+						$actor
 					);
 				}
 			}

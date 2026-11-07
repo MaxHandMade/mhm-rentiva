@@ -158,4 +158,26 @@ final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
 
 		$this->assertFalse( $response['success'] );
 	}
+
+	/**
+	 * Function scan H16: the payment link is a history row too.
+	 */
+	public function test_admin_send_remaining_payment_link_writes_a_history_row(): void {
+		DepositManagementAjax::register();
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		$_POST['action']     = 'mhmrentiva_send_remaining_payment_link';
+		$_POST['nonce']      = wp_create_nonce( 'mhmrentiva_deposit_management_action' );
+		$_POST['booking_id'] = $this->booking_id;
+
+		try {
+			$this->_handleAjax( 'mhmrentiva_send_remaining_payment_link' );
+		} catch ( \WPAjaxDieContinueException $e ) {
+			// wp_send_json_*() always wp_die()s.
+		}
+		$this->assertTrue( json_decode( $this->_last_response, true )['success'] ?? false );
+
+		$notes = array_column( (array) get_post_meta( $this->booking_id, '_mhmrentiva_booking_history', true ), 'note' );
+		$this->assertContains( 'Payment link for the remaining amount e-mailed to the customer.', $notes );
+	}
 }

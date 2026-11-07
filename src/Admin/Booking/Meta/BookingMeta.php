@@ -1874,6 +1874,13 @@ final class BookingMeta extends AbstractMetaBox {
 		);
 
 		if ($sent) {
+			// In the booking history (function scan H16): which e-mail went out.
+			self::add_history_note(
+				$booking_id,
+				/* translators: %s: e-mail subject */
+				sprintf(__('E-mail sent to the customer: %s', 'mhm-rentiva'), (string) $email_content['subject']),
+				'customer_contact'
+			);
 			wp_send_json_success(__('Email sent successfully!', 'mhm-rentiva'));
 		} else {
 			wp_send_json_error(__('Failed to send email. Please check your WordPress email configuration.', 'mhm-rentiva'));

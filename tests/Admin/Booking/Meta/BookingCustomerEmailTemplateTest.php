@@ -135,4 +135,24 @@ final class BookingCustomerEmailTemplateTest extends WP_Ajax_UnitTestCase
 
 		$this->assertFalse($response['success'] ?? true, wp_json_encode($response));
 	}
+
+	/**
+	 * Function scan H16: which e-mail went out is now a history row.
+	 */
+	public function test_a_sent_email_is_written_to_the_history(): void
+	{
+		$response = $this->ajax('mhmrentiva_send_customer_email', array(
+			'mhmrentiva_email_nonce' => wp_create_nonce('mhmrentiva_send_email'),
+			'booking_id'             => (string) $this->booking,
+			'email_type'             => 'booking_cancelled',
+			'email_subject'          => '',
+			'email_message'          => '',
+		));
+		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
+
+		$history = (array) get_post_meta($this->booking, '_mhmrentiva_booking_history', true);
+		$last    = end($history);
+		$this->assertSame('customer_contact', $last['type'] ?? null);
+		$this->assertSame('E-mail sent to the customer: ' . $this->sent[0]['subject'], $last['note'] ?? null);
+	}
 }
