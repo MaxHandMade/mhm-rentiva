@@ -461,6 +461,21 @@ final class DepositManagementAjax {
 			)
 		);
 
+		// An offline refund is a record, not a payment: the money still has to
+		// be handed over, and the refund row reads "waiting for hand transfer"
+		// (function scan H7). Only a refund the gateway actually made is
+		// "completed". Cache cleared: Refunds\Service wrote the status in this
+		// request.
+		wp_cache_delete( $booking_id, 'post_meta' );
+		if ( RefundStatus::MANUAL_PENDING === RefundStatus::get( $booking_id ) ) {
+			wp_send_json_success(
+				array(
+					/* translators: %s: refund amount. */
+					'message' => sprintf( __( 'A refund record was opened for %s. Close it with "Confirm hand transfer" once the money has been handed over.', 'mhm-rentiva' ), self::format_price( $refund_amount_major ) ),
+				)
+			);
+		}
+
 		wp_send_json_success(
 			array(
 				/* translators: %s placeholder. */
