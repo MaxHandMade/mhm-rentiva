@@ -231,4 +231,21 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		$this->assertSame(array( 'pickup' => '08:00', 'dropoff' => '18:00' ), BookingEditDates::default_times());
 		$this->assertFalse(BookingEditDates::is_refused($this->booking(), '2099-06-01', '', '2099-06-01', ''), 'Server and browser agree: 08:00 -> 18:00 is a rental.');
 	}
+
+	/** Codex r4: the baseline and the defaults are printed before the script, as data. */
+	public function test_the_edit_screen_prints_the_drawn_range_before_the_script(): void
+	{
+		global $post, $post_type;
+		$id        = $this->booking();
+		$post      = get_post($id);
+		$post_type = 'mhmrentiva_booking';
+
+		BookingEditMetaBox::enqueue_scripts('post.php');
+		$before = implode("\n", (array) wp_scripts()->get_data('mhm-rentiva-booking-edit-meta', 'before'));
+
+		$this->assertStringContainsString('window.mhmBookingEditDates', $before);
+		$this->assertStringContainsString('"pickup_date":"2099-05-01"', $before);
+		$this->assertStringContainsString('"defaultTimes"', $before);
+		$post = null;
+	}
 }

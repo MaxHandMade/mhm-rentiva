@@ -6,7 +6,11 @@
     'use strict';
 
     const DATE_FIELDS = ['pickup_date', 'pickup_time', 'dropoff_date', 'dropoff_time'];
-    const initialDates = {};
+    // The range the server drew (window.mhmBookingEditDates, printed before
+    // this script): the baseline, so input made before the page was ready
+    // still counts as a change (Codex r4).
+    const dateData = window.mhmBookingEditDates || {};
+    const initialDates = dateData.initial || {};
 
     $(document).ready(function () {
         // The edit box is a <div> inside WordPress's own #post form, so a
@@ -14,16 +18,6 @@
         // order is checked on #post: the server applies the same rule
         // (BookingEditDates::is_refused()), and the field checks below stay
         // advisory so they cannot block an Update the server accepts.
-        // What the date fields held when the screen was drawn -- the live
-        // value, not the HTML attribute: a time input cannot hold '0', so an
-        // attribute of '0' is shown (and posted) as '' (Codex r3 Minor 1).
-        DATE_FIELDS.forEach(function (id) {
-            const el = document.getElementById('mhmrentiva_booking_edit_' + id);
-            if (el) {
-                initialDates[id] = el.value;
-            }
-        });
-
         $('#post').on('submit', function (e) {
             // A cancellation request writes no dates on the server (it keeps
             // the stored ones), so the date check must not block it (Codex
@@ -206,7 +200,7 @@
 
         // An empty time is the default Util::parse_datetimes() applies (its
         // filters, passed in by the server).
-        const defaults = (window.mhmBookingEdit && window.mhmBookingEdit.defaultTimes) || {};
+        const defaults = dateData.defaultTimes || {};
         const pickupTime = $('#mhmrentiva_booking_edit_pickup_time').val() || defaults.pickup || '10:00';
         const dropoffTime = $('#mhmrentiva_booking_edit_dropoff_time').val() || defaults.dropoff || '10:00';
 

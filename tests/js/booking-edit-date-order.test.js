@@ -16,8 +16,15 @@ describe( 'booking edit: return must come after pickup', () => {
 		$ = require( 'jquery' );
 		global.jQuery = $;
 		window.jQuery = $;
-		window.mhmBookingEdit = { text: {}, defaultTimes: values.defaultTimes || { pickup: '10:00', dropoff: '10:00' } };
+		window.mhmBookingEdit = { text: {} };
 		const v = ( k ) => ( values[ k ] !== undefined ? values[ k ] : '' );
+		// What the server prints before the script: the range it drew (time
+		// inputs hold '' for an attribute of '0') and its default times.
+		const shown = ( k ) => ( '0' === v( k ) ? '' : v( k ) );
+		window.mhmBookingEditDates = {
+			initial: values.initial || { pickup_date: shown( 'pickup_date' ), pickup_time: shown( 'pickup_time' ), dropoff_date: shown( 'dropoff_date' ), dropoff_time: shown( 'dropoff_time' ) },
+			defaultTimes: values.defaultTimes || { pickup: '10:00', dropoff: '10:00' },
+		};
 		document.body.innerHTML = `
 			<form id="post">
 				<div class="mhm-booking-edit-form">
@@ -114,5 +121,18 @@ describe( 'booking edit: return must come after pickup', () => {
 	test( 'empty times use the server defaults', async () => {
 		await mount( { defaultTimes: { pickup: '08:00', dropoff: '18:00' } } );
 		expect( submit( '2099-06-01', '', '2099-06-01', '' ) ).toBe( false );
+	} );
+
+	// Codex r4 Minor 1: a value typed before the page was ready is still a
+	// change -- the baseline is what the server drew, not what the field held
+	// when the script ran.
+	test( 'input made before the script ran still counts as a change', async () => {
+		await mount( {
+			initial: { pickup_date: '2099-05-01', pickup_time: '10:00', dropoff_date: '2099-05-04', dropoff_time: '10:00' },
+			pickup_date: '2099-06-01', pickup_time: '10:00', dropoff_date: '2099-06-01', dropoff_time: '10:00',
+		} );
+		const event = $.Event( 'submit' );
+		$( '#post' ).triggerHandler( event );
+		expect( event.isDefaultPrevented() ).toBe( true );
 	} );
 } );

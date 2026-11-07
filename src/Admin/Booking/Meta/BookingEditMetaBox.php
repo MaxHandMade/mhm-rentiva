@@ -140,11 +140,9 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 				'mhm-rentiva-booking-edit-meta',
 				'mhmBookingEdit',
 				array(
-					'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
-					'nonce'        => wp_create_nonce( 'mhmrentiva_booking_edit_nonce' ),
-					// Util::parse_datetimes()'s empty-time defaults, for the date check.
-					'defaultTimes' => BookingEditDates::default_times(),
-					'text'         => array(
+					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+					'nonce'   => wp_create_nonce( 'mhmrentiva_booking_edit_nonce' ),
+					'text'    => array(
 						'saving'              => __( 'Saving...', 'mhm-rentiva' ),
 						'error'               => __( 'An error occurred', 'mhm-rentiva' ),
 						'success'             => __( 'Booking updated', 'mhm-rentiva' ),
@@ -152,6 +150,31 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 					),
 				)
 			);
+
+			// The date check's data (not strings, so not localize): the range the
+			// server drew -- the baseline an untouched form is compared to, set
+			// before the script runs so input made before the page was ready still
+			// counts as a change -- and Util::parse_datetimes()'s empty-time
+			// defaults (Codex r4).
+			global $post;
+			if ( $post instanceof \WP_Post ) {
+				list( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) = BookingEditDates::stored( (int) $post->ID );
+				wp_add_inline_script(
+					'mhm-rentiva-booking-edit-meta',
+					'window.mhmBookingEditDates = ' . wp_json_encode(
+						array(
+							'initial'      => array(
+								'pickup_date'  => $pickup_date,
+								'pickup_time'  => $pickup_time,
+								'dropoff_date' => $dropoff_date,
+								'dropoff_time' => $dropoff_time,
+							),
+							'defaultTimes' => BookingEditDates::default_times(),
+						)
+					) . ';',
+					'before'
+				);
+			}
 		}
 	}
 
