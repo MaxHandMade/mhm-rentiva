@@ -130,6 +130,16 @@
 	border: 1px solid var(--mhm-warning-border);
 }
 
+.payment-status-indicator.partially_paid {
+	padding: 2px 10px;
+	border-radius: 999px;
+	background: var(--mhmui-warning-soft, #fff3cd);
+	color: var(--mhmui-warning-ink, #8a6100);
+	border: 0;
+	text-transform: none;
+	letter-spacing: 0;
+}
+
 .payment-status-indicator.refunded {
 	background: var(--mhm-purple-bg);
 	color: var(--mhm-purple);
@@ -317,22 +327,36 @@
 	background: var(--mhm-primary-dark);
 }
 
+/* Canvas v135 (PR 3b-1): money in = green filled, cancel = yellow ground,
+   refund = red filled. ui-core tokens, canvas values as the fallback. */
+.deposit-action-btn.success {
+	background: var(--mhmui-success-strong, #007a1f);
+	color: #fff;
+}
+
+.deposit-action-btn.success:hover {
+	background: var(--mhmui-success-ink, #005c12);
+}
+
 .deposit-action-btn.warning {
-	background: var(--mhm-warning);
-	color: var(--mhm-white);
+	background: var(--mhmui-warning-soft, #fff3cd);
+	color: var(--mhmui-warning-ink, #8a6100);
+	border: 1px solid var(--mhmui-warning-ink, #8a6100);
 }
 
 .deposit-action-btn.warning:hover {
-	background: var(--mhm-warning-dark);
+	background: var(--mhmui-warning-soft, #fff3cd);
+	color: var(--mhmui-warning-strong, #7d5300);
+	border-color: var(--mhmui-warning-strong, #7d5300);
 }
 
 .deposit-action-btn.danger {
-	background: var(--mhm-error);
-	color: var(--mhm-white);
+	background: var(--mhmui-danger-ink, #b32d2e);
+	color: #fff;
 }
 
 .deposit-action-btn.danger:hover {
-	background: var(--mhm-error-dark);
+	background: var(--mhmui-danger-strong, #a02224);
 }
 
 .deposit-action-btn.secondary {

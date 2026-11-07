@@ -561,10 +561,13 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Update booking details
-		$pickup_date   = $req->text('mhmrentiva_edit_pickup_date');
-		$pickup_time   = $req->text('mhmrentiva_edit_pickup_time');
-		$dropoff_date  = $req->text('mhmrentiva_edit_dropoff_date');
-		$dropoff_time  = $req->text('mhmrentiva_edit_dropoff_time');
+		$pickup_date  = $req->text('mhmrentiva_edit_pickup_date');
+		$pickup_time  = $req->text('mhmrentiva_edit_pickup_time');
+		$dropoff_date = $req->text('mhmrentiva_edit_dropoff_date');
+		$dropoff_time = $req->text('mhmrentiva_edit_dropoff_time');
+		// No guests field on the edit form any more (PR 3b-1): only a posted
+		// value is written, so the stored guests survive an Update.
+		$guests_posted = $req->has('mhmrentiva_edit_guests');
 		$guests        = max(1, $req->int('mhmrentiva_edit_guests', 1));
 		$special_notes = $req->textarea('mhmrentiva_edit_special_notes');
 
@@ -573,7 +576,9 @@ final class BookingMeta extends AbstractMetaBox {
 		update_post_meta($post_id, '_mhmrentiva_start_time', $pickup_time); // Correct meta key
 		update_post_meta($post_id, '_mhmrentiva_dropoff_date', $dropoff_date);
 		update_post_meta($post_id, '_mhmrentiva_end_time', $dropoff_time); // Correct meta key
-		update_post_meta($post_id, '_mhmrentiva_guests', $guests);
+		if ($guests_posted) {
+			update_post_meta($post_id, '_mhmrentiva_guests', $guests);
+		}
 		update_post_meta($post_id, '_mhmrentiva_special_notes', $special_notes);
 
 		// Re-price only when a price input moved (BookingPricingInputs): the
@@ -593,7 +598,9 @@ final class BookingMeta extends AbstractMetaBox {
 		update_post_meta($post_id, '_mhmrentiva_booking_pickup_time', $pickup_time);
 		update_post_meta($post_id, '_mhmrentiva_booking_dropoff_date', $dropoff_date);
 		update_post_meta($post_id, '_mhmrentiva_booking_dropoff_time', $dropoff_time);
-		update_post_meta($post_id, '_mhmrentiva_booking_guests', $guests);
+		if ($guests_posted) {
+			update_post_meta($post_id, '_mhmrentiva_booking_guests', $guests);
+		}
 
 		self::sync_booking_timestamps($post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 		self::invalidate_edit_caches( (int) get_post_meta($post_id, '_mhmrentiva_vehicle_id', true));
