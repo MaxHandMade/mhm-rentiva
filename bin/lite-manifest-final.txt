@@ -37,6 +37,7 @@ src/Admin/Booking/ListTable/BookingColumns.php
 src/Admin/Booking/Meta/BookingDepositMetaBox.php
 src/Admin/Booking/Meta/BookingEditLayout.php
 src/Admin/Booking/Meta/BookingEditCancellation.php
+src/Admin/Booking/Meta/BookingEditDates.php
 src/Admin/Booking/Meta/BookingEditMetaBox.php
 src/Admin/Booking/Meta/BookingEditNotice.php
 src/Admin/Booking/Meta/BookingMeta.php

@@ -142,8 +142,6 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 				array(
 					'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
 					'nonce'     => wp_create_nonce( 'mhmrentiva_booking_edit_nonce' ),
-					// Site-local current date (Y-m-d) for the "pickup in the past" check.
-					'siteToday' => \MHMRentiva\Admin\Booking\Helpers\SiteTime::today(),
 					'text'      => array(
 						'saving'              => __( 'Saving...', 'mhm-rentiva' ),
 						'error'               => __( 'An error occurred', 'mhm-rentiva' ),
@@ -561,6 +559,13 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 
 		// Get special notes - always save if field exists
 		$special_notes = $request->textarea( 'mhmrentiva_edit_special_notes' );
+
+		// A return before the pickup is not saved; the stored range stands and
+		// the rest of the Update goes on (function scan H4).
+		if ( BookingEditDates::is_reversed( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) ) {
+			list( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) = BookingEditDates::stored( $post_id );
+			BookingEditNotice::queue( $post_id, BookingEditDates::notice(), 'warning' );
+		}
 
 		// This handler runs first (priority 5) and writes the vehicle and dates
 		// before anything else does, so the availability check has to come before

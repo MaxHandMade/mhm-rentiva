@@ -571,6 +571,12 @@ final class BookingMeta extends AbstractMetaBox {
 		$guests        = max(1, $req->int('mhmrentiva_edit_guests', 1));
 		$special_notes = $req->textarea('mhmrentiva_edit_special_notes');
 
+		// Same rule as the edit box's saver (function scan H4): a reversed range
+		// keeps the stored dates. The notice is queued there.
+		if (BookingEditDates::is_reversed($pickup_date, $pickup_time, $dropoff_date, $dropoff_time)) {
+			list($pickup_date, $pickup_time, $dropoff_date, $dropoff_time) = BookingEditDates::stored($post_id);
+		}
+
 		// Update meta data
 		update_post_meta($post_id, '_mhmrentiva_pickup_date', $pickup_date);
 		update_post_meta($post_id, '_mhmrentiva_start_time', $pickup_time); // Correct meta key
@@ -656,13 +662,22 @@ final class BookingMeta extends AbstractMetaBox {
 		if ($new_status === '') {
 			$new_status = $req->text('mhmrentiva_booking_status');
 		}
-		$edit_allowed = ! $cancellation && self::guard_edit_availability(
-			$post_id,
-			$req->int('mhmrentiva_edit_vehicle_id'),
+		$dates = array(
 			$req->text('mhmrentiva_edit_pickup_date'),
 			$req->text('mhmrentiva_edit_pickup_time'),
 			$req->text('mhmrentiva_edit_dropoff_date'),
 			$req->text('mhmrentiva_edit_dropoff_time'),
+		);
+		if (BookingEditDates::is_reversed(...$dates)) {
+			$dates = BookingEditDates::stored($post_id);
+		}
+		$edit_allowed = ! $cancellation && self::guard_edit_availability(
+			$post_id,
+			$req->int('mhmrentiva_edit_vehicle_id'),
+			$dates[0],
+			$dates[1],
+			$dates[2],
+			$dates[3],
 			$new_status
 		);
 		if ($edit_allowed) {
