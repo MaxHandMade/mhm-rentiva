@@ -123,6 +123,17 @@
 			handleEmailFormSubmit.call($container[0], e);
 		});
 
+		// A note's result is shown inside the history box (PR 3b-2; it used
+		// to be a browser alert()). Text only -- the server message is not
+		// markup.
+		function showNoteNotice($container, type, message) {
+			$container.find('.mhm-history-notice').remove();
+			var $notice = $('<div class="notice inline mhm-history-notice"><p></p></div>');
+			$notice.addClass('notice-' + type);
+			$notice.find('p').text(message);
+			$container.prepend($notice);
+		}
+
 		// History Note Click Handler
 		$(document).off('click', '.mhm-add-history-btn').on('click', '.mhm-add-history-btn', function (e) {
 			e.preventDefault();
@@ -134,7 +145,7 @@
 			var noteStrings = (window.mhmBookingEmail && window.mhmBookingEmail.strings) || {};
 
 			if (!noteContent) {
-				alert(noteStrings.noteEmpty || 'Please enter a note.');
+				showNoteNotice($container, 'error', noteStrings.noteEmpty || 'Please enter a note.');
 				return;
 			}
 
@@ -153,15 +164,19 @@
 				},
 				success: function (response) {
 					if (response.success) {
-						alert(noteStrings.noteAdded || 'Note added.');
-						location.reload();
+						showNoteNotice($container, 'success', noteStrings.noteAdded || 'Note added.');
+						// The list is drawn by the server; reload once the
+						// operator has seen the notice.
+						setTimeout(function () {
+							location.reload();
+						}, 800);
 					} else {
-						alert((noteStrings.noteError || 'Error: %s').replace('%s', String(response.data || '')));
+						showNoteNotice($container, 'error', (noteStrings.noteError || 'Error: %s').replace('%s', String(response.data || '')));
 						$btn.prop('disabled', false);
 					}
 				},
 				error: function () {
-					alert(noteStrings.noteFailed || 'The note could not be added.');
+					showNoteNotice($container, 'error', noteStrings.noteFailed || 'The note could not be added.');
 					$btn.prop('disabled', false);
 				}
 			});

@@ -247,4 +247,19 @@ final class RefundGateAgreementTest extends WP_UnitTestCase
 
         $this->assert_both_surfaces_agree($booking_id, false, 'fully refunded');
     }
+
+    /**
+     * PR 3b-2 (Fable N1). The button asks uses_deposit_system() -- PHP
+     * truthiness, so '0' is "old system" -- and the AJAX handler's gate now
+     * asks it too: a '0' payment type is refused by the handler, not only
+     * hidden on the screen.
+     */
+    public function test_a_zero_payment_type_is_refused_by_the_handler_gate_too(): void
+    {
+        $booking_id = $this->make_booking('paid', 'cancelled', 'full');
+        update_post_meta($booking_id, '_mhmrentiva_payment_type', '0');
+
+        $this->assertFalse(BookingDepositMetaBox::can_refund_from_deposit_screen($booking_id));
+        $this->assertFalse($this->refund_box_has_button($booking_id));
+    }
 }

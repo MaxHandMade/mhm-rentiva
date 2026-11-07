@@ -168,7 +168,9 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			return false;
 		}
 
-		if ( '' === (string) get_post_meta( $booking_id, '_mhmrentiva_payment_type', true ) ) {
+		// The Payment Management box's own rule (PR 3b-2, Fable N1): '0' is
+		// "old system" too, so the handler refuses what the button hides.
+		if ( ! self::uses_deposit_system( $booking_id ) ) {
 			return false;
 		}
 
