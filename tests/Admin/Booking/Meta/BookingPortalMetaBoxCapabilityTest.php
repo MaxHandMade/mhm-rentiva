@@ -125,6 +125,47 @@ final class BookingPortalMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
         $this->assertNotFalse($created, 'An administrator with create_users and booking edit permission must be able to create a customer account.');
     }
 
+    /**
+     * Function scan H6: the account was created with a random password and
+     * nobody was told -- the box said the customer could log in with their
+     * password, which they never had. Core's own set-password e-mail goes to
+     * the customer, and only to them.
+     */
+    public function test_a_created_account_gets_its_set_password_email(): void
+    {
+        wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
+        reset_phpmailer_instance();
+
+        $_POST['nonce']      = wp_create_nonce('mhmrentiva_create_customer_account');
+        $_POST['booking_id'] = (string) $this->booking_id;
+        $_POST['email']      = 'h6-customer@example.com';
+        $_POST['name']       = 'H6 Customer';
+
+        $this->dispatch_ajax();
+        $this->assertTrue($this->decode_response()['success'] ?? false);
+
+        $sent = tests_retrieve_phpmailer_instance()->mock_sent;
+        $this->assertCount(1, $sent, 'One mail: the customer set-password mail, no admin copy.');
+        $this->assertSame('h6-customer@example.com', $sent[0]['to'][0][0]);
+        $this->assertStringContainsString('action=rp', $sent[0]['body']);
+    }
+
+    public function test_linking_an_existing_account_sends_no_mail(): void
+    {
+        self::factory()->user->create(array( 'user_email' => 'already@example.com' ));
+        wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
+        reset_phpmailer_instance();
+
+        $_POST['nonce']      = wp_create_nonce('mhmrentiva_create_customer_account');
+        $_POST['booking_id'] = (string) $this->booking_id;
+        $_POST['email']      = 'already@example.com';
+        $_POST['name']       = 'Already There';
+
+        $this->dispatch_ajax();
+        $this->assertTrue($this->decode_response()['success'] ?? false);
+        $this->assertCount(0, tests_retrieve_phpmailer_instance()->mock_sent);
+    }
+
     public function test_ajax_create_customer_account_denies_user_creator_without_booking_edit_permission(): void
     {
         $user_creator_id = self::factory()->user->create(array( 'role' => 'mhmrentiva_test_user_creator' ));

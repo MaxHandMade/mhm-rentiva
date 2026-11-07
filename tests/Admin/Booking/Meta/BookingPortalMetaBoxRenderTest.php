@@ -60,4 +60,17 @@ final class BookingPortalMetaBoxRenderTest extends WP_UnitTestCase
 			'The location row comes after the e-mail.'
 		);
 	}
+
+	public function test_create_account_button_says_the_customer_gets_an_email(): void
+	{
+		$booking = self::factory()->post->create_and_get( array( 'post_type' => 'mhmrentiva_booking' ) );
+		update_post_meta( $booking->ID, '_mhmrentiva_customer_email', 'nobody-yet@example.test' );
+
+		ob_start();
+		BookingPortalMetaBox::render( $booking );
+		$html = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'mhm-create-customer-account-btn', $html );
+		$this->assertStringContainsString( 'The customer receives an e-mail to set their password.', $html );
+	}
 }

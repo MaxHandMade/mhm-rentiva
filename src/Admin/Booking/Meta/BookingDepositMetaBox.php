@@ -445,7 +445,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		echo '</button>';
 		// What the button does, as CancellationHandler::cancel_booking() does it:
 		// the cancellation e-mail goes out and the refund of what was paid starts.
-		echo '<p class="description mhm-cancel-hint">' . esc_html__( 'Cancelling starts the refund of the amount paid and sends the customer a notification.', 'mhm-rentiva' ) . '</p>';
+		echo '<p class="description mhm-cancel-hint">' . esc_html__( 'Cancelling starts the refund of the amount paid and sends the customer a notification.', 'mhm-rentiva' ) . ' ' . esc_html__( 'Choosing Cancelled in the status list and pressing Update does the same.', 'mhm-rentiva' ) . '</p>';
 	}
 
 	/**

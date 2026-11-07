@@ -266,4 +266,9 @@ final class BookingStatusBoxTest extends WP_UnitTestCase
 
 		$this->assertStringContainsString('old system', $this->render_deposit_box($refundable));
 	}
+
+	public function test_cancel_hint_names_the_status_list_path_too(): void
+	{
+		$this->assertStringContainsString('Choosing Cancelled in the status list and pressing Update does the same.', $this->render_status_box($this->booking()));
+	}
 }
