@@ -66,12 +66,33 @@ final class BookingEditDates {
 			return '';
 		};
 
+		// As the date and time inputs hold them: a value those inputs cannot
+		// hold ('9:00', '24:00', '2099-13-01') is shown and posted as '', so it
+		// is '' here too -- otherwise an untouched form would look changed
+		// (Codex r5).
 		return array(
-			$first( '_mhmrentiva_pickup_date', '_mhmrentiva_booking_pickup_date' ),
-			$first( '_mhmrentiva_start_time', '_mhmrentiva_pickup_time', '_mhmrentiva_booking_pickup_time' ),
-			$first( '_mhmrentiva_dropoff_date', '_mhmrentiva_booking_dropoff_date' ),
-			$first( '_mhmrentiva_end_time', '_mhmrentiva_dropoff_time', '_mhmrentiva_booking_dropoff_time' ),
+			self::as_date_input( $first( '_mhmrentiva_pickup_date', '_mhmrentiva_booking_pickup_date' ) ),
+			self::as_time_input( $first( '_mhmrentiva_start_time', '_mhmrentiva_pickup_time', '_mhmrentiva_booking_pickup_time' ) ),
+			self::as_date_input( $first( '_mhmrentiva_dropoff_date', '_mhmrentiva_booking_dropoff_date' ) ),
+			self::as_time_input( $first( '_mhmrentiva_end_time', '_mhmrentiva_dropoff_time', '_mhmrentiva_booking_dropoff_time' ) ),
 		);
+	}
+
+	/**
+	 * A value an <input type="date"> holds (a valid YYYY-MM-DD), else ''.
+	 */
+	private static function as_date_input( string $value ): string {
+		if ( ! preg_match( '/^(\d{4})-(\d{2})-(\d{2})$/', $value, $m ) ) {
+			return '';
+		}
+		return checkdate( (int) $m[2], (int) $m[3], (int) $m[1] ) ? $value : '';
+	}
+
+	/**
+	 * A value an <input type="time"> holds (HH:MM, optionally :SS), else ''.
+	 */
+	private static function as_time_input( string $value ): string {
+		return preg_match( '/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d(\.\d{1,3})?)?$/', $value ) ? $value : '';
 	}
 
 	/**

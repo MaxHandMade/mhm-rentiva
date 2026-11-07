@@ -246,6 +246,29 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		$this->assertStringContainsString('window.mhmBookingEditDates', $before);
 		$this->assertStringContainsString('"pickup_date":"2099-05-01"', $before);
 		$this->assertStringContainsString('"defaultTimes"', $before);
-		$post = null;
+		$post      = null;
+		$post_type = null; // Not reset by the test library (Fable M-H).
+	}
+
+	/** Codex r5: a stored time the time input cannot hold is '' -- as the browser posts it. */
+	public function test_a_stored_time_the_input_cannot_hold_is_read_as_empty(): void
+	{
+		foreach (array( '9:00', '24:00' ) as $bad) {
+			$id = $this->booking('2099-06-01', '2099-06-01');
+			update_post_meta($id, '_mhmrentiva_start_time', $bad);
+			update_post_meta($id, '_mhmrentiva_end_time', $bad);
+
+			$this->assertSame(array( '2099-06-01', '', '2099-06-01', '' ), BookingEditDates::stored($id), $bad);
+			$this->assertFalse(BookingEditDates::is_refused($id, '2099-06-01', '', '2099-06-01', ''), $bad . ': untouched, so not refused.');
+		}
+	}
+
+	public function test_a_stored_date_the_input_cannot_hold_is_read_as_empty(): void
+	{
+		$id = $this->booking('2099-13-01', '2099-02-30');
+
+		$stored = BookingEditDates::stored($id);
+		$this->assertSame('', $stored[0]);
+		$this->assertSame('', $stored[2]);
 	}
 }

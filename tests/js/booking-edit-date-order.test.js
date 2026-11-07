@@ -135,4 +135,18 @@ describe( 'booking edit: return must come after pickup', () => {
 		$( '#post' ).triggerHandler( event );
 		expect( event.isDefaultPrevented() ).toBe( true );
 	} );
+
+	// Codex r5: a stored time the input cannot hold ('9:00') reaches the
+	// browser as '' in the field and as '' in the server's baseline
+	// (BookingEditDates::stored() normalises it) -- untouched, no change.
+	test( 'a stored time the input cannot hold is not a change', async () => {
+		await mount( {
+			initial: { pickup_date: '2099-06-01', pickup_time: '', dropoff_date: '2099-06-01', dropoff_time: '' },
+			pickup_date: '2099-06-01', pickup_time: '9:00', dropoff_date: '2099-06-01', dropoff_time: '24:00',
+		} );
+		expect( document.getElementById( 'mhmrentiva_booking_edit_pickup_time' ).value ).toBe( '' );
+		const event = $.Event( 'submit' );
+		$( '#post' ).triggerHandler( event );
+		expect( event.isDefaultPrevented() ).toBe( false );
+	} );
 } );
