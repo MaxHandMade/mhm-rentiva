@@ -338,15 +338,32 @@ final class BookingEditCancellationTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * Fable code audit M-7: without the edit box's own nonce its saver does not
-	 * run; the priority-10 saver then runs the cancellation itself, through the
-	 * same handler.
+	 * Fable code audit M-7 (delta condition): the edit box's saver accepts its
+	 * own nonce OR core's _wpnonce, so this post carries neither -- only
+	 * BookingMeta's own nonce. The priority-5 saver then returns before
+	 * requested(), and the priority-10 saver runs the cancellation itself,
+	 * through the same handler.
 	 */
 	public function test_the_priority_10_saver_alone_runs_the_same_cancellation(): void
 	{
 		$id = $this->booking();
-		$this->update_from_form($id, array( 'mhmrentiva_booking_edit_meta_nonce' => 'not-a-nonce' ));
+		add_action('save_post', array( BookingEditMetaBox::class, 'save_booking_details' ), 5);
+		add_action('save_post', array( BookingMeta::class, 'save_meta' ), 10, 2);
+		$handled_at_6 = null;
+		add_action('save_post', static function ($post_id) use (&$handled_at_6) {
+			$handled_at_6 = BookingEditCancellation::handled((int) $post_id);
+		}, 6);
+		$_POST = array(
+			'mhmrentiva_booking_meta_main_nonce' => wp_create_nonce('mhmrentiva_booking_meta_action'),
+			'mhmrentiva_edit_vehicle_id'         => (string) $this->vehicle,
+			'mhmrentiva_edit_pickup_date'        => '2099-05-01',
+			'mhmrentiva_edit_dropoff_date'       => '2099-05-04',
+			'mhmrentiva_edit_status'             => 'cancelled',
+		);
+		wp_update_post(array( 'ID' => $id, 'post_title' => 'Updated' ));
+		$_POST = array();
 
+		$this->assertFalse($handled_at_6, 'The priority-5 saver did not run the cancellation.');
 		$outcome = $this->outcome($id);
 		$this->assertSame(Status::CANCELLED, $outcome['status']);
 		$this->assertTrue($outcome['refund_asked']);
