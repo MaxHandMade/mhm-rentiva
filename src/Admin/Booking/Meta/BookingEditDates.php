@@ -46,6 +46,24 @@ final class BookingEditDates {
 	}
 
 	/**
+	 * What a saver writes for the posted range: the database values when the
+	 * range is refused OR untouched (it equals what the form drew), the posted
+	 * values otherwise. An untouched form must not rewrite a stored value the
+	 * inputs cannot hold ('9:00' is drawn as '' but other readers still read
+	 * it) -- Codex r7.
+	 *
+	 * @param array{0: string, 1: string, 2: string, 3: string} $posted pickup date, pickup time, return date, return time
+	 * @return array{0: string, 1: string, 2: string, 3: string}
+	 */
+	public static function to_write( int $booking_id, array $posted ): array {
+		$posted = array_values( array_map( 'strval', $posted ) );
+		if ( self::is_refused( $booking_id, ...$posted ) || $posted === self::stored( $booking_id ) ) {
+			return self::raw( $booking_id );
+		}
+		return array( $posted[0], $posted[1], $posted[2], $posted[3] );
+	}
+
+	/**
 	 * The stored range exactly as the edit form shows it -- the form draws its
 	 * fields from this, so an untouched form posts these very values back.
 	 * Current keys first, then the older ones; an empty or '0' value is "not
@@ -106,7 +124,17 @@ final class BookingEditDates {
 		if ( ! preg_match( '/^(\d{4,})-(\d{2})-(\d{2})\z/', $value, $m ) ) {
 			return '';
 		}
-		return checkdate( (int) $m[2], (int) $m[3], (int) $m[1] ) ? $value : '';
+		// The proleptic Gregorian calendar the date input uses, for any year
+		// (checkdate() stops at 32767 -- Codex r7).
+		$year  = (int) ltrim( $m[1], '0' );
+		$month = (int) $m[2];
+		$day   = (int) $m[3];
+		if ( $year < 1 || $month < 1 || $month > 12 || $day < 1 ) {
+			return '';
+		}
+		$leap = ( 0 === $year % 4 && 0 !== $year % 100 ) || 0 === $year % 400;
+		$days = array( 31, $leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 );
+		return $day <= $days[ $month - 1 ] ? $value : '';
 	}
 
 	/**

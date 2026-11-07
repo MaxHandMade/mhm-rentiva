@@ -307,4 +307,50 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		$this->assertSame(array( '', '', '10000-06-01', '10:00:30' ), BookingEditDates::stored($id));
 		$this->assertSame("2099-06-01\n", BookingEditDates::raw($id)[0], 'raw() is the database value.');
 	}
+
+	/**
+	 * Codex r7: an UNTOUCHED form posts '' for a stored '9:00' (the time input
+	 * cannot hold it); the savers keep the database value, and the timestamp.
+	 */
+	public function test_an_untouched_form_keeps_a_raw_stored_time_and_its_timestamp(): void
+	{
+		$id = $this->booking('2099-06-01', '2099-06-03');
+		update_post_meta($id, '_mhmrentiva_start_time', '9:00');
+		update_post_meta($id, '_mhmrentiva_end_time', '18:00');
+		update_post_meta($id, '_mhmrentiva_start_ts', '4084318800');
+
+		$this->update($id, array(
+			'mhmrentiva_edit_pickup_date'   => '2099-06-01',
+			'mhmrentiva_edit_pickup_time'   => '',
+			'mhmrentiva_edit_dropoff_date'  => '2099-06-03',
+			'mhmrentiva_edit_dropoff_time'  => '18:00',
+			'mhmrentiva_edit_special_notes' => 'kept',
+		));
+
+		$this->assertSame('9:00', get_post_meta($id, '_mhmrentiva_start_time', true));
+		$this->assertSame('4084318800', (string) get_post_meta($id, '_mhmrentiva_start_ts', true));
+		$this->assertSame('kept', get_post_meta($id, '_mhmrentiva_special_notes', true));
+	}
+
+	public function test_a_changed_range_is_still_written(): void
+	{
+		$id = $this->booking();
+
+		$this->assertSame(
+			array( '2099-05-02', '11:00', '2099-05-06', '12:00' ),
+			BookingEditDates::to_write($id, array( '2099-05-02', '11:00', '2099-05-06', '12:00' ))
+		);
+	}
+
+	/** Codex r7 Minor: years past 32767 follow the calendar, not checkdate(). */
+	public function test_long_years_follow_the_calendar(): void
+	{
+		$id = $this->booking();
+		update_post_meta($id, '_mhmrentiva_pickup_date', '32768-06-01');
+		update_post_meta($id, '_mhmrentiva_dropoff_date', '99999-02-29');
+
+		$stored = BookingEditDates::stored($id);
+		$this->assertSame('32768-06-01', $stored[0]);
+		$this->assertSame('', $stored[2], '99999 is not a leap year.');
+	}
 }
