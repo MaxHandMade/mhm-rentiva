@@ -117,6 +117,47 @@ final class CustomerContact {
 	}
 
 	/**
+	 * The customer's country and state as names, "Türkiye · İstanbul".
+	 *
+	 * WooCommerce stores codes (`billing_country` `TR`, `billing_state` `TR34`);
+	 * the names come from WooCommerce's own tables. A state WooCommerce has no
+	 * name for is free text the customer typed and is shown as typed. A country
+	 * code is never shown raw -- without WooCommerce, or for a code it does not
+	 * know, the country part is left out.
+	 *
+	 * @param int $user_id Account.
+	 * @return string '' when nothing is known.
+	 */
+	public static function location( int $user_id ): string {
+		if ( $user_id <= 0 ) {
+			return '';
+		}
+
+		$country_code = self::meta( $user_id, 'billing_country' );
+		$state        = self::meta( $user_id, 'billing_state' );
+		$country      = '';
+
+		if ( function_exists( 'WC' ) && WC()->countries ) {
+			$countries = WC()->countries->get_countries();
+			$country   = '' !== $country_code && isset( $countries[ $country_code ] ) ? (string) $countries[ $country_code ] : '';
+
+			if ( '' !== $country_code && '' !== $state ) {
+				$states = WC()->countries->get_states( $country_code );
+				if ( is_array( $states ) && isset( $states[ $state ] ) ) {
+					$state = (string) $states[ $state ];
+				}
+			}
+		}
+
+		$parts = array_filter(
+			array( $country, $state ),
+			static fn( string $part ): bool => '' !== $part
+		);
+
+		return html_entity_decode( implode( ' · ', $parts ), ENT_QUOTES, 'UTF-8' );
+	}
+
+	/**
 	 * WooCommerce's billing address on one line: street, street 2, "postcode city".
 	 *
 	 * @param int $user_id Account.

@@ -55,21 +55,21 @@ final class BookingPortalMetaBox {
 				echo '<p><strong>' . esc_html__( 'Email:', 'mhm-rentiva' ) . '</strong><br>';
 				echo '<a href="mailto:' . esc_attr( $user->user_email ) . '">' . esc_html( $user->user_email ) . '</a></p>';
 
+				$location = \MHMRentiva\Admin\Customers\CustomerContact::location( $customer_user_id );
+				if ( '' !== $location ) {
+					echo '<p><strong>' . esc_html__( 'Country / state', 'mhm-rentiva' ) . '</strong><br>';
+					echo esc_html( $location ) . '</p>';
+				}
+
 				echo '<p><strong>' . esc_html__( 'Account Status:', 'mhm-rentiva' ) . '</strong><br>';
 				echo '<span class="mhm-portal-status-active">';
 				echo '<span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>';
 				echo esc_html__( 'Active', 'mhm-rentiva' );
 				echo '</span></p>';
 
-				$account_url = \MHMRentiva\Admin\Frontend\Account\AccountController::get_account_url();
-
 				echo '<p><a href="' . esc_url( admin_url( 'user-edit.php?user_id=' . $customer_user_id ) ) . '" class="button button-secondary mhm-portal-action-btn">';
 				echo '<span class="dashicons dashicons-admin-users" aria-hidden="true"></span> ';
-				echo esc_html__( 'View User Profile', 'mhm-rentiva' ) . '</a></p>';
-
-				echo '<p><a href="' . esc_url( $account_url ) . '" class="button button-primary mhm-portal-action-btn" target="_blank">';
-				echo '<span class="dashicons dashicons-chart-bar" aria-hidden="true"></span> ';
-				echo esc_html__( 'Customer Account Page', 'mhm-rentiva' ) . '</a></p>';
+				echo esc_html__( 'View customer profile', 'mhm-rentiva' ) . '</a></p>';
 
 				echo '<hr class="mhm-portal-divider">';
 
