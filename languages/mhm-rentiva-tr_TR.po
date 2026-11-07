@@ -5926,7 +5926,7 @@ msgstr "Ödemenizi {date} tarihinde yapmanız gerekmektedir."
 #. translators: {date} is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:203
 msgid "You must return the vehicle on {date}."
-msgstr "Aracı {date} tarihinde teslim etmeniz gerekmektedir."
+msgstr "Aracı {date} tarihinde geri getirmeniz gerekmektedir."
 
 #. translators: {num_days} is replaced with a number of days.
 #: src/Admin/Core/Utilities/UXHelper.php:205
