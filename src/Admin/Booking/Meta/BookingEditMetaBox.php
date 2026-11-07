@@ -159,7 +159,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		wp_nonce_field( 'mhmrentiva_booking_edit_action', 'mhmrentiva_booking_edit_meta_nonce' );
 
 		// Fetch current booking data
-		$vehicle_id   = get_post_meta( $post->ID, '_mhmrentiva_vehicle_id', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_vehicle_id', true );
+		$vehicle_id = get_post_meta( $post->ID, '_mhmrentiva_vehicle_id', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_vehicle_id', true );
 		// The one reader the date rule compares against (BookingEditDates).
 		list( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) = BookingEditDates::stored( (int) $post->ID );
 
