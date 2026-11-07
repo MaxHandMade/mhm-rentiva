@@ -30,8 +30,8 @@
 	font-weight: var(--mhm-font-semibold);
 	color: var(--mhm-text-secondary);
 	font-size: 12px;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
+	text-transform: none; /* canvas v135: sentence case */
+	letter-spacing: 0;
 }
 
 .deposit-info-value {
@@ -47,8 +47,8 @@
 	border-radius: var(--mhm-radius-sm);
 	font-size: 11px;
 	font-weight: var(--mhm-font-semibold);
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
+	text-transform: none; /* canvas v135: sentence case */
+	letter-spacing: 0;
 }
 
 .payment-type-badge.deposit {
@@ -70,8 +70,8 @@
 	border-radius: var(--mhm-radius-sm);
 	font-size: 11px;
 	font-weight: var(--mhm-font-semibold);
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
+	text-transform: none; /* canvas v135: sentence case */
+	letter-spacing: 0;
 }
 
 .payment-method-badge.online {
@@ -102,39 +102,49 @@
 	font-weight: var(--mhm-font-semibold);
 }
 
+/* Payment status pill (canvas v135, PR 3b-1). One shape for every status;
+   colours from ui-core tokens with the WP admin palette as fallback. The old
+   rules read --mhm-success-bg / --mhm-error-bg / --mhm-purple-*, which no
+   stylesheet defines, so "Paid" and the rest rendered with no ground. */
 .payment-status-indicator {
 	display: inline-block;
-	padding: 6px 12px;
-	border-radius: var(--mhm-radius-sm);
+	padding: 2px 10px;
+	border-radius: 999px;
 	font-size: 12px;
-	font-weight: var(--mhm-font-semibold);
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-}
-
-.payment-status-indicator.unpaid {
-	background: var(--mhm-error-bg);
-	color: var(--mhm-error);
-	border: 1px solid var(--mhm-error-light);
+	font-weight: 600;
+	line-height: 1.6;
+	background: var(--mhmui-neutral-soft, #f0f0f1);
+	color: var(--mhmui-text, #3c434a);
 }
 
 .payment-status-indicator.paid {
-	background: var(--mhm-success-bg);
-	color: var(--mhm-success-dark);
-	border: 1px solid var(--mhm-success-light);
+	background: var(--mhmui-success-soft, #dcf7dc);
+	color: var(--mhmui-success-strong, #007a1f);
 }
 
+.payment-status-indicator.partially_paid,
+.payment-status-indicator.pending,
 .payment-status-indicator.pending_verification {
-	background: var(--mhm-warning-bg);
-	color: var(--mhm-warning);
-	border: 1px solid var(--mhm-warning-border);
+	background: var(--mhmui-warning-soft, #fff3cd);
+	color: var(--mhmui-warning-ink, #8a6100);
 }
 
-.payment-status-indicator.refunded {
-	background: var(--mhm-purple-bg);
-	color: var(--mhm-purple);
-	border: 1px solid var(--mhm-purple-light);
+.payment-status-indicator.unpaid,
+.payment-status-indicator.failed,
+.payment-status-indicator.cancelled {
+	background: var(--mhmui-danger-soft, #fbe0e0);
+	color: var(--mhmui-danger-ink, #b32d2e);
 }
+
+/* Money that went back reads as information, not as a problem -- and must
+   not look like Cancelled next to it (user, 11-07). */
+.payment-status-indicator.refunded,
+.payment-status-indicator.partially_refunded {
+	background: var(--mhmui-info-soft, #e5f0fa);
+	color: var(--mhmui-info-strong, #135e96);
+}
+
+/* Anything else keeps the neutral ground above. */
 
 /* Cancellation Policy Section */
 .cancellation-policy-section {
@@ -291,13 +301,15 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	padding: 8px 16px;
+	min-height: 32px;
+	padding: 0 12px;
 	border: none;
-	border-radius: var(--mhm-radius-sm);
-	font-size: 12px;
-	font-weight: var(--mhm-font-semibold);
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
+	border-radius: 3px;
+	font-size: 13px;
+	font-weight: 400;
+	/* Canvas v135: sentence case, as WordPress writes its own buttons. */
+	text-transform: none;
+	letter-spacing: 0;
 	cursor: pointer;
 	transition: all var(--mhm-duration-200) ease;
 	text-decoration: none;
@@ -317,22 +329,36 @@
 	background: var(--mhm-primary-dark);
 }
 
+/* Canvas v135 (PR 3b-1): money in = green filled, cancel = yellow ground,
+   refund = red filled. ui-core tokens, canvas values as the fallback. */
+.deposit-action-btn.success {
+	background: var(--mhmui-success-strong, #007a1f);
+	color: #fff;
+}
+
+.deposit-action-btn.success:hover {
+	background: #005c12;
+}
+
 .deposit-action-btn.warning {
-	background: var(--mhm-warning);
-	color: var(--mhm-white);
+	background: var(--mhmui-warning-soft, #fff3cd);
+	color: var(--mhmui-warning-ink, #8a6100);
+	border: 1px solid var(--mhmui-warning-ink, #8a6100);
 }
 
 .deposit-action-btn.warning:hover {
-	background: var(--mhm-warning-dark);
+	background: var(--mhmui-warning-soft, #fff3cd);
+	color: var(--mhmui-warning-strong, #7d5300);
+	border-color: var(--mhmui-warning-strong, #7d5300);
 }
 
 .deposit-action-btn.danger {
-	background: var(--mhm-error);
-	color: var(--mhm-white);
+	background: var(--mhmui-danger-ink, #b32d2e);
+	color: #fff;
 }
 
 .deposit-action-btn.danger:hover {
-	background: var(--mhm-error-dark);
+	background: var(--mhmui-danger-strong, #a02224);
 }
 
 .deposit-action-btn.secondary {
@@ -364,4 +390,115 @@
 		width: 100%;
 		justify-content: center;
 	}
+}
+/* ------------------------------------------------------------------
+   Canvas v135 (PR 3b-1): Payment Management is flat -- grey info tiles,
+   plain section headings, the payment history a dotted list.
+   ------------------------------------------------------------------ */
+body.post-php.post-type-mhmrentiva_booking .deposit-management-metabox {
+	margin: 0;
+	padding: 0;
+	background: none;
+	border: 0;
+	box-shadow: none;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-info-grid {
+	grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+	gap: 10px;
+	margin: 0 0 16px;
+	padding: 0;
+	background: none;
+	border: 0;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-info-item {
+	gap: 4px;
+	padding: 10px 12px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-info-label {
+	font-size: 12px;
+	font-weight: 400;
+	color: #50575e;
+}
+
+body.post-php.post-type-mhmrentiva_booking .payment-status-section,
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-section,
+body.post-php.post-type-mhmrentiva_booking .deposit-actions-section {
+	margin: 0 0 16px;
+	padding: 0;
+	background: none;
+	border: 0;
+	border-radius: 0;
+}
+
+body.post-php.post-type-mhmrentiva_booking .payment-status-section h4,
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-section h4,
+body.post-php.post-type-mhmrentiva_booking .mhm-payment-history-section h4 {
+	margin: 0 0 10px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline {
+	padding-left: 0;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline::before {
+	content: none;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-item {
+	margin: 0 0 10px;
+	padding-left: 20px;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-item::before {
+	left: 0;
+	top: 5px;
+	width: 10px;
+	height: 10px;
+	border: 0;
+	box-shadow: none;
+	background: var(--mhmui-info, #2271b1);
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-item.completed::before {
+	background: var(--mhmui-success, #00a32a);
+	box-shadow: none;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-item.pending::before {
+	background: #dba617;
+	box-shadow: none;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-content {
+	padding: 0;
+	background: none;
+	border: 0;
+	box-shadow: none;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-title {
+	margin: 0;
+	font-size: 13px;
+	color: #1d2327;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-description {
+	margin: 0;
+	font-size: 13px;
+	color: #50575e;
+}
+
+body.post-php.post-type-mhmrentiva_booking .deposit-timeline-date {
+	font-size: 12px;
+	font-style: normal;
+	color: #50575e;
 }

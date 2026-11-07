@@ -30,13 +30,13 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 	}
 
 	protected static function get_title(): string {
-		return __( 'Deposit Management', 'mhm-rentiva' );
+		return __( 'Payment Management', 'mhm-rentiva' );
 	}
 
 	protected static function get_fields(): array {
 		return array(
 			'mhmrentiva_deposit_management' => array(
-				'title'    => __( 'Deposit Management', 'mhm-rentiva' ),
+				'title'    => __( 'Payment Management', 'mhm-rentiva' ),
 				'context'  => 'normal',
 				'priority' => 'high',
 				'template' => 'render_deposit_management',
@@ -195,10 +195,12 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		echo '<div class="deposit-management-metabox">';
 
 		// Check if the booking was created with the deposit system
-		if ( ! $payment_type ) {
+		if ( ! self::uses_deposit_system( $post->ID ) ) {
 			echo '<div class="notice notice-info">';
 			echo '<p>' . esc_html__( 'This booking was created with the old system. Deposit system information is not available.', 'mhm-rentiva' ) . '</p>';
 			echo '</div>';
+			// The history is not a payment section: it stays on an old booking too.
+			BookingMeta::render_history_section( $post );
 			echo '</div>';
 			return;
 		}
@@ -263,7 +265,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		if ( $deposit_type ) {
 			echo '<div class="deposit-info-item">';
 			echo '<div class="deposit-info-label">' . esc_html__( 'Deposit Type', 'mhm-rentiva' ) . '</div>';
-			echo '<div class="deposit-info-value">' . esc_html( self::get_deposit_type_label( $deposit_type ) ) . '</div>';
+			echo '<div class="deposit-info-value">' . esc_html( self::deposit_type_text( $post->ID ) ) . '</div>';
 			echo '</div>';
 		}
 
@@ -313,6 +315,9 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		// Deposit timeline
 		self::render_deposit_timeline( $post->ID );
 
+		// Booking history, under the payment history (canvas v135).
+		BookingMeta::render_history_section( $post );
+
 		// Deposit actions
 		self::render_deposit_actions( $post->ID, $payment_type, $remaining_amount, $payment_status, $booking_status );
 
@@ -321,7 +326,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 
 	private static function render_deposit_timeline( int $post_id ): void {
 		echo '<div class="deposit-timeline-section">';
-		echo '<h4>' . esc_html__( 'Deposit History', 'mhm-rentiva' ) . '</h4>';
+		echo '<h4>' . esc_html__( 'Payment History', 'mhm-rentiva' ) . '</h4>';
 		echo '<div class="deposit-timeline">';
 
 		// Booking created
@@ -408,43 +413,87 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			}
 		}
 
-		// The cancel and refund buttons below pay money OUT and are gated on
-		// the same actor question, asked once. The three buttons above them
-		// (Mark Payment Received, Process Remaining Amount, Send Payment
-		// Link) take money IN rather than paying it out and are deliberately
-		// left ungated here -- this task's scope (Task 9, slice 5) is the two
-		// buttons that offer an action MoneyAuthorization::mayMoveMoney()
-		// would refuse.
-		//
-		// The actor question stays out of can_refund_from_deposit_screen() on
-		// purpose: that method is a pure booking-state predicate with three
-		// other callers (the refund box's link and the AJAX handler among
-		// them), and folding an actor check into it would make it silently
-		// actor-dependent for all of them. "One question, one home" applies
-		// per question -- the state question's home is that method, the actor
-		// question's home is MoneyAuthorization.
-		$may_move_money = MoneyAuthorization::mayMoveMoney( $post_id, get_current_user_id(), 'admin_deposit' );
-
-		// Cancel button
-		if ( $may_move_money && in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) {
-			echo '<button type="button" class="deposit-action-btn warning" id="cancel-booking" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
-			echo '<span class="dashicons dashicons-no"></span>';
-			echo esc_html__( 'Cancel Booking', 'mhm-rentiva' );
-			echo '</button>';
-		}
-
-		// Refund button. The rule lives in can_refund_from_deposit_screen() so
-		// this screen, the refund box's link and the AJAX handler cannot drift
-		// apart again -- see that method for the two ways they already had.
-		if ( $may_move_money && self::can_refund_from_deposit_screen( $post_id ) ) {
-			echo '<button type="button" class="deposit-action-btn danger" id="process-refund" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
-			echo '<span class="dashicons dashicons-undo"></span>';
-			echo esc_html__( 'Process Refund', 'mhm-rentiva' );
-			echo '</button>';
-		}
+		// The two buttons that pay money OUT live in their own boxes (canvas
+		// v135): cancel in Booking Status (render_cancel_button()), refund in the
+		// Refund box (render_refund_button()). Both keep their ids and markup.
 
 		echo '</div>';
 		echo '</div>';
+	}
+
+	/**
+	 * The cancel button, in the Booking Status box (canvas v135). The same rule
+	 * that drew it here: the booking has a payment type (render_deposit_management()
+	 * returns before any button otherwise), the actor may move money on it, and
+	 * it is pending or confirmed. Markup and id unchanged: deposit-management.js
+	 * binds #cancel-booking on the document and reads only data-booking-id.
+	 */
+	public static function render_cancel_button( int $post_id ): void {
+		if ( ! self::uses_deposit_system( $post_id ) ) {
+			return;
+		}
+		if ( ! MoneyAuthorization::mayMoveMoney( $post_id, get_current_user_id(), 'admin_deposit' ) ) {
+			return;
+		}
+		if ( ! in_array( (string) get_post_meta( $post_id, '_mhmrentiva_status', true ), array( 'pending', 'confirmed' ), true ) ) {
+			return;
+		}
+
+		echo '<button type="button" class="deposit-action-btn warning" id="cancel-booking" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
+		echo '<span class="dashicons dashicons-no"></span>';
+		echo esc_html__( 'Cancel Booking', 'mhm-rentiva' );
+		echo '</button>';
+		// What the button does, as CancellationHandler::cancel_booking() does it:
+		// the cancellation e-mail goes out and the refund of what was paid starts.
+		echo '<p class="description mhm-cancel-hint">' . esc_html__( 'Cancelling starts the refund of the amount paid and sends the customer a notification.', 'mhm-rentiva' ) . '</p>';
+	}
+
+	/**
+	 * The refund button, in the Refund box (canvas v135). Printed exactly when it
+	 * was printed here before: the actor may move money on the booking
+	 * (MoneyAuthorization, surface 'admin_deposit') and the booking state allows a
+	 * refund (can_refund_from_deposit_screen(), which also requires a payment
+	 * type -- the old early return of render_deposit_management()). Markup and id
+	 * unchanged: deposit-management.js binds #process-refund on the document and
+	 * reads only data-booking-id.
+	 *
+	 * The actor question stays out of can_refund_from_deposit_screen() on
+	 * purpose: that predicate is pure booking state with other callers (the AJAX
+	 * handler among them); folding the actor in would make it silently
+	 * actor-dependent for all of them.
+	 */
+	public static function render_refund_button( int $post_id ): void {
+		if ( ! self::refund_button_shows( $post_id ) ) {
+			return;
+		}
+
+		echo '<button type="button" class="deposit-action-btn danger" id="process-refund" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
+		echo '<span class="dashicons dashicons-undo"></span>';
+		echo esc_html__( 'Process Refund', 'mhm-rentiva' );
+		echo '</button>';
+	}
+
+	/**
+	 * Whether render_refund_button() prints the button for the current actor --
+	 * so a box can word its text around it without buffering the markup.
+	 */
+	public static function refund_button_shows( int $post_id ): bool {
+		return self::uses_deposit_system( $post_id )
+			&& MoneyAuthorization::mayMoveMoney( $post_id, get_current_user_id(), 'admin_deposit' )
+			&& self::can_refund_from_deposit_screen( $post_id );
+	}
+
+	/**
+	 * Whether the booking was created with the deposit system -- the one rule
+	 * the Payment Management box, the cancel button and the refund button share.
+	 *
+	 * PHP truthiness, exactly as the box's early return always read it: an empty
+	 * value AND '0' mean "old system". Before PR 3b-1 the two buttons lived after
+	 * that return; moved out, they must keep asking the same question (Codex
+	 * audit 3b-1: a '0' payment type grew both buttons).
+	 */
+	public static function uses_deposit_system( int $post_id ): bool {
+		return (bool) get_post_meta( $post_id, '_mhmrentiva_payment_type', true );
 	}
 
 	private static function format_price( float $price ): string {
@@ -457,6 +506,32 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 	/**
 	 * Get translated deposit type label
 	 */
+	/**
+	 * The deposit type as the Payment Management box shows it. A percentage
+	 * deposit names its rate ("Percentage · 10%"); only the type is stored, so
+	 * the rate is derived from the deposit and the total.
+	 */
+	public static function deposit_type_text( int $post_id ): string {
+		$type  = (string) get_post_meta( $post_id, '_mhmrentiva_deposit_type', true );
+		$label = self::get_deposit_type_label( $type );
+		if ( 'percentage' !== $type ) {
+			return $label;
+		}
+		$deposit = (float) get_post_meta( $post_id, '_mhmrentiva_deposit_amount', true );
+		$total   = (float) get_post_meta( $post_id, '_mhmrentiva_total_price', true );
+		if ( $total <= 0.0 || $deposit <= 0.0 ) {
+			return $label;
+		}
+		$rate = round( $deposit / $total * 100, 1 );
+
+		return sprintf(
+			/* translators: 1: deposit type label ("Percentage"), 2: the deposit rate, e.g. 10 or 12.5 -- place the percent sign as your language does. */
+			_x( '%1$s · %2$s%%', 'deposit type with its rate', 'mhm-rentiva' ),
+			$label,
+			number_format_i18n( $rate, floor( $rate ) === $rate ? 0 : 1 )
+		);
+	}
+
 	private static function get_deposit_type_label( string $deposit_type ): string {
 		$labels = array(
 			'full_payment' => __( 'Full Payment', 'mhm-rentiva' ),

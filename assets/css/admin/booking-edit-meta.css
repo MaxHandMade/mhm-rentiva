@@ -248,8 +248,8 @@
 	font-weight: var(--mhm-font-semibold);
 	color: var(--mhm-text-secondary);
 	font-size: 12px;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
+	text-transform: none; /* canvas v135: sentence case */
+	letter-spacing: 0;
 }
 
 .mhm-booking-info-value {
@@ -265,8 +265,8 @@
 	border-radius: var(--mhm-radius-sm);
 	font-size: 11px;
 	font-weight: var(--mhm-font-semibold);
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
+	text-transform: none; /* canvas v135: sentence case */
+	letter-spacing: 0;
 }
 
 .mhm-booking-type-badge.online {
@@ -460,4 +460,125 @@
 
 .mhm-history-show-more:hover {
 	text-decoration: underline;
+}
+/* Line under the core H1 (PR 3b-1) ---------------------------- */
+
+.mhm-screen-subline {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--mhmui-space-1, 4px) var(--mhmui-space-3, 12px);
+	margin: 0 0 var(--mhmui-space-3, 12px);
+	color: var(--mhmui-text-muted, #646970);
+	font-size: 13px;
+}
+
+.mhm-screen-subline a {
+	text-decoration: none;
+}
+
+/* The title is generated; it stays in the form (post_title), off screen. */
+body.post-type-mhmrentiva_booking.post-php #titlediv {
+	display: none;
+}
+
+/* Booking Status = core submitdiv (PR 3b-1) ------------------- */
+
+/* Rows that mean nothing for a booking. Their inputs stay in the form,
+   so edit_post() keeps post_status, visibility and the password. */
+body.post-type-mhmrentiva_booking.post-php #submitdiv #minor-publishing-actions,
+body.post-type-mhmrentiva_booking.post-php #submitdiv #misc-publishing-actions {
+	display: none;
+}
+
+.mhm-booking-status-summary {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+	padding: 14px 8px 12px;
+}
+
+.mhm-booking-status-summary #cancel-booking {
+	margin-top: 8px;
+}
+
+/* ------------------------------------------------------------------
+   Canvas v135 (PR 3b-1): the edit screen is flat -- section headings,
+   no inner cards with accent borders. Edit screen only; the new-booking
+   screen keeps its own layout.
+   ------------------------------------------------------------------ */
+body.post-php.post-type-mhmrentiva_booking .mhm-booking-edit-form {
+	margin: 0;
+	padding: 0;
+	background: none;
+	border: 0;
+	box-shadow: none;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-booking-edit-form h4 {
+	margin: 0 0 12px;
+	padding: 0;
+	background: none;
+	border: 0;
+	border-radius: 0;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-booking-details {
+	margin: 0 0 16px;
+	padding: 0;
+	background: none;
+	border: 0;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-booking-info-grid {
+	gap: 10px;
+	margin: 0 0 16px;
+	padding: 0;
+	min-height: 0;
+	background: none;
+	border: 0;
+	border-radius: 0;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-booking-info-item {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 10px 12px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	box-shadow: none;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-booking-info-label {
+	font-size: 12px;
+	font-weight: 400;
+	color: #50575e;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-special-notes-section {
+	margin-top: 16px;
+	padding: 0;
+	background: none;
+	border: 0;
+	border-radius: 0;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-special-notes-section .mhm-field-label {
+	color: inherit;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-special-notes-section .description {
+	color: #50575e;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-add-history-note {
+	margin: 0 0 16px;
+	padding: 0;
+	background: none;
+	border: 0;
 }

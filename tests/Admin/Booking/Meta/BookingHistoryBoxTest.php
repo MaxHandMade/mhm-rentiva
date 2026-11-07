@@ -8,8 +8,9 @@ use MHMRentiva\Admin\Booking\Meta\BookingMeta;
 use WP_Ajax_UnitTestCase;
 
 /**
- * The booking history box (spec PR 3a): written but never registered, so the
- * edit screen had no history. It now sits in the side column; its note field
+ * The booking history (spec PR 3a): written but never registered, so the
+ * edit screen had no history. PR 3a put it in the side column; PR 3b-1
+ * (canvas v135) draws it inside the Payment Management box instead. Its note field
  * is no longer `required` (inside the post form that blocked Update), an
  * empty note is refused only by "Add note", and the box says the notes travel
  * with the customer's personal data export (K4).
@@ -63,10 +64,65 @@ final class BookingHistoryBoxTest extends WP_Ajax_UnitTestCase
 		return (string) ob_get_clean();
 	}
 
-	public function test_history_box_is_registered_on_the_edit_screen_side(): void
+	public function test_history_is_not_a_box_of_its_own_on_the_edit_screen(): void
 	{
 		$side = $this->boxes_on('post.php');
-		$this->assertArrayHasKey('mhmrentiva_booking_history_box', $side['default'] ?? array());
+		$this->assertArrayNotHasKey('mhmrentiva_booking_history_box', $side['default'] ?? array());
+	}
+
+	public function test_history_is_drawn_inside_the_payment_box_after_the_timeline_before_the_actions(): void
+	{
+		foreach (array(
+			'_mhmrentiva_payment_type'   => 'deposit',
+			'_mhmrentiva_payment_status' => 'pending',
+			'_mhmrentiva_status'         => 'pending',
+			'_mhmrentiva_total_price'    => '5850',
+			'_mhmrentiva_deposit_amount' => '585',
+		) as $key => $value) {
+			update_post_meta($this->booking, $key, $value);
+		}
+		ob_start();
+		\MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox::render_deposit_management(get_post($this->booking));
+		$html = (string) ob_get_clean();
+
+		$history  = strpos($html, 'mhm-add-history-btn');
+		$timeline = strpos($html, 'deposit-timeline');
+		$action   = strpos($html, 'id="approve-payment"');
+		$this->assertIsInt($history);
+		$this->assertIsInt($timeline);
+		$this->assertIsInt($action);
+		$this->assertGreaterThan($timeline, $history);
+		$this->assertLessThan($action, $history);
+	}
+
+	public function test_a_booking_without_payment_type_keeps_its_history(): void
+	{
+		// The payment box returns before its payment sections on a pre-deposit
+		// booking; the history (a box of its own until PR 3b-1) must not go
+		// with them (Codex plan audit 3b-1, finding 1).
+		delete_post_meta($this->booking, '_mhmrentiva_payment_type');
+		ob_start();
+		\MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox::render_deposit_management(get_post($this->booking));
+		$html = (string) ob_get_clean();
+
+		$this->assertStringContainsString('mhm-add-history-btn', $html);
+		$this->assertStringContainsString('mhmrentiva_history_nonce', $html);
+		$this->assertStringContainsString('personal data export', $html);
+		$this->assertStringNotContainsString('id="approve-payment"', $html);
+	}
+
+	public function test_note_type_select_offers_note_and_customer_contact_only(): void
+	{
+		preg_match_all('/<option value="([a-z_]+)"/', $this->html(), $m);
+		$this->assertSame(array( 'note', 'customer_contact' ), $m[1]);
+	}
+
+	public function test_a_system_note_type_is_refused(): void
+	{
+		// Status, payment and system rows are Rentiva's own; a hand-made one
+		// would read as if the system had written it.
+		$this->assertFalse($this->add_note('Fake', 'system')['success'] ?? true);
+		$this->assertFalse(metadata_exists('post', $this->booking, '_mhmrentiva_booking_history'));
 	}
 
 	public function test_history_box_is_not_offered_on_a_new_booking(): void
@@ -97,13 +153,13 @@ final class BookingHistoryBoxTest extends WP_Ajax_UnitTestCase
 		);
 	}
 
-	private function add_note(string $content): array
+	private function add_note(string $content, string $type = 'note'): array
 	{
 		$_POST = wp_slash(array(
 			'mhmrentiva_history_nonce' => wp_create_nonce('mhmrentiva_add_history_note'),
 			'booking_id'               => (string) $this->booking,
 			'note_content'             => $content,
-			'note_type'                => 'note',
+			'note_type'                => $type,
 		));
 		try {
 			$this->_handleAjax('mhmrentiva_add_booking_history_note');
@@ -127,5 +183,15 @@ final class BookingHistoryBoxTest extends WP_Ajax_UnitTestCase
 		$history = (array) get_post_meta($this->booking, '_mhmrentiva_booking_history', true);
 		$this->assertCount(1, $history);
 		$this->assertSame('Called the customer', array_values($history)[0]['note']);
+	}
+	/** Codex plan audit r1: why the select offers only two types. */
+	public function test_note_select_explains_the_rows_rentiva_writes_itself(): void
+	{
+		$html = $this->html();
+		$this->assertStringContainsString('Rentiva writes the status, payment and system rows itself.', $html);
+		$this->assertLessThan(
+			strpos($html, 'Rentiva writes the status'),
+			strpos($html, 'id="note_type"')
+		);
 	}
 }

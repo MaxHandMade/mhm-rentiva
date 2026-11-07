@@ -67,23 +67,38 @@ final class BookingRefundMetaBox {
 		// the page if it sat after the early return.
 		self::render_needs_review_controls( $bid );
 
+		// The refund action itself (canvas v135: it lives in this box, not in
+		// Payment Management). Same placement as the controls above and for a
+		// sharper reason: the early return below fires for EVERY booking with a
+		// WooCommerce order, and the gateway refund of a cancelled, paid
+		// WooCommerce booking is exactly what this button triggers. Rendered
+		// after the return, that refund would have no button anywhere.
+		$refund_button = BookingDepositMetaBox::refund_button_shows( $bid );
+		if ( $refund_button ) {
+			echo '<p class="mhm-refund-action">';
+			BookingDepositMetaBox::render_refund_button( $bid );
+			echo '</p>';
+		}
+
 		$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $bid );
 
-		// This box is the offline surface. A booking whose money sits in a
-		// WooCommerce order is refunded from the WooCommerce order screen or
-		// from the deposit-management screen; a third button here would give the
-		// operator two paths with different rules over the same money.
+		// The offline summary below is for offline money only. A booking whose
+		// money sits in a WooCommerce order shows no offline figures: its own
+		// order screen is where WooCommerce keeps them.
 		$remaining = array() === $state->orders() ? $state->refundableManual() : 0;
 		$currency  = $state->currency() ?: (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency', 'USD' );
 
 		if ( $remaining <= 0 ) {
 			if ( $state->refundableAuto() > 0 ) {
-				// This booking's money is genuinely refundable -- just not
-				// through THIS box, which is deliberately offline-only (see
-				// the comment above). Saying "no refundable payment found"
-				// here would be false: point the operator at the path that
-				// actually works instead.
-				echo '<p class="description">' . esc_html__( 'This booking has a refundable WooCommerce payment. Refund it from the WooCommerce order screen or the deposit-management screen.', 'mhm-rentiva' ) . '</p>';
+				// This booking's money is genuinely refundable; "no refundable
+				// payment found" would be false. With the button above the
+				// fact is enough; without it (a paid booking not cancelled yet)
+				// WooCommerce's own order screen is the route that works.
+				echo '<p class="description">' . esc_html__( 'This booking has a refundable WooCommerce payment.', 'mhm-rentiva' );
+				if ( ! $refund_button ) {
+					echo ' ' . esc_html__( 'It can be refunded from the WooCommerce order screen.', 'mhm-rentiva' );
+				}
+				echo '</p>';
 			} else {
 				echo '<p class="description">' . esc_html__( 'No refundable payment found for this booking.', 'mhm-rentiva' ) . '</p>';
 			}
@@ -94,43 +109,6 @@ final class BookingRefundMetaBox {
 		echo '<p><strong>' . esc_html__( 'Paid', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( (float) Money::toMajor( $state->paid() ), Money::decimals() ) . ' ' . strtoupper( $currency ) ) . '</p>';
 		echo '<p><strong>' . esc_html__( 'Already refunded', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( (float) Money::toMajor( $state->refunded() ), Money::decimals() ) . ' ' . strtoupper( $currency ) ) . '</p>';
 		echo '<p><strong>' . esc_html__( 'Remaining refundable', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( (float) Money::toMajor( $remaining ), Money::decimals() ) . ' ' . strtoupper( $currency ) ) . '</p>';
-
-		// A metabox renders INSIDE WordPress's own #post form. A nested
-		// <form> here (the box used to print one) is invalid HTML, so the
-		// browser's parser discards the <form> tag and adopts its fields
-		// into WordPress's own form -- the refund button then submits
-		// editpost, not a refund, and duplicates the `action` field WP
-		// itself relies on. Link to the box that already has a working,
-		// non-nested refund trigger (wp_ajax_mhmrentiva_deposit_process_refund
-		// via assets/js/admin/deposit-management.js) instead of rendering a
-		// second, broken one here. See BookingRefundMetaBoxRendersTest's
-		// "no form, no name=action" assertion for the regression this guards.
-		//
-		// That trigger is not always there to link to, and this box used to
-		// keep its own copy of the rule that decides. The copy was wrong twice
-		// -- it demanded exactly 'paid' (so a partially refunded booking lost
-		// its route the moment a correct partial refund ran) and it did not
-		// know the deposit box returns early, before any button, on a booking
-		// with no _mhmrentiva_payment_type. Ask the screen that owns the
-		// button instead of mirroring its rule.
-		//
-		// Task 9 (slice 5) added a second condition: this link and the button
-		// it points at answer the same question, so a refused actor must not
-		// see either. Fix round 1 (F1) closed the drift a first pass left
-		// open -- the button alone asked MoneyAuthorization, so an actor who
-		// failed it saw the button disappear but the link stay, disagreeing
-		// with the very button it points at. Same predicate, same $surface
-		// as the button ('admin_deposit') so the two never drift again.
-		if ( MoneyAuthorization::mayMoveMoney( $bid, get_current_user_id(), 'admin_deposit' ) && BookingDepositMetaBox::can_refund_from_deposit_screen( $bid ) ) {
-			$deposit_url = admin_url( 'post.php?post=' . $bid . '&action=edit' ) . '#mhmrentiva_booking_deposit';
-			echo '<p><a class="button button-primary" href="' . esc_url( $deposit_url ) . '">' . esc_html__( 'Process this refund from the deposit-management screen.', 'mhm-rentiva' ) . '</a></p>';
-		} else {
-			// Deliberately does NOT name a missing condition. The predicate has
-			// four of them and the sentence has to stay true for every false
-			// case; the old wording named cancellation alone, which is already
-			// false for a cancelled booking that is merely partially refunded.
-			echo '<p class="description">' . esc_html__( 'This amount is refundable; refunds for this booking are recorded from the deposit-management screen.', 'mhm-rentiva' ) . '</p>';
-		}
 	}
 
 	private static function render_status_row( int $booking_id ): void {

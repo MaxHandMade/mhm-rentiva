@@ -35,10 +35,12 @@ src/Admin/Booking/Helpers/SiteTime.php
 src/Admin/Booking/Helpers/Util.php
 src/Admin/Booking/ListTable/BookingColumns.php
 src/Admin/Booking/Meta/BookingDepositMetaBox.php
+src/Admin/Booking/Meta/BookingEditLayout.php
 src/Admin/Booking/Meta/BookingEditMetaBox.php
 src/Admin/Booking/Meta/BookingMeta.php
 src/Admin/Booking/Meta/BookingPortalMetaBox.php
 src/Admin/Booking/Meta/BookingRefundMetaBox.php
+src/Admin/Booking/Meta/BookingStatusBox.php
 src/Admin/Booking/Meta/ManualBookingMetaBox.php
 src/Admin/Booking/PostType/Booking.php
 src/Admin/Booking/Pricing/PriceDisplay.php

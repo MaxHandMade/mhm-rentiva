@@ -114,13 +114,18 @@ final class RefundGateAgreementTest extends WP_UnitTestCase
         return str_contains($html, 'id="process-refund"');
     }
 
-    private function refund_box_has_link(int $booking_id): bool
+    /**
+     * PR 3b-1 moved the button into the Refund box. The second surface that
+     * answers "can this booking be refunded here?" is now the AJAX handler's
+     * own gate, which asks the same state predicate.
+     */
+    private function refund_box_has_button(int $booking_id): bool
     {
         ob_start();
         BookingRefundMetaBox::render(get_post($booking_id));
         $html = (string) ob_get_clean();
 
-        return str_contains($html, 'Process this refund from the deposit-management screen.');
+        return 1 === substr_count($html, 'id="process-refund"');
     }
 
     /**
@@ -128,28 +133,23 @@ final class RefundGateAgreementTest extends WP_UnitTestCase
      */
     private function assert_both_surfaces_agree(int $booking_id, bool $expected, string $shape): void
     {
-        $button = $this->deposit_box_has_button($booking_id);
-        $link   = $this->refund_box_has_link($booking_id);
+        $button = $this->refund_box_has_button($booking_id);
 
-        $this->assertSame(
-            $expected,
-            $button,
-            sprintf('Deposit box button for the %s shape.', $shape)
+        $this->assertFalse(
+            $this->deposit_box_has_button($booking_id),
+            sprintf('The refund button left Payment Management in PR 3b-1; %s shape.', $shape)
         );
         $this->assertSame(
             $expected,
-            $link,
-            sprintf('Refund box link for the %s shape.', $shape)
-        );
-        $this->assertSame(
             $button,
-            $link,
-            sprintf(
-                'The deposit box\'s button and the refund box\'s link answer the same question '
-                    . 'and must never disagree; they do for the %s shape.',
-                $shape
-            )
+            sprintf('Refund box button for the %s shape.', $shape)
         );
+        if ($expected) {
+            $this->assertTrue(
+                BookingDepositMetaBox::can_refund_from_deposit_screen($booking_id),
+                sprintf('The button and the AJAX handler\'s gate must agree; they do not for the %s shape.', $shape)
+            );
+        }
     }
 
     /**

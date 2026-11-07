@@ -137,13 +137,28 @@ final class NoUnguardedRefundEntryPointTest extends WP_UnitTestCase
         );
     }
 
+    /**
+     * PR 3b-1 moved the two money-out buttons to their own boxes: cancel to
+     * Booking Status (render_cancel_button()), refund to the Refund box
+     * (render_refund_button()). The gate is asked of where they render now,
+     * and of the payment box too -- it must print neither.
+     */
     private function render_deposit_actions_as(int $actor_id, int $booking_id): string
     {
         wp_set_current_user($actor_id);
 
         ob_start();
+        BookingDepositMetaBox::render_cancel_button($booking_id);
+        BookingDepositMetaBox::render_refund_button($booking_id);
+        $buttons = (string) ob_get_clean();
+
+        ob_start();
         BookingDepositMetaBox::render_deposit_management(get_post($booking_id));
-        return (string) ob_get_clean();
+        $payment_box = (string) ob_get_clean();
+        $this->assertStringNotContainsString('id="cancel-booking"', $payment_box);
+        $this->assertStringNotContainsString('id="process-refund"', $payment_box);
+
+        return $buttons;
     }
 
     /**

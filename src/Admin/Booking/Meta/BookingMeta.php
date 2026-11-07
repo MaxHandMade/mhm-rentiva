@@ -50,6 +50,9 @@ final class BookingMeta extends AbstractMetaBox {
 	 */
 	private const CUSTOMER_EMAIL_TYPES = array( 'booking_confirmation', 'payment_reminder', 'booking_reminder', 'booking_cancelled', 'custom' );
 
+	/** Note types an operator may add by hand ('manual' is the AJAX default). */
+	private const NOTE_TYPES = array( 'note', 'manual', 'customer_contact' );
+
 	/**
 	 * Flag to ensure admin_action_editpost hook is registered only once
 	 */
@@ -159,25 +162,22 @@ final class BookingMeta extends AbstractMetaBox {
 			'default'
 		);
 
-		// Receipt review meta box
-		add_meta_box(
-			'mhmrentiva_receipt_box',
-			__('Payment Receipt', 'mhm-rentiva'),
-			array( self::class, 'render_receipt_box' ),
-			self::get_post_type(),
-			'side',
-			'default'
-		);
+		// Receipt review meta box -- only when the customer uploaded a receipt
+		// (canvas v135). Without one the box only said "no receipt"; the review
+		// controls inside it need an attachment to act on.
+		if ( (int) get_post_meta($post->ID, '_mhmrentiva_receipt_attachment_id', true) > 0 ) {
+			add_meta_box(
+				'mhmrentiva_receipt_box',
+				__('Payment Receipt', 'mhm-rentiva'),
+				array( self::class, 'render_receipt_box' ),
+				self::get_post_type(),
+				'side',
+				'default'
+			);
+		}
 
-		// Booking history: notes, status changes and payment updates (spec PR 3a).
-		add_meta_box(
-			'mhmrentiva_booking_history_box',
-			__('Booking History', 'mhm-rentiva'),
-			array( self::class, 'render_booking_history_box' ),
-			self::get_post_type(),
-			'side',
-			'default'
-		);
+		// Booking history (spec PR 3a) is not a box of its own any more: the
+		// Payment Management box draws it (render_history_section(), PR 3b-1).
 	}
 
 	public static function enqueue_scripts(string $hook): void
@@ -561,10 +561,13 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Update booking details
-		$pickup_date   = $req->text('mhmrentiva_edit_pickup_date');
-		$pickup_time   = $req->text('mhmrentiva_edit_pickup_time');
-		$dropoff_date  = $req->text('mhmrentiva_edit_dropoff_date');
-		$dropoff_time  = $req->text('mhmrentiva_edit_dropoff_time');
+		$pickup_date  = $req->text('mhmrentiva_edit_pickup_date');
+		$pickup_time  = $req->text('mhmrentiva_edit_pickup_time');
+		$dropoff_date = $req->text('mhmrentiva_edit_dropoff_date');
+		$dropoff_time = $req->text('mhmrentiva_edit_dropoff_time');
+		// No guests field on the edit form any more (PR 3b-1): only a posted
+		// value is written, so the stored guests survive an Update.
+		$guests_posted = $req->has('mhmrentiva_edit_guests');
 		$guests        = max(1, $req->int('mhmrentiva_edit_guests', 1));
 		$special_notes = $req->textarea('mhmrentiva_edit_special_notes');
 
@@ -573,7 +576,9 @@ final class BookingMeta extends AbstractMetaBox {
 		update_post_meta($post_id, '_mhmrentiva_start_time', $pickup_time); // Correct meta key
 		update_post_meta($post_id, '_mhmrentiva_dropoff_date', $dropoff_date);
 		update_post_meta($post_id, '_mhmrentiva_end_time', $dropoff_time); // Correct meta key
-		update_post_meta($post_id, '_mhmrentiva_guests', $guests);
+		if ($guests_posted) {
+			update_post_meta($post_id, '_mhmrentiva_guests', $guests);
+		}
 		update_post_meta($post_id, '_mhmrentiva_special_notes', $special_notes);
 
 		// Re-price only when a price input moved (BookingPricingInputs): the
@@ -593,7 +598,9 @@ final class BookingMeta extends AbstractMetaBox {
 		update_post_meta($post_id, '_mhmrentiva_booking_pickup_time', $pickup_time);
 		update_post_meta($post_id, '_mhmrentiva_booking_dropoff_date', $dropoff_date);
 		update_post_meta($post_id, '_mhmrentiva_booking_dropoff_time', $dropoff_time);
-		update_post_meta($post_id, '_mhmrentiva_booking_guests', $guests);
+		if ($guests_posted) {
+			update_post_meta($post_id, '_mhmrentiva_booking_guests', $guests);
+		}
 
 		self::sync_booking_timestamps($post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 		self::invalidate_edit_caches( (int) get_post_meta($post_id, '_mhmrentiva_vehicle_id', true));
@@ -947,6 +954,17 @@ final class BookingMeta extends AbstractMetaBox {
 	/**
 	 * Booking history meta box
 	 */
+	/**
+	 * The history as a section of the Payment Management box (canvas v135).
+	 */
+	public static function render_history_section(\WP_Post $post): void
+	{
+		echo '<div class="mhm-payment-history-section">';
+		echo '<h4>' . esc_html__('Booking History', 'mhm-rentiva') . '</h4>';
+		self::render_booking_history_box($post);
+		echo '</div>';
+	}
+
 	public static function render_booking_history_box(\WP_Post $post): void
 	{
 		// Newest first, by when each entry happened -- not by its array key.
@@ -970,12 +988,11 @@ final class BookingMeta extends AbstractMetaBox {
 		echo '<p>';
 		echo '<label for="note_type">' . esc_html__('Type:', 'mhm-rentiva') . '</label><br/>';
 		echo '<select id="note_type" name="note_type" class="widefat" style="margin-bottom: 10px;">';
+		// Status, payment and system rows are Rentiva's own (PR 3b-1).
 		echo '<option value="note">' . esc_html__('Note', 'mhm-rentiva') . '</option>';
-		echo '<option value="status_change">' . esc_html__('Status Change', 'mhm-rentiva') . '</option>';
-		echo '<option value="payment_update">' . esc_html__('Payment Update', 'mhm-rentiva') . '</option>';
 		echo '<option value="customer_contact">' . esc_html__('Customer Contact', 'mhm-rentiva') . '</option>';
-		echo '<option value="system">' . esc_html__('System', 'mhm-rentiva') . '</option>';
 		echo '</select>';
+		echo '<span class="description">' . esc_html__('Rentiva writes the status, payment and system rows itself.', 'mhm-rentiva') . '</span>';
 		echo '</p>';
 
 		echo '<p>';
@@ -1873,6 +1890,12 @@ final class BookingMeta extends AbstractMetaBox {
 
 		$note_type    = $req->text('note_type', 'manual');
 		$note_content = $req->textarea('note_content');
+
+		// A hand-made status/payment/system row would read as Rentiva's own.
+		if (! in_array($note_type, self::NOTE_TYPES, true)) {
+			// wp_send_json_error() ends the request (wp_die()); no return after it.
+			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));
+		}
 
 		if (! $note_content) {
 			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));

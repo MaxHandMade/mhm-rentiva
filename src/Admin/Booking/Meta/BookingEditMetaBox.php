@@ -74,6 +74,27 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 
 		// Save handler - Higher priority to run before other save hooks
 		add_action( 'save_post', array( self::class, 'save_booking_details' ), 5 );
+
+		add_action( 'edit_form_top', array( self::class, 'render_header_strip' ) );
+
+		BookingEditLayout::register();
+	}
+
+	/**
+	 * Line under the core H1 on an existing booking: back to the list, and
+	 * what the screen holds. Runs on edit_form_top, inside form#post: links
+	 * and text only, no fields. The new-booking screen has its own
+	 * (ManualBookingMetaBox::render_header_strip()).
+	 */
+	public static function render_header_strip( \WP_Post $post ): void {
+		if ( 'mhmrentiva_booking' !== $post->post_type || 'auto-draft' === $post->post_status ) {
+			return;
+		}
+
+		echo '<p class="mhm-screen-subline">';
+		echo '<a href="' . esc_url( admin_url( 'edit.php?post_type=mhmrentiva_booking' ) ) . '">&larr; ' . esc_html__( 'Bookings', 'mhm-rentiva' ) . '</a> ';
+		echo '<span>' . esc_html__( 'Customer, vehicle and payment details', 'mhm-rentiva' ) . '</span>';
+		echo '</p>';
 	}
 
 	public static function add_meta_boxes(): void {
@@ -144,7 +165,6 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		$dropoff_date = get_post_meta( $post->ID, '_mhmrentiva_dropoff_date', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_dropoff_date', true );
 		$dropoff_time = get_post_meta( $post->ID, '_mhmrentiva_end_time', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_dropoff_time', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_dropoff_time', true );
 
-		$guests = get_post_meta( $post->ID, '_mhmrentiva_guests', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_guests', true ) ?: 1;
 		$status = Status::get( $post->ID );
 
 		// Additional booking information
@@ -187,7 +207,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 
 		// Vehicle selection (editable)
 		echo '<div class="mhm-field-group">';
-		echo '<label for="mhmrentiva_edit_vehicle_id" class="mhm-field-label">' . esc_html__( 'Vehicle', 'mhm-rentiva' ) . '</label>';
+		echo '<label for="mhmrentiva_booking_edit_vehicle_id" class="mhm-field-label">' . esc_html__( 'Vehicle', 'mhm-rentiva' ) . '</label>';
 
 		// Get all available vehicles
 		$vehicles = get_posts(
@@ -222,34 +242,29 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 
 		echo '<div class="mhm-field-row">';
 		echo '<div class="mhm-field-group mhm-field-half">';
-		echo '<label for="mhmrentiva_edit_pickup_date" class="mhm-field-label">' . esc_html__( 'Pickup Date', 'mhm-rentiva' ) . '</label>';
+		echo '<label for="mhmrentiva_booking_edit_pickup_date" class="mhm-field-label">' . esc_html__( 'Pickup Date', 'mhm-rentiva' ) . '</label>';
 		echo '<input type="date" id="mhmrentiva_booking_edit_pickup_date" name="mhmrentiva_edit_pickup_date" class="mhm-field-input" value="' . esc_attr( $pickup_date ) . '">';
 		echo '</div>';
 
 		echo '<div class="mhm-field-group mhm-field-half">';
-		echo '<label for="mhmrentiva_edit_pickup_time" class="mhm-field-label">' . esc_html__( 'Pickup Time', 'mhm-rentiva' ) . '</label>';
+		echo '<label for="mhmrentiva_booking_edit_pickup_time" class="mhm-field-label">' . esc_html__( 'Pickup Time', 'mhm-rentiva' ) . '</label>';
 		echo '<input type="time" id="mhmrentiva_booking_edit_pickup_time" name="mhmrentiva_edit_pickup_time" class="mhm-field-input" value="' . esc_attr( $pickup_time ) . '">';
 		echo '</div>';
 		echo '</div>';
 
 		echo '<div class="mhm-field-row">';
 		echo '<div class="mhm-field-group mhm-field-half">';
-		echo '<label for="mhmrentiva_edit_dropoff_date" class="mhm-field-label">' . esc_html__( 'Return Date', 'mhm-rentiva' ) . '</label>';
+		echo '<label for="mhmrentiva_booking_edit_dropoff_date" class="mhm-field-label">' . esc_html__( 'Return Date', 'mhm-rentiva' ) . '</label>';
 		echo '<input type="date" id="mhmrentiva_booking_edit_dropoff_date" name="mhmrentiva_edit_dropoff_date" class="mhm-field-input" value="' . esc_attr( $dropoff_date ) . '">';
 		echo '</div>';
 
 		echo '<div class="mhm-field-group mhm-field-half">';
-		echo '<label for="mhmrentiva_edit_dropoff_time" class="mhm-field-label">' . esc_html__( 'Return Time', 'mhm-rentiva' ) . '</label>';
+		echo '<label for="mhmrentiva_booking_edit_dropoff_time" class="mhm-field-label">' . esc_html__( 'Return Time', 'mhm-rentiva' ) . '</label>';
 		echo '<input type="time" id="mhmrentiva_booking_edit_dropoff_time" name="mhmrentiva_edit_dropoff_time" class="mhm-field-input" value="' . esc_attr( $dropoff_time ) . '">';
 		echo '</div>';
 		echo '</div>';
 
 		echo '<div class="mhm-field-row">';
-		echo '<div class="mhm-field-group mhm-field-half">';
-		echo '<label for="mhmrentiva_edit_guests" class="mhm-field-label">' . esc_html__( 'Number of Guests', 'mhm-rentiva' ) . '</label>';
-		echo '<input type="number" id="mhmrentiva_booking_edit_guests" name="mhmrentiva_edit_guests" class="mhm-field-input" value="' . esc_attr( $guests ) . '" min="1" max="10">';
-		echo '</div>';
-
 		echo '<div class="mhm-field-group mhm-field-half">';
 		echo '<label for="mhmrentiva_booking_edit_status" class="mhm-field-label">' . esc_html__( 'Status', 'mhm-rentiva' ) . '</label>';
 		echo '<select id="mhmrentiva_booking_edit_status" name="mhmrentiva_edit_status" class="mhm-field-select">';
@@ -396,9 +411,15 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 			}
 			echo '</div>';
 
-			echo '<div class="mhm-addon-total" style="display: none;">';
-			echo '<strong>' . esc_html__( 'Additional Services Total:', 'mhm-rentiva' ) . ' <span class="mhm-addon-total-amount">0,00 ' . esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol() ) . '</span></strong>';
-			echo '</div>';
+			// The stored total of the booked services (canvas v135). It was a
+			// hidden "0,00" that nothing on this screen ever filled. It reflects
+			// the booking as saved; a ticked or unticked box counts after Update.
+			$addon_total = (float) get_post_meta( $post->ID, '_mhmrentiva_addon_total', true );
+			if ( $addon_total > 0 ) {
+				echo '<div class="mhm-addon-total">';
+				echo '<strong>' . esc_html__( 'Additional Services Total:', 'mhm-rentiva' ) . ' <span class="mhm-addon-total-amount">' . esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $addon_total, 2 ) ) . '</span></strong>';
+				echo '</div>';
+			}
 
 			echo '</div>';
 		} else {
@@ -408,7 +429,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 
 		// Special notes/requests
 		echo '<div class="mhm-field-group mhm-special-notes-section">';
-		echo '<label for="mhmrentiva_edit_special_notes" class="mhm-field-label">' . esc_html__( 'Special Notes / Requests', 'mhm-rentiva' ) . '</label>';
+		echo '<label for="mhmrentiva_booking_edit_special_notes" class="mhm-field-label">' . esc_html__( 'Special Notes / Requests', 'mhm-rentiva' ) . '</label>';
 		echo '<textarea id="mhmrentiva_booking_edit_special_notes" name="mhmrentiva_edit_special_notes" class="mhm-field-textarea" rows="4" placeholder="' . esc_attr__( 'Enter any special notes or customer requests...', 'mhm-rentiva' ) . '">' . esc_textarea( $special_notes ) . '</textarea>';
 		echo '<p class="description">' . esc_html__( 'Add any special notes or customer requests for this booking.', 'mhm-rentiva' ) . '</p>';
 		echo '</div>';
@@ -483,8 +504,15 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		$pickup_time    = $request->text( 'mhmrentiva_edit_pickup_time' );
 		$dropoff_date   = $request->text( 'mhmrentiva_edit_dropoff_date' );
 		$dropoff_time   = $request->text( 'mhmrentiva_edit_dropoff_time' );
-		$guests         = max( 1, $request->int( 'mhmrentiva_edit_guests', 1 ) );
-		$status         = $request->text( 'mhmrentiva_edit_status', 'pending' );
+		// The guests field left the form (canvas v135). Without it the stored
+		// value stands: the old default of 1 would have reset every booking's
+		// guests on its next Update.
+		$guests_posted = $request->has( 'mhmrentiva_edit_guests' );
+		$guests        = max( 1, $request->int( 'mhmrentiva_edit_guests', 1 ) );
+		// Without the status field (a form that does not carry it) the booking
+		// keeps its status -- the old 'pending' default silently reset it.
+		$status_posted = $request->has( 'mhmrentiva_edit_status' );
+		$status        = $status_posted ? $request->text( 'mhmrentiva_edit_status', 'pending' ) : Status::get( $post_id );
 
 		// Get special notes - always save if field exists
 		$special_notes = $request->textarea( 'mhmrentiva_edit_special_notes' );
@@ -558,7 +586,9 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		update_post_meta( $post_id, '_mhmrentiva_dropoff_date', $dropoff_date );
 		update_post_meta( $post_id, '_mhmrentiva_end_time', $dropoff_time );
 		update_post_meta( $post_id, '_mhmrentiva_dropoff_time', $dropoff_time );
-		update_post_meta( $post_id, '_mhmrentiva_guests', $guests );
+		if ( $guests_posted ) {
+			update_post_meta( $post_id, '_mhmrentiva_guests', $guests );
+		}
 		update_post_meta( $post_id, '_mhmrentiva_special_notes', $special_notes );
 
 		$selection->store( $post_id );
@@ -589,14 +619,18 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		// mhmrentiva_booking_status_changed hook update_status() fires
 		// (BookingMeta::auto_add_status_change_note); calling it here as well
 		// wrote every change twice.
-		Status::update_status( $post_id, $status, get_current_user_id() );
+		if ( $status_posted ) {
+			Status::update_status( $post_id, $status, get_current_user_id() );
+		}
 
 		// Update legacy meta keys for backward compatibility
 		update_post_meta( $post_id, '_mhmrentiva_booking_pickup_date', $pickup_date );
 		update_post_meta( $post_id, '_mhmrentiva_booking_pickup_time', $pickup_time );
 		update_post_meta( $post_id, '_mhmrentiva_booking_dropoff_date', $dropoff_date );
 		update_post_meta( $post_id, '_mhmrentiva_booking_dropoff_time', $dropoff_time );
-		update_post_meta( $post_id, '_mhmrentiva_booking_guests', $guests );
+		if ( $guests_posted ) {
+			update_post_meta( $post_id, '_mhmrentiva_booking_guests', $guests );
+		}
 
 		BookingMeta::sync_booking_timestamps( $post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time );
 		BookingMeta::invalidate_edit_caches( (int) $old_vehicle_id, (int) get_post_meta( $post_id, '_mhmrentiva_vehicle_id', true ) );
