@@ -248,8 +248,8 @@
 	font-weight: var(--mhm-font-semibold);
 	color: var(--mhm-text-secondary);
 	font-size: 12px;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
+	text-transform: none; /* canvas v135: sentence case */
+	letter-spacing: 0;
 }
 
 .mhm-booking-info-value {
@@ -265,8 +265,8 @@
 	border-radius: var(--mhm-radius-sm);
 	font-size: 11px;
 	font-weight: var(--mhm-font-semibold);
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
+	text-transform: none; /* canvas v135: sentence case */
+	letter-spacing: 0;
 }
 
 .mhm-booking-type-badge.online {

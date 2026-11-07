@@ -232,4 +232,16 @@ final class BookingStatusBoxTest extends WP_UnitTestCase
 
 		$this->assertSame('kept-slug', get_post($post->ID)->post_name);
 	}
+	public function test_cancel_button_says_what_it_does(): void
+	{
+		$html = $this->render_status_box($this->booking());
+		$this->assertStringContainsString('Cancelling starts the refund of the amount paid and sends the customer a notification.', $html);
+		$this->assertLessThan(strpos($html, 'mhm-cancel-hint'), strpos($html, 'id="cancel-booking"'));
+	}
+
+	public function test_no_cancel_hint_without_the_button(): void
+	{
+		$html = $this->render_status_box($this->booking(array( '_mhmrentiva_payment_type' => '' )));
+		$this->assertStringNotContainsString('mhm-cancel-hint', $html);
+	}
 }

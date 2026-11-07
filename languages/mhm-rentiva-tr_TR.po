@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-11-07T15:26:26+00:00\n"
+"POT-Creation-Date: 2026-11-07T16:27:03+00:00\n"
 "PO-Revision-Date: 2026-10-24 18:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -2209,7 +2209,7 @@ msgid "Deposit"
 msgstr "Kapora"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:218
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:514
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:523
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:707
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:525
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:596
@@ -2364,31 +2364,38 @@ msgstr ""
 msgid "Cancel Booking"
 msgstr "Rezervasyonu iptal et"
 
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:448
+msgid ""
+"Cancelling starts the refund of the amount paid and sends the customer a "
+"notification."
+msgstr ""
+"İptal, ödenmiş tutarın iadesini başlatır ve müşteriye bildirim gönderir."
+
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:472
 msgid "Process Refund"
 msgstr "İadeyi işle"
 
 #. translators: 1: deposit type label ("Percentage"), 2: the deposit rate, e.g. 10 or 12.5 -- place the percent sign as your language does.
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:506
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:515
 #, php-format
 msgctxt "deposit type with its rate"
 msgid "%1$s · %2$s%%"
 msgstr "%1$s · %%%2$s"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:515
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:524
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:186
 msgid "Percentage"
 msgstr "Yüzde"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:516
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:525
 msgid "Fixed Amount"
 msgstr "Sabit tutar"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:517
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:526
 msgid "Both"
 msgstr "Her ikisi de"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:518
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:527
 msgid "None"
 msgstr "Yok"
 
@@ -2781,7 +2788,7 @@ msgstr "E-posta gönderme izniniz yok."
 #: src/Admin/Booking/Meta/BookingMeta.php:803
 #: src/Admin/Booking/Meta/BookingMeta.php:1761
 #: src/Admin/Booking/Meta/BookingMeta.php:1814
-#: src/Admin/Booking/Meta/BookingMeta.php:1896
+#: src/Admin/Booking/Meta/BookingMeta.php:1897
 #: src/Admin/Booking/Meta/BookingMeta.php:1901
 msgid "Missing required fields."
 msgstr "Gerekli alanlar eksik."

@@ -443,6 +443,9 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		echo '<span class="dashicons dashicons-no"></span>';
 		echo esc_html__( 'Cancel Booking', 'mhm-rentiva' );
 		echo '</button>';
+		// What the button does, as CancellationHandler::cancel_booking() does it:
+		// the cancellation e-mail goes out and the refund of what was paid starts.
+		echo '<p class="description mhm-cancel-hint">' . esc_html__( 'Cancelling starts the refund of the amount paid and sends the customer a notification.', 'mhm-rentiva' ) . '</p>';
 	}
 
 	/**
