@@ -131,7 +131,7 @@ final class EmailSiteLocaleTest extends WP_Ajax_UnitTestCase
 
         $this->assertStringContainsString('Rezervasyon #9999 onaylandı', $data['subject']);
         $this->assertStringContainsString('<h1>Rezervasyon #9999 onaylandı', $data['html'], 'The e-mail heading is the subject.');
-        $this->assertStringContainsString('Rezervasyon detayları', $data['html']);
+        $this->assertStringContainsString('Rezervasyon ayrıntıları', $data['html']);
         $this->assertStringNotContainsString('Reservation Details', $data['html']);
     }
 

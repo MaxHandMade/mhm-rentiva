@@ -771,7 +771,7 @@ msgstr "Yeni ekle"
 
 #: src/Admin/Addons/AddonMeta.php:58 src/Admin/Addons/AddonMeta.php:69
 msgid "Additional Service Details"
-msgstr "Ek hizmet detayları"
+msgstr "Ek hizmet ayrıntıları"
 
 #. translators: %s placeholder.
 #: src/Admin/Addons/AddonMeta.php:77
@@ -1513,7 +1513,7 @@ msgstr "Rezervasyonunuz başarıyla iptal edildi."
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:684
 msgid "Booking Details:"
-msgstr "Rezervasyon detayları:"
+msgstr "Rezervasyon ayrıntıları:"
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:685
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:1022
@@ -2399,7 +2399,7 @@ msgstr "Yok"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:39
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:60
 msgid "Edit Booking Details"
-msgstr "Rezervasyon detaylarını düzenle"
+msgstr "Rezervasyon ayrıntılarını düzenle"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:95
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:464
@@ -2468,7 +2468,7 @@ msgstr "Araç seç"
 #: templates/emails/booking-status-changed-customer.html.php:28
 #: templates/emails/receipt-status-email.html.php:243
 msgid "Booking Details"
-msgstr "Rezervasyon detayları"
+msgstr "Rezervasyon ayrıntıları"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:245
 #: src/Admin/Booking/Meta/BookingMeta.php:464
@@ -2699,7 +2699,7 @@ msgstr "Rezervasyon"
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:447
 #: templates/partials/rvs/account-next-rental.php:65
 msgid "Details"
-msgstr "Detaylar"
+msgstr "Ayrıntılar"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:418
 #: src/Admin/Booking/Meta/BookingMeta.php:494
@@ -4252,7 +4252,7 @@ msgstr ""
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:125
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:521
 msgid "Vehicle Details"
-msgstr "Araç detayları"
+msgstr "Araç ayrıntıları"
 
 #: src/Admin/Core/AssetManager.php:1525
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:595
@@ -4330,7 +4330,7 @@ msgstr "Alan adı (örn. Bagaj hacmi)"
 #: src/Admin/Core/AssetManager.php:1542 src/Admin/Core/AssetManager.php:1569
 #: src/Admin/Core/AssetManager.php:1585
 msgid "Detail"
-msgstr "Detay"
+msgstr "Ayrıntı"
 
 #: src/Admin/Core/AssetManager.php:1543
 msgid "Feature"
@@ -4404,7 +4404,7 @@ msgstr "Standart"
 
 #: src/Admin/Core/AssetManager.php:1562
 msgid "Detailed"
-msgstr "Detaylı"
+msgstr "Ayrıntılı"
 
 #: src/Admin/Core/AssetManager.php:1565
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:251
@@ -4463,7 +4463,7 @@ msgstr "Görüntüle →"
 
 #: src/Admin/Core/AssetManager.php:1581
 msgid "Detail — Highlights"
-msgstr "Detay — Öne çıkanlar"
+msgstr "Ayrıntı — Öne çıkanlar"
 
 #: src/Admin/Core/AssetManager.php:1582
 msgid "No fields selected for the card"
@@ -4471,7 +4471,7 @@ msgstr "Kartta gösterilecek alan seçilmedi"
 
 #: src/Admin/Core/AssetManager.php:1583
 msgid "No fields highlighted in the detail view"
-msgstr "Detayda öne çıkacak alan seçilmedi"
+msgstr "Ayrıntıda öne çıkacak alan seçilmedi"
 
 #: src/Admin/Core/AssetManager.php:1586
 #: templates/shortcodes/search-results.php:313
@@ -4536,7 +4536,7 @@ msgstr "Bilgi"
 #: src-react/admin/about/components/InfoCard.jsx:14
 #: src-react/admin/about/components/SystemTab.jsx:15
 msgid "No"
-msgstr "No"
+msgstr "Hayır"
 
 #: src/Admin/Core/AssetManager.php:1678
 msgid "Confirm"
@@ -5926,7 +5926,7 @@ msgstr "Ödemenizi {date} tarihinde yapmanız gerekmektedir."
 #. translators: {date} is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:203
 msgid "You must return the vehicle on {date}."
-msgstr "Aracı {date} tarihinde iade etmeniz gerekmektedir."
+msgstr "Aracı {date} tarihinde geri getirmeniz gerekmektedir."
 
 #. translators: {num_days} is replaced with a number of days.
 #: src/Admin/Core/Utilities/UXHelper.php:205
@@ -6132,7 +6132,7 @@ msgstr "Müşteri listesi"
 #: src-react/admin/customers/components/CustomerPanel.jsx:44
 #: src-react/admin/customers/components/CustomerPanel.jsx:58
 msgid "Customer Details"
-msgstr "Müşteri detayları"
+msgstr "Müşteri ayrıntıları"
 
 #: src/Admin/Customers/CustomersPage.php:375
 msgid "First Booking"
@@ -6196,7 +6196,7 @@ msgstr "Müşteri bilgileri başarıyla güncellendi."
 
 #: src/Admin/Customers/CustomersPage.php:536
 msgid "← Back to customer details"
-msgstr "← Müşteri detaylarına dön"
+msgstr "← Müşteri ayrıntılarına dön"
 
 #: src/Admin/Customers/CustomersPage.php:545
 #: templates/account/payment-history.php:178
@@ -6984,7 +6984,7 @@ msgstr "Bu rezervasyon için yükleme yapamazsınız."
 #: src/Admin/Frontend/Account/AccountController.php:780
 #: src/Admin/Frontend/Account/AccountController.php:1090
 msgid "A receipt cannot be uploaded for this booking."
-msgstr "Bu rezervasyon için dekont yüklenemez."
+msgstr "Bu rezervasyon için makbuz yüklenemez."
 
 #: src/Admin/Frontend/Account/AccountController.php:784
 msgid "No file uploaded."
@@ -6994,9 +6994,7 @@ msgstr "Dosya yüklenmedi."
 msgid ""
 "The receipt file for this booking is not available. Your booking is not "
 "affected. Contact us if you need a copy."
-msgstr ""
-"Bu rezervasyonun dekont dosyası bulunamıyor. Rezervasyonunuz etkilenmedi. "
-"Bir kopyasına ihtiyacınız varsa bizimle iletişime geçin."
+msgstr "Bu rezervasyonun makbuz dosyası bulunamıyor. Rezervasyonunuz etkilenmedi. Bir kopyasına ihtiyacınız varsa bizimle iletişime geçin."
 
 #: src/Admin/Frontend/Account/AccountController.php:931
 msgid "You are not allowed to view this receipt."
@@ -7004,7 +7002,7 @@ msgstr "Bu makbuzu görüntüleme yetkiniz yok."
 
 #: src/Admin/Frontend/Account/AccountController.php:943
 msgid "Receipt not found"
-msgstr "Dekont bulunamadı"
+msgstr "Makbuz bulunamadı"
 
 #: src/Admin/Frontend/Account/AccountController.php:1083
 msgid "You are not allowed to remove receipt for this booking."
@@ -7255,7 +7253,7 @@ msgstr "İletiler"
 #: templates/account/account-details.php:37
 #: templates/account/account-details.php:53
 msgid "Account Details"
-msgstr "Hesap detayları"
+msgstr "Hesap ayrıntıları"
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:802
 msgid "Logout"
@@ -7364,7 +7362,7 @@ msgstr "Favorilerim"
 #: src/Admin/Frontend/Account/EndpointHelperTrait.php:53
 #: templates/partials/rvs/account-booking-detail.php:59
 msgid "Booking details"
-msgstr "Rezervasyon detayı"
+msgstr "Rezervasyon ayrıntıları"
 
 #: src/Admin/Frontend/Account/EndpointHelperTrait.php:115
 msgctxt "endpoint slug"
@@ -8647,11 +8645,11 @@ msgstr "Yakıt politikası"
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:580
 msgid "Filter applied"
-msgstr "Süzgeç uygulandı"
+msgstr "Filtre uygulandı"
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:581
 msgid "Clear all filters"
-msgstr "Tüm süzgeçleri temizle"
+msgstr "Tüm filtreleri temizle"
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:582
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:77
@@ -8668,7 +8666,7 @@ msgstr "Tümünü temizle (%d)"
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:585
 msgid "Try adjusting your search criteria or filters."
-msgstr "Arama kriterlerinizi veya süzgeçlerinizi değiştirmeyi deneyin."
+msgstr "Arama kriterlerinizi veya filtrelerinizi değiştirmeyi deneyin."
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:586
 msgid "Back to Search"
@@ -10734,7 +10732,7 @@ msgstr "%s kiralama"
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:573
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:923
 msgid "Pickup Date & Time"
-msgstr "Alış tarihi ve saati"
+msgstr "Teslim alma tarihi ve saati"
 
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:514
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:580
@@ -11466,9 +11464,7 @@ msgstr "Depozito notu"
 msgid ""
 "Shown under Rental conditions on the vehicle page, e.g. \"5,000 TL card hold "
 "at pickup, released on return\". Leave empty to hide."
-msgstr ""
-"Araç sayfasında Kiralama koşulları altında gösterilir, ör. \"Teslimde "
-"karttan 5.000 TL provizyon, iadede çözülür\". Gizlemek için boş bırakın."
+msgstr "Araç sayfasında Kiralama koşulları altında gösterilir, ör. \"Teslimde karttan 5.000 TL provizyon, dönüşte çözülür\". Gizlemek için boş bırakın."
 
 #: src/Admin/Settings/Groups/BookingSettings.php:100
 msgid "Fuel policy note"
@@ -11840,7 +11836,7 @@ msgstr ""
 #: templates/emails/booking-created-admin.html.php:29
 #: templates/emails/booking-created-customer.html.php:16
 msgid "Reservation Details"
-msgstr "Rezervasyon detayları"
+msgstr "Rezervasyon ayrıntıları"
 
 #: src/Admin/Settings/Groups/EmailSettings.php:133
 #: templates/emails/booking-created-admin.html.php:33
@@ -11974,7 +11970,7 @@ msgstr "Yaklaşan kiralamanızın çok yakında başlayacağını hatırlatmak i
 
 #: src/Admin/Settings/Groups/EmailSettings.php:225
 msgid "Pickup Details"
-msgstr "Teslim alma detayları"
+msgstr "Teslim alma ayrıntıları"
 
 #: src/Admin/Settings/Groups/EmailSettings.php:227
 msgid "Pickup Time:"
@@ -14887,19 +14883,17 @@ msgstr ""
 
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:393
 msgid "Vehicle Detail Highlighted Features"
-msgstr "Araç detayında öne çıkan özellikler"
+msgstr "Araç ayrıntısında öne çıkan özellikler"
 
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:399
 msgid "Visible in Vehicle Detail"
-msgstr "Araç detaylarında görünür"
+msgstr "Araç ayrıntılarında görünür"
 
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:402
 msgid ""
 "Drag to reorder or click remove to hide features in the detail page "
 "highlighted section."
-msgstr ""
-"Sürükleyerek yeniden sıralayın ya da detay sayfasının öne çıkan bölümündeki "
-"özellikleri gizlemek için Kaldır'a tıklayın."
+msgstr "Sürükleyerek yeniden sıralayın ya da ayrıntı sayfasının öne çıkan bölümündeki özellikleri gizlemek için Kaldır'a tıklayın."
 
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:403
 msgid "Search visible detail items..."
@@ -14907,7 +14901,7 @@ msgstr "Görünür ayrıntı ögelerini ara..."
 
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:414
 msgid "Available for Vehicle Detail"
-msgstr "Araç detayında kullanılabilir"
+msgstr "Araç ayrıntısında kullanılabilir"
 
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:415
 msgid "Drag items here to hide them from the detail page highlighted section."
@@ -14923,9 +14917,7 @@ msgstr "Kullanılabilir ayrıntı ögelerini ara..."
 msgid ""
 "Tip: This controls the \"Highlighted Features\" section in vehicle detail "
 "pages and shortcode output."
-msgstr ""
-"İpucu: Bu, araç detay sayfalarındaki \"Öne çıkan özellikler\" bölümünü ve "
-"kısa kod çıktısını kontrol eder."
+msgstr "İpucu: Bu, araç ayrıntı sayfalarındaki \"Öne çıkan özellikler\" bölümünü ve kısa kod çıktısını kontrol eder."
 
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:435
 msgid "Comparison Table Settings"
@@ -14950,7 +14942,7 @@ msgstr "Kullanmak istediğiniz ayrıntıları seçin"
 
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:525
 msgid "Core Details (Essential)"
-msgstr "Temel detaylar (önemli)"
+msgstr "Temel ayrıntılar (önemli)"
 
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:548
 msgid "Attributes & Custom Details"
@@ -15197,7 +15189,7 @@ msgstr ""
 
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:29
 msgid "VEHICLE DETAILS"
-msgstr "ARAÇ DETAYLARI"
+msgstr "ARAÇ AYRINTILARI"
 
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:30
 msgid "Enter the basic information of the vehicle"
@@ -15820,7 +15812,7 @@ msgstr "Tüm favorileri temizle"
 
 #: templates/account/payment-history.php:73
 msgid "Bank receipt"
-msgstr "Dekont"
+msgstr "Makbuz"
 
 #. translators: %s: number of records in the payment history (paid or not).
 #: templates/account/payment-history.php:93
@@ -15847,12 +15839,12 @@ msgstr "Araçları görüntüle"
 #: templates/partials/rvs/account-booking-detail.php:148
 #, php-format
 msgid "Bank receipt: %s"
-msgstr "Dekont: %s"
+msgstr "Makbuz: %s"
 
 #: templates/account/payment-history.php:185
 #: templates/partials/rvs/account-booking-detail.php:158
 msgid "Upload bank receipt"
-msgstr "Dekont yükle"
+msgstr "Makbuz yükle"
 
 #: templates/account/payment-history.php:198
 #: templates/partials/rvs/account-bookings.php:136
@@ -15908,7 +15900,7 @@ msgstr ""
 
 #: templates/emails/booking-cancelled.html.php:53
 msgid "Cancelled Booking Details"
-msgstr "İptal edilen rezervasyon detayları"
+msgstr "İptal edilen rezervasyon ayrıntıları"
 
 #: templates/emails/booking-cancelled.html.php:102
 #: templates/emails/booking-status-changed-admin.html.php:37
@@ -16272,7 +16264,7 @@ msgstr "Aşağıdaki rezervasyon için iade işlemi gerçekleştirildi."
 #: templates/emails/refund-admin.html.php:9
 #: templates/emails/refund-customer.html.php:15
 msgid "Refund Details"
-msgstr "İade detayları"
+msgstr "İade ayrıntıları"
 
 #. translators: %s: booking ID
 #: templates/emails/refund-customer.html.php:10
@@ -16431,7 +16423,7 @@ msgstr "Açıklama"
 
 #: templates/partials/rvs/account-cancel-dialog.php:66
 msgid "Keep booking"
-msgstr "Vazgeç"
+msgstr "Rezervasyonu koru"
 
 #: templates/partials/rvs/breakdown.php:33
 #: templates/partials/vehicle-details/booking-card.php:169
@@ -16625,7 +16617,7 @@ msgstr "Başka tarihler ya da başka bir teslim alma yeri deneyin."
 #: templates/shortcodes/unified-search.php:120
 #, php-format
 msgid "Pickup and return: %s"
-msgstr "Teslim alma ve bırakma: %s"
+msgstr "Teslim alma ve dönüş: %s"
 
 #: templates/partials/selected-vehicle-summary.php:84
 #: templates/partials/selected-vehicle-summary.php:86
@@ -16652,12 +16644,12 @@ msgstr "Teslim alma saati"
 #: templates/shortcodes/unified-search.php:101
 msgctxt "search strip: the return date field"
 msgid "Return"
-msgstr "İade"
+msgstr "Dönüş"
 
 #: templates/partials/vehicle-details/booking-card.php:108
 #: templates/shortcodes/unified-search.php:107
 msgid "Return time follows the pickup time"
-msgstr "İade saati teslim alma saatiyle aynıdır"
+msgstr "Dönüş saati teslim alma saatiyle aynıdır"
 
 #: templates/partials/vehicle-details/booking-card.php:153
 msgid "breakdown"
@@ -17340,7 +17332,7 @@ msgstr "Karşılaştırma görsellerini göster"
 #: assets/blocks/vehicle-details/index.js:39
 #: assets/blocks/vehicle-rating-form/index.js:31
 msgid "Leave empty to auto-detect on Vehicle Details page."
-msgstr "Araç detayları sayfasında otomatik algılamak için boş bırakın."
+msgstr "Araç ayrıntıları sayfasında otomatik algılamak için boş bırakın."
 
 #: assets/blocks/vehicles-grid/index.js:45
 #: assets/blocks/vehicles-list/index.js:23
@@ -17922,11 +17914,11 @@ msgstr "İletişim iletileri sayfaları"
 
 #: src-react/admin/customers/components/CustomerPanel.jsx:20
 msgid "Could not load customer details."
-msgstr "Müşteri detayları yüklenemedi."
+msgstr "Müşteri ayrıntıları yüklenemedi."
 
 #: src-react/admin/customers/components/CustomerPanel.jsx:47
 msgid "Select a customer to see the details"
-msgstr "Detayları görmek için bir müşteri seçin"
+msgstr "Ayrıntıları görmek için bir müşteri seçin"
 
 #: src-react/admin/customers/components/CustomerPanel.jsx:119
 #: src-react/admin/customers/CustomersPage.jsx:139
@@ -18354,12 +18346,12 @@ msgstr "Birden fazla aracı yan yana karşılaştırın."
 #: assets/blocks/vehicle-details/block.json
 msgctxt "block title"
 msgid "Vehicle Details"
-msgstr "Araç detayları"
+msgstr "Araç ayrıntıları"
 
 #: assets/blocks/vehicle-details/block.json
 msgctxt "block description"
 msgid "Display single vehicle details page."
-msgstr "Tekil araç detay sayfasını görüntüleyin."
+msgstr "Tekil araç ayrıntı sayfasını görüntüleyin."
 
 #: assets/blocks/vehicle-rating-form/block.json
 msgctxt "block title"

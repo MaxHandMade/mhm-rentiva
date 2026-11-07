@@ -65,7 +65,7 @@ final class CatalogueFollowsLocaleSwitchTest extends WP_UnitTestCase
             remove_filter('determine_locale', $pin, PHP_INT_MAX);
         }
 
-        $this->assertSame('Rezervasyon detayları', $label);
+        $this->assertSame('Rezervasyon ayrıntıları', $label);
         $this->assertSame('tr_TR', $controller, 'The translation controller left the switched locale.');
         $this->assertSame('Booking Details', __('Booking Details', 'mhm-rentiva'), 'Restoring the locale must bring English back.');
     }
