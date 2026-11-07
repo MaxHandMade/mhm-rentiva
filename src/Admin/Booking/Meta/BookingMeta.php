@@ -640,13 +640,23 @@ final class BookingMeta extends AbstractMetaBox {
 			return;
 		}
 
+		// A cancellation request writes nothing here (PR 3b-2): the edit box's
+		// saver ran it at priority 5, or -- when that saver did not run -- it is
+		// run now. Either way the status and every price input stay as the
+		// cancellation path left them. See BookingEditCancellation.
+		$cancellation = BookingEditCancellation::handled($post_id);
+		if (! $cancellation && BookingEditCancellation::requested($post_id, $req)) {
+			BookingEditCancellation::run($post_id, $req);
+			$cancellation = true;
+		}
+
 		// An edit that would put the booking on dates its vehicle is no longer free
 		// for writes neither its status nor its dates; see guard_edit_availability().
 		$new_status = $req->text('mhmrentiva_edit_status');
 		if ($new_status === '') {
 			$new_status = $req->text('mhmrentiva_booking_status');
 		}
-		$edit_allowed = self::guard_edit_availability(
+		$edit_allowed = ! $cancellation && self::guard_edit_availability(
 			$post_id,
 			$req->int('mhmrentiva_edit_vehicle_id'),
 			$req->text('mhmrentiva_edit_pickup_date'),

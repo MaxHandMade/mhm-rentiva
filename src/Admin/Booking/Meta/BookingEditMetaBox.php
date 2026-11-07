@@ -272,7 +272,14 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		echo '<option value="confirmed"' . selected( $status, 'confirmed', false ) . '>' . esc_html__( 'Confirmed', 'mhm-rentiva' ) . '</option>';
 		echo '<option value="in_progress"' . selected( $status, 'in_progress', false ) . '>' . esc_html__( 'In Progress', 'mhm-rentiva' ) . '</option>';
 		echo '<option value="completed"' . selected( $status, 'completed', false ) . '>' . esc_html__( 'Completed', 'mhm-rentiva' ) . '</option>';
-		echo '<option value="cancelled"' . selected( $status, 'cancelled', false ) . '>' . esc_html__( 'Cancelled', 'mhm-rentiva' ) . '</option>';
+		// Only an actor who may cancel is offered "Cancelled" (user decision
+		// 2026-11-07). A booking that already IS cancelled always shows it,
+		// selected: without the option the browser would post the first one
+		// (pending), and cancelled -> pending is an allowed transition -- a
+		// notes-only Update would silently re-book it (Fable r2-C1).
+		if ( 'cancelled' === $status || BookingEditCancellation::actor_may_cancel( (int) $post->ID ) ) {
+			echo '<option value="cancelled"' . selected( $status, 'cancelled', false ) . '>' . esc_html__( 'Cancelled', 'mhm-rentiva' ) . '</option>';
+		}
 		echo '</select>';
 		echo '</div>';
 		echo '</div>';
@@ -470,6 +477,35 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 	}
 
 	/**
+	 * The add-on selection the form posts, as the save writes it: only real
+	 * add-ons, each once, quantities held to the add-on's maximum (a booked
+	 * quantity above a maximum lowered since stays). Shared with the
+	 * cancellation request's "did the form change anything" check.
+	 */
+	public static function posted_selection( int $post_id, VerifiedRequest $request ): AddonSelection {
+		$selected_addons = array();
+		$quantities      = array();
+		$posted_qty      = $request->arr( 'mhmrentiva_edit_addon_qty' );
+		// What the booking already carries is kept: a maximum lowered since
+		// must not re-price a booking on its next unrelated save.
+		$stored = AddonSelection::for_booking( $post_id );
+		foreach ( $request->intList( 'mhmrentiva_edit_selected_addons' ) as $addon_id ) {
+			if ( 'mhmrentiva_addon' !== get_post_type( $addon_id ) || in_array( $addon_id, $selected_addons, true ) ) {
+				continue;
+			}
+			$selected_addons[] = $addon_id;
+			$booked            = $stored->quantity( $addon_id );
+			$raw               = $posted_qty[ $addon_id ] ?? max( 1, $booked );
+			$cap               = max( AddonSelection::max_quantity( $addon_id ), $booked );
+			$quantity          = is_scalar( $raw ) ? max( 1, min( (int) $raw, $cap ) ) : max( 1, $booked );
+			if ( $quantity > 1 ) {
+				$quantities[ $addon_id ] = $quantity;
+			}
+		}
+		return AddonSelection::of( $selected_addons, $quantities );
+	}
+
+	/**
 	 * Persist booking edits.
 	 */
 	public static function save_booking_details( int $post_id ): void {
@@ -495,6 +531,15 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 
 		// Ensure post type is vehicle_booking
 		if ( get_post_type( $post_id ) !== 'mhmrentiva_booking' ) {
+			return;
+		}
+
+		// "Cancelled" + Update is a cancellation request and nothing else: the
+		// cancellation path refunds from the stored total and frees the stored
+		// dates, so no field that moves money may be written first. See
+		// BookingEditCancellation.
+		if ( BookingEditCancellation::requested( $post_id, $request ) ) {
+			BookingEditCancellation::run( $post_id, $request );
 			return;
 		}
 
@@ -558,26 +603,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		// quantity is held to its add-on's maximum; the rows are priced for the
 		// rental the way every other path prices them (they used to be written
 		// at the unit price, so a per-day service read as one day).
-		$selected_addons = array();
-		$quantities      = array();
-		$posted_qty      = $request->arr( 'mhmrentiva_edit_addon_qty' );
-		// What the booking already carries is kept: a maximum lowered since
-		// must not re-price a booking on its next unrelated save.
-		$stored = AddonSelection::for_booking( $post_id );
-		foreach ( $request->intList( 'mhmrentiva_edit_selected_addons' ) as $addon_id ) {
-			if ( 'mhmrentiva_addon' !== get_post_type( $addon_id ) || in_array( $addon_id, $selected_addons, true ) ) {
-				continue;
-			}
-			$selected_addons[] = $addon_id;
-			$booked            = $stored->quantity( $addon_id );
-			$raw               = $posted_qty[ $addon_id ] ?? max( 1, $booked );
-			$cap               = max( AddonSelection::max_quantity( $addon_id ), $booked );
-			$quantity          = is_scalar( $raw ) ? max( 1, min( (int) $raw, $cap ) ) : max( 1, $booked );
-			if ( $quantity > 1 ) {
-				$quantities[ $addon_id ] = $quantity;
-			}
-		}
-		$selection = AddonSelection::of( $selected_addons, $quantities );
+		$selection = self::posted_selection( $post_id, $request );
 
 		// Update meta values
 		update_post_meta( $post_id, '_mhmrentiva_pickup_date', $pickup_date );

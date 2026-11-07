@@ -874,7 +874,13 @@ final class DepositManagementAjax {
 		wp_send_json_success( array( 'message' => __( 'Recorded: no refund is due.', 'mhm-rentiva' ) ) );
 	}
 
-	private static function add_booking_log( int $booking_id, string $action, array $data = array() ): void {
+	/**
+	 * Append an operator action to `_mhmrentiva_booking_logs`. Public since PR
+	 * 3b-2: the edit form's cancellation writes the same row the button does.
+	 *
+	 * @param array<string, mixed> $data
+	 */
+	public static function add_booking_log( int $booking_id, string $action, array $data = array() ): void {
 		$logs_meta = get_post_meta( $booking_id, '_mhmrentiva_booking_logs', true );
 		$logs      = is_array( $logs_meta ) ? $logs_meta : array();
 
