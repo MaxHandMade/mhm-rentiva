@@ -46,16 +46,44 @@ final class BookingEditDates {
 	}
 
 	/**
-	 * The stored range, for a saver that must keep it.
+	 * The stored range exactly as the edit form shows it -- the form draws its
+	 * fields from this, so an untouched form posts these very values back.
+	 * Current keys first, then the older ones; an empty or '0' value is "not
+	 * set" (a time input cannot hold '0', the browser posts '' for it). A
+	 * saver that keeps the stored range writes these values (Codex r3 Minor 1,
+	 * Fable M-D).
 	 *
 	 * @return array{0: string, 1: string, 2: string, 3: string} pickup date, pickup time, return date, return time
 	 */
 	public static function stored( int $booking_id ): array {
+		$first = static function ( string ...$keys ) use ( $booking_id ): string {
+			foreach ( $keys as $key ) {
+				$value = (string) get_post_meta( $booking_id, $key, true );
+				if ( '' !== $value && '0' !== $value ) {
+					return $value;
+				}
+			}
+			return '';
+		};
+
 		return array(
-			(string) get_post_meta( $booking_id, '_mhmrentiva_pickup_date', true ),
-			(string) get_post_meta( $booking_id, '_mhmrentiva_start_time', true ),
-			(string) get_post_meta( $booking_id, '_mhmrentiva_dropoff_date', true ),
-			(string) get_post_meta( $booking_id, '_mhmrentiva_end_time', true ),
+			$first( '_mhmrentiva_pickup_date', '_mhmrentiva_booking_pickup_date' ),
+			$first( '_mhmrentiva_start_time', '_mhmrentiva_pickup_time', '_mhmrentiva_booking_pickup_time' ),
+			$first( '_mhmrentiva_dropoff_date', '_mhmrentiva_booking_dropoff_date' ),
+			$first( '_mhmrentiva_end_time', '_mhmrentiva_dropoff_time', '_mhmrentiva_booking_dropoff_time' ),
+		);
+	}
+
+	/**
+	 * The empty-time defaults Util::parse_datetimes() applies, for the browser
+	 * check (Codex r3 Minor 2, Fable M-E).
+	 *
+	 * @return array{pickup: string, dropoff: string}
+	 */
+	public static function default_times(): array {
+		return array(
+			'pickup'  => (string) apply_filters( 'mhmrentiva_default_pickup_time', '10:00' ),
+			'dropoff' => (string) apply_filters( 'mhmrentiva_default_dropoff_time', '10:00' ),
 		);
 	}
 

@@ -200,4 +200,35 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		$this->assertSame('2099-05-01', get_post_meta($id, '_mhmrentiva_pickup_date', true));
 		$this->assertStringContainsString('The return date and time must be after the pickup.', BookingEditNotice::peek($id));
 	}
+
+	/** Codex r3 Minor 1 / Fable M-D: the form's own reading is what is compared. */
+	public function test_a_booking_with_zero_times_is_not_seen_as_changed(): void
+	{
+		$id = $this->booking('2099-05-01', '2099-05-01');
+		update_post_meta($id, '_mhmrentiva_start_time', '0');
+		update_post_meta($id, '_mhmrentiva_end_time', '0');
+
+		$this->assertFalse(BookingEditDates::is_refused($id, '2099-05-01', '', '2099-05-01', ''));
+	}
+
+	public function test_a_booking_with_only_the_older_time_keys_is_not_seen_as_changed(): void
+	{
+		$id = $this->booking('2099-05-01', '2099-05-01');
+		delete_post_meta($id, '_mhmrentiva_start_time');
+		delete_post_meta($id, '_mhmrentiva_end_time');
+		update_post_meta($id, '_mhmrentiva_pickup_time', '14:00');
+		update_post_meta($id, '_mhmrentiva_dropoff_time', '14:00');
+
+		$this->assertSame(array( '2099-05-01', '14:00', '2099-05-01', '14:00' ), BookingEditDates::stored($id));
+		$this->assertFalse(BookingEditDates::is_refused($id, '2099-05-01', '14:00', '2099-05-01', '14:00'));
+	}
+
+	public function test_the_browser_gets_the_filtered_default_times(): void
+	{
+		add_filter('mhmrentiva_default_pickup_time', static fn() => '08:00');
+		add_filter('mhmrentiva_default_dropoff_time', static fn() => '18:00');
+
+		$this->assertSame(array( 'pickup' => '08:00', 'dropoff' => '18:00' ), BookingEditDates::default_times());
+		$this->assertFalse(BookingEditDates::is_refused($this->booking(), '2099-06-01', '', '2099-06-01', ''), 'Server and browser agree: 08:00 -> 18:00 is a rental.');
+	}
 }

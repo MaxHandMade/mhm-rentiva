@@ -140,9 +140,11 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 				'mhm-rentiva-booking-edit-meta',
 				'mhmBookingEdit',
 				array(
-					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-					'nonce'   => wp_create_nonce( 'mhmrentiva_booking_edit_nonce' ),
-					'text'    => array(
+					'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+					'nonce'        => wp_create_nonce( 'mhmrentiva_booking_edit_nonce' ),
+					// Util::parse_datetimes()'s empty-time defaults, for the date check.
+					'defaultTimes' => BookingEditDates::default_times(),
+					'text'         => array(
 						'saving'              => __( 'Saving...', 'mhm-rentiva' ),
 						'error'               => __( 'An error occurred', 'mhm-rentiva' ),
 						'success'             => __( 'Booking updated', 'mhm-rentiva' ),
@@ -158,10 +160,8 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 
 		// Fetch current booking data
 		$vehicle_id   = get_post_meta( $post->ID, '_mhmrentiva_vehicle_id', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_vehicle_id', true );
-		$pickup_date  = get_post_meta( $post->ID, '_mhmrentiva_pickup_date', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_pickup_date', true );
-		$pickup_time  = get_post_meta( $post->ID, '_mhmrentiva_start_time', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_pickup_time', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_pickup_time', true );
-		$dropoff_date = get_post_meta( $post->ID, '_mhmrentiva_dropoff_date', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_dropoff_date', true );
-		$dropoff_time = get_post_meta( $post->ID, '_mhmrentiva_end_time', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_dropoff_time', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_dropoff_time', true );
+		// The one reader the date rule compares against (BookingEditDates).
+		list( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) = BookingEditDates::stored( (int) $post->ID );
 
 		$status = Status::get( $post->ID );
 

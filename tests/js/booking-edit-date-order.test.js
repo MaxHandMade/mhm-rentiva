@@ -9,19 +9,22 @@
  */
 describe( 'booking edit: return must come after pickup', () => {
 	let $;
-	beforeEach( async () => {
+	// Mounts the edit box with the values the server drew, then loads the
+	// script (it records those values on ready, as on the real screen).
+	const mount = async ( values = {} ) => {
 		jest.resetModules();
 		$ = require( 'jquery' );
 		global.jQuery = $;
 		window.jQuery = $;
-		window.mhmBookingEdit = { text: {} };
+		window.mhmBookingEdit = { text: {}, defaultTimes: values.defaultTimes || { pickup: '10:00', dropoff: '10:00' } };
+		const v = ( k ) => ( values[ k ] !== undefined ? values[ k ] : '' );
 		document.body.innerHTML = `
 			<form id="post">
 				<div class="mhm-booking-edit-form">
-					<input id="mhmrentiva_booking_edit_pickup_date" value="">
-					<input id="mhmrentiva_booking_edit_pickup_time" value="">
-					<input id="mhmrentiva_booking_edit_dropoff_date" value="">
-					<input id="mhmrentiva_booking_edit_dropoff_time" value="">
+					<input type="date" id="mhmrentiva_booking_edit_pickup_date" value="${ v( 'pickup_date' ) }">
+					<input type="time" id="mhmrentiva_booking_edit_pickup_time" value="${ v( 'pickup_time' ) }">
+					<input type="date" id="mhmrentiva_booking_edit_dropoff_date" value="${ v( 'dropoff_date' ) }">
+					<input type="time" id="mhmrentiva_booking_edit_dropoff_time" value="${ v( 'dropoff_time' ) }">
 					<select id="mhmrentiva_booking_edit_status">
 						<option value="confirmed" selected>Confirmed</option>
 						<option value="cancelled">Cancelled</option>
@@ -30,6 +33,10 @@ describe( 'booking edit: return must come after pickup', () => {
 			</form>`;
 		require( '../../assets/js/admin/booking-edit-meta.js' );
 		await new Promise( ( r ) => $( r ) );
+	};
+
+	beforeEach( async () => {
+		await mount();
 	} );
 
 	const submit = ( pickup, pickupTime, dropoff, dropoffTime ) => {
@@ -87,13 +94,25 @@ describe( 'booking edit: return must come after pickup', () => {
 
 	// Fable code audit M-2: an equal range the booking already carries (a
 	// transfer) is not touched, so it does not block saving other fields.
-	test( 'an unchanged equal range does not block the Update', () => {
-		[ 'pickup_date', 'dropoff_date' ].forEach( ( id ) => {
-			document.getElementById( 'mhmrentiva_booking_edit_' + id ).defaultValue = '2099-06-01';
-		} );
-		[ 'pickup_time', 'dropoff_time' ].forEach( ( id ) => {
-			document.getElementById( 'mhmrentiva_booking_edit_' + id ).defaultValue = '10:00';
-		} );
-		expect( submit( '2099-06-01', '10:00', '2099-06-01', '10:00' ) ).toBe( false );
+	test( 'an unchanged equal range does not block the Update', async () => {
+		await mount( { pickup_date: '2099-06-01', pickup_time: '10:00', dropoff_date: '2099-06-01', dropoff_time: '10:00' } );
+		const event = $.Event( 'submit' );
+		$( '#post' ).triggerHandler( event );
+		expect( event.isDefaultPrevented() ).toBe( false );
+	} );
+
+	// Codex r3 Minor 1: a stored '0' time is drawn into the attribute, the time
+	// input holds '' -- untouched, that is not a change.
+	test( "an attribute the time input cannot hold is not a change", async () => {
+		await mount( { pickup_date: '2099-06-01', pickup_time: '0', dropoff_date: '2099-06-01', dropoff_time: '0' } );
+		const event = $.Event( 'submit' );
+		$( '#post' ).triggerHandler( event );
+		expect( event.isDefaultPrevented() ).toBe( false );
+	} );
+
+	// Codex r3 Minor 2: the empty-time defaults are the server's filters.
+	test( 'empty times use the server defaults', async () => {
+		await mount( { defaultTimes: { pickup: '08:00', dropoff: '18:00' } } );
+		expect( submit( '2099-06-01', '', '2099-06-01', '' ) ).toBe( false );
 	} );
 } );
