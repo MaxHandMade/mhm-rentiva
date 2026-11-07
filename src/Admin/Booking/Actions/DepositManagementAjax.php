@@ -187,7 +187,7 @@ final class DepositManagementAjax {
 
 		$payment_url = $order->get_checkout_payment_url();
 
-		Mailer::sendBookingEmail(
+		$mailed = Mailer::sendBookingEmail(
 			'remaining_payment_link_customer',
 			$booking_id,
 			'customer',
@@ -207,11 +207,22 @@ final class DepositManagementAjax {
 		);
 		// The operator's action in the booking history too (function scan H16):
 		// the log above is invisible on the screen.
-		BookingMeta::add_history_note( $booking_id, __( 'Payment link for the remaining amount e-mailed to the customer.', 'mhm-rentiva' ), 'payment_update' );
+		// The row and the answer follow what the mailer reported (Codex code
+		// audit 3b-2, Minor 7): a link the customer did not receive is not
+		// "e-mailed".
+		BookingMeta::add_history_note(
+			$booking_id,
+			$mailed
+				? __( 'Payment link for the remaining amount e-mailed to the customer.', 'mhm-rentiva' )
+				: __( 'Payment link for the remaining amount created; the e-mail to the customer could not be sent.', 'mhm-rentiva' ),
+			'payment_update'
+		);
 
 		wp_send_json_success(
 			array(
-				'message'     => __( 'Payment link generated and emailed to the customer.', 'mhm-rentiva' ),
+				'message'     => $mailed
+					? __( 'Payment link generated and emailed to the customer.', 'mhm-rentiva' )
+					: __( 'Payment link generated, but the e-mail could not be sent. Copy the link and send it to the customer yourself.', 'mhm-rentiva' ),
 				'payment_url' => $payment_url,
 			)
 		);

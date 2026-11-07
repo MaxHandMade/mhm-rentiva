@@ -12,6 +12,12 @@
         // (BookingEditDates::is_reversed()), and the field checks below stay
         // advisory so they cannot block an Update the server accepts.
         $('#post').on('submit', function (e) {
+            // A cancellation request writes no dates on the server (it keeps
+            // the stored ones), so the date check must not block it (Codex
+            // code audit 3b-2, Important 3).
+            if (isCancellationRequest()) {
+                return true;
+            }
             if (!validateDateRange()) {
                 e.preventDefault();
                 return false;
@@ -142,6 +148,21 @@
      * The site's current date (Y-m-d), localized from PHP. The browser's own
      * date is only a fallback when the localized value is missing.
      */
+    /**
+     * "Cancelled" chosen on a booking that was not cancelled when the screen
+     * was drawn: the server treats that Update as a cancellation request.
+     */
+    function isCancellationRequest() {
+        const $status = $('#mhmrentiva_booking_edit_status');
+        if (!$status.length || $status.val() !== 'cancelled') {
+            return false;
+        }
+        const initial = $status.find('option').filter(function () {
+            return this.defaultSelected;
+        }).val();
+        return initial !== 'cancelled';
+    }
+
     /**
      * Validate date range: the return must come after the pickup (date and
      * time), the rule BookingEditDates::is_reversed() applies on the server.

@@ -536,6 +536,11 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		// cancellation path refunds from the stored total and frees the stored
 		// dates, so no field that moves money may be written first. See
 		// BookingEditCancellation.
+		// Already handled in this request (a listener re-saved the booking):
+		// the cancellation request still writes nothing here.
+		if ( BookingEditCancellation::handled( $post_id ) ) {
+			return;
+		}
 		if ( BookingEditCancellation::requested( $post_id, $request ) ) {
 			BookingEditCancellation::run( $post_id, $request );
 			return;

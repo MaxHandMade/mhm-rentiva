@@ -53,10 +53,16 @@ final class BookingEditCancellation {
 	 * the booking is not cancelled yet?
 	 */
 	public static function requested( int $post_id, VerifiedRequest $request ): bool {
-		if ( ! $request->has( 'mhmrentiva_edit_status' ) ) {
-			return false;
+		// The same status the savers write: the edit box's field, or -- when it
+		// is empty -- the older mhmrentiva_booking_status that BookingMeta's
+		// saver still accepts. Read here too, or that field would reach
+		// Status::update_status() past the handler and its money check (Codex
+		// code audit 3b-2, Important 1).
+		$status = $request->text( 'mhmrentiva_edit_status' );
+		if ( '' === $status ) {
+			$status = $request->text( 'mhmrentiva_booking_status' );
 		}
-		if ( Status::CANCELLED !== $request->text( 'mhmrentiva_edit_status' ) ) {
+		if ( Status::CANCELLED !== $status ) {
 			return false;
 		}
 		wp_cache_delete( $post_id, 'post_meta' );
@@ -98,7 +104,13 @@ final class BookingEditCancellation {
 			)
 		);
 
-		return BookingPricingInputs::form_view( $post_id ) !== $posted;
+		if ( BookingPricingInputs::form_view( $post_id ) !== $posted ) {
+			return true;
+		}
+
+		// Guests is not a price input, but a cancellation request skips it too.
+		return $request->has( 'mhmrentiva_edit_guests' )
+			&& max( 1, $request->int( 'mhmrentiva_edit_guests', 1 ) ) !== max( 1, (int) get_post_meta( $post_id, '_mhmrentiva_guests', true ) );
 	}
 
 	/**
@@ -107,21 +119,29 @@ final class BookingEditCancellation {
 	 * input stay as stored either way.
 	 */
 	public static function run( int $post_id, VerifiedRequest $request ): void {
+		// Once per booking and request: a listener that re-saves the booking
+		// must not cancel it twice (Codex code audit 3b-2, Important 2).
+		if ( isset( self::$handled[ $post_id ] ) ) {
+			return;
+		}
 		self::$handled[ $post_id ] = true;
 
-		$ignored_changes = self::form_changes_money( $post_id, $request );
+		$ignored = self::form_changes_money( $post_id, $request )
+			? ' ' . __( 'Other changes in the form were not saved.', 'mhm-rentiva' )
+			: '';
 
 		if ( $request->has( 'mhmrentiva_edit_special_notes' ) ) {
-			update_post_meta( $post_id, '_mhmrentiva_special_notes', $request->textarea( 'mhmrentiva_edit_special_notes' ) );
+			// textarea() is unslashed; the meta API unslashes again.
+			update_post_meta( $post_id, '_mhmrentiva_special_notes', wp_slash( $request->textarea( 'mhmrentiva_edit_special_notes' ) ) );
 		}
 
 		$status = Status::get( $post_id );
 		if ( ! in_array( $status, self::CANCELLABLE, true ) ) {
 			BookingEditNotice::queue(
 				$post_id,
-				Status::IN_PROGRESS === $status
+				( Status::IN_PROGRESS === $status
 					? __( 'A rental that has started cannot be cancelled here.', 'mhm-rentiva' )
-					: __( 'This booking cannot be cancelled.', 'mhm-rentiva' )
+					: __( 'This booking cannot be cancelled.', 'mhm-rentiva' ) ) . $ignored
 			);
 			return;
 		}
@@ -132,7 +152,7 @@ final class BookingEditCancellation {
 
 		if ( is_wp_error( $result ) ) {
 			if ( 'already_cancelled' !== $result->get_error_code() ) {
-				BookingEditNotice::queue( $post_id, $result->get_error_message() );
+				BookingEditNotice::queue( $post_id, $result->get_error_message() . $ignored );
 			}
 			return;
 		}
@@ -147,11 +167,11 @@ final class BookingEditCancellation {
 
 		wp_cache_delete( $post_id, 'post_meta' );
 		if ( ! empty( $result['problems'] ) || RefundStatus::FAILED === RefundStatus::get( $post_id ) ) {
-			BookingEditNotice::queue( $post_id, __( 'Booking cancelled, but the refund could not be completed. See the refund status on this screen.', 'mhm-rentiva' ), 'warning' );
+			BookingEditNotice::queue( $post_id, __( 'Booking cancelled, but the refund could not be completed. See the refund status on this screen.', 'mhm-rentiva' ) . $ignored, 'warning' );
 			return;
 		}
 
-		if ( $ignored_changes ) {
+		if ( '' !== $ignored ) {
 			BookingEditNotice::queue( $post_id, __( 'The booking was cancelled. Other changes in the form were not saved; edit the booking first, then cancel.', 'mhm-rentiva' ), 'warning' );
 		}
 	}

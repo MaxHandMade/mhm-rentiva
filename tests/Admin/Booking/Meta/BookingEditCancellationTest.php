@@ -48,6 +48,7 @@ final class BookingEditCancellationTest extends WP_Ajax_UnitTestCase
 		wp_set_current_user($this->admin);
 		DepositManagementAjax::register();
 		BookingEditCancellation::reset();
+		BookingEditNotice::reset();
 		BookingPricingInputs::reset();
 		reset_phpmailer_instance();
 	}
@@ -385,5 +386,107 @@ final class BookingEditCancellationTest extends WP_Ajax_UnitTestCase
 		$this->assertSame('2099-05-01..2099-05-04', $outcome['dates']);
 		$this->assertSame('2550', $outcome['total']);
 		$this->assertSame('asked to cancel', get_post_meta($id, '_mhmrentiva_special_notes', true));
+	}
+
+	/**
+	 * Codex code audit 3b-2, Important 1: BookingMeta's saver also reads the
+	 * older mhmrentiva_booking_status field. Posted alone, with only that
+	 * saver's nonce, it reached Status::update_status() past the handler and
+	 * its money check.
+	 */
+	public function test_the_older_status_field_cannot_cancel_past_the_handler(): void
+	{
+		$id = $this->booking();
+		add_filter('mhmrentiva_may_move_money', static fn($allowed, $booking_id, $actor, $surface) => 'cancel' === $surface ? false : $allowed, 10, 4);
+		add_action('save_post', array( BookingEditMetaBox::class, 'save_booking_details' ), 5);
+		add_action('save_post', array( BookingMeta::class, 'save_meta' ), 10, 2);
+		$_POST = array(
+			'mhmrentiva_booking_meta_main_nonce' => wp_create_nonce('mhmrentiva_booking_meta_action'),
+			'mhmrentiva_booking_status'          => 'cancelled',
+			'mhmrentiva_edit_pickup_date'        => '',
+		);
+		wp_update_post(array( 'ID' => $id, 'post_title' => 'Updated' ));
+		$_POST = array();
+
+		$this->assertSame('confirmed', Status::get($id));
+		$this->assertSame('2099-05-01', get_post_meta($id, '_mhmrentiva_pickup_date', true), 'No field was written.');
+		$this->assertNotSame('', BookingEditNotice::peek($id));
+	}
+
+	/**
+	 * Codex code audit 3b-2, Important 2: a listener that re-saves the booking
+	 * after the cancellation must not let the edit box's saver write the
+	 * posted dates, nor run the handler a second time.
+	 */
+	public function test_a_re_save_after_the_cancellation_writes_no_dates(): void
+	{
+		$id   = $this->booking();
+		$runs = 0;
+		add_action('mhmrentiva_booking_cancelled', static function ($booking_id) use (&$runs) {
+			++$runs;
+			wp_update_post(array( 'ID' => (int) $booking_id, 'post_excerpt' => 're-saved' ));
+		});
+
+		$this->update_from_form($id, array( 'mhmrentiva_edit_dropoff_date' => '2099-05-09' ));
+
+		$this->assertSame(1, $runs);
+		$this->assertSame('2099-05-04', get_post_meta($id, '_mhmrentiva_dropoff_date', true));
+		$this->assertSame(Status::CANCELLED, Status::get($id));
+	}
+
+	public function test_a_re_save_after_a_refusal_does_not_ask_the_handler_again(): void
+	{
+		$id    = $this->booking();
+		$asked = 0;
+		add_filter('mhmrentiva_may_move_money', static function ($allowed, $booking_id, $actor, $surface) use (&$asked) {
+			if ('cancel' === $surface) {
+				++$asked;
+				return false;
+			}
+			return $allowed;
+		}, 10, 4);
+		$resaved = false;
+		add_action('save_post', static function ($post_id) use (&$resaved) {
+			if (! $resaved) {
+				$resaved = true;
+				wp_update_post(array( 'ID' => (int) $post_id, 'post_excerpt' => 're-saved' ));
+			}
+		}, 20);
+
+		$this->update_from_form($id);
+
+		$this->assertSame(1, $asked, 'The handler ran once.');
+		$this->assertSame('confirmed', Status::get($id));
+	}
+
+	/** Codex code audit 3b-2, Minor 4: the refusal says the other changes were ignored too. */
+	public function test_a_refusal_with_changed_dates_says_the_changes_were_not_saved(): void
+	{
+		$id = $this->booking('in_progress');
+
+		$this->update_from_form($id, array( 'mhmrentiva_edit_pickup_date' => '2099-06-01' ));
+
+		$this->assertStringContainsString('Other changes in the form were not saved.', BookingEditNotice::peek($id));
+	}
+
+	public function test_a_changed_guest_count_counts_as_an_ignored_change(): void
+	{
+		$id = $this->booking();
+		update_post_meta($id, '_mhmrentiva_guests', '2');
+
+		$this->update_from_form($id, array( 'mhmrentiva_edit_guests' => '4' ));
+
+		$this->assertSame('2', (string) get_post_meta($id, '_mhmrentiva_guests', true));
+		$this->assertStringContainsString('Other changes in the form were not saved', BookingEditNotice::peek($id));
+	}
+
+	/** Codex code audit 3b-2, Minor 6. */
+	public function test_a_backslash_in_the_notes_survives_the_cancellation(): void
+	{
+		$id = $this->booking();
+
+		$this->update_from_form($id, array( 'mhmrentiva_edit_special_notes' => wp_slash('ref BANK\2026') ));
+
+		$this->assertSame('ref BANK\2026', get_post_meta($id, '_mhmrentiva_special_notes', true));
 	}
 }

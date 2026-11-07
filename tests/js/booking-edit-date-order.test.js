@@ -22,6 +22,10 @@ describe( 'booking edit: return must come after pickup', () => {
 					<input id="mhmrentiva_booking_edit_pickup_time" value="">
 					<input id="mhmrentiva_booking_edit_dropoff_date" value="">
 					<input id="mhmrentiva_booking_edit_dropoff_time" value="">
+					<select id="mhmrentiva_booking_edit_status">
+						<option value="confirmed" selected>Confirmed</option>
+						<option value="cancelled">Cancelled</option>
+					</select>
 				</div>
 			</form>`;
 		require( '../../assets/js/admin/booking-edit-meta.js' );
@@ -58,5 +62,20 @@ describe( 'booking edit: return must come after pickup', () => {
 		submit( '2099-05-01', '10:00', '2099-05-04', '10:00' );
 		expect( $( '#mhmrentiva_booking_edit_dropoff_date' ).hasClass( 'error' ) ).toBe( false );
 		expect( $( '.error-message' ).length ).toBe( 0 );
+	} );
+
+	// Codex code audit 3b-2, Important 3: "Cancelled" chosen on a booking that
+	// was not cancelled is a cancellation request; the server ignores the
+	// dates then, so the browser must not block it on them.
+	test( 'a cancellation request is not blocked by reversed dates', () => {
+		$( '#mhmrentiva_booking_edit_status' ).val( 'cancelled' );
+		expect( submit( '2099-05-04', '10:00', '2099-05-01', '10:00' ) ).toBe( false );
+	} );
+
+	test( 'an already cancelled booking is checked as usual', () => {
+		document.querySelector( '#mhmrentiva_booking_edit_status option[value="cancelled"]' ).defaultSelected = true;
+		document.querySelector( '#mhmrentiva_booking_edit_status option[value="confirmed"]' ).defaultSelected = false;
+		$( '#mhmrentiva_booking_edit_status' ).val( 'cancelled' );
+		expect( submit( '2099-05-04', '10:00', '2099-05-01', '10:00' ) ).toBe( true );
 	} );
 } );

@@ -133,4 +133,25 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		$this->assertSame('returned late', get_post_meta($id, '_mhmrentiva_special_notes', true));
 		$this->assertSame('', BookingEditNotice::peek($id));
 	}
+
+	/** Codex code audit 3b-2, Minor 8: BookingMeta's saver alone still tells the operator. */
+	public function test_the_priority_10_saver_alone_tells_the_operator(): void
+	{
+		$id = $this->booking();
+		add_action('save_post', array( BookingMeta::class, 'save_meta' ), 10, 2);
+		$_POST = array(
+			'mhmrentiva_booking_meta_main_nonce' => wp_create_nonce('mhmrentiva_booking_meta_action'),
+			'mhmrentiva_edit_vehicle_id'         => (string) $this->vehicle,
+			'mhmrentiva_edit_pickup_date'        => '2099-05-04',
+			'mhmrentiva_edit_pickup_time'        => '10:00',
+			'mhmrentiva_edit_dropoff_date'       => '2099-05-01',
+			'mhmrentiva_edit_dropoff_time'       => '10:00',
+		);
+		wp_update_post(array( 'ID' => $id, 'post_title' => 'Updated' ));
+		$_POST = array();
+		wp_cache_delete($id, 'post_meta');
+
+		$this->assertSame('2099-05-01', get_post_meta($id, '_mhmrentiva_pickup_date', true));
+		$this->assertStringContainsString('The return date is before the pickup date.', BookingEditNotice::peek($id));
+	}
 }

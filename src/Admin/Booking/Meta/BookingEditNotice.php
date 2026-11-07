@@ -28,6 +28,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class BookingEditNotice {
 
+	/** @var array<int, true> Bookings whose redirect drops core's "updated". */
+	private static array $drop_for = array();
+
 	public static function register(): void {
 		add_action( 'admin_notices', array( self::class, 'render' ) );
 	}
@@ -39,7 +42,7 @@ final class BookingEditNotice {
 		}
 
 		set_transient(
-			self::key( $user_id ),
+			self::key( $user_id, $booking_id ),
 			array(
 				'booking_id' => $booking_id,
 				'message'    => $message,
@@ -49,6 +52,7 @@ final class BookingEditNotice {
 		);
 
 		if ( 'error' === $type ) {
+			self::$drop_for[ $booking_id ] = true;
 			add_filter( 'redirect_post_location', array( self::class, 'drop_updated_message' ), 10, 2 );
 		}
 	}
@@ -57,8 +61,8 @@ final class BookingEditNotice {
 	 * The queued message for this booking, without consuming it.
 	 */
 	public static function peek( int $booking_id ): string {
-		$notice = get_transient( self::key( get_current_user_id() ) );
-		return is_array( $notice ) && (int) ( $notice['booking_id'] ?? 0 ) === $booking_id ? (string) ( $notice['message'] ?? '' ) : '';
+		$notice = get_transient( self::key( get_current_user_id(), $booking_id ) );
+		return is_array( $notice ) ? (string) ( $notice['message'] ?? '' ) : '';
 	}
 
 	/**
@@ -67,7 +71,7 @@ final class BookingEditNotice {
 	public static function take( int $booking_id ): string {
 		$message = self::peek( $booking_id );
 		if ( '' !== $message ) {
-			delete_transient( self::key( get_current_user_id() ) );
+			delete_transient( self::key( get_current_user_id(), $booking_id ) );
 		}
 		return $message;
 	}
@@ -78,11 +82,11 @@ final class BookingEditNotice {
 			return;
 		}
 
-		$notice = get_transient( self::key( get_current_user_id() ) );
-		if ( ! is_array( $notice ) || (int) ( $notice['booking_id'] ?? 0 ) !== (int) $post->ID ) {
+		$notice = get_transient( self::key( get_current_user_id(), (int) $post->ID ) );
+		if ( ! is_array( $notice ) ) {
 			return;
 		}
-		delete_transient( self::key( get_current_user_id() ) );
+		delete_transient( self::key( get_current_user_id(), (int) $post->ID ) );
 
 		printf(
 			'<div class="notice notice-%1$s is-dismissible"><p>%2$s</p></div>',
@@ -96,11 +100,20 @@ final class BookingEditNotice {
 	 * @param int    $post_id  Booking.
 	 */
 	public static function drop_updated_message( string $location, int $post_id = 0 ): string {
-		unset( $post_id );
-		return remove_query_arg( 'message', $location );
+		// Only the booking the error is about (Codex code audit 3b-2, Minor 5).
+		return isset( self::$drop_for[ $post_id ] ) ? remove_query_arg( 'message', $location ) : $location;
 	}
 
-	private static function key( int $user_id ): string {
-		return 'mhmrentiva_booking_edit_notice_' . $user_id;
+	/**
+	 * @internal Tests only.
+	 */
+	public static function reset(): void {
+		self::$drop_for = array();
+	}
+
+	private static function key( int $user_id, int $booking_id ): string {
+		// Per user AND booking: two bookings' notices must not overwrite each
+		// other (Codex code audit 3b-2, Minor 5).
+		return 'mhmrentiva_booking_edit_notice_' . $user_id . '_' . $booking_id;
 	}
 }

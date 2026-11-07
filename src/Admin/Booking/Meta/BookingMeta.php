@@ -575,6 +575,8 @@ final class BookingMeta extends AbstractMetaBox {
 		// keeps the stored dates. The notice is queued there.
 		if (BookingEditDates::is_reversed($pickup_date, $pickup_time, $dropoff_date, $dropoff_time)) {
 			list($pickup_date, $pickup_time, $dropoff_date, $dropoff_time) = BookingEditDates::stored($post_id);
+			// Queued here too: this saver can run alone (Codex code audit 3b-2, Minor 8).
+			BookingEditNotice::queue($post_id, BookingEditDates::notice(), 'warning');
 		}
 
 		// Update meta data
@@ -1143,7 +1145,9 @@ final class BookingMeta extends AbstractMetaBox {
 
 		$history[ $timestamp . '-' . wp_generate_password(6, false) ] = $entry;
 
-		return update_post_meta($booking_id, '_mhmrentiva_booking_history', $history) !== false;
+		// The meta API unslashes; a note's backslash must survive (Codex code
+		// audit 3b-2, Minor 6).
+		return update_post_meta($booking_id, '_mhmrentiva_booking_history', wp_slash($history)) !== false;
 	}
 
 	/**
