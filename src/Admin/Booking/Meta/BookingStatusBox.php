@@ -43,6 +43,12 @@ final class BookingStatusBox {
 			'side',
 			'high'
 		);
+
+		// Core's slug box means nothing for a booking (no public URL; canvas
+		// v135 has none). Without its field edit_post() posts no post_name and
+		// wp_update_post() keeps the stored one. The new-booking screen already
+		// removes it (ManualBookingMetaBox).
+		remove_meta_box('slugdiv', 'mhmrentiva_booking', 'normal');
 	}
 
 	/**

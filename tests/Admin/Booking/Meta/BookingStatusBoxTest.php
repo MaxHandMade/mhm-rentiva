@@ -208,4 +208,28 @@ final class BookingStatusBoxTest extends WP_UnitTestCase
 
 		$this->assertSame('confirmed', get_post_meta($post->ID, '_mhmrentiva_status', true));
 	}
+	/** Codex plan audit r1: core's slug box is not on the canvas. */
+	public function test_slug_box_is_removed_and_the_slug_survives_an_update(): void
+	{
+		global $wp_meta_boxes;
+		$post = $this->booking();
+		wp_update_post(array( 'ID' => $post->ID, 'post_name' => 'kept-slug' ));
+		add_meta_box('slugdiv', __('Slug'), 'post_slug_meta_box', 'mhmrentiva_booking', 'normal', 'core');
+
+		do_action('add_meta_boxes_mhmrentiva_booking', get_post($post->ID));
+
+		$this->assertFalse($wp_meta_boxes['mhmrentiva_booking']['normal']['core']['slugdiv'] ?? null);
+
+		// The form now posts no post_name; the stored slug stands.
+		$_POST = array(
+			'post_ID'     => (string) $post->ID,
+			'post_type'   => 'mhmrentiva_booking',
+			'post_status' => 'publish',
+			'post_title'  => 'Updated',
+			'_wpnonce'    => wp_create_nonce('update-post_' . $post->ID),
+		);
+		edit_post();
+
+		$this->assertSame('kept-slug', get_post($post->ID)->post_name);
+	}
 }

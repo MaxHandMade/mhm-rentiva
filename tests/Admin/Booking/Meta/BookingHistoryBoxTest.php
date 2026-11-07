@@ -184,4 +184,14 @@ final class BookingHistoryBoxTest extends WP_Ajax_UnitTestCase
 		$this->assertCount(1, $history);
 		$this->assertSame('Called the customer', array_values($history)[0]['note']);
 	}
+	/** Codex plan audit r1: why the select offers only two types. */
+	public function test_note_select_explains_the_rows_rentiva_writes_itself(): void
+	{
+		$html = $this->html();
+		$this->assertStringContainsString('Rentiva writes the status, payment and system rows itself.', $html);
+		$this->assertLessThan(
+			strpos($html, 'Rentiva writes the status'),
+			strpos($html, 'id="note_type"')
+		);
+	}
 }

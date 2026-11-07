@@ -992,6 +992,7 @@ final class BookingMeta extends AbstractMetaBox {
 		echo '<option value="note">' . esc_html__('Note', 'mhm-rentiva') . '</option>';
 		echo '<option value="customer_contact">' . esc_html__('Customer Contact', 'mhm-rentiva') . '</option>';
 		echo '</select>';
+		echo '<span class="description">' . esc_html__('Rentiva writes the status, payment and system rows itself.', 'mhm-rentiva') . '</span>';
 		echo '</p>';
 
 		echo '<p>';
