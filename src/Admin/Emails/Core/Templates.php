@@ -614,6 +614,12 @@ final class Templates {
 	}
 
 	public static function replace_placeholders( string $tpl, array $context ): string {
+		// A greeting reads customer.salutation_name (PR 3b-3); a context that
+		// does not carry it (Pro's message e-mails) greets by the name.
+		if ( isset( $context['customer'] ) && is_array( $context['customer'] ) && ! isset( $context['customer']['salutation_name'] ) ) {
+			$context['customer']['salutation_name'] = (string) ( $context['customer']['name'] ?? '' );
+		}
+
 		// Pass 1: {{dot.path}} format
 		$out = preg_replace_callback(
 			'/\{\{\s*([a-zA-Z0-9_\.\-]+)\s*\}\}/',
@@ -650,6 +656,7 @@ final class Templates {
 			'total_price'     => 'booking.total_price',
 			'status'          => 'booking.status',
 			'customer_name'   => 'customer.name',
+			'salutation_name' => 'customer.salutation_name',
 			// Pro's default custom body for the message-reply e-mail. The
 			// fallback below would read `reply.body`, which no context carries.
 			'reply_body'      => 'message.reply',

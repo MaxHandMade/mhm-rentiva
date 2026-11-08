@@ -125,7 +125,7 @@ final class EmailSettings {
 	 */
 	public static function get_default_customer_confirmation_body(): string {
 		return '
-<p>' . __( 'Dear {contact_name},', 'mhm-rentiva' ) . '</p>
+<p>' . __( 'Dear {salutation_name},', 'mhm-rentiva' ) . '</p>
 <p>' . __( 'Your booking #{booking_id} has been successfully created. Below are your reservation details:', 'mhm-rentiva' ) . '</p>
 
 <table style="width: 100%; border-collapse: collapse; margin: 25px 0; background: #f9f9f9; border: 1px solid #eee; border-radius: 8px; overflow: hidden;">
@@ -148,7 +148,7 @@ final class EmailSettings {
 	 */
 	public static function get_default_booking_status_body(): string {
 		return '
-<p>' . __( 'Dear {contact_name},', 'mhm-rentiva' ) . '</p>
+<p>' . __( 'Dear {salutation_name},', 'mhm-rentiva' ) . '</p>
 <p>' . __( 'The status of your booking #{booking_id} has been updated:', 'mhm-rentiva' ) . '</p>
 
 <div style="background: #ffffff; border: 2px solid #efefef; border-radius: 12px; padding: 25px; margin: 20px 0; text-align: center;">
@@ -186,7 +186,7 @@ final class EmailSettings {
 	 */
 	public static function get_default_auto_cancel_body(): string {
 		return '
-<p>' . __( 'Dear {contact_name},', 'mhm-rentiva' ) . '</p>
+<p>' . __( 'Dear {salutation_name},', 'mhm-rentiva' ) . '</p>
 <p style="color: #d32f2f; font-weight: bold;">' . __( 'Your booking #{booking_id} has been automatically cancelled.', 'mhm-rentiva' ) . '</p>
 <p>' . __( 'We did not receive the required payment within the allotted time frame, so the reservation has been released.', 'mhm-rentiva' ) . '</p>
 
@@ -218,7 +218,7 @@ final class EmailSettings {
 	 */
 	public static function get_default_booking_reminder_body(): string {
 		return '
-<p>' . __( 'Dear {contact_name},', 'mhm-rentiva' ) . '</p>
+<p>' . __( 'Dear {salutation_name},', 'mhm-rentiva' ) . '</p>
 <p>' . __( 'This is a friendly reminder that your upcoming rental starts very soon!', 'mhm-rentiva' ) . '</p>
 
 <div style="background: #fff9c4; padding: 20px; border-radius: 8px; border: 1px solid #fbc02d; margin: 20px 0;">
@@ -234,7 +234,7 @@ final class EmailSettings {
 	 * GOLD STANDARD TEMPLATE: Cancelled (Manual)
 	 */
 	public static function get_default_booking_cancelled_body(): string {
-		return '<p>' . __( 'Dear {contact_name},', 'mhm-rentiva' ) . '</p><p>' . __( 'Your booking #{booking_id} has been cancelled.', 'mhm-rentiva' ) . '</p><table style="width: 100%; border-collapse: collapse; margin: 15px 0; background: #f8f9fa; border-radius: 8px;"><tr><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; color: #555;"><strong>' . __( 'Booking ID:', 'mhm-rentiva' ) . '</strong></td><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; text-align: right;">#{booking_id}</td></tr><tr><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; color: #555;"><strong>' . __( 'Vehicle:', 'mhm-rentiva' ) . '</strong></td><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; text-align: right;">{vehicle_title}</td></tr><tr><td style="padding: 10px 15px; color: #555;"><strong>' . __( 'Status:', 'mhm-rentiva' ) . '</strong></td><td style="padding: 10px 15px; text-align: right; color: #dc3545; font-weight: bold;">' . __( 'Cancelled', 'mhm-rentiva' ) . '</td></tr></table>';
+		return '<p>' . __( 'Dear {salutation_name},', 'mhm-rentiva' ) . '</p><p>' . __( 'Your booking #{booking_id} has been cancelled.', 'mhm-rentiva' ) . '</p><table style="width: 100%; border-collapse: collapse; margin: 15px 0; background: #f8f9fa; border-radius: 8px;"><tr><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; color: #555;"><strong>' . __( 'Booking ID:', 'mhm-rentiva' ) . '</strong></td><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; text-align: right;">#{booking_id}</td></tr><tr><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; color: #555;"><strong>' . __( 'Vehicle:', 'mhm-rentiva' ) . '</strong></td><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; text-align: right;">{vehicle_title}</td></tr><tr><td style="padding: 10px 15px; color: #555;"><strong>' . __( 'Status:', 'mhm-rentiva' ) . '</strong></td><td style="padding: 10px 15px; text-align: right; color: #dc3545; font-weight: bold;">' . __( 'Cancelled', 'mhm-rentiva' ) . '</td></tr></table>';
 	}
 
 	/**
@@ -247,7 +247,7 @@ final class EmailSettings {
 		// than translatable text. Wrapping a placeholder-only string in __()
 		// would register a "translatable" string with nothing left to
 		// translate once substitution runs.
-		return '<p>' . __( 'Dear {contact_name},', 'mhm-rentiva' ) . '</p><p>' . __( 'A refund of {amount} has been processed for your booking #{booking_id}.', 'mhm-rentiva' ) . '</p><div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #28a745;"><strong>' . __( 'Refund Amount:', 'mhm-rentiva' ) . '</strong> {amount}</div><p>{mode_text}</p>';
+		return '<p>' . __( 'Dear {salutation_name},', 'mhm-rentiva' ) . '</p><p>' . __( 'A refund of {amount} has been processed for your booking #{booking_id}.', 'mhm-rentiva' ) . '</p><div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #28a745;"><strong>' . __( 'Refund Amount:', 'mhm-rentiva' ) . '</strong> {amount}</div><p>{mode_text}</p>';
 	}
 
 	public static function get_default_refund_admin_body(): string {

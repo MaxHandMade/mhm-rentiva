@@ -135,7 +135,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<p>
 				<?php
 				/* translators: %s: customer name HTML. */
-				printf( esc_html__( 'Dear %s,', 'mhm-rentiva' ), '<strong>' . esc_html( $data['customer']['name'] ?? '' ) . '</strong>' );
+				printf( esc_html__( 'Dear %s,', 'mhm-rentiva' ), '<strong>' . esc_html( $data['customer']['salutation_name'] ?? ( $data['customer']['name'] ?? '' ) ) . '</strong>' );
 				?>
 			</p>
 
