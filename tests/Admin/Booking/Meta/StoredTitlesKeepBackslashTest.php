@@ -49,6 +49,57 @@ final class StoredTitlesKeepBackslashTest extends WP_UnitTestCase
 		$this->assertSame('Koltuk A\B', $lines[0]['title'] ?? null);
 	}
 
+	/**
+	 * Fable #177 M1: the third writer of the add-on lines,
+	 * BookingMeta::recalculate_booking_costs(), on a date change saved by the
+	 * BookingMeta saver alone.
+	 */
+	public function test_a_date_change_keeps_the_add_on_title_in_the_lines(): void
+	{
+		wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
+		$vehicle = $this->post_with_title('mhmrentiva_vehicle', 'Araç');
+		update_post_meta($vehicle, '_mhmrentiva_price_per_day', '100');
+		update_post_meta($vehicle, '_mhmrentiva_vehicle_status', 'active');
+		$addon = $this->post_with_title(\MHMRentiva\Admin\Addons\AddonPostType::POST_TYPE, 'Koltuk A\B');
+		update_post_meta($addon, 'mhmrentiva_addon_price', '10');
+		update_post_meta($addon, 'mhmrentiva_addon_enabled', '1');
+		$range   = Util::parse_datetimes('2099-07-10', '10:00', '2099-07-12', '10:00');
+		$booking = (int) self::factory()->post->create(array(
+			'post_type'   => 'mhmrentiva_booking',
+			'post_status' => 'publish',
+			'meta_input'  => array(
+				'_mhmrentiva_vehicle_id'   => $vehicle,
+				'_mhmrentiva_status'       => 'confirmed',
+				'_mhmrentiva_payment_type' => 'full',
+				'_mhmrentiva_pickup_date'  => '2099-07-10',
+				'_mhmrentiva_dropoff_date' => '2099-07-12',
+				'_mhmrentiva_pickup_time'  => '10:00',
+				'_mhmrentiva_dropoff_time' => '10:00',
+				'_mhmrentiva_start_time'   => '10:00',
+				'_mhmrentiva_end_time'     => '10:00',
+				'_mhmrentiva_start_ts'     => $range['start_ts'],
+				'_mhmrentiva_end_ts'       => $range['end_ts'],
+			),
+		));
+		AddonManager::save_booking_addons($booking, array( 'selected_addons' => array( $addon ), 'rental_days' => 2 ));
+		$_POST = wp_slash(array(
+			'_wpnonce'                     => wp_create_nonce('update-post_' . $booking),
+			'mhmrentiva_edit_vehicle_id'   => (string) $vehicle,
+			'mhmrentiva_edit_pickup_date'  => '2099-07-10',
+			'mhmrentiva_edit_pickup_time'  => '10:00',
+			'mhmrentiva_edit_dropoff_date' => '2099-07-14',
+			'mhmrentiva_edit_dropoff_time' => '10:00',
+			'mhmrentiva_edit_status'       => 'confirmed',
+			'selected_addons'              => array( (string) $addon ),
+		));
+
+		BookingMeta::save_meta($booking, get_post($booking));
+
+		$this->assertSame('2099-07-14', get_post_meta($booking, '_mhmrentiva_dropoff_date', true), 'Fixture: the dates moved.');
+		$lines = (array) get_post_meta($booking, '_mhmrentiva_addon_details', true);
+		$this->assertSame('Koltuk A\B', $lines[0]['title'] ?? null);
+	}
+
 	public function test_the_booking_title_keeps_the_new_vehicles_title(): void
 	{
 		wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
