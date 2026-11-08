@@ -117,6 +117,29 @@ final class ContactFormSubmissionRulesTest extends WP_Ajax_UnitTestCase
 		);
 	}
 
+	/**
+	 * Backslash class (2026-11-08): the visitor's text arrives slashed, is
+	 * unslashed once on input, and wp_insert_post() / meta_input unslash again.
+	 * (The phone validator already refuses a backslash.)
+	 */
+	public function test_a_typed_backslash_is_kept_in_the_stored_message(): void
+	{
+		$response = $this->submit(wp_slash(array(
+			'name'    => 'Ali\Veli',
+			'company' => 'A\B Ltd',
+			'message' => 'Dosya yolu C:\belgeler\1 -- "tırnak" da var ' . ( ++$this->sent ),
+		)));
+		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
+
+		$posts = get_posts(array( 'post_type' => 'mhmrentiva_contact', 'post_status' => 'any', 'numberposts' => 1, 'orderby' => 'ID', 'order' => 'DESC' ));
+		$this->assertCount(1, $posts);
+		$id = $posts[0]->ID;
+		$this->assertStringStartsWith('Dosya yolu C:\belgeler\1 -- "tırnak" da var', $posts[0]->post_content);
+		$this->assertStringContainsString('Ali\Veli', $posts[0]->post_title);
+		$this->assertSame('Ali\Veli', get_post_meta($id, '_mhmrentiva_contact_name', true));
+		$this->assertSame('A\B Ltd', get_post_meta($id, '_mhmrentiva_contact_company', true));
+	}
+
 	public function test_booking_needs_no_phone_and_feedback_no_rating(): void
 	{
 		$booking = $this->submit(array( 'type' => 'booking' ));

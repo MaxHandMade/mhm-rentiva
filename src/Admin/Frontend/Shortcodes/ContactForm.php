@@ -947,7 +947,9 @@ final class ContactForm extends AbstractShortcode {
 		// through: the visitor was told "Your message has been sent
 		// successfully!", the notification mail went out with message id 0,
 		// and nothing was ever stored for the site owner to answer.
-		$message_id = wp_insert_post($post_data, true);
+		// The fields were unslashed on input; wp_insert_post() unslashes the post
+		// fields and update_post_meta() each meta_input value (backslash class).
+		$message_id = wp_insert_post(wp_slash($post_data), true);
 
 		if (is_wp_error($message_id) || (int) $message_id <= 0) {
 			throw new Exception(esc_html__('Unable to save the message.', 'mhm-rentiva'));

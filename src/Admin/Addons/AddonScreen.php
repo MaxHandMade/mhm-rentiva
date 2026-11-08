@@ -397,12 +397,15 @@ final class AddonScreen {
 			isset( $request['pricing_type'] ) ? (string) $request['pricing_type'] : ''
 		);
 
+		// $request is unslashed; wp_insert_post() unslashes again (backslash class).
 		$addon_id = wp_insert_post(
-			array(
-				'post_type'    => AddonPostType::POST_TYPE,
-				'post_status'  => 'publish',
-				'post_title'   => $title,
-				'post_excerpt' => $description,
+			wp_slash(
+				array(
+					'post_type'    => AddonPostType::POST_TYPE,
+					'post_status'  => 'publish',
+					'post_title'   => $title,
+					'post_excerpt' => $description,
+				)
 			),
 			true
 		);
