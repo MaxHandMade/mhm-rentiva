@@ -546,13 +546,14 @@ final class Mailer {
 		if ( ! preg_match( '/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?\z/', $raw, $m ) ) {
 			return '';
 		}
-		// A wall-clock time with no date: printed in UTC on a fixed day, so no
-		// time zone or daylight-saving gap can move it.
-		$utc  = new \DateTimeZone( 'UTC' );
-		$time = ( new \DateTimeImmutable( '2000-01-03', $utc ) )->setTime( (int) $m[1], (int) $m[2] );
+		// A wall-clock time with no date: built in the site's zone, like the date
+		// path (a "T" in the time format names the site's zone, not UTC), on a
+		// fixed day no zone changes its clocks on, so no gap can move the hour.
+		$zone = wp_timezone();
+		$time = ( new \DateTimeImmutable( '2000-01-03', $zone ) )->setTime( (int) $m[1], (int) $m[2] );
 
 		return (string) \MHMRentiva\Admin\Core\Utilities\SiteLocaleString::in_site_locale(
-			static fn () => wp_date( (string) get_option( 'time_format' ), $time->getTimestamp(), $utc )
+			static fn () => wp_date( (string) get_option( 'time_format' ), $time->getTimestamp(), $zone )
 		);
 	}
 

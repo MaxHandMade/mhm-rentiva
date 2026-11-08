@@ -108,6 +108,20 @@ final class EmailTimesTest extends WP_UnitTestCase
 		$this->assertSame('18:15', $ctx['booking']['return_time']);
 	}
 
+	/**
+	 * Fable #179 m-1: the time was printed in UTC, so a "T" in a custom time
+	 * format named UTC while the date path used the site's zone.
+	 */
+	public function test_the_time_is_printed_in_the_site_zone(): void
+	{
+		update_option('timezone_string', 'America/New_York');
+		update_option('time_format', 'H:i T');
+		$ctx = Mailer::getBookingContext($this->booking(array( '_mhmrentiva_start_time' => '09:30' )));
+		update_option('timezone_string', '');
+
+		$this->assertSame('09:30 EST', $ctx['booking']['pickup_time']);
+	}
+
 	public function test_a_time_with_seconds_is_read(): void
 	{
 		$this->formats();
