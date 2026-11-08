@@ -203,6 +203,8 @@ final class DepositManagementAjax {
 			array(
 				'order_id' => $order->get_id(),
 				'sent_by'  => get_current_user_id(),
+				// Whether the customer was really e-mailed (Fable #175 delta M-B).
+				'emailed'  => (bool) $mailed,
 			)
 		);
 		// The operator's action in the booking history too (function scan H16):

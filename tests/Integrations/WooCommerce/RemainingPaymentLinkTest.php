@@ -136,6 +136,35 @@ final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
 		$this->assertSame( 'remaining_payment_link_sent', end( $logs )['action'] );
 	}
 
+	/** Fable #175 delta M-B: the log row says whether the e-mail went out. */
+	public function test_the_payment_link_log_row_records_the_email_result(): void {
+		DepositManagementAjax::register();
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		update_post_meta( $this->booking_id, '_mhmrentiva_customer_email', 'link-log@example.test' );
+
+		$send = function (): array {
+			$_POST['action']     = 'mhmrentiva_send_remaining_payment_link';
+			$_POST['nonce']      = wp_create_nonce( 'mhmrentiva_deposit_management_action' );
+			$_POST['booking_id'] = $this->booking_id;
+			try {
+				$this->_handleAjax( 'mhmrentiva_send_remaining_payment_link' );
+			} catch ( \WPAjaxDieContinueException $e ) {
+				unset( $e );
+			}
+			$this->_last_response = '';
+			$logs = (array) get_post_meta( $this->booking_id, '_mhmrentiva_booking_logs', true );
+			return end( $logs );
+		};
+
+		$this->assertTrue( $send()['data']['emailed'] ?? null, 'Mailed: the row says so.' );
+
+		add_filter( 'pre_wp_mail', '__return_false' );
+		$row = $send();
+		remove_filter( 'pre_wp_mail', '__return_false' );
+		$this->assertSame( 'remaining_payment_link_sent', $row['action'] );
+		$this->assertFalse( $row['data']['emailed'] ?? null, 'Not mailed: the row says so.' );
+	}
+
 	public function test_admin_send_remaining_payment_link_rejects_non_deposit_booking(): void {
 		DepositManagementAjax::register();
 
