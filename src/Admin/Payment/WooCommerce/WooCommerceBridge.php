@@ -2793,7 +2793,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				// returned 0, is_int(0) was true, and the caller -- which only
 				// tests truthiness -- silently left the paid WooCommerce order
 				// with no booking attached and nothing in the log.
-				$booking_id = wp_insert_post($post_data, true);
+				// The order's values are unslashed; wp_insert_post() unslashes the
+				// post fields and update_post_meta() each meta_input value
+				// (backslash class).
+				$booking_id = wp_insert_post(wp_slash($post_data), true);
 
 				if (is_wp_error($booking_id) || (int) $booking_id <= 0) {
 					AdvancedLogger::error(
