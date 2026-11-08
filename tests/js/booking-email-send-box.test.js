@@ -3,10 +3,13 @@
  *
  * PR 3b-3: the booking screen's "Send email to customer" box.
  * - H9: only the answer to the last template request fills the box.
- * - A custom message clears the box without a request.
- * - A type change asks before replacing edits, and reverts when refused.
+ * - Codex #178: the send button is locked while a template loads or an
+ *   e-mail is being sent, whichever ends first; a failed load returns to the
+ *   last type that actually loaded; "edited" means the operator typed (events),
+ *   not that the editor's serialisation differs, so an untouched template is
+ *   posted empty and the server renders it byte for byte.
  * - Results are notices inside the box, never browser alerts.
- * - Without TinyMCE (jsdom) the message is the editor's textarea.
+ * (jsdom has no TinyMCE: the message is the editor's textarea.)
  */
 
 describe( 'booking customer e-mail box', () => {
@@ -15,13 +18,23 @@ describe( 'booking customer e-mail box', () => {
 	let alertSpy;
 	let confirmSpy;
 
-	const box = () => document.querySelector( '.mhm-email-form' );
 	const subject = () => document.getElementById( 'email_subject' );
 	const message = () => document.getElementById( 'email_message' );
+	const button = () => jQuery( '.mhm-email-send-btn' );
 	const notice = () => document.querySelector( '.mhm-email-form .mhm-email-notice' );
-	const change = ( value ) => {
-		jQuery( '#email_type' ).val( value ).trigger( 'change' );
+	const type = () => jQuery( '#email_type' ).val();
+	const change = ( value ) => jQuery( '#email_type' ).val( value ).trigger( 'change' );
+	// What the operator does: change the value and the browser fires `input`.
+	const typeInto = ( el, value ) => {
+		el.value = value;
+		el.dispatchEvent( new Event( 'input', { bubbles: true } ) );
 	};
+	const answer = ( call, subjectText, body ) => {
+		call.success( { success: true, data: { subject: subjectText, message: body } } );
+		call.complete();
+	};
+	const lastCall = () => calls[ calls.length - 1 ];
+	const send = () => button().trigger( 'click' );
 
 	beforeAll( async () => {
 		jQuery = require( 'jquery' );
@@ -52,7 +65,7 @@ describe( 'booking customer e-mail box', () => {
 			calls.push( options );
 		} );
 		alertSpy = jest.spyOn( window, 'alert' ).mockImplementation( () => {} );
-		confirmSpy = jest.spyOn( window, 'confirm' );
+		confirmSpy = jest.spyOn( window, 'confirm' ).mockReturnValue( true );
 		require( '../../assets/js/admin/booking-email-send.js' );
 		// jQuery's ready callback runs asynchronously once the document is loaded.
 		await new Promise( ( r ) => setTimeout( r, 20 ) );
@@ -68,12 +81,26 @@ describe( 'booking customer e-mail box', () => {
 		delete global.ajaxurl;
 	} );
 
-	test( 'the default type is fetched on load and fills the box', () => {
+	test( 'the default type is fetched on load; sending waits for it', () => {
 		expect( calls ).toHaveLength( 1 );
 		expect( calls[ 0 ].data ).toMatchObject( { action: 'mhmrentiva_get_email_template', email_type: 'booking_created_customer', booking_id: 42, nonce: 'n-fetch' } );
-		calls[ 0 ].success( { success: true, data: { subject: 'Onay', message: '<p>Merhaba</p>' } } );
-		expect( subject().value ).toBe( 'Onay' );
-		expect( message().value ).toBe( '<p>Merhaba</p>' );
+		expect( button().prop( 'disabled' ) ).toBe( true );
+
+		answer( calls[ 0 ], 'A-subj', '<p>A</p>' );
+
+		expect( subject().value ).toBe( 'A-subj' );
+		expect( message().value ).toBe( '<p>A</p>' );
+		expect( button().prop( 'disabled' ) ).toBe( false );
+	} );
+
+	test( 'an untouched template is posted empty, so the server renders it itself', () => {
+		calls.length = 0;
+		send();
+		expect( calls[ 0 ].data ).toMatchObject( { action: 'mhmrentiva_send_customer_email', email_type: 'booking_created_customer', email_subject: '', email_message: '' } );
+		calls[ 0 ].success( { success: true, data: 'x' } );
+		calls[ 0 ].complete();
+		// The success reloads the template.
+		answer( lastCall(), 'A-subj', '<p>A</p>' );
 	} );
 
 	test( 'H9: a slower answer to an earlier choice does not overwrite a later one', () => {
@@ -82,88 +109,103 @@ describe( 'booking customer e-mail box', () => {
 		change( 'booking_cancelled' );
 		expect( calls ).toHaveLength( 2 );
 
-		calls[ 1 ].success( { success: true, data: { subject: 'İptal', message: '<p>İptal metni</p>' } } );
-		calls[ 0 ].success( { success: true, data: { subject: 'Hatırlatma', message: '<p>Eski</p>' } } );
+		answer( calls[ 1 ], 'C-subj', '<p>C</p>' );
+		answer( calls[ 0 ], 'B-subj', '<p>B late</p>' );
 
-		expect( subject().value ).toBe( 'İptal' );
-		expect( message().value ).toBe( '<p>İptal metni</p>' );
+		expect( subject().value ).toBe( 'C-subj' );
+		expect( message().value ).toBe( '<p>C</p>' );
 	} );
 
-	test( 'an edited box asks before a type change and reverts when refused', () => {
+	test( 'a failed load returns to the last type that actually loaded (A → B → C fails)', () => {
 		calls.length = 0;
-		message().value = '<p>Elle değişti</p>';
+		change( 'booking_created_customer' );
+		answer( calls[ 0 ], 'A-subj', '<p>A</p>' );
+
+		calls.length = 0;
+		change( 'booking_reminder_customer' ); // B, never answered in time.
+		change( 'booking_cancelled' ); // C fails.
+		calls[ 1 ].error();
+		calls[ 1 ].complete();
+		answer( calls[ 0 ], 'B-subj', '<p>B late</p>' ); // stale, ignored
+
+		expect( type() ).toBe( 'booking_created_customer' );
+		expect( subject().value ).toBe( 'A-subj' );
+		expect( notice().textContent ).toBe( 'TPL' );
+		expect( button().prop( 'disabled' ) ).toBe( false );
+	} );
+
+	test( 'the end of a send does not unlock a template that is still loading', () => {
+		calls.length = 0;
+		send();
+		const sendCall = calls[ 0 ];
+		change( 'booking_reminder_customer' );
+		const loadCall = calls[ 1 ];
+
+		sendCall.success( { success: false, data: 'x' } );
+		sendCall.complete();
+		expect( button().prop( 'disabled' ) ).toBe( true );
+
+		send(); // ignored while loading
+		expect( calls ).toHaveLength( 2 );
+
+		answer( loadCall, 'B-subj', '<p>B</p>' );
+		expect( button().prop( 'disabled' ) ).toBe( false );
+	} );
+
+	test( 'an edited subject counts as edited and is posted, with the message', () => {
+		calls.length = 0;
+		typeInto( subject(), 'Elle konu' );
+		send();
+		expect( calls[ 0 ].data ).toMatchObject( { email_subject: 'Elle konu', email_message: '<p>B</p>' } );
+		calls[ 0 ].complete();
+	} );
+
+	test( 'an edited box asks before a type change and keeps the type when refused', () => {
+		calls.length = 0;
+		typeInto( message(), '<p>Elle değişti</p>' );
 		confirmSpy.mockReturnValueOnce( false );
 
-		change( 'booking_created_customer' );
+		change( 'booking_cancelled' );
 
 		expect( confirmSpy ).toHaveBeenCalledWith( 'REPLACE?' );
-		expect( jQuery( '#email_type' ).val() ).toBe( 'booking_cancelled' );
+		expect( type() ).toBe( 'booking_reminder_customer' );
 		expect( calls ).toHaveLength( 0 );
 		expect( message().value ).toBe( '<p>Elle değişti</p>' );
 	} );
 
-	test( 'a custom message clears the box without a request', () => {
+	test( 'a programmatic fill is not an edit', () => {
 		calls.length = 0;
-		confirmSpy.mockReturnValueOnce( true );
+		change( 'booking_cancelled' ); // confirm → true
+		answer( calls[ 0 ], 'C-subj', '<p>C</p>' );
+		confirmSpy.mockClear();
 
+		change( 'booking_created_customer' );
+		expect( confirmSpy ).not.toHaveBeenCalled();
+		answer( lastCall(), 'A-subj', '<p>A</p>' );
+	} );
+
+	test( 'a custom message clears the box without a request and is always posted', () => {
+		calls.length = 0;
 		change( 'custom' );
-
 		expect( calls ).toHaveLength( 0 );
 		expect( subject().value ).toBe( '' );
 		expect( message().value ).toBe( '' );
-	} );
+		expect( button().prop( 'disabled' ) ).toBe( false );
 
-	test( 'sending posts the textarea message and shows the result in the box', () => {
-		calls.length = 0;
-		subject().value = 'Anahtar';
-		message().value = '<p>Ofiste</p>';
-
-		jQuery( '.mhm-email-send-btn' ).trigger( 'click' );
-
-		expect( calls[ 0 ].data ).toMatchObject( { action: 'mhmrentiva_send_customer_email', email_type: 'custom', email_subject: 'Anahtar', email_message: '<p>Ofiste</p>', mhmrentiva_email_nonce: 'n-send' } );
+		typeInto( subject(), 'Anahtar' );
+		typeInto( message(), '<p>Ofiste</p>' );
+		send();
+		expect( calls[ 0 ].data ).toMatchObject( { email_type: 'custom', email_subject: 'Anahtar', email_message: '<p>Ofiste</p>', mhmrentiva_email_nonce: 'n-send' } );
 		calls[ 0 ].success( { success: false, data: 'Sunucu dedi' } );
 		calls[ 0 ].complete();
 		expect( notice().textContent ).toBe( 'ERR Sunucu dedi' );
 		expect( notice().classList.contains( 'notice-error' ) ).toBe( true );
 
-		jQuery( '.mhm-email-send-btn' ).trigger( 'click' );
+		send();
 		calls[ 1 ].success( { success: true, data: 'x' } );
+		calls[ 1 ].complete();
 		expect( notice().textContent ).toBe( 'OK-SENT' );
 		expect( alertSpy ).not.toHaveBeenCalled();
-	} );
-
-	test( 'Codex #178 I1: sending waits while a template loads', () => {
-		calls.length = 0;
-		confirmSpy.mockReturnValue( true );
-		change( 'booking_reminder_customer' );
-		expect( jQuery( '.mhm-email-send-btn' ).prop( 'disabled' ) ).toBe( true );
-		calls[ 0 ].success( { success: true, data: { subject: 'Hatırlatma', message: '<p>H</p>' } } );
-		calls[ 0 ].complete();
-		expect( jQuery( '.mhm-email-send-btn' ).prop( 'disabled' ) ).toBe( false );
-	} );
-
-	test( 'Codex #178 I1: a failed load puts the previous type back', () => {
-		calls.length = 0;
-		change( 'booking_cancelled' );
-		calls[ 0 ].error();
-		calls[ 0 ].complete();
-		expect( jQuery( '#email_type' ).val() ).toBe( 'booking_reminder_customer' );
-		expect( subject().value ).toBe( 'Hatırlatma' );
-		expect( notice().textContent ).toBe( 'TPL' );
-	} );
-
-	test( 'Codex #178 I3: an unedited template is sent empty, so the server renders it itself', () => {
-		calls.length = 0;
-		jQuery( '.mhm-email-send-btn' ).trigger( 'click' );
-		expect( calls[ 0 ].data ).toMatchObject( { email_type: 'booking_reminder_customer', email_subject: '', email_message: '' } );
-		calls[ 0 ].complete();
-
-		calls.length = 0;
-		message().value = '<p>Elle</p>';
-		jQuery( '.mhm-email-send-btn' ).trigger( 'click' );
-		expect( calls[ 0 ].data ).toMatchObject( { email_subject: 'Hatırlatma', email_message: '<p>Elle</p>' } );
-		calls[ 0 ].complete();
-		confirmSpy.mockReset();
 	} );
 
 	test( 'Enter in the subject does not submit the booking form', () => {

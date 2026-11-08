@@ -88,38 +88,64 @@
 
 	/* ---- Templates ---- */
 
-	var templateRequest = 0;
-	var loaded          = { subject: '', message: '' };
+	// The box's state (Codex #178): the send button is locked while a template
+	// loads OR an e-mail is being sent; `loadedType` is the type whose text the
+	// box holds; `dirty` is set by what the operator does (typing, pasting, the
+	// toolbar, undo) -- never by comparing serialisations, which TinyMCE
+	// normalises on its own -- and cleared when a template fills the box.
+	var state = {
+		request: 0,
+		loading: false,
+		sending: false,
+		selected: '',
+		loadedType: '',
+		dirty: false,
+		filling: false,
+	};
 
-	function isEdited() {
-		return String( $( '#email_subject' ).val() || '' ) !== loaded.subject || getMessage() !== loaded.message;
+	// What counts as an operator's change inside TinyMCE.
+	var EDITING_COMMANDS = [ 'Bold', 'Italic', 'mceInsertLink', 'unlink', 'InsertUnorderedList', 'InsertOrderedList', 'mceToggleFormat', 'mceInsertContent', 'Delete', 'ForwardDelete', 'Undo', 'Redo' ];
+
+	function markDirty() {
+		if ( ! state.filling ) {
+			state.dirty = true;
+		}
 	}
 
-	function rememberLoaded() {
-		loaded = { subject: String( $( '#email_subject' ).val() || '' ), message: getMessage() };
+	function refreshButton( $box ) {
+		$box.find( '.mhm-email-send-btn' ).prop( 'disabled', state.loading || state.sending );
+	}
+
+	function fill( subjectText, body, emailType ) {
+		state.filling = true;
+		$( '#email_subject' ).val( subjectText );
+		setMessage( body );
+		state.filling    = false;
+		state.dirty      = false;
+		state.loadedType = emailType;
 	}
 
 	// H9: only the answer to the LAST request fills the box -- a slower answer
-	// to an earlier choice no longer overwrites a later one. While a template
-	// loads the box cannot send (the new type with the old text), and a failed
-	// load hands the type back to `onFail` (Codex #178 I1).
-	function loadEmailTemplate( $box, emailType, bookingId, onFail ) {
-		var request = ++templateRequest;
-		var $send   = $box.find( '.mhm-email-send-btn' );
+	// to an earlier choice no longer overwrites a later one. A failed load names
+	// the type whose text the box still holds.
+	function loadEmailTemplate( $box, emailType, bookingId ) {
+		var request = ++state.request;
 
 		if ( 'custom' === emailType ) {
-			$( '#email_subject' ).val( '' );
-			setMessage( '' );
-			rememberLoaded();
-			$send.prop( 'disabled', false );
+			state.loading = false;
+			fill( '', '', 'custom' );
+			refreshButton( $box );
 			return;
 		}
 
-		$send.prop( 'disabled', true );
+		state.loading = true;
+		refreshButton( $box );
+
 		var failed = function () {
 			showEmailNotice( $box, 'error', strings().templateError || 'The template could not be loaded.' );
-			if ( typeof onFail === 'function' ) {
-				onFail();
+			if ( state.loadedType ) {
+				state.selected = state.loadedType;
+				$( '#email_type' ).val( state.loadedType );
 			}
 		};
 
@@ -134,25 +160,24 @@
 				nonce: ( window.mhmBookingEmail && window.mhmBookingEmail.emailNonce ) || '',
 			},
 			success: function ( response ) {
-				if ( request !== templateRequest ) {
+				if ( request !== state.request ) {
 					return;
 				}
 				if ( response && response.success && response.data ) {
-					$( '#email_subject' ).val( response.data.subject || '' );
-					setMessage( response.data.message || '' );
-					rememberLoaded();
+					fill( response.data.subject || '', response.data.message || '', emailType );
 				} else {
 					failed();
 				}
 			},
 			error: function () {
-				if ( request === templateRequest ) {
+				if ( request === state.request ) {
 					failed();
 				}
 			},
 			complete: function () {
-				if ( request === templateRequest ) {
-					$send.prop( 'disabled', false );
+				if ( request === state.request ) {
+					state.loading = false;
+					refreshButton( $box );
 				}
 			},
 		} );
@@ -161,6 +186,10 @@
 	/* ---- Send ---- */
 
 	function handleEmailFormSubmit( $box ) {
+		if ( state.loading || state.sending ) {
+			return;
+		}
+
 		var text      = strings();
 		var bookingId = $box.data( 'booking-id' ) || $( '#post_ID' ).val();
 		var nonce     = $box.find( 'input[name="mhmrentiva_email_nonce"]' ).val() || '';
@@ -173,11 +202,13 @@
 		var $button = $box.find( '.mhm-email-send-btn' );
 		var label   = $button.text();
 		var type    = $box.find( '#email_type' ).val() || '';
-		// An unedited template goes out empty: the server renders it itself,
-		// byte for byte the automatic e-mail -- the editor would trim and
-		// normalise it (Codex #178 I3).
-		var edited  = 'custom' === type || isEdited();
-		$button.prop( 'disabled', true ).text( text.sending || 'Sending...' );
+		// An untouched template goes out empty: the server renders it itself,
+		// byte for byte the automatic e-mail (the editor trims and normalises).
+		var edited  = 'custom' === type || state.dirty;
+
+		state.sending = true;
+		refreshButton( $box );
+		$button.text( text.sending || 'Sending...' );
 
 		$.ajax( {
 			url: ajaxUrl(),
@@ -204,7 +235,9 @@
 				showEmailNotice( $box, 'error', text.sendFailed || 'The e-mail could not be sent. Please try again.' );
 			},
 			complete: function () {
-				$button.prop( 'disabled', false ).text( label );
+				state.sending = false;
+				$button.text( label );
+				refreshButton( $box );
 			},
 		} );
 	}
@@ -226,37 +259,41 @@
 			}
 		} );
 
+		// The operator's own changes (the editor's Text tab is the textarea).
+		$( document ).off( 'input', '#email_subject, #' + EDITOR_ID ).on( 'input', '#email_subject, #' + EDITOR_ID, markDirty );
+
 		// A type change replaces the box; edits are not thrown away unasked.
-		var currentType = $( '#email_type' ).val();
+		state.selected = $( '#email_type' ).val() || '';
 		$( document ).off( 'change', '#email_type' ).on( 'change', '#email_type', function () {
 			var $select = $( this );
-			if ( isEdited() && ! window.confirm( strings().confirmReplace || 'Replace your changes with the selected template?' ) ) {
-				$select.val( currentType );
+			if ( state.dirty && ! window.confirm( strings().confirmReplace || 'Replace your changes with the selected template?' ) ) {
+				$select.val( state.selected );
 				return;
 			}
-			var previousType = currentType;
-			currentType      = $select.val();
-			loadEmailTemplate( $select.closest( '.mhm-email-form' ), currentType, $select.closest( '.mhm-email-form' ).data( 'booking-id' ) || $( '#post_ID' ).val(), function () {
-				// The box still holds the previous type's text: name it again.
-				currentType = previousType;
-				$select.val( previousType );
-			} );
+			state.selected = $select.val();
+			loadEmailTemplate( $select.closest( '.mhm-email-form' ), state.selected, $select.closest( '.mhm-email-form' ).data( 'booking-id' ) || $( '#post_ID' ).val() );
 		} );
 
 		// The default type's template on page load.
-		if ( $box.length && currentType ) {
-			loadEmailTemplate( $box, currentType, $box.data( 'booking-id' ) || ( window.mhmBookingEmail && window.mhmBookingEmail.bookingId ) || $( '#post_ID' ).val() );
+		if ( $box.length && state.selected ) {
+			loadEmailTemplate( $box, state.selected, $box.data( 'booking-id' ) || ( window.mhmBookingEmail && window.mhmBookingEmail.bookingId ) || $( '#post_ID' ).val() );
 		}
 
-		// TinyMCE normalises the HTML it is given; once it is up, what it
-		// holds is the unedited state (unless the operator already typed).
+		// Every TinyMCE instance of the box (it is set up again after a move):
+		// keep the textarea in step and record the operator's edits.
 		$( document ).on( 'tinymce-editor-init', function ( event, editor ) {
-			if ( editor && EDITOR_ID === editor.id && $( '#' + EDITOR_ID ).val() === loaded.message ) {
-				editor.on( 'change input', function () {
-					editor.save();
-				} );
-				rememberLoaded();
+			if ( ! editor || EDITOR_ID !== editor.id ) {
+				return;
 			}
+			editor.on( 'input paste cut drop Undo Redo', markDirty );
+			editor.on( 'ExecCommand', function ( e ) {
+				if ( e && EDITING_COMMANDS.indexOf( e.command ) !== -1 ) {
+					markDirty();
+				}
+			} );
+			editor.on( 'change input', function () {
+				editor.save();
+			} );
 		} );
 
 		// Drag and drop of the postbox.
