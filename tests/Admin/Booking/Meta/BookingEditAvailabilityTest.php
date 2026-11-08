@@ -256,6 +256,43 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 		$this->assertSame((string) $this->vehicle_id, (string) get_post_meta($moved, '_mhmrentiva_vehicle_id', true));
 	}
 
+	/**
+	 * Fable #175 r8 M-1, end to end: a stored time the time input cannot hold
+	 * ('9:00') is drawn as '' and posted back untouched. The availability check
+	 * must still run on the range the form shows (default time) and refuse a
+	 * busy vehicle; the stored '9:00' stays.
+	 */
+	public function test_a_vehicle_move_is_checked_when_the_stored_time_is_malformed(): void
+	{
+		$other_vehicle = $this->track(
+			self::factory()->post->create(
+				array(
+					'post_type'   => 'mhmrentiva_vehicle',
+					'post_status' => 'publish',
+				)
+			)
+		);
+		update_post_meta($other_vehicle, '_mhmrentiva_price_per_day', '1000');
+		$taken = $this->booking('confirmed', '2027-03-10', '2027-03-13');
+		update_post_meta($taken, '_mhmrentiva_vehicle_id', $other_vehicle);
+
+		$moved = $this->booking('confirmed', '2027-03-10', '2027-03-13');
+		update_post_meta($moved, '_mhmrentiva_pickup_time', '9:00');
+		update_post_meta($moved, '_mhmrentiva_start_time', '9:00');
+
+		$this->admin_save(
+			$moved,
+			array(
+				'mhmrentiva_edit_vehicle_id'  => (string) $other_vehicle,
+				'mhmrentiva_edit_pickup_time' => '',
+			)
+		);
+
+		$this->assertSame((string) $this->vehicle_id, (string) get_post_meta($moved, '_mhmrentiva_vehicle_id', true), 'The busy vehicle is refused.');
+		$this->assertSame('9:00', get_post_meta($moved, '_mhmrentiva_pickup_time', true), 'The stored time stays.');
+		$this->assertFalse(BookingMeta::edit_availability_allowed($moved));
+	}
+
 	public function test_moving_a_rental_booking_onto_a_transfer_only_vehicle_is_refused(): void
 	{
 		$transfer_only = $this->track(
