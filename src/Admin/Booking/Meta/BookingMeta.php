@@ -1709,7 +1709,6 @@ final class BookingMeta extends AbstractMetaBox {
 
 		if ('custom' === $email_type && ( '' === trim($subject) || '' === trim(wp_strip_all_tags($message)) )) {
 			wp_send_json_error(__('Please enter a subject and a message.', 'mhm-rentiva'));
-			return;
 		}
 
 		// Rendered in the site language, from the context the automatic e-mail
@@ -1738,7 +1737,6 @@ final class BookingMeta extends AbstractMetaBox {
 
 		if (! $result['sent']) {
 			wp_send_json_error(__('Failed to send email. Please check your WordPress email configuration.', 'mhm-rentiva'));
-			return;
 		}
 
 		// In the booking history (function scan H16): which e-mail went out, to
