@@ -89,29 +89,29 @@ final class EmailSettings {
 			'mhmrentiva_email_footer_text'              => static fn(): string => (string) get_bloginfo( 'name' ),
 
 			// Customer Booking Confirmation
-			'mhmrentiva_booking_created_subject'        => static fn(): string => __( 'Booking Confirmed: #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_booking_created_subject'        => static fn(): string => (string) self::default_subject( 'booking_created_customer' ),
 			'mhmrentiva_booking_created_body'           => static fn(): string => self::get_default_customer_confirmation_body(),
 
 			// Booking Status Change (Customer)
-			'mhmrentiva_booking_status_subject'         => static fn(): string => __( 'Booking #{booking_id} status updated', 'mhm-rentiva' ),
+			'mhmrentiva_booking_status_subject'         => static fn(): string => (string) self::default_subject( 'booking_status_changed_customer' ),
 			'mhmrentiva_booking_status_body'            => static fn(): string => self::get_default_booking_status_body(),
 
 			// Admin Booking Alert
-			'mhmrentiva_booking_admin_subject'          => static fn(): string => __( 'New Booking Alert: #{booking_id} - {site_name}', 'mhm-rentiva' ),
+			'mhmrentiva_booking_admin_subject'          => static fn(): string => (string) self::default_subject( 'booking_created_admin' ),
 			'mhmrentiva_booking_admin_body'             => static fn(): string => self::get_default_admin_notification_body(),
 
 			// Auto Cancel Email
-			'mhmrentiva_auto_cancel_email_subject'      => static fn(): string => __( 'Booking Cancelled (Payment Timeout): #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_auto_cancel_email_subject'      => static fn(): string => (string) self::default_subject( 'auto_cancel' ),
 			'mhmrentiva_auto_cancel_email_content'      => static fn(): string => self::get_default_auto_cancel_body(),
 
 			// Booking Reminder
-			'mhmrentiva_booking_reminder_subject'       => static fn(): string => __( 'Reminder: Your Booking #{booking_id} Starts Soon', 'mhm-rentiva' ),
+			'mhmrentiva_booking_reminder_subject'       => static fn(): string => (string) self::default_subject( 'booking_reminder_customer' ),
 			'mhmrentiva_booking_reminder_body'          => static fn(): string => self::get_default_booking_reminder_body(),
 
 			// Refund Emails
-			'mhmrentiva_refund_customer_subject'        => static fn(): string => __( 'Refund Processed for Booking #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_refund_customer_subject'        => static fn(): string => (string) self::default_subject( 'refund_customer' ),
 			'mhmrentiva_refund_customer_body'           => static fn(): string => self::get_default_refund_customer_body(),
-			'mhmrentiva_refund_admin_subject'           => static fn(): string => __( 'Refund Alert: Booking #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_refund_admin_subject'           => static fn(): string => (string) self::default_subject( 'refund_admin' ),
 			'mhmrentiva_refund_admin_body'              => static fn(): string => self::get_default_refund_admin_body(),
 
 			// Customer Notification Toggles

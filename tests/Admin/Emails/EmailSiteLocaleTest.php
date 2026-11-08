@@ -144,8 +144,8 @@ final class EmailSiteLocaleTest extends WP_Ajax_UnitTestCase
     {
         $english = array(
             'booking_created_customer'        => 'Confirmed',
-            'booking_created_admin'           => 'New Booking Request',
-            'booking_status_changed_customer' => 'Status Updated',
+            'booking_created_admin'           => 'New Booking Alert',
+            'booking_status_changed_customer' => 'status updated',
             'booking_status_changed_admin'    => 'Status Updated',
             'booking_reminder_customer'       => 'Starts Soon',
             'remaining_payment_link_customer' => 'Complete Your Payment',
