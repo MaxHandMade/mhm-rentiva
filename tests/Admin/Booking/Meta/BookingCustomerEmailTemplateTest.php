@@ -169,6 +169,16 @@ final class BookingCustomerEmailTemplateTest extends WP_Ajax_UnitTestCase
 		$this->assertStringContainsString('Neden: Uçuş iptal', (string) $this->sent[0]['message']);
 	}
 
+	/** Fable #178 D2: a cancellation e-mail for a booking not cancelled yet still reads the reason. */
+	public function test_a_cancellation_e_mail_for_a_confirmed_booking_reads_the_reason(): void
+	{
+		update_post_meta($this->booking, '_mhmrentiva_status', 'confirmed');
+		update_option('mhmrentiva_booking_cancelled_body', '<p>Neden: {{cancellation_reason}}</p>');
+		update_post_meta($this->booking, '_mhmrentiva_cancellation_data', array( 'cancellation_reason' => 'Uçuş iptal' ));
+
+		$this->assertStringContainsString('Neden: Uçuş iptal', (string) $this->fetch('booking_cancelled')['data']['message']);
+	}
+
 	public function test_an_unedited_template_sends_what_the_automatic_e_mail_sends(): void
 	{
 		$this->assertTrue($this->send('booking_created_customer')['success'] ?? false);

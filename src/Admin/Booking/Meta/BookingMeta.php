@@ -1772,8 +1772,11 @@ final class BookingMeta extends AbstractMetaBox {
 	{
 		$context = Mailer::getBookingContext($booking_id) ?? array();
 		if ('booking_cancelled' === $email_type) {
+			// A cancellation e-mail announces the change TO cancelled, whatever
+			// the booking's status is now (Fable #178 D2: on a confirmed booking
+			// the reason was left out).
 			$status  = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
-			$context = array_merge($context, \MHMRentiva\Admin\Emails\Notifications\BookingNotifications::status_change_context($booking_id, '', '' !== $status ? $status : 'cancelled'));
+			$context = array_merge($context, \MHMRentiva\Admin\Emails\Notifications\BookingNotifications::status_change_context($booking_id, $status, Status::CANCELLED));
 		}
 
 		return $context;

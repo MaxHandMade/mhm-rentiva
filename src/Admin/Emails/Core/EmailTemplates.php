@@ -371,8 +371,9 @@ final class EmailTemplates {
 			// e-mail adds (status change, reason).
 			$ctx = array_merge($ctx, \MHMRentiva\Admin\Emails\Core\Mailer::getBookingContext($booking_id) ?? array());
 			if ('booking_cancelled' === $key) {
+				// The change TO cancelled, whatever the status is now (Fable #178 D2).
 				$status = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
-				$ctx    = array_merge($ctx, \MHMRentiva\Admin\Emails\Notifications\BookingNotifications::status_change_context($booking_id, '', '' !== $status ? $status : 'cancelled'));
+				$ctx    = array_merge($ctx, \MHMRentiva\Admin\Emails\Notifications\BookingNotifications::status_change_context($booking_id, $status, \MHMRentiva\Admin\Booking\Core\Status::CANCELLED));
 			}
 
 			// What the refund templates read on top of it (booking.payment).
