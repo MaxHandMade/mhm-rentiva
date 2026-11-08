@@ -320,9 +320,9 @@ class AtomicImporter {
         if (! $is_rollback) {
             $current_manifest = get_post_meta($post_id, '_mhmrentiva_layout_manifest', true);
             if (! empty($current_manifest)) {
-                update_post_meta($post_id, '_mhmrentiva_layout_manifest_previous', $current_manifest);
-                update_post_meta($post_id, '_mhmrentiva_layout_hash_previous', get_post_meta($post_id, '_mhmrentiva_layout_hash', true));
-                update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp_previous', get_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', true));
+                update_post_meta($post_id, '_mhmrentiva_layout_manifest_previous', wp_slash($current_manifest));
+                update_post_meta($post_id, '_mhmrentiva_layout_hash_previous', wp_slash(get_post_meta($post_id, '_mhmrentiva_layout_hash', true)));
+                update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp_previous', wp_slash(get_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', true)));
             }
         }
 
@@ -330,10 +330,13 @@ class AtomicImporter {
         // wp_update_post() reports failure by return value, not by raising.
         // Writing the meta regardless would stamp a hash onto content the post
         // never received -- and the next import would then skip it as identical.
-        $updated = wp_update_post([
+        // Every writer in this class slashes: the post and meta APIs unslash,
+        // and the manifest (from wp_json_file_decode()) carries raw
+        // backslashes -- a Windows path, a title, an instance id.
+        $updated = wp_update_post(wp_slash([
 			'ID'           => $post_id,
 			'post_content' => $markup,
-		], true);
+		]), true);
 
         $failure = '';
         if (is_wp_error($updated)) {
@@ -351,9 +354,9 @@ class AtomicImporter {
             )));
         }
 
-        update_post_meta($post_id, '_mhmrentiva_layout_manifest', $manifest);
-        update_post_meta($post_id, '_mhmrentiva_layout_hash', $hash);
-        update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', current_time('mysql', true));
+        update_post_meta($post_id, '_mhmrentiva_layout_manifest', wp_slash($manifest));
+        update_post_meta($post_id, '_mhmrentiva_layout_hash', wp_slash($hash));
+        update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', wp_slash(current_time('mysql', true)));
 
         // 4. Audit Log -- held until the whole batch succeeds. Written here, a
         // failed batch would leave an "import happened" entry behind, and the
@@ -370,22 +373,22 @@ class AtomicImporter {
      */
     private function perform_create(array $page_data, string $markup, array $manifest, string $hash, array $options = []): int
     {
-        $new_id = wp_insert_post([
+        $new_id = wp_insert_post(wp_slash([
             'post_title'   => $page_data['title'] ?? (string) ( $options['default_title'] ?? '' ),
             'post_name'    => $page_data['slug']  ?? '',
             'post_content' => $markup,
             'post_status'  => 'publish',
             'post_type'    => self::TARGET_POST_TYPE,
-        ], true);
+        ]), true);
 
         if (is_wp_error($new_id)) {
             throw new Exception(esc_html( (string) $new_id->get_error_message()));
         }
 
         $this->undo_stack[] = $new_id;
-        update_post_meta($new_id, '_mhmrentiva_layout_manifest', $manifest);
-        update_post_meta($new_id, '_mhmrentiva_layout_hash', $hash);
-        update_post_meta($new_id, '_mhmrentiva_layout_version_timestamp', current_time('mysql', true));
+        update_post_meta($new_id, '_mhmrentiva_layout_manifest', wp_slash($manifest));
+        update_post_meta($new_id, '_mhmrentiva_layout_hash', wp_slash($hash));
+        update_post_meta($new_id, '_mhmrentiva_layout_version_timestamp', wp_slash(current_time('mysql', true)));
 
         // Audit Log for creation -- held until the batch succeeds, see perform_update().
         $this->pending_audit[] = [
@@ -404,12 +407,12 @@ class AtomicImporter {
         $this->pending_audit = [];
 
         foreach ($this->snapshots as $post_id => $data) {
-            $restored = wp_update_post([
+            $restored = wp_update_post(wp_slash([
                 'ID'           => $post_id,
                 'post_content' => $data['post_content'],
                 'post_title'   => $data['post_title'],
                 'post_status'  => $data['post_status'],
-            ], true);
+            ]), true);
 
             $restore_failure = '';
             if (is_wp_error($restored)) {
@@ -493,7 +496,7 @@ class AtomicImporter {
     {
         foreach ($values as $key => $value) {
             if (in_array($key, $existing, true)) {
-                update_post_meta($post_id, $key, $value);
+                update_post_meta($post_id, $key, wp_slash($value));
                 continue;
             }
 

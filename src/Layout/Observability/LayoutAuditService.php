@@ -48,7 +48,7 @@ class LayoutAuditService {
             $log[ count($log) - 1 ]['truncated'] = true;
         }
 
-        return (bool) update_post_meta($post_id, self::META_KEY, $log);
+        return (bool) update_post_meta($post_id, self::META_KEY, wp_slash($log));
     }
 
     /**
