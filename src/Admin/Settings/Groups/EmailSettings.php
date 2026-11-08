@@ -424,6 +424,37 @@ final class EmailSettings {
 	public static function is_auto_send_enabled(): bool {
 		return SettingsCore::get( 'mhmrentiva_email_auto_send', '1' ) === '1';
 	}
+	/**
+	 * The subject a template goes out with when the operator saved none --
+	 * the one the Settings screen shows, so the screen and the sent e-mail
+	 * agree (PR 3b-3, Codex #178). Null for a template the screen has no
+	 * subject field for (the registry's subject applies).
+	 */
+	public static function default_subject( string $key ): ?string {
+		switch ( $key ) {
+			case 'booking_created_customer':
+				return __( 'Booking Confirmed: #{booking_id}', 'mhm-rentiva' );
+			case 'booking_status_changed_customer':
+				return __( 'Booking #{booking_id} status updated', 'mhm-rentiva' );
+			case 'booking_created_admin':
+				return __( 'New Booking Alert: #{booking_id} - {site_name}', 'mhm-rentiva' );
+			case 'auto_cancel':
+				return __( 'Booking Cancelled (Payment Timeout): #{booking_id}', 'mhm-rentiva' );
+			case 'booking_cancelled':
+				return __( 'Booking Cancelled: #{booking_id}', 'mhm-rentiva' );
+			case 'booking_reminder_customer':
+				return __( 'Reminder: Your Booking #{booking_id} Starts Soon', 'mhm-rentiva' );
+			case 'welcome_customer':
+				return __( 'Welcome to {site_name}', 'mhm-rentiva' );
+			case 'refund_customer':
+				return __( 'Refund Processed for Booking #{booking_id}', 'mhm-rentiva' );
+			case 'refund_admin':
+				return __( 'Refund Alert: Booking #{booking_id}', 'mhm-rentiva' );
+			default:
+				return null;
+		}
+	}
+
 	public static function is_log_enabled(): bool {
 		return SettingsCore::get( 'mhmrentiva_email_log_enabled', '1' ) === '1';
 	}

@@ -188,7 +188,9 @@ final class Templates {
 		// unknown, a dynamic 'Notification: {key}' fallback that was never
 		// translatable). Re-wrapping either in __() here would be invalid i18n
 		// (variable first argument) — pass the value through as-is.
-		$tpl = $reg[ $key ]['subject'] ?? ( 'Notification: ' . $key );
+		// The Settings screen's default first, so an unsaved subject goes out as
+		// the screen shows it (PR 3b-3); otherwise the registry's.
+		$tpl = EmailSettings::default_subject( $key ) ?? ( $reg[ $key ]['subject'] ?? ( 'Notification: ' . $key ) );
 		$sub = self::replace_placeholders( $tpl, $context );
 		$sub = apply_filters( 'mhmrentiva_email_subject', $sub, $key, $context );
 		$sub = apply_filters( 'mhmrentiva_email_subject_' . $key, $sub, $context );

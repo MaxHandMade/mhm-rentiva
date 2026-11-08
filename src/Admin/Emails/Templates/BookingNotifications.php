@@ -52,7 +52,7 @@ final class BookingNotifications {
 				'type'  => 'text',
 				'name'  => 'mhmrentiva_booking_created_subject',
 				'label' => __( 'Subject', 'mhm-rentiva' ),
-				'value' => $get_val( 'mhmrentiva_booking_created_subject', fn() => __( 'Booking Confirmed: #{booking_id}', 'mhm-rentiva' ) ),
+				'value' => $get_val( 'mhmrentiva_booking_created_subject', fn() => EmailSettings::default_subject( 'booking_created_customer' ) ),
 			),
 			array(
 				'type'  => 'textarea',
@@ -81,7 +81,7 @@ final class BookingNotifications {
 				'type'  => 'text',
 				'name'  => 'mhmrentiva_booking_status_subject',
 				'label' => __( 'Subject', 'mhm-rentiva' ),
-				'value' => $get_val( 'mhmrentiva_booking_status_subject', fn() => __( 'Booking #{booking_id} status updated', 'mhm-rentiva' ) ),
+				'value' => $get_val( 'mhmrentiva_booking_status_subject', fn() => EmailSettings::default_subject( 'booking_status_changed_customer' ) ),
 			),
 			array(
 				'type'  => 'textarea',
@@ -117,7 +117,7 @@ final class BookingNotifications {
 				'type'  => 'text',
 				'name'  => 'mhmrentiva_booking_admin_subject',
 				'label' => __( 'Subject', 'mhm-rentiva' ),
-				'value' => $get_val( 'mhmrentiva_booking_admin_subject', fn() => __( 'New Booking Alert: #{booking_id} - {site_name}', 'mhm-rentiva' ) ),
+				'value' => $get_val( 'mhmrentiva_booking_admin_subject', fn() => EmailSettings::default_subject( 'booking_created_admin' ) ),
 			),
 			array(
 				'type'  => 'textarea',
@@ -140,7 +140,7 @@ final class BookingNotifications {
 				'type'  => 'text',
 				'name'  => 'mhmrentiva_auto_cancel_email_subject',
 				'label' => __( 'Subject', 'mhm-rentiva' ),
-				'value' => $get_val( 'mhmrentiva_auto_cancel_email_subject', fn() => __( 'Booking Cancelled (Payment Timeout): #{booking_id}', 'mhm-rentiva' ) ),
+				'value' => $get_val( 'mhmrentiva_auto_cancel_email_subject', fn() => EmailSettings::default_subject( 'auto_cancel' ) ),
 			),
 			array(
 				'type'  => 'textarea',
@@ -169,7 +169,7 @@ final class BookingNotifications {
 				'type'  => 'text',
 				'name'  => 'mhmrentiva_booking_cancelled_subject',
 				'label' => __( 'Subject', 'mhm-rentiva' ),
-				'value' => $get_val( 'mhmrentiva_booking_cancelled_subject', fn() => __( 'Booking Cancelled: #{booking_id}', 'mhm-rentiva' ) ),
+				'value' => $get_val( 'mhmrentiva_booking_cancelled_subject', fn() => EmailSettings::default_subject( 'booking_cancelled' ) ),
 			),
 			array(
 				'type'  => 'textarea',
@@ -198,7 +198,7 @@ final class BookingNotifications {
 				'type'  => 'text',
 				'name'  => 'mhmrentiva_booking_reminder_subject',
 				'label' => __( 'Subject', 'mhm-rentiva' ),
-				'value' => $get_val( 'mhmrentiva_booking_reminder_subject', fn() => __( 'Reminder: Your Booking #{booking_id} Starts Soon', 'mhm-rentiva' ) ),
+				'value' => $get_val( 'mhmrentiva_booking_reminder_subject', fn() => EmailSettings::default_subject( 'booking_reminder_customer' ) ),
 			),
 			array(
 				'type'  => 'textarea',
@@ -220,7 +220,7 @@ final class BookingNotifications {
 				'type'  => 'text',
 				'name'  => 'mhmrentiva_welcome_email_subject',
 				'label' => __( 'Subject', 'mhm-rentiva' ),
-				'value' => $get_val( 'mhmrentiva_welcome_email_subject', fn() => __( 'Welcome to {site_name}', 'mhm-rentiva' ) ),
+				'value' => $get_val( 'mhmrentiva_welcome_email_subject', fn() => EmailSettings::default_subject( 'welcome_customer' ) ),
 			),
 			array(
 				'type'  => 'textarea',

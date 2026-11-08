@@ -48,7 +48,7 @@ final class RefundEmails {
 
 		echo '<tr>';
 		echo '<th scope="row"><label for="mhmrentiva_refund_customer_subject">' . esc_html__( 'Subject', 'mhm-rentiva' ) . '</label></th>';
-		echo '<td><input type="text" id="mhmrentiva_refund_customer_subject" name="mhmrentiva_refund_customer_subject" value="' . esc_attr( $get_val( 'mhmrentiva_refund_customer_subject', fn() => __( 'Refund Processed for Booking #{booking_id}', 'mhm-rentiva' ) ) ) . '" class="regular-text" /></td>';
+		echo '<td><input type="text" id="mhmrentiva_refund_customer_subject" name="mhmrentiva_refund_customer_subject" value="' . esc_attr( $get_val( 'mhmrentiva_refund_customer_subject', fn() => EmailSettings::default_subject( 'refund_customer' ) ) ) . '" class="regular-text" /></td>';
 		echo '</tr>';
 
 		echo '<tr>';
@@ -76,7 +76,7 @@ final class RefundEmails {
 
 		echo '<tr>';
 		echo '<th scope="row"><label for="mhmrentiva_refund_admin_subject">' . esc_html__( 'Subject', 'mhm-rentiva' ) . '</label></th>';
-		echo '<td><input type="text" id="mhmrentiva_refund_admin_subject" name="mhmrentiva_refund_admin_subject" value="' . esc_attr( $get_val( 'mhmrentiva_refund_admin_subject', fn() => __( 'Refund Alert: Booking #{booking_id}', 'mhm-rentiva' ) ) ) . '" class="regular-text" /></td>';
+		echo '<td><input type="text" id="mhmrentiva_refund_admin_subject" name="mhmrentiva_refund_admin_subject" value="' . esc_attr( $get_val( 'mhmrentiva_refund_admin_subject', fn() => EmailSettings::default_subject( 'refund_admin' ) ) ) . '" class="regular-text" /></td>';
 		echo '</tr>';
 
 		echo '<tr>';
