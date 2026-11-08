@@ -199,6 +199,32 @@ final class LayoutBackslashTest extends WP_UnitTestCase
 		$this->assertSame($this->v1(), get_post_meta($id, '_mhmrentiva_layout_manifest_previous', true));
 	}
 
+	public function test_an_update_leaves_a_field_it_does_not_write_untouched(): void
+	{
+		$id = $this->import($this->v1(), array( 'create' => true ));
+		wp_update_post(wp_slash(array( 'ID' => $id, 'post_excerpt' => 'Özet \\ yaz' )));
+
+		$this->import($this->v2($id));
+
+		$this->assertSame('Özet \\ yaz', get_post($id)->post_excerpt, 'wp_update_post() merges the fields it reads back');
+	}
+
+	public function test_a_dry_run_of_a_backslash_manifest_resolves_and_writes_nothing(): void
+	{
+		$id     = $this->import($this->v1(), array( 'create' => true ));
+		$before = get_post_meta($id, '_mhmrentiva_layout_manifest', true);
+
+		$summary = ( new AtomicImporter($this->engine) )->dry_run($this->v2($id));
+		$this->assertSame('update', $summary[0]['status']);
+		$this->assertSame($id, (int) $summary[0]['post_id']);
+		$this->assertSame($before, get_post_meta($id, '_mhmrentiva_layout_manifest', true));
+
+		// The rollback dry run re-hashes the stored previous manifest.
+		$this->import($this->v2($id));
+		$check = LayoutRollbackService::rollback($id, true, $this->engine);
+		$this->assertSame('possible', $check['status'], 'a rollback dry run is not refused');
+	}
+
 	public function test_the_audit_log_keeps_an_earlier_event_word_for_word(): void
 	{
 		$id = self::factory()->post->create(array( 'post_type' => 'page' ));

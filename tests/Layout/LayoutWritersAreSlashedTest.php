@@ -59,12 +59,18 @@ final class LayoutWritersAreSlashedTest extends WP_UnitTestCase
 			if (! is_array($tokens[ $i ]) || ! in_array($tokens[ $i ][0], array( T_STRING, T_NAME_FULLY_QUALIFIED ), true)) {
 				continue;
 			}
-			$name = ltrim($tokens[ $i ][1], '\\');
+			// PHP function names are case-insensitive.
+			$name = strtolower(ltrim($tokens[ $i ][1], '\\'));
 			if (! isset(self::WRITERS[ $name ])) {
 				continue;
 			}
 
 			$prev = self::significant($tokens, $i, -1);
+			// `function &wp_update_post(` declares by reference.
+			// PHP 8.1+ tokenizes that `&` as T_AMPERSAND_NOT_FOLLOWED_BY_VAR_OR_VARARG.
+			if (null !== $prev && ( '&' === $tokens[ $prev ] || ( is_array($tokens[ $prev ]) && '&' === $tokens[ $prev ][1] ) )) {
+				$prev = self::significant($tokens, $prev, -1);
+			}
 			if (null !== $prev && is_array($tokens[ $prev ]) && in_array($tokens[ $prev ][0], array( T_FUNCTION, T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR, T_DOUBLE_COLON, T_NEW ), true)) {
 				continue;
 			}
@@ -97,9 +103,9 @@ final class LayoutWritersAreSlashedTest extends WP_UnitTestCase
 
 			$slashed = false;
 			$at      = -1;
-			if (null !== $start && is_array($tokens[ $start ]) && 'wp_slash' === ltrim($tokens[ $start ][1], '\\')) {
+			if (null !== $start && is_array($tokens[ $start ]) && 'wp_slash' === strtolower(ltrim($tokens[ $start ][1], '\\'))) {
 				$after   = self::significant($tokens, $start, 1);
-				$slashed = null !== $after && '(' === $tokens[ $after ];
+				$slashed = null !== $after && '(' === $tokens[ $after ] && self::wraps_whole_argument($tokens, $after);
 				$at      = $slashed ? $start : -1;
 			}
 
@@ -112,6 +118,32 @@ final class LayoutWritersAreSlashedTest extends WP_UnitTestCase
 		}
 
 		return $calls;
+	}
+
+	/**
+	 * Whether the wp_slash( opening at $open closes at the end of the argument:
+	 * `wp_slash($a) + $b` slashes only part of the value.
+	 *
+	 * @param array<int, mixed> $tokens
+	 */
+	private static function wraps_whole_argument(array $tokens, int $open): bool
+	{
+		$depth = 0;
+		$count = count($tokens);
+		for ($j = $open; $j < $count; $j++) {
+			$t = $tokens[ $j ];
+			if (in_array($t, array( '(', '[', '{' ), true) || ( is_array($t) && in_array($t[0], array( T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES ), true) )) {
+				++$depth;
+			} elseif (in_array($t, array( ')', ']', '}' ), true)) {
+				--$depth;
+				if (0 === $depth) {
+					$next = self::significant($tokens, $j, 1);
+					return null !== $next && in_array($tokens[ $next ], array( ',', ')' ), true);
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -166,6 +198,8 @@ final class LayoutWritersAreSlashedTest extends WP_UnitTestCase
 		foreach (array_keys(self::FILES) as $file) {
 			$source = self::source($file);
 			foreach (self::calls($source) as $call) {
+				// A call with nothing to remove would pass this loop silently.
+				$this->assertNotSame(-1, $call['slash_at'], "$file: {$call['function']}:{$call['line']} has a wp_slash to remove");
 				$mutated   = self::without_slash_at($source, $call['slash_at']);
 				$unslashed = array_filter(self::calls($mutated), static fn(array $c): bool => ! $c['slashed']);
 
@@ -184,6 +218,24 @@ final class LayoutWritersAreSlashedTest extends WP_UnitTestCase
 
 		$this->assertCount(1, $calls);
 		$this->assertTrue($calls[0]['slashed']);
+	}
+
+	public function test_a_value_only_partly_slashed_is_not_slashed(): void
+	{
+		$calls = self::calls('<?php update_post_meta($id, "k", wp_slash($m) + array( "raw" => $v )); wp_update_post(wp_slash($a) + $b, true); update_post_meta($id, "k", wp_slash($m));');
+
+		$this->assertFalse($calls[0]['slashed'], 'wp_slash($m) + [...]');
+		$this->assertFalse($calls[1]['slashed'], 'wp_slash($a) + $b');
+		$this->assertTrue($calls[2]['slashed']);
+	}
+
+	public function test_case_and_a_by_reference_declaration_are_handled(): void
+	{
+		$calls = self::calls('<?php function &wp_update_post($a) {} Update_Post_Meta($id, "k", $v); \\WP_UPDATE_POST(WP_SLASH($a));');
+
+		$this->assertCount(2, $calls);
+		$this->assertFalse($calls[0]['slashed']);
+		$this->assertTrue($calls[1]['slashed']);
 	}
 
 	public function test_the_value_argument_is_the_one_checked(): void
