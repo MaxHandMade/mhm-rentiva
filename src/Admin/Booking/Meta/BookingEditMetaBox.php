@@ -652,7 +652,8 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		if ( $guests_posted ) {
 			update_post_meta( $post_id, '_mhmrentiva_guests', $guests );
 		}
-		update_post_meta( $post_id, '_mhmrentiva_special_notes', $special_notes );
+		// Unslashed once on input; the meta API unslashes again (Fable #175 M-A).
+		update_post_meta( $post_id, '_mhmrentiva_special_notes', wp_slash( $special_notes ) );
 
 		$selection->store( $post_id );
 

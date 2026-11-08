@@ -588,7 +588,8 @@ final class BookingMeta extends AbstractMetaBox {
 		if ($guests_posted) {
 			update_post_meta($post_id, '_mhmrentiva_guests', $guests);
 		}
-		update_post_meta($post_id, '_mhmrentiva_special_notes', $special_notes);
+		// Unslashed once on input; the meta API unslashes again (Fable #175 M-A).
+		update_post_meta($post_id, '_mhmrentiva_special_notes', wp_slash($special_notes));
 
 		// Re-price only when a price input moved (BookingPricingInputs): the
 		// dates are filled in on every Update, and re-pricing a paid booking at
@@ -689,7 +690,7 @@ final class BookingMeta extends AbstractMetaBox {
 		$receipt_nonce = $req->text('mhmrentiva_receipt_nonce');
 		if ($receipt_nonce !== '' && wp_verify_nonce($receipt_nonce, 'mhmrentiva_receipt_review')) {
 			if ($req->has('mhmrentiva_receipt_note')) {
-				update_post_meta($post_id, '_mhmrentiva_receipt_note', $req->textarea('mhmrentiva_receipt_note'));
+				update_post_meta($post_id, '_mhmrentiva_receipt_note', wp_slash($req->textarea('mhmrentiva_receipt_note')));
 			}
 			$action = $req->text('mhmrentiva_receipt_action');
 			if ($action !== '') {
