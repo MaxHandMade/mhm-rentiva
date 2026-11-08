@@ -310,6 +310,14 @@
 			}
 			// A belt to TinyMCE's own dirty state: none of these fire on setContent().
 			editor.on( 'input paste cut drop', markDirty );
+			// save() -- also run by WordPress when switching to the Text tab
+			// (editor.hide()) -- clears TinyMCE's dirty state after firing
+			// SaveContent; carry it over first (Fable #178 Δ3-O1).
+			editor.on( 'SaveContent', function () {
+				if ( typeof editor.isDirty === 'function' && editor.isDirty() ) {
+					markDirty();
+				}
+			} );
 		} );
 
 		// Drag and drop of the postbox.
