@@ -1266,10 +1266,21 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		// Trigger email notifications
 		do_action('mhmrentiva_booking_created', $booking_id, $booking_data);
 
+		$message = esc_html__('Booking created successfully.', 'mhm-rentiva');
+		if ($create_customer) {
+			// The new account has a random password nobody knows (function scan
+			// H6): core's own set-password e-mail goes to the customer -- 'user'
+			// sends that one only, no admin copy. Sent once the booking exists,
+			// so the customer is not invited to an account for a booking that
+			// failed.
+			wp_new_user_notification( (int) $customer->ID, null, 'user' );
+			$message = esc_html__('Booking created successfully. The customer was sent an e-mail to set their password.', 'mhm-rentiva');
+		}
+
 		wp_send_json_success(
 			array(
 				'booking_id'   => $booking_id,
-				'message'      => esc_html__('Booking created successfully.', 'mhm-rentiva'),
+				'message'      => $message,
 				'redirect_url' => get_edit_post_link($booking_id, 'raw'),
 			)
 		);

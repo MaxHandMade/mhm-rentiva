@@ -149,8 +149,7 @@ final class ManualBookingCustomerLocationTest extends WP_Ajax_UnitTestCase
 	{
 		// WooCommerce Analytics refreshes its customer row on profile_update,
 		// reading a fresh WC_Customer; a location written after
-		// wp_update_user() leaves that row without it. One profile_update
-		// only: no second customer save.
+		// wp_update_user() leaves that row without it.
 		$seen  = array();
 		$probe = static function ($user_id) use (&$seen): void {
 			$customer = new \WC_Customer( (int) $user_id);
@@ -163,8 +162,13 @@ final class ManualBookingCustomerLocationTest extends WP_Ajax_UnitTestCase
 			remove_action('profile_update', $probe);
 		}
 
+		// Every profile_update of this user sees the location. Since H6 there are
+		// two: Rentiva's own wp_update_user(), and core's -- the set-password
+		// e-mail stores its reset key with wp_update_user()
+		// (get_password_reset_key(), WP 7.1.4 wp-includes/user.php).
 		$mine = array_values(array_filter($seen, static fn (array $s): bool => $s[0] === $user));
-		$this->assertSame(array( array( $user, 'TR', 'TR34' ) ), $mine);
+		$this->assertNotEmpty($mine);
+		$this->assertSame(array_fill(0, count($mine), array( $user, 'TR', 'TR34' )), $mine);
 	}
 
 	public function test_no_state_when_the_default_locale_hides_it(): void

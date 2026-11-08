@@ -121,9 +121,14 @@ final class AddCustomerPage {
 					// Clear cache
 					\MHMRentiva\Admin\Customers\CustomersOptimizer::clear_cache();
 
+					// The account has a random password nobody knows (function
+					// scan H6): core's own set-password e-mail goes to the
+					// customer -- 'user' sends that one only, no admin copy.
+					wp_new_user_notification( $user_id, null, 'user' );
+
 					$profile_url = admin_url( 'admin.php?page=mhm-rentiva-customers&action=view&customer_id=' . (int) $user_id );
 					$list_url    = admin_url( 'admin.php?page=mhm-rentiva-customers' );
-					echo '<div class="notice notice-success"><p>' . esc_html__( 'Customer added successfully!', 'mhm-rentiva' )
+					echo '<div class="notice notice-success"><p>' . esc_html__( 'Customer added successfully! The customer was sent an e-mail to set their password.', 'mhm-rentiva' )
 						. ' <a href="' . esc_url( $profile_url ) . '">' . esc_html__( 'Open Profile', 'mhm-rentiva' ) . '</a>'
 						. ' · <a href="' . esc_url( $list_url ) . '">' . esc_html__( '← Back to customers list', 'mhm-rentiva' ) . '</a></p></div>';
 				} else {
