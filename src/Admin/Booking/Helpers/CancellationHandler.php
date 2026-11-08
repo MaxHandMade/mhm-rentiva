@@ -162,9 +162,17 @@ final class CancellationHandler {
 
 		try {
 			// Save cancellation metadata BEFORE status update so email hooks can read it
+			// `cancelled_by` is 'admin' for a system call (user 0), kept for the
+			// readers that expect it. The roles and the surface record the
+			// capacity of the cancellation as it was then: an id outlives its
+			// role, and a vendor cancelling their own rental from My Account is
+			// a customer cancelling (Pro's reliability score and date blocker).
+			$actor             = $user_id > 0 ? get_userdata( $user_id ) : false;
 			$cancellation_data = array(
 				'cancelled_at'        => current_time( 'mysql' ),
 				'cancelled_by'        => $user_id > 0 ? $user_id : 'admin',
+				'cancelled_by_roles'  => $actor ? array_values( array_map( 'strval', (array) $actor->roles ) ) : array(),
+				'cancelled_via'       => $surface,
 				'cancellation_reason' => $reason,
 			);
 
