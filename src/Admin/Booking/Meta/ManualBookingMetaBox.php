@@ -1206,7 +1206,11 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 				// caught nothing: a failed insert fell through to
 				// wp_send_json_success() and told the operator the booking was
 				// created, handing them an edit link for post 0.
-				$booking_id = wp_insert_post($booking_data, true);
+				// The values are unslashed (request input and WP_User
+				// fields); wp_insert_post() unslashes the post fields and
+				// update_post_meta() each meta_input value, so the array is
+				// slashed once (backslash class).
+				$booking_id = wp_insert_post(wp_slash($booking_data), true);
 
 				if (is_wp_error($booking_id) || (int) $booking_id <= 0) {
 					return null;

@@ -168,7 +168,9 @@ final class CancellationHandler {
 				'cancellation_reason' => $reason,
 			);
 
-			update_post_meta( $booking_id, '_mhmrentiva_cancellation_data', $cancellation_data );
+			// Every caller passes an unslashed reason; the meta API unslashes
+			// arrays deeply (backslash class).
+			update_post_meta( $booking_id, '_mhmrentiva_cancellation_data', wp_slash( $cancellation_data ) );
 
 			// Update booking status to cancelled (fires mhmrentiva_booking_status_changed)
 			$status_updated = Status::update_status( $booking_id, Status::CANCELLED, $user_id );
