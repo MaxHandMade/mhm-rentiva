@@ -213,17 +213,19 @@ final class BookingMeta extends AbstractMetaBox {
 					'confirmRefund'        => __( 'Proceed with refund?', 'mhm-rentiva' ),
 					'priceDecimals'        => \MHMRentiva\Admin\Payment\Core\Money::decimals(),
 					'strings'              => array(
-						'noteEmpty'       => __( 'Please enter a note.', 'mhm-rentiva' ),
-						'noteAdded'       => __( 'Note added.', 'mhm-rentiva' ),
+						'noteEmpty'      => __( 'Please enter a note.', 'mhm-rentiva' ),
+						'noteAdded'      => __( 'Note added.', 'mhm-rentiva' ),
 						/* translators: %s: the error message the server returned. */
-						'noteError'       => __( 'Error: %s', 'mhm-rentiva' ),
-						'noteFailed'      => __( 'The note could not be added.', 'mhm-rentiva' ),
-						'sending'         => __( 'Sending...', 'mhm-rentiva' ),
-						'success'         => __( 'Email sent successfully!', 'mhm-rentiva' ),
-						'error'           => __( 'Error:', 'mhm-rentiva' ),
-						'unknownError'    => __( 'Unknown error', 'mhm-rentiva' ),
-						'errorOccurred'   => __( 'An error occurred:', 'mhm-rentiva' ),
-						'loadingTemplate' => __( 'Loading template...', 'mhm-rentiva' ),
+						'noteError'      => __( 'Error: %s', 'mhm-rentiva' ),
+						'noteFailed'     => __( 'The note could not be added.', 'mhm-rentiva' ),
+						'sending'        => __( 'Sending...', 'mhm-rentiva' ),
+						'success'        => __( 'Email sent successfully!', 'mhm-rentiva' ),
+						/* translators: %s: the error message the server returned. */
+						'sendError'      => __( 'The e-mail was not sent: %s', 'mhm-rentiva' ),
+						'sendFailed'     => __( 'The e-mail could not be sent. Please try again.', 'mhm-rentiva' ),
+						'securityError'  => __( 'Please refresh the page and try again.', 'mhm-rentiva' ),
+						'templateError'  => __( 'The template could not be loaded.', 'mhm-rentiva' ),
+						'confirmReplace' => __( 'Replace your changes with the selected template?', 'mhm-rentiva' ),
 					),
 				)
 			);
@@ -764,39 +766,69 @@ final class BookingMeta extends AbstractMetaBox {
 
 		echo '<hr style="margin: 15px 0;">';
 
-		// Email types
-		echo '<h4>' . esc_html__('Send Email', 'mhm-rentiva') . '</h4>';
-
-		echo '<div class="mhm-customer-email-box mhm-email-form" data-booking-id="' . (int) $post->ID . '">';
+		// PR 3b-3: the Settings templates the customer also gets automatically,
+		// plus a custom message; type and subject side by side, the message in
+		// the WordPress editor, the button on the right (canvas).
+		echo '<div class="mhm-email-form" data-booking-id="' . (int) $post->ID . '">';
 		wp_nonce_field('mhmrentiva_send_email', 'mhmrentiva_email_nonce');
 
-		echo '<p>';
-		echo '<label for="email_type">' . esc_html__('Email Type:', 'mhm-rentiva') . '</label><br/>';
-		echo '<select id="email_type" name="email_type" class="widefat" style="margin-bottom: 10px;">';
-		echo '<option value="booking_confirmation">' . esc_html__('Booking Confirmation', 'mhm-rentiva') . '</option>';
-		echo '<option value="payment_reminder">' . esc_html__('Payment Reminder', 'mhm-rentiva') . '</option>';
-		echo '<option value="booking_reminder">' . esc_html__('Booking Reminder', 'mhm-rentiva') . '</option>';
-		echo '<option value="booking_cancelled">' . esc_html__('Booking Cancelled', 'mhm-rentiva') . '</option>';
-		echo '<option value="custom">' . esc_html__('Custom Message', 'mhm-rentiva') . '</option>';
-		echo '</select>';
-		echo '</p>';
+		if (Mailer::customer_turned_off_notifications( (string) $customer_email)) {
+			echo '<p class="description mhm-email-optout">' . esc_html__('The customer turned off automatic notifications. An e-mail you send here still goes out.', 'mhm-rentiva') . '</p>';
+		}
 
-		echo '<p>';
-		echo '<label for="email_subject">' . esc_html__('Subject:', 'mhm-rentiva') . '</label><br/>';
-		echo '<input type="text" id="email_subject" name="email_subject" class="widefat" placeholder="' . esc_attr__('Email subject...', 'mhm-rentiva') . '" style="margin-bottom: 10px;">';
-		echo '</p>';
+		echo '<div class="mhm-email-row">';
+		echo '<p class="mhm-email-field"><label for="email_type">' . esc_html__('Email type', 'mhm-rentiva') . '</label>';
+		echo '<select id="email_type" class="widefat">';
+		foreach (self::customer_email_type_labels() as $type => $label) {
+			echo '<option value="' . esc_attr($type) . '">' . esc_html($label) . '</option>';
+		}
+		echo '</select></p>';
+		echo '<p class="mhm-email-field"><label for="email_subject">' . esc_html__('Subject', 'mhm-rentiva') . '</label>';
+		echo '<input type="text" id="email_subject" class="widefat"></p>';
+		echo '</div>';
 
-		echo '<p>';
-		echo '<label for="email_message">' . esc_html__('Message:', 'mhm-rentiva') . '</label><br/>';
-		echo '<textarea id="email_message" name="email_message" rows="4" class="widefat" placeholder="' . esc_attr__('Your message...', 'mhm-rentiva') . '" style="margin-bottom: 10px;"></textarea>';
-		echo '</p>';
+		echo '<div class="mhm-email-message"><label for="email_message">' . esc_html__('Message', 'mhm-rentiva') . '</label>';
+		wp_editor(
+			'',
+			'email_message',
+			array(
+				// Not posted with the booking form's Update: the box sends by AJAX.
+				'textarea_name'  => 'mhmrentiva_email_message_draft',
+				'media_buttons'  => false,
+				'teeny'          => true,
+				'quicktags'      => true,
+				'wpautop'        => false,
+				'textarea_rows'  => 8,
+				'default_editor' => 'tinymce',
+				'tinymce'        => array(
+					'toolbar1' => 'bold,italic,link,unlink,bullist,numlist,undo,redo',
+				),
+			)
+		);
+		echo '</div>';
 
-		echo '<p>';
-		echo '<button type="button" class="button button-primary mhm-email-send-btn" style="width: 100%;">' . esc_html__('Send Email', 'mhm-rentiva') . '</button>';
+		echo '<p class="mhm-email-actions">';
+		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-settings&tab=email-templates&type=booking_notifications')) . '">' . esc_html__('Settings → E-mail templates', 'mhm-rentiva') . '</a>';
+		echo '<button type="button" class="button button-primary mhm-email-send-btn">' . esc_html__('Send email', 'mhm-rentiva') . '</button>';
 		echo '</p>';
 
 		echo '</div>';
 		echo '</div>';
+	}
+
+	/**
+	 * The box's options, in the order the canvas shows them.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function customer_email_type_labels(): array
+	{
+		return array(
+			'booking_created_customer'  => __('Booking confirmation', 'mhm-rentiva'),
+			'booking_reminder_customer' => __('Booking reminder', 'mhm-rentiva'),
+			'booking_cancelled'         => __('Booking cancellation', 'mhm-rentiva'),
+			'custom'                    => __('Custom message', 'mhm-rentiva'),
+		);
 	}
 
 	/**

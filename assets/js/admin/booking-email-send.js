@@ -1,158 +1,276 @@
 /**
- * Booking Email Send Handler
- * Handles AJAX email sending from booking edit page
+ * Booking edit screen: "Send email to customer", the history note, and two
+ * small handlers of the side boxes.
  */
 (function ($) {
 	'use strict';
 
-	// Function to handle form submission
-	function handleEmailFormSubmit(e) {
-		e.preventDefault();
-		e.stopPropagation();
+	var EDITOR_ID = 'email_message';
 
-		var container = $(this);
-		var bookingId = container.data('booking-id');
-
-		if (!bookingId) {
-			bookingId = $('#post_ID').val();
-		}
-
-		if (!bookingId) {
-			alert('Booking ID not found.');
-			return;
-		}
-
-		// Get form values manually
-		var emailType = container.find('#email_type').val() || '';
-		var emailSubject = container.find('#email_subject').val() || '';
-		var emailMessage = container.find('#email_message').val() || '';
-		var emailNonce = container.find('input[name="mhmrentiva_email_nonce"]').val() || '';
-
-		if (!emailNonce) {
-			alert('Security check failed. Please refresh the page.');
-			return;
-		}
-
-		var submitBtn = container.find('.mhm-email-send-btn');
-		var originalText = submitBtn.text();
-		var sendingText = (window.mhmBookingEmail && window.mhmBookingEmail.strings && window.mhmBookingEmail.strings.sending)
-			? window.mhmBookingEmail.strings.sending
-			: 'Sending...';
-
-		submitBtn.prop('disabled', true).text(sendingText);
-
-		// Prepare AJAX data
-		var ajaxData = {
-			action: 'mhmrentiva_send_customer_email',
-			booking_id: bookingId,
-			email_type: emailType,
-			email_subject: emailSubject,
-			email_message: emailMessage,
-			mhmrentiva_email_nonce: emailNonce
-		};
-
-		// Get AJAX URL
-		var ajaxUrl = typeof ajaxurl !== 'undefined' ? ajaxurl :
-			(window.mhmBookingEmail && window.mhmBookingEmail.ajaxUrl ? window.mhmBookingEmail.ajaxUrl :
-				(window.mhmrentiva_config && window.mhmrentiva_config.ajax_url ? window.mhmrentiva_config.ajax_url :
-					''));
-
-		$.ajax({
-			url: ajaxUrl,
-			type: 'POST',
-			data: ajaxData,
-			dataType: 'json',
-			success: function (response) {
-				var successText = (window.mhmBookingEmail && window.mhmBookingEmail.strings && window.mhmBookingEmail.strings.success)
-					? window.mhmBookingEmail.strings.success
-					: 'Email sent successfully!';
-
-				if (response && response.success) {
-					alert(successText);
-					// Clear fields if possible (not a real form but we can clear inputs)
-					container.find('#email_subject, #email_message').val('');
-				} else {
-					var errorMsg = (response && response.data) ? response.data : 'Unknown error';
-					alert('Error: ' + errorMsg);
-				}
-				submitBtn.prop('disabled', false).text(originalText);
-			},
-			error: function (xhr, status, error) {
-				alert('An error occurred: ' + error);
-				submitBtn.prop('disabled', false).text(originalText);
-			}
-		});
+	function strings() {
+		return ( window.mhmBookingEmail && window.mhmBookingEmail.strings ) || {};
 	}
 
-	// Function to load email template
-	function loadEmailTemplate(emailType, bookingId) {
-		if (!emailType || !bookingId) {
+	function ajaxUrl() {
+		if ( typeof ajaxurl !== 'undefined' ) {
+			return ajaxurl;
+		}
+		return ( window.mhmBookingEmail && window.mhmBookingEmail.ajaxUrl ) || '';
+	}
+
+	// An inline notice inside a container. Text only -- a server message is
+	// not markup.
+	function showNotice( $container, cls, type, message ) {
+		$container.find( '.' + cls ).remove();
+		var $notice = $( '<div class="notice inline"><p></p></div>' );
+		$notice.addClass( cls ).addClass( 'notice-' + type );
+		$notice.find( 'p' ).text( message );
+		$container.prepend( $notice );
+	}
+
+	// The history note's result (PR 3b-2: it used to be a browser alert()).
+	function showNoteNotice( $container, type, message ) {
+		showNotice( $container, 'mhm-history-notice', type, message );
+	}
+
+	// The e-mail box's results (PR 3b-3: they used to be browser alerts).
+	function showEmailNotice( $container, type, message ) {
+		showNotice( $container, 'mhm-email-notice', type, message );
+	}
+
+	/* ---- The message editor (wp_editor: TinyMCE, or its Text tab) ---- */
+
+	function tinymceEditor() {
+		return ( window.tinymce && typeof window.tinymce.get === 'function' ) ? window.tinymce.get( EDITOR_ID ) : null;
+	}
+
+	function getMessage() {
+		var editor = tinymceEditor();
+		if ( editor && ! editor.isHidden() ) {
+			editor.save();
+			return editor.getContent();
+		}
+		return String( $( '#' + EDITOR_ID ).val() || '' );
+	}
+
+	function setMessage( html ) {
+		$( '#' + EDITOR_ID ).val( html );
+		var editor = tinymceEditor();
+		if ( editor ) {
+			editor.setContent( html );
+		}
+	}
+
+	// Moving a postbox moves the editor's iframe, which loses its document:
+	// the editor is taken down before the move and set up again after
+	// (TinyMCE saves into the textarea when it is removed).
+	function detachEditor() {
+		var editor = tinymceEditor();
+		if ( ! editor ) {
+			return false;
+		}
+		editor.save();
+		window.tinymce.execCommand( 'mceRemoveEditor', false, EDITOR_ID );
+		return true;
+	}
+
+	function attachEditor() {
+		if ( ! window.tinymce || tinymceEditor() || ! $( '#' + EDITOR_ID ).length ) {
+			return;
+		}
+		var pre = window.tinyMCEPreInit && window.tinyMCEPreInit.mceInit && window.tinyMCEPreInit.mceInit[ EDITOR_ID ];
+		if ( pre ) {
+			window.tinymce.init( pre );
+		} else {
+			window.tinymce.execCommand( 'mceAddEditor', false, EDITOR_ID );
+		}
+	}
+
+	/* ---- Templates ---- */
+
+	var templateRequest = 0;
+	var loaded          = { subject: '', message: '' };
+
+	function isEdited() {
+		return String( $( '#email_subject' ).val() || '' ) !== loaded.subject || getMessage() !== loaded.message;
+	}
+
+	function rememberLoaded() {
+		loaded = { subject: String( $( '#email_subject' ).val() || '' ), message: getMessage() };
+	}
+
+	// H9: only the answer to the LAST request fills the box -- a slower answer
+	// to an earlier choice no longer overwrites a later one.
+	function loadEmailTemplate( $box, emailType, bookingId ) {
+		var request = ++templateRequest;
+
+		if ( 'custom' === emailType ) {
+			$( '#email_subject' ).val( '' );
+			setMessage( '' );
+			rememberLoaded();
 			return;
 		}
 
-		var ajaxUrl = typeof ajaxurl !== 'undefined' ? ajaxurl :
-			(window.mhmBookingEmail && window.mhmBookingEmail.ajaxUrl ? window.mhmBookingEmail.ajaxUrl : '');
-
-		$.ajax({
-			url: ajaxUrl,
+		$.ajax( {
+			url: ajaxUrl(),
 			type: 'POST',
+			dataType: 'json',
 			data: {
-				action:     'mhmrentiva_get_email_template',
+				action: 'mhmrentiva_get_email_template',
 				booking_id: bookingId,
 				email_type: emailType,
-				nonce:      ( window.mhmBookingEmail && window.mhmBookingEmail.emailNonce ) ? window.mhmBookingEmail.emailNonce : '',
+				nonce: ( window.mhmBookingEmail && window.mhmBookingEmail.emailNonce ) || '',
 			},
-			dataType: 'json',
-			success: function (response) {
-				if (response && response.success && response.data) {
-					$('#email_subject').val(response.data.subject || '');
-					$('#email_message').val(response.data.message || '');
+			success: function ( response ) {
+				if ( request !== templateRequest ) {
+					return;
 				}
-			}
-		});
+				if ( response && response.success && response.data ) {
+					$( '#email_subject' ).val( response.data.subject || '' );
+					setMessage( response.data.message || '' );
+					rememberLoaded();
+				} else {
+					showEmailNotice( $box, 'error', strings().templateError || 'The template could not be loaded.' );
+				}
+			},
+			error: function () {
+				if ( request === templateRequest ) {
+					showEmailNotice( $box, 'error', strings().templateError || 'The template could not be loaded.' );
+				}
+			},
+		} );
+	}
+
+	/* ---- Send ---- */
+
+	function handleEmailFormSubmit( $box ) {
+		var text      = strings();
+		var bookingId = $box.data( 'booking-id' ) || $( '#post_ID' ).val();
+		var nonce     = $box.find( 'input[name="mhmrentiva_email_nonce"]' ).val() || '';
+
+		if ( ! bookingId || ! nonce ) {
+			showEmailNotice( $box, 'error', text.securityError || 'Please refresh the page and try again.' );
+			return;
+		}
+
+		var $button = $box.find( '.mhm-email-send-btn' );
+		var label   = $button.text();
+		$button.prop( 'disabled', true ).text( text.sending || 'Sending...' );
+
+		$.ajax( {
+			url: ajaxUrl(),
+			type: 'POST',
+			dataType: 'json',
+			data: {
+				action: 'mhmrentiva_send_customer_email',
+				booking_id: bookingId,
+				email_type: $box.find( '#email_type' ).val() || '',
+				email_subject: $box.find( '#email_subject' ).val() || '',
+				email_message: getMessage(),
+				mhmrentiva_email_nonce: nonce,
+			},
+			success: function ( response ) {
+				if ( response && response.success ) {
+					showEmailNotice( $box, 'success', text.success || 'Email sent successfully!' );
+					// Back to the chosen type's template (an empty box for a custom message).
+					loadEmailTemplate( $box, $box.find( '#email_type' ).val(), bookingId );
+				} else {
+					showEmailNotice( $box, 'error', ( text.sendError || 'The e-mail was not sent: %s' ).replace( '%s', String( ( response && response.data ) || '' ) ) );
+				}
+			},
+			error: function () {
+				showEmailNotice( $box, 'error', text.sendFailed || 'The e-mail could not be sent. Please try again.' );
+			},
+			complete: function () {
+				$button.prop( 'disabled', false ).text( label );
+			},
+		} );
 	}
 
 	// Initialize
-	$(document).ready(function () {
-		// Email Send Click Handler
-		$(document).off('click', '.mhm-email-send-btn').on('click', '.mhm-email-send-btn', function (e) {
-			var $container = $(this).closest('.mhm-customer-email-box');
-			if ($container.length === 0) {
-				$container = $(this).closest('.mhm-email-form-wrap');
-			}
-			handleEmailFormSubmit.call($container[0], e);
-		});
+	$( document ).ready( function () {
+		var $box = $( '.mhm-email-form' ).first();
 
-		// A note's result is shown inside the history box (PR 3b-2; it used
-		// to be a browser alert()). Text only -- the server message is not
-		// markup.
-		function showNoteNotice($container, type, message) {
-			$container.find('.mhm-history-notice').remove();
-			var $notice = $('<div class="notice inline mhm-history-notice"><p></p></div>');
-			$notice.addClass('notice-' + type);
-			$notice.find('p').text(message);
-			$container.prepend($notice);
+		$( document ).off( 'click', '.mhm-email-send-btn' ).on( 'click', '.mhm-email-send-btn', function ( e ) {
+			e.preventDefault();
+			e.stopPropagation();
+			handleEmailFormSubmit( $( this ).closest( '.mhm-email-form' ) );
+		} );
+
+		// Enter in the subject field must not submit the booking form.
+		$( document ).off( 'keydown', '#email_subject' ).on( 'keydown', '#email_subject', function ( e ) {
+			if ( 'Enter' === e.key ) {
+				e.preventDefault();
+			}
+		} );
+
+		// A type change replaces the box; edits are not thrown away unasked.
+		var currentType = $( '#email_type' ).val();
+		$( document ).off( 'change', '#email_type' ).on( 'change', '#email_type', function () {
+			var $select = $( this );
+			if ( isEdited() && ! window.confirm( strings().confirmReplace || 'Replace your changes with the selected template?' ) ) {
+				$select.val( currentType );
+				return;
+			}
+			currentType = $select.val();
+			loadEmailTemplate( $select.closest( '.mhm-email-form' ), currentType, $select.closest( '.mhm-email-form' ).data( 'booking-id' ) || $( '#post_ID' ).val() );
+		} );
+
+		// The default type's template on page load.
+		if ( $box.length && currentType ) {
+			loadEmailTemplate( $box, currentType, $box.data( 'booking-id' ) || ( window.mhmBookingEmail && window.mhmBookingEmail.bookingId ) || $( '#post_ID' ).val() );
 		}
 
-		// History Note Click Handler
-		$(document).off('click', '.mhm-add-history-btn').on('click', '.mhm-add-history-btn', function (e) {
-			e.preventDefault();
-			var $container = $(this).closest('.mhm-add-history-note');
-			var bookingId = $container.data('booking-id') || $('#post_ID').val();
-			var noteContent = String($container.find('#note_content').val() || '').trim();
-			var noteType = $container.find('#note_type').val();
-			var nonce = $container.find('input[name="mhmrentiva_history_nonce"]').val();
-			var noteStrings = (window.mhmBookingEmail && window.mhmBookingEmail.strings) || {};
+		// TinyMCE normalises the HTML it is given; once it is up, what it
+		// holds is the unedited state (unless the operator already typed).
+		$( document ).on( 'tinymce-editor-init', function ( event, editor ) {
+			if ( editor && EDITOR_ID === editor.id && $( '#' + EDITOR_ID ).val() === loaded.message ) {
+				editor.on( 'change input', function () {
+					editor.save();
+				} );
+				rememberLoaded();
+			}
+		} );
 
-			if (!noteContent) {
-				showNoteNotice($container, 'error', noteStrings.noteEmpty || 'Please enter a note.');
+		// Drag and drop of the postbox.
+		$( document ).on( 'sortstart', '.meta-box-sortables', function ( event, ui ) {
+			if ( ui && ui.item && ui.item.find( '#' + EDITOR_ID ).length ) {
+				detachEditor();
+			}
+		} );
+		$( document ).on( 'sortstop', '.meta-box-sortables', function ( event, ui ) {
+			if ( ui && ui.item && ui.item.find( '#' + EDITOR_ID ).length ) {
+				attachEditor();
+			}
+		} );
+		// The move up/down buttons move the box without a sortstart.
+		document.addEventListener( 'click', function ( event ) {
+			var target = event.target && event.target.closest ? event.target.closest( '.handle-order-higher, .handle-order-lower' ) : null;
+			var postbox = target ? target.closest( '.postbox' ) : null;
+			if ( postbox && postbox.querySelector( '#' + EDITOR_ID ) && detachEditor() ) {
+				setTimeout( attachEditor, 0 );
+			}
+		}, true );
+
+		// History Note Click Handler
+		$( document ).off( 'click', '.mhm-add-history-btn' ).on( 'click', '.mhm-add-history-btn', function ( e ) {
+			e.preventDefault();
+			var $container = $( this ).closest( '.mhm-add-history-note' );
+			var bookingId = $container.data( 'booking-id' ) || $( '#post_ID' ).val();
+			var noteContent = String( $container.find( '#note_content' ).val() || '' ).trim();
+			var noteType = $container.find( '#note_type' ).val();
+			var nonce = $container.find( 'input[name="mhmrentiva_history_nonce"]' ).val();
+			var noteStrings = strings();
+
+			if ( ! noteContent ) {
+				showNoteNotice( $container, 'error', noteStrings.noteEmpty || 'Please enter a note.' );
 				return;
 			}
 
-			var $btn = $(this);
-			$btn.prop('disabled', true);
+			var $btn = $( this );
+			$btn.prop( 'disabled', true );
 
-			$.ajax({
+			$.ajax( {
 				url: ajaxurl,
 				type: 'POST',
 				data: {
@@ -160,48 +278,27 @@
 					booking_id: bookingId,
 					note_content: noteContent,
 					note_type: noteType,
-					mhmrentiva_history_nonce: nonce
+					mhmrentiva_history_nonce: nonce,
 				},
-				success: function (response) {
-					if (response.success) {
-						showNoteNotice($container, 'success', noteStrings.noteAdded || 'Note added.');
+				success: function ( response ) {
+					if ( response.success ) {
+						showNoteNotice( $container, 'success', noteStrings.noteAdded || 'Note added.' );
 						// The list is drawn by the server; reload once the
 						// operator has seen the notice.
-						setTimeout(function () {
+						setTimeout( function () {
 							location.reload();
-						}, 800);
+						}, 800 );
 					} else {
-						showNoteNotice($container, 'error', (noteStrings.noteError || 'Error: %s').replace('%s', String(response.data || '')));
-						$btn.prop('disabled', false);
+						showNoteNotice( $container, 'error', ( noteStrings.noteError || 'Error: %s' ).replace( '%s', String( response.data || '' ) ) );
+						$btn.prop( 'disabled', false );
 					}
 				},
 				error: function () {
-					showNoteNotice($container, 'error', noteStrings.noteFailed || 'The note could not be added.');
-					$btn.prop('disabled', false);
-				}
-			});
-		});
-
-		// Template Loader change handler
-		$(document).off('change', '#email_type').on('change', '#email_type', function () {
-			var emailType = $(this).val();
-			var bookingId = $('#post_ID').val();
-			if (emailType && bookingId) {
-				loadEmailTemplate(emailType, bookingId);
-			}
-		});
-
-		// Load template for the default selected type on page load
-		var $emailTypeSelect = $('#email_type');
-		if ($emailTypeSelect.length) {
-			var defaultEmailType = $emailTypeSelect.val();
-			var defaultBookingId = (window.mhmBookingEmail && window.mhmBookingEmail.bookingId)
-				? window.mhmBookingEmail.bookingId
-				: $('#post_ID').val();
-			if (defaultEmailType && defaultBookingId) {
-				loadEmailTemplate(defaultEmailType, defaultBookingId);
-			}
-		}
+					showNoteNotice( $container, 'error', noteStrings.noteFailed || 'The note could not be added.' );
+					$btn.prop( 'disabled', false );
+				},
+			} );
+		} );
 
 		// History — Show More Button
 		$( document ).on( 'click', '.mhm-history-show-more', function () {
@@ -215,7 +312,7 @@
 				e.preventDefault();
 			}
 		} );
-	});
+	} );
 
 	// Customer Account — Create Account Button
 	$( document ).on( 'click', '.mhm-create-customer-account-btn', function () {

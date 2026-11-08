@@ -582,3 +582,39 @@ body.post-php.post-type-mhmrentiva_booking .mhm-add-history-note {
 	background: none;
 	border: 0;
 }
+
+/* PR 3b-3: "Send email to customer" (canvas: type + subject side by side,
+   the message full width, the button on the right). */
+body.post-php.post-type-mhmrentiva_booking .mhm-email-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-email-row .mhm-email-field {
+	flex: 1 1 140px;
+	margin: 0 0 8px;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-email-form label {
+	display: block;
+	margin-bottom: 4px;
+	font-weight: 600;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-email-message {
+	margin-bottom: 8px;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-email-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin: 0;
+}
+
+body.post-php.post-type-mhmrentiva_booking .mhm-email-notice {
+	margin: 0 0 8px;
+}
