@@ -180,6 +180,7 @@ final class OrderLineBookingSnapshotBackslashTest extends WP_UnitTestCase
 		$this->assertSame(self::FIRST, $snapshot['customer_first_name'], "customer_first_name, $where");
 		$this->assertSame(self::LAST, $snapshot['customer_last_name'], "customer_last_name, $where");
 		$this->assertSame(self::PHONE, $snapshot['customer_phone'], "customer_phone, $where");
+		$this->assertSame('ali@example.com', $snapshot['customer_email'], "customer_email, $where");
 		$this->assertSame(self::ADDON, $snapshot['addon_lines'][0]['title'], "addon_lines[].title, $where");
 		$this->assertSame(self::TRANSFER_ADDON, $snapshot['addon_details'][0]['title'], "addon_details[].title, $where");
 	}
@@ -234,23 +235,50 @@ final class OrderLineBookingSnapshotBackslashTest extends WP_UnitTestCase
 		$order->set_status('processing');
 		$order->save();
 
+		// A page view in a later request: nothing in memory or in a cache.
+		$this->assert_free_text_kept($this->raw_snapshot($order), 'saved row before the fallback');
+		$this->fresh_order($order->get_id());
 		WooCommerceBridge::create_booking_from_order_fallback($order->get_id());
 
 		$this->assert_booking_kept((int) $this->fresh_order($order->get_id())->get_meta('_mhmrentiva_booking_id'), 'thank-you fallback');
 	}
 
-	public function test_a_snapshot_without_a_backslash_is_written_once(): void
+	/**
+	 * How many times update_metadata_by_mid() rewrote a booking snapshot while
+	 * the order was built. The filter's key argument is false here (the
+	 * listener passes no key; core resolves it later), so a snapshot is told by
+	 * its shape.
+	 *
+	 * @param array<string, mixed> $snapshot
+	 */
+	private function snapshot_rewrites(array $snapshot): int
 	{
 		$rewrites = 0;
-		$count    = static function ($check, $mid, $value, $key) use (&$rewrites) {
-			if ('_mhmrentiva_booking_data' === $key) {
+		$count    = function ($check, $mid, $value) use (&$rewrites) {
+			if (is_array($value) && isset($value['vehicle_id']) && (int) $value['vehicle_id'] === $this->vehicle_id) {
 				++$rewrites;
 			}
 			return $check;
 		};
-		add_filter('update_order_item_metadata_by_mid', $count, 10, 4);
+		add_filter('update_order_item_metadata_by_mid', $count, 10, 3);
+		try {
+			$this->order_from_cart($snapshot);
+		} finally {
+			remove_filter('update_order_item_metadata_by_mid', $count, 10);
+		}
 
-		$this->order_from_cart(
+		return $rewrites;
+	}
+
+	public function test_a_snapshot_with_a_backslash_is_rewritten_once(): void
+	{
+		// The positive control for the test below: the counter does see the rewrite.
+		$this->assertSame(1, $this->snapshot_rewrites($this->snapshot()));
+	}
+
+	public function test_a_snapshot_without_a_backslash_is_not_rewritten(): void
+	{
+		$rewrites = $this->snapshot_rewrites(
 			$this->snapshot(
 				array(
 					'customer_name'       => 'Ali Veli',
@@ -262,9 +290,29 @@ final class OrderLineBookingSnapshotBackslashTest extends WP_UnitTestCase
 				)
 			)
 		);
-		remove_filter('update_order_item_metadata_by_mid', $count, 10);
 
 		$this->assertSame(0, $rewrites, 'Nothing to restore, so no second write.');
+	}
+
+	public function test_a_snapshot_added_later_to_a_saved_line_keeps_its_backslashes_and_a_warm_read_sees_them(): void
+	{
+		// A saved line (it has an id), the snapshot added afterwards: the update
+		// branch of WC_Order_Item::save(), whose meta still goes through
+		// save_meta_data()'s insert branch.
+		$order = wc_create_order();
+		$item  = new \WC_Order_Item_Product();
+		$item->set_product($this->product);
+		$order->add_item($item);
+		$order->save();
+		$this->assertGreaterThan(0, $item->get_id());
+
+		$item->add_meta_data('_mhmrentiva_booking_data', $this->snapshot());
+		$item->save();
+
+		$this->assert_free_text_kept($this->raw_snapshot($order), 'saved row, added later');
+		// Warm: no cache flush, the factory may hand back a cached order.
+		$warm = wc_get_order($order->get_id());
+		$this->assert_free_text_kept($warm->get_items()[$item->get_id()]->get_meta('_mhmrentiva_booking_data', true), 'warm read');
 	}
 
 	public function test_only_the_booking_snapshot_is_rewritten(): void
