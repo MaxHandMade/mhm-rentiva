@@ -2793,7 +2793,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				// returned 0, is_int(0) was true, and the caller -- which only
 				// tests truthiness -- silently left the paid WooCommerce order
 				// with no booking attached and nothing in the log.
-				$booking_id = wp_insert_post($post_data, true);
+				// The order's values are unslashed; wp_insert_post() unslashes the
+				// post fields and update_post_meta() each meta_input value
+				// (backslash class).
+				$booking_id = wp_insert_post(wp_slash($post_data), true);
 
 				if (is_wp_error($booking_id) || (int) $booking_id <= 0) {
 					AdvancedLogger::error(
@@ -3123,7 +3126,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				'new_status' => $new_status,
 			),
 		);
-		update_post_meta($booking_id, '_mhmrentiva_booking_logs', $logs);
+		// Rewritten whole; slashed so older rows keep their backslashes.
+		update_post_meta($booking_id, '_mhmrentiva_booking_logs', wp_slash($logs));
 	}
 
 	/**
@@ -4231,7 +4235,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		if ($refund) {
 			$refund_reason = $refund->get_reason() ?: '';
 			add_post_meta($booking_id, '_mhmrentiva_refund_txn_id', (string) $refund_id);
-			update_post_meta($booking_id, '_mhmrentiva_refund_reason', $refund_reason);
+			update_post_meta($booking_id, '_mhmrentiva_refund_reason', wp_slash($refund_reason));
 		}
 
 		// One e-mail per refund OPERATION, not per WooCommerce refund object.
@@ -4319,7 +4323,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				'currency'      => $currency,
 			),
 		);
-		update_post_meta($booking_id, '_mhmrentiva_booking_logs', $logs);
+		// Rewritten whole; slashed so older rows keep their backslashes.
+		update_post_meta($booking_id, '_mhmrentiva_booking_logs', wp_slash($logs));
 	}
 
 	/**

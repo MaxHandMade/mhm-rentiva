@@ -1264,14 +1264,18 @@ final class BookingMeta extends AbstractMetaBox {
 
 		// The detail rows follow the new total, so the order, the account page
 		// and the report do not keep the lines of the window before the edit.
+		// Add-on titles from the database; slashed for the unslashing meta API
+		// (backslash class, Fable #177 M1).
 		update_post_meta(
 			$booking_id,
 			'_mhmrentiva_addon_details',
-			\MHMRentiva\Admin\Addons\AddonManager::build_addon_details(
-				$selection->ids(),
-				array(
-					'rental_days'      => $days,
-					'addon_quantities' => $selection->quantities(),
+			wp_slash(
+				\MHMRentiva\Admin\Addons\AddonManager::build_addon_details(
+					$selection->ids(),
+					array(
+						'rental_days'      => $days,
+						'addon_quantities' => $selection->quantities(),
+					)
 				)
 			)
 		);

@@ -1734,7 +1734,8 @@ final class VehicleColumns {
 			}
 
 			if ($sanitized_value !== '' && $sanitized_value !== null) {
-				update_post_meta($post_id, $config['key'], $sanitized_value);
+				// Unslashed on input; the meta API unslashes again (backslash class).
+				update_post_meta($post_id, $config['key'], wp_slash($sanitized_value));
 			}
 		}
 

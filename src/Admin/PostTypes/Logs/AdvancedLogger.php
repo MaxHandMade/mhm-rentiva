@@ -163,7 +163,9 @@ final class AdvancedLogger {
 		// update_post_meta() below lands on post ID 1 -- typically the site's
 		// first post. Passing $wp_error = true is only half the contract; the
 		// other half is not destroying the error before testing for it.
-		$inserted = wp_insert_post( $post_arr, true );
+		// Message and context are unslashed; wp_insert_post() unslashes again
+		// (backslash class, Codex #177).
+		$inserted = wp_insert_post( wp_slash( $post_arr ), true );
 		if ( is_wp_error( $inserted ) ) {
 			return 0;
 		}
@@ -178,7 +180,7 @@ final class AdvancedLogger {
 		update_post_meta( $post_id, '_mhmrentiva_log_category', $category );
 		update_post_meta( $post_id, '_mhmrentiva_log_user_id', $user_id );
 		update_post_meta( $post_id, '_mhmrentiva_log_ip_address', $ip_address );
-		update_post_meta( $post_id, '_mhmrentiva_log_user_agent', $user_agent );
+		update_post_meta( $post_id, '_mhmrentiva_log_user_agent', wp_slash( $user_agent ) );
 
 		if ( $booking_id > 0 ) {
 			update_post_meta( $post_id, '_mhmrentiva_log_booking_id', $booking_id );

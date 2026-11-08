@@ -670,8 +670,10 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		$meta_updates['_mhmrentiva_custom_details'] = $sanitized_custom_details;
 
+		// Every value was unslashed on input; the meta API unslashes again
+		// (backslash class). wp_slash() leaves numbers and booleans alone.
 		foreach ($meta_updates as $meta_key => $meta_value) {
-			update_post_meta($post_id, $meta_key, $meta_value);
+			update_post_meta($post_id, $meta_key, wp_slash($meta_value));
 		}
 
 		$features_order  = json_decode($req->text('features-grid_order'), true);
@@ -899,7 +901,8 @@ final class VehicleMeta extends AbstractMetaBox {
 					// Same rule as the meta box: '' = global setting, else 1-100.
 					$value = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::normalize_vehicle_rate($value);
 				}
-				update_post_meta($post_id, $field, $value);
+				// Unslashed on input; the meta API unslashes again (backslash class).
+				update_post_meta($post_id, $field, wp_slash($value));
 			}
 		}
 	}

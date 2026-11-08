@@ -98,6 +98,19 @@ final class AddonQuickCreateEndpointTest extends WP_UnitTestCase {
 	 * become mandatory on every booking -- so it is written explicitly to say
 	 * so rather than left to the absence of a row.
 	 */
+	/** Backslash class (2026-11-08): wp_insert_post() unslashes post fields. */
+	public function test_the_name_and_description_keep_a_typed_backslash(): void {
+		$result = AddonScreen::quick_create( $this->build_request( array(
+			'title'       => 'Koltuk A\B',
+			'description' => 'Depo C:\raf\3',
+		) ) );
+		$this->assertTrue( $result['success'] );
+
+		$post = get_post( $result['addon_id'] );
+		$this->assertSame( 'Koltuk A\B', $post->post_title );
+		$this->assertSame( 'Depo C:\raf\3', $post->post_excerpt );
+	}
+
 	public function test_a_created_service_is_not_mandatory(): void {
 		$result = AddonScreen::quick_create( $this->build_request() );
 

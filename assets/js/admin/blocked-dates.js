@@ -246,7 +246,6 @@
 			var safeDate  = $( '<span>' ).text( date ).html();
 			var displayed = formatDisplayDate( date );
 			var noteVal   = blockedNotes[ date ] || '';
-			var safeNote  = $( '<span>' ).text( noteVal ).html();
 
 			var chip = $(
 				'<div class="blocked-date-chip">' +
@@ -258,10 +257,16 @@
 						'<button type="button" class="blocked-date-chip-remove" data-date="' + safeDate + '" title="Remove">&times;</button>' +
 					'</div>' +
 					'<div class="blocked-date-chip-note-wrap">' +
-						'<input type="text" class="blocked-date-chip-note" data-date="' + safeDate + '" value="' + safeNote + '" placeholder="' + ( mhmBlockedDatesL10n.notePlaceholder || 'Add note... (optional)' ) + '" maxlength="120">' +
+						'<input type="text" class="blocked-date-chip-note" data-date="' + safeDate + '" maxlength="120">' +
 					'</div>' +
 				'</div>'
 			);
+			// Set as properties, not concatenated into the markup: .html() does
+			// not escape a double quote, so a note (or a translated placeholder)
+			// with one was cut there -- and the next Update saved the cut note.
+			chip.find( '.blocked-date-chip-note' )
+				.val( noteVal )
+				.attr( 'placeholder', mhmBlockedDatesL10n.notePlaceholder || 'Add note... (optional)' );
 			$chips.append( chip );
 		} );
 	}

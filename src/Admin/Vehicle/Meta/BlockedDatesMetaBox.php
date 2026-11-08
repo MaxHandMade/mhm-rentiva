@@ -170,7 +170,7 @@ final class BlockedDatesMetaBox {
 				}
 			}
 		}
-		update_post_meta( $post_id, self::META_KEY_NOTES, wp_json_encode( (object) $notes_clean ) );
+		self::store_notes( $post_id, $notes_clean );
 
 		self::written( array( $post_id ) );
 	}
@@ -290,6 +290,18 @@ final class BlockedDatesMetaBox {
 	}
 
 	/**
+	 * The one writer of the notes map. wp_json_encode() escapes "ü" as \u00fc
+	 * and a quote as \", and update_post_meta() unslashes its value: unslashed,
+	 * "günü" was stored as "gu00fcnu00fc" and a note with a quote made the
+	 * whole map undecodable. Slashed here, the JSON arrives intact.
+	 *
+	 * @param array<string,string> $notes Map of date to note.
+	 */
+	private static function store_notes( int $post_id, array $notes ): void {
+		update_post_meta( $post_id, self::META_KEY_NOTES, wp_slash( (string) wp_json_encode( (object) $notes ) ) );
+	}
+
+	/**
 	 * Get blocked date notes for a vehicle.
 	 *
 	 * @param int $post_id Vehicle post ID.
@@ -351,7 +363,7 @@ final class BlockedDatesMetaBox {
 
 		// Also save to source vehicle so DB is in sync with browser.
 		update_post_meta( $source_id, self::META_KEY, wp_json_encode( $dates ) );
-		update_post_meta( $source_id, self::META_KEY_NOTES, wp_json_encode( (object) $notes ) );
+		self::store_notes( $source_id, $notes );
 
 		// The source's own penalty days belong to its penalty, not to the fleet.
 		$copied = array_values( array_diff( $dates, self::penalty_days( $source_id ) ) );
@@ -382,7 +394,7 @@ final class BlockedDatesMetaBox {
 				$target_notes = array_merge( array_intersect_key( self::get_blocked_notes( $vid ), array_flip( $kept ) ), $notes );
 			}
 			update_post_meta( $vid, self::META_KEY, wp_json_encode( $target_dates ) );
-			update_post_meta( $vid, self::META_KEY_NOTES, wp_json_encode( (object) $target_notes ) );
+			self::store_notes( $vid, $target_notes );
 		}
 
 		self::written( array_merge( array( $source_id ), array_map( 'intval', $vehicles ) ) );
@@ -454,7 +466,7 @@ final class BlockedDatesMetaBox {
 			foreach ( $removed as $d ) {
 				unset( $existing_notes[ $d ] );
 			}
-			update_post_meta( $vid, self::META_KEY_NOTES, wp_json_encode( (object) $existing_notes ) );
+			self::store_notes( $vid, $existing_notes );
 		}
 
 		self::written( array_map( 'intval', $vehicles ) );

@@ -68,12 +68,16 @@ final class EmailLog {
 
 		$title = '[' . ( $ok ? __( 'Success', 'mhm-rentiva' ) : __( 'Failed', 'mhm-rentiva' ) ) . '] ' . $subject;
 
+		// The subject and context are unslashed; wp_insert_post() and the meta
+		// API unslash again, and the context is JSON (backslash class, Codex #177).
 		$post_id = wp_insert_post(
-			array(
-				'post_type'    => self::TYPE,
-				'post_status'  => 'publish',
-				'post_title'   => $title,
-				'post_content' => '',
+			wp_slash(
+				array(
+					'post_type'    => self::TYPE,
+					'post_status'  => 'publish',
+					'post_title'   => $title,
+					'post_content' => '',
+				)
 			),
 			true
 		);
@@ -84,8 +88,8 @@ final class EmailLog {
 
 		update_post_meta( $post_id, '_mhmrentiva_email_key', sanitize_text_field( $key ) );
 		update_post_meta( $post_id, '_mhmrentiva_email_to', sanitize_email( $to ) );
-		update_post_meta( $post_id, '_mhmrentiva_email_subject', sanitize_text_field( $subject ) );
+		update_post_meta( $post_id, '_mhmrentiva_email_subject', wp_slash( sanitize_text_field( $subject ) ) );
 		update_post_meta( $post_id, '_mhmrentiva_email_status', $ok ? 'success' : 'failed' );
-		update_post_meta( $post_id, '_mhmrentiva_email_context', wp_json_encode( $context ) );
+		update_post_meta( $post_id, '_mhmrentiva_email_context', wp_slash( (string) wp_json_encode( $context ) ) );
 	}
 }

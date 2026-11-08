@@ -381,6 +381,26 @@ final class ManualRefundCloseTest extends WP_Ajax_UnitTestCase
      * into post meta. An operator pasting an arbitrarily long string must
      * not write an arbitrarily long value to either place.
      */
+    /**
+     * Backslash class (2026-11-08): the reference is unslashed on input and the
+     * meta API unslashes again; the log array is rewritten on every append, so
+     * an older row lost its backslash a second time.
+     */
+    public function test_a_backslash_in_the_reference_and_in_older_log_rows_is_kept(): void
+    {
+        update_post_meta($this->booking_id, '_mhmrentiva_booking_logs', wp_slash(array(
+            array( 'action' => 'older', 'timestamp' => '2026-01-01 00:00:00', 'user_id' => 0, 'data' => array( 'reference' => 'ESKI\1' ) ),
+        )));
+
+        $response = $this->call_close($this->booking_id, array( 'reference' => wp_slash('KASA\7') ));
+        $this->assertTrue((bool) ( $response['success'] ?? false ), 'Sanity. Raw: ' . $this->_last_response);
+
+        $this->assertSame('KASA\7', get_post_meta($this->booking_id, '_mhmrentiva_refund_completed_reference', true));
+        $logs = (array) get_post_meta($this->booking_id, '_mhmrentiva_booking_logs', true);
+        $this->assertSame('ESKI\1', $logs[0]['data']['reference'] ?? null, 'An older row keeps its backslash.');
+        $this->assertSame('KASA\7', end($logs)['data']['reference'] ?? null);
+    }
+
     public function test_reference_is_capped_at_191_characters(): void
     {
         $long = str_repeat('a', 500);

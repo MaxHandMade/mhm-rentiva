@@ -683,7 +683,9 @@ final class AddonManager {
 
 		$selection->store( $booking_id );
 		update_post_meta( $booking_id, '_mhmrentiva_addon_total', $addon_total );
-		update_post_meta( $booking_id, '_mhmrentiva_addon_details', $addon_details );
+		// The lines carry add-on titles read from the database; the meta API
+		// unslashes arrays deeply (backslash class, second write).
+		update_post_meta( $booking_id, '_mhmrentiva_addon_details', wp_slash( $addon_details ) );
 	}
 
 	/**

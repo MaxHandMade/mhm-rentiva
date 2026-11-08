@@ -236,6 +236,27 @@ final class BookingCreationAtomicityTest extends WP_UnitTestCase
 	 * vehicle must still be accepted, so the guard cannot be satisfied by simply
 	 * refusing everything.
 	 */
+	/**
+	 * Backslash class (2026-11-08): every front-end booking passes through
+	 * here. The customer's fields come from the order (already unslashed) and
+	 * wp_insert_post() hands each meta_input value to update_post_meta(),
+	 * which unslashes again.
+	 */
+	public function test_a_backslash_in_the_customer_fields_is_kept(): void
+	{
+		$data                        = $this->valid_booking_data();
+		$data['customer_name']       = 'Ali\Veli Kaya';
+		$data['customer_first_name'] = 'Ali\Veli';
+		$data['customer_phone']      = '0555\1';
+
+		$booking_id = $this->invoke_create_booking_from_data($data, 999);
+		$this->assertNotNull($booking_id);
+
+		$this->assertSame('Ali\Veli Kaya', get_post_meta($booking_id, '_mhmrentiva_customer_name', true));
+		$this->assertSame('Ali\Veli', get_post_meta($booking_id, '_mhmrentiva_customer_first_name', true));
+		$this->assertSame('0555\1', get_post_meta($booking_id, '_mhmrentiva_customer_phone', true));
+	}
+
 	public function test_non_overlapping_second_booking_is_accepted(): void
 	{
 		$first = $this->invoke_create_booking_from_data($this->valid_booking_data(), 999);
