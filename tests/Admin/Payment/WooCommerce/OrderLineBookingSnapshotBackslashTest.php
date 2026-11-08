@@ -246,21 +246,22 @@ final class OrderLineBookingSnapshotBackslashTest extends WP_UnitTestCase
 	/**
 	 * How many times update_metadata_by_mid() rewrote a booking snapshot while
 	 * the order was built. The filter's key argument is false here (the
-	 * listener passes no key; core resolves it later), so a snapshot is told by
-	 * its shape.
+	 * listener passes no key; core resolves it later), so the row is resolved
+	 * from its id.
 	 *
 	 * @param array<string, mixed> $snapshot
 	 */
 	private function snapshot_rewrites(array $snapshot): int
 	{
 		$rewrites = 0;
-		$count    = function ($check, $mid, $value) use (&$rewrites) {
-			if (is_array($value) && isset($value['vehicle_id']) && (int) $value['vehicle_id'] === $this->vehicle_id) {
+		$count    = static function ($check, $mid) use (&$rewrites) {
+			$row = get_metadata_by_mid('order_item', (int) $mid);
+			if (false !== $row && '_mhmrentiva_booking_data' === $row->meta_key) {
 				++$rewrites;
 			}
 			return $check;
 		};
-		add_filter('update_order_item_metadata_by_mid', $count, 10, 3);
+		add_filter('update_order_item_metadata_by_mid', $count, 10, 2);
 		try {
 			$this->order_from_cart($snapshot);
 		} finally {
@@ -294,7 +295,7 @@ final class OrderLineBookingSnapshotBackslashTest extends WP_UnitTestCase
 		$this->assertSame(0, $rewrites, 'Nothing to restore, so no second write.');
 	}
 
-	public function test_a_snapshot_added_later_to_a_saved_line_keeps_its_backslashes_and_a_warm_read_sees_them(): void
+	public function test_a_snapshot_added_later_to_a_saved_line_keeps_its_backslashes(): void
 	{
 		// A saved line (it has an id), the snapshot added afterwards: the update
 		// branch of WC_Order_Item::save(), whose meta still goes through
@@ -310,9 +311,29 @@ final class OrderLineBookingSnapshotBackslashTest extends WP_UnitTestCase
 		$item->save();
 
 		$this->assert_free_text_kept($this->raw_snapshot($order), 'saved row, added later');
-		// Warm: no cache flush, the factory may hand back a cached order.
-		$warm = wc_get_order($order->get_id());
-		$this->assert_free_text_kept($warm->get_items()[$item->get_id()]->get_meta('_mhmrentiva_booking_data', true), 'warm read');
+	}
+
+	public function test_a_warm_read_after_the_rewrite_sees_the_backslashes(): void
+	{
+		$order = $this->order_from_cart($this->snapshot());
+		$id    = $order->get_id();
+
+		// Prime every layer a later read in the same request could hit: the
+		// order (HPOS OrderCache), its items and their meta.
+		$primed = $this->fresh_order($id);
+		foreach ($primed->get_items() as $item) {
+			$item->get_meta('_mhmrentiva_booking_data', true);
+		}
+		if (class_exists(\Automattic\WooCommerce\Caches\OrderCache::class) && \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled()) {
+			$this->assertNotNull(wc_get_container()->get(\Automattic\WooCommerce\Caches\OrderCache::class)->get($id), 'PREMISE: the order is cached.');
+		}
+
+		// Warm: no flush. The order factory, the items and a fresh item object
+		// (its own meta read) all see the exact value.
+		$warm    = wc_get_order($id);
+		$item_id = (int) array_key_first($warm->get_items());
+		$this->assert_free_text_kept($warm->get_items()[$item_id]->get_meta('_mhmrentiva_booking_data', true), 'warm order');
+		$this->assert_free_text_kept((new \WC_Order_Item_Product($item_id))->get_meta('_mhmrentiva_booking_data', true), 'warm item');
 	}
 
 	public function test_only_the_booking_snapshot_is_rewritten(): void
