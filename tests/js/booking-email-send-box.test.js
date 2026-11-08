@@ -132,6 +132,40 @@ describe( 'booking customer e-mail box', () => {
 		expect( alertSpy ).not.toHaveBeenCalled();
 	} );
 
+	test( 'Codex #178 I1: sending waits while a template loads', () => {
+		calls.length = 0;
+		confirmSpy.mockReturnValue( true );
+		change( 'booking_reminder_customer' );
+		expect( jQuery( '.mhm-email-send-btn' ).prop( 'disabled' ) ).toBe( true );
+		calls[ 0 ].success( { success: true, data: { subject: 'Hatırlatma', message: '<p>H</p>' } } );
+		calls[ 0 ].complete();
+		expect( jQuery( '.mhm-email-send-btn' ).prop( 'disabled' ) ).toBe( false );
+	} );
+
+	test( 'Codex #178 I1: a failed load puts the previous type back', () => {
+		calls.length = 0;
+		change( 'booking_cancelled' );
+		calls[ 0 ].error();
+		calls[ 0 ].complete();
+		expect( jQuery( '#email_type' ).val() ).toBe( 'booking_reminder_customer' );
+		expect( subject().value ).toBe( 'Hatırlatma' );
+		expect( notice().textContent ).toBe( 'TPL' );
+	} );
+
+	test( 'Codex #178 I3: an unedited template is sent empty, so the server renders it itself', () => {
+		calls.length = 0;
+		jQuery( '.mhm-email-send-btn' ).trigger( 'click' );
+		expect( calls[ 0 ].data ).toMatchObject( { email_type: 'booking_reminder_customer', email_subject: '', email_message: '' } );
+		calls[ 0 ].complete();
+
+		calls.length = 0;
+		message().value = '<p>Elle</p>';
+		jQuery( '.mhm-email-send-btn' ).trigger( 'click' );
+		expect( calls[ 0 ].data ).toMatchObject( { email_subject: 'Hatırlatma', email_message: '<p>Elle</p>' } );
+		calls[ 0 ].complete();
+		confirmSpy.mockReset();
+	} );
+
 	test( 'Enter in the subject does not submit the booking form', () => {
 		const event = jQuery.Event( 'keydown', { key: 'Enter' } );
 		jQuery( '#email_subject' ).trigger( event );

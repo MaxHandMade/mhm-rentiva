@@ -100,16 +100,28 @@
 	}
 
 	// H9: only the answer to the LAST request fills the box -- a slower answer
-	// to an earlier choice no longer overwrites a later one.
-	function loadEmailTemplate( $box, emailType, bookingId ) {
+	// to an earlier choice no longer overwrites a later one. While a template
+	// loads the box cannot send (the new type with the old text), and a failed
+	// load hands the type back to `onFail` (Codex #178 I1).
+	function loadEmailTemplate( $box, emailType, bookingId, onFail ) {
 		var request = ++templateRequest;
+		var $send   = $box.find( '.mhm-email-send-btn' );
 
 		if ( 'custom' === emailType ) {
 			$( '#email_subject' ).val( '' );
 			setMessage( '' );
 			rememberLoaded();
+			$send.prop( 'disabled', false );
 			return;
 		}
+
+		$send.prop( 'disabled', true );
+		var failed = function () {
+			showEmailNotice( $box, 'error', strings().templateError || 'The template could not be loaded.' );
+			if ( typeof onFail === 'function' ) {
+				onFail();
+			}
+		};
 
 		$.ajax( {
 			url: ajaxUrl(),
@@ -130,12 +142,17 @@
 					setMessage( response.data.message || '' );
 					rememberLoaded();
 				} else {
-					showEmailNotice( $box, 'error', strings().templateError || 'The template could not be loaded.' );
+					failed();
 				}
 			},
 			error: function () {
 				if ( request === templateRequest ) {
-					showEmailNotice( $box, 'error', strings().templateError || 'The template could not be loaded.' );
+					failed();
+				}
+			},
+			complete: function () {
+				if ( request === templateRequest ) {
+					$send.prop( 'disabled', false );
 				}
 			},
 		} );
@@ -155,6 +172,11 @@
 
 		var $button = $box.find( '.mhm-email-send-btn' );
 		var label   = $button.text();
+		var type    = $box.find( '#email_type' ).val() || '';
+		// An unedited template goes out empty: the server renders it itself,
+		// byte for byte the automatic e-mail -- the editor would trim and
+		// normalise it (Codex #178 I3).
+		var edited  = 'custom' === type || isEdited();
 		$button.prop( 'disabled', true ).text( text.sending || 'Sending...' );
 
 		$.ajax( {
@@ -164,9 +186,9 @@
 			data: {
 				action: 'mhmrentiva_send_customer_email',
 				booking_id: bookingId,
-				email_type: $box.find( '#email_type' ).val() || '',
-				email_subject: $box.find( '#email_subject' ).val() || '',
-				email_message: getMessage(),
+				email_type: type,
+				email_subject: edited ? ( $box.find( '#email_subject' ).val() || '' ) : '',
+				email_message: edited ? getMessage() : '',
 				mhmrentiva_email_nonce: nonce,
 			},
 			success: function ( response ) {
@@ -212,8 +234,13 @@
 				$select.val( currentType );
 				return;
 			}
-			currentType = $select.val();
-			loadEmailTemplate( $select.closest( '.mhm-email-form' ), currentType, $select.closest( '.mhm-email-form' ).data( 'booking-id' ) || $( '#post_ID' ).val() );
+			var previousType = currentType;
+			currentType      = $select.val();
+			loadEmailTemplate( $select.closest( '.mhm-email-form' ), currentType, $select.closest( '.mhm-email-form' ).data( 'booking-id' ) || $( '#post_ID' ).val(), function () {
+				// The box still holds the previous type's text: name it again.
+				currentType = previousType;
+				$select.val( previousType );
+			} );
 		} );
 
 		// The default type's template on page load.

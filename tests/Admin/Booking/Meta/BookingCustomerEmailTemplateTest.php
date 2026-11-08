@@ -116,6 +116,8 @@ final class BookingCustomerEmailTemplateTest extends WP_Ajax_UnitTestCase
 
 		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
 		$ctx = Mailer::getBookingContext($this->booking);
+		// Codex #178 M4: not empty on its own, not only equal to the helper.
+		$this->assertNotSame('', trim((string) $response['data']['subject']));
 		$this->assertSame(Templates::compile_subject($type, $ctx), $response['data']['subject']);
 		$this->assertStringNotContainsString('<html', (string) $response['data']['message']);
 		$this->assertStringContainsString('Ayşe Yılmaz', (string) $response['data']['message']);
