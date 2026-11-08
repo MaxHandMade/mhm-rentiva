@@ -548,9 +548,12 @@ final class Mailer {
 		}
 		// A wall-clock time with no date: built in the site's zone, like the date
 		// path (a "T" in the time format names the site's zone, not UTC), on a
-		// fixed day no zone changes its clocks on, so no gap can move the hour.
+		// day no zone changes its clocks on (January 3), so no gap can move the
+		// hour; this year's, so an offset that changed since (Turkey's +03
+		// since 2016) prints as it is now (Fable #179 m-3). In the southern
+		// hemisphere January is summer time, so "T" names the summer zone.
 		$zone = wp_timezone();
-		$time = ( new \DateTimeImmutable( '2000-01-03', $zone ) )->setTime( (int) $m[1], (int) $m[2] );
+		$time = ( new \DateTimeImmutable( 'now', $zone ) )->setDate( (int) wp_date( 'Y', null, $zone ), 1, 3 )->setTime( (int) $m[1], (int) $m[2] );
 
 		return (string) \MHMRentiva\Admin\Core\Utilities\SiteLocaleString::in_site_locale(
 			static fn () => wp_date( (string) get_option( 'time_format' ), $time->getTimestamp(), $zone )

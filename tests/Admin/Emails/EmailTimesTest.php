@@ -122,6 +122,20 @@ final class EmailTimesTest extends WP_UnitTestCase
 		$this->assertSame('09:30 EST', $ctx['booking']['pickup_time']);
 	}
 
+	/**
+	 * Fable #179 m-3: anchored in 2000 the time printed Istanbul's old +02:00;
+	 * Turkey has been on +03 since 2016.
+	 */
+	public function test_the_zone_offset_is_todays(): void
+	{
+		update_option('timezone_string', 'Europe/Istanbul');
+		update_option('time_format', 'H:i P');
+		$ctx = Mailer::getBookingContext($this->booking(array( '_mhmrentiva_start_time' => '10:00' )));
+		update_option('timezone_string', '');
+
+		$this->assertSame('10:00 +03:00', $ctx['booking']['pickup_time']);
+	}
+
 	public function test_a_time_with_seconds_is_read(): void
 	{
 		$this->formats();
