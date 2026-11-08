@@ -143,6 +143,8 @@
 			// re-orders attributes, so a later round (a tab switch, a move)
 			// would otherwise look like an edit (Fable #178 Δ4).
 			editor.setContent( editor.getContent() );
+			// The textarea in the same form: the Visual tab re-reads it (Codex r7).
+			$( '#' + EDITOR_ID ).val( editor.getContent() );
 			// The filled text is the new baseline: an empty undo history would
 			// make the operator's first change the "first level", which TinyMCE
 			// does not count as a change (measured in a browser).

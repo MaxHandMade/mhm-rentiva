@@ -251,6 +251,29 @@ describe( 'booking customer e-mail box', () => {
 		delete window.tinymce;
 	} );
 
+	test( 'Fable #178 Δ5 / Codex r7: a fill takes the baseline in TinyMCE normal form, in the editor and the textarea', () => {
+		const order = [];
+		const editor = {
+			id: 'email_message',
+			isHidden: () => false,
+			isDirty: () => false,
+			setDirty: ( v ) => order.push( 'setDirty:' + v ),
+			save: () => {},
+			getContent: () => '<p>NORMAL</p>',
+			setContent: ( html ) => order.push( 'setContent:' + html ),
+			undoManager: { clear: () => order.push( 'clear' ), add: () => order.push( 'add' ) },
+		};
+		window.tinymce = { get: () => editor };
+
+		calls.length = 0;
+		change( 'booking_reminder_customer' );
+		answer( calls[ 0 ], 'B-subj', '<p>raw</p>' );
+
+		expect( order ).toEqual( [ 'setContent:<p>raw</p>', 'setContent:<p>NORMAL</p>', 'clear', 'add', 'setDirty:false' ] );
+		expect( message().value ).toBe( '<p>NORMAL</p>' );
+		delete window.tinymce;
+	} );
+
 	test( 'Enter in the subject does not submit the booking form', () => {
 		const event = jQuery.Event( 'keydown', { key: 'Enter' } );
 		jQuery( '#email_subject' ).trigger( event );
