@@ -925,8 +925,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 		// The stub types $meta_value as string; core serializes it itself
 		// ("Must be serializable if non-scalar"), and a pre-serialized string
-		// would be serialized twice.
-		update_metadata_by_mid('order_item', (int) $meta_id, $meta_value); // @phpstan-ignore argument.type (core takes any serializable value)
+		// would be serialized twice (phpstan.neon ignoreErrors says so too).
+		update_metadata_by_mid('order_item', (int) $meta_id, $meta_value);
 	}
 
 	/**
@@ -950,7 +950,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return false;
 		}
 
-		// An object is rewritten as it is: cheaper than proving it clean.
+		// An object is rewritten as it is. That cannot bring a backslash back:
+		// add_metadata()'s wp_unslash() already stripped the object in place.
+		// No snapshot carries one today.
 		return is_object($value);
 	}
 

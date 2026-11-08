@@ -30,3 +30,14 @@ parameters:
     scanFiles:
         - vendor/mhm/ui-core/register.php
         - vendor/mhm/ui-core/bootstrap.php
+    ignoreErrors:
+        # The wordpress-stubs type update_metadata_by_mid()'s $meta_value as
+        # string; core serializes any value itself ("Must be serializable if
+        # non-scalar"), and a pre-serialized string would be serialized twice.
+        # Here, not inline: the level-0 pass (phpstan-level0.neon) reports no
+        # argument.type, so an inline ignore would be unmatched there.
+        -
+            identifier: argument.type
+            message: '#^Parameter \#3 \$meta_value of function update_metadata_by_mid expects string, array<mixed, mixed> given\.$#'
+            path: src/Admin/Payment/WooCommerce/WooCommerceBridge.php
+            count: 1
