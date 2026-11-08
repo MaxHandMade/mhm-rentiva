@@ -144,13 +144,13 @@ final class LayoutRollbackService {
             // Meta Flip on Success:
             // new current = old previous
             // new previous = old current
-            update_post_meta($post_id, '_mhmrentiva_layout_manifest', $snapshot['manifest_prev']);
-            update_post_meta($post_id, '_mhmrentiva_layout_hash', $snapshot['hash_prev']);
-            update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', $snapshot['timestamp_prev']);
+            update_post_meta($post_id, '_mhmrentiva_layout_manifest', wp_slash($snapshot['manifest_prev']));
+            update_post_meta($post_id, '_mhmrentiva_layout_hash', wp_slash($snapshot['hash_prev']));
+            update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', wp_slash($snapshot['timestamp_prev']));
 
-            update_post_meta($post_id, '_mhmrentiva_layout_manifest_previous', $snapshot['manifest']);
-            update_post_meta($post_id, '_mhmrentiva_layout_hash_previous', $snapshot['hash']);
-            update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp_previous', $snapshot['timestamp']);
+            update_post_meta($post_id, '_mhmrentiva_layout_manifest_previous', wp_slash($snapshot['manifest']));
+            update_post_meta($post_id, '_mhmrentiva_layout_hash_previous', wp_slash($snapshot['hash']));
+            update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp_previous', wp_slash($snapshot['timestamp']));
 
             clean_post_cache($post_id);
 
@@ -215,12 +215,16 @@ final class LayoutRollbackService {
      */
     private static function restore_snapshot(int $post_id, array $snapshot): void
     {
+        // Slashed like every writer here: the snapshot was read from the
+        // database unslashed, and wp_update_post() unslashes again.
         wp_update_post(
-            array(
-                'ID'           => $post_id,
-                'post_content' => $snapshot['post_content'],
-                'post_title'   => $snapshot['post_title'],
-                'post_status'  => $snapshot['post_status'],
+            wp_slash(
+                array(
+                    'ID'           => $post_id,
+                    'post_content' => $snapshot['post_content'],
+                    'post_title'   => $snapshot['post_title'],
+                    'post_status'  => $snapshot['post_status'],
+                )
             )
         );
 
@@ -238,7 +242,7 @@ final class LayoutRollbackService {
 
         foreach ($values as $key => $value) {
             if (in_array($key, $existing, true)) {
-                update_post_meta($post_id, $key, $value);
+                update_post_meta($post_id, $key, wp_slash($value));
                 continue;
             }
 
