@@ -94,51 +94,13 @@ final class EmailTemplateTestAction {
 		return $context;
 	}
 
+	/**
+	 * The context the real e-mail is built from, so a test send prints what
+	 * the customer reads (site date and time format, salutation); this used to
+	 * be a copy with raw dates and no salutation (Fable #178 D3).
+	 */
 	private static function buildBookingContext( int $booking_id ): array {
-		$post = get_post( $booking_id );
-		if ( ! $post || $post->post_type !== 'mhmrentiva_booking' ) {
-			return array();
-		}
-
-		if ( ! class_exists( '\\MHMRentiva\\Admin\\Core\\Utilities\\BookingQueryHelper' ) ) {
-			return array();
-		}
-		$customer_info   = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo( $booking_id );
-		$vehicle_info    = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingVehicleInfo( $booking_id );
-		$date_info       = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingDateInfo( $booking_id );
-		$payment_status  = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingPaymentStatus( $booking_id );
-		$payment_gateway = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingPaymentGateway( $booking_id );
-		$total_price     = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingTotalPrice( $booking_id );
-
-		return array(
-			'booking'  => array(
-				'id'              => $booking_id,
-				// Same numbers the real email carries (Mailer::getBookingContext).
-				'order_id'        => mhmrentiva_get_display_id( (int) $booking_id ),
-				'display_id'      => mhmrentiva_get_display_id( (int) $booking_id ),
-				'title'           => $post->post_title,
-				'status'          => $post->post_status,
-				'payment_status'  => $payment_status,
-				'payment_gateway' => $payment_gateway,
-				'total_price'     => $total_price,
-				'pickup_date'     => $date_info['pickup_date'] ?? '',
-				'return_date'     => $date_info['return_date'] ?? '',
-				'rental_days'     => $date_info['rental_days'] ?? 0,
-			),
-			'customer' => array(
-				'name'       => trim( ( $customer_info['first_name'] ?? '' ) . ' ' . ( $customer_info['last_name'] ?? '' ) ),
-				'first_name' => $customer_info['first_name'] ?? '',
-				'last_name'  => $customer_info['last_name'] ?? '',
-				'email'      => $customer_info['email'] ?? '',
-				'phone'      => $customer_info['phone'] ?? '',
-			),
-			'vehicle'  => array(
-				'id'             => $vehicle_info['id'] ?? 0,
-				'title'          => $vehicle_info['title'] ?? '',
-				'price_per_day'  => $vehicle_info['price_per_day'] ?? 0,
-				'featured_image' => $vehicle_info['featured_image'] ?? '',
-			),
-		);
+		return Mailer::getBookingContext( $booking_id ) ?? array();
 	}
 
 	/**

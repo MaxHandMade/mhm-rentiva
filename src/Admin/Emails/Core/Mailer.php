@@ -427,6 +427,9 @@ final class Mailer {
 
 		$customer_name = trim( (string) $customer_info['first_name'] . ' ' . (string) $customer_info['last_name'] );
 
+		$pickup_time_raw = self::first_meta( $booking_id, array( '_mhmrentiva_start_time', '_mhmrentiva_pickup_time', '_mhmrentiva_booking_pickup_time' ) );
+		$return_time_raw = self::first_meta( $booking_id, array( '_mhmrentiva_end_time', '_mhmrentiva_dropoff_time', '_mhmrentiva_booking_dropoff_time' ) );
+
 		return array(
 			'booking'  => array(
 				'id'               => $booking_id,
@@ -446,6 +449,14 @@ final class Mailer {
 				'return_date'      => self::display_date( (string) ( $date_info['return_date'] ?? '' ) ),
 				'pickup_date_raw'  => (string) ( $date_info['pickup_date'] ?? '' ),
 				'return_date_raw'  => (string) ( $date_info['return_date'] ?? '' ),
+				// The times in the site's time format, and a date-and-time value
+				// that prints the date alone when no time is stored (11-08).
+				'pickup_time'      => self::display_time( $pickup_time_raw ),
+				'return_time'      => self::display_time( $return_time_raw ),
+				'pickup_time_raw'  => $pickup_time_raw,
+				'return_time_raw'  => $return_time_raw,
+				'pickup_datetime'  => self::display_datetime( (string) ( $date_info['pickup_date'] ?? '' ), $pickup_time_raw ),
+				'return_datetime'  => self::display_datetime( (string) ( $date_info['return_date'] ?? '' ), $return_time_raw ),
 				'rental_days'      => $date_info['rental_days'] ?? 0,
 				'payment_type'     => $payment_type,
 				'payment_method'   => $payment_method,
@@ -507,6 +518,58 @@ final class Mailer {
 
 		return (string) \MHMRentiva\Admin\Core\Utilities\SiteLocaleString::in_site_locale(
 			static fn () => wp_date( (string) get_option( 'date_format' ), $date->getTimestamp(), wp_timezone() )
+		);
+	}
+
+	/**
+	 * The first of $keys holding a value, in the order the booking edit screen
+	 * reads them (BookingEditDates); '' and '0' are "not set" there too.
+	 *
+	 * @param array<int, string> $keys
+	 */
+	private static function first_meta( int $booking_id, array $keys ): string {
+		foreach ( $keys as $key ) {
+			$value = (string) get_post_meta( $booking_id, $key, true );
+			if ( '' !== $value && '0' !== $value ) {
+				return $value;
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * A stored H:i (or H:i:s) time as the site prints times, in the site
+	 * language. Anything else prints empty.
+	 */
+	private static function display_time( string $raw ): string {
+		if ( ! preg_match( '/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?\z/', $raw, $m ) ) {
+			return '';
+		}
+		// A wall-clock time with no date: printed in UTC on a fixed day, so no
+		// time zone or daylight-saving gap can move it.
+		$utc  = new \DateTimeZone( 'UTC' );
+		$time = ( new \DateTimeImmutable( '2000-01-03', $utc ) )->setTime( (int) $m[1], (int) $m[2] );
+
+		return (string) \MHMRentiva\Admin\Core\Utilities\SiteLocaleString::in_site_locale(
+			static fn () => wp_date( (string) get_option( 'time_format' ), $time->getTimestamp(), $utc )
+		);
+	}
+
+	/**
+	 * The date and the time the way e-mails print them: "date, time", or the
+	 * date alone when the time is missing or unreadable.
+	 */
+	private static function display_datetime( string $raw_date, string $raw_time ): string {
+		$date = self::display_date( $raw_date );
+		$time = self::display_time( $raw_time );
+		if ( '' === $date || '' === $time ) {
+			return $date;
+		}
+
+		return (string) \MHMRentiva\Admin\Core\Utilities\SiteLocaleString::resolve(
+			/* translators: 1: a date, 2: a time of day (e.g. "November 20, 2026, 9:30 am"). */
+			static fn (): string => sprintf( _x( '%1$s, %2$s', 'e-mail date and time', 'mhm-rentiva' ), $date, $time )
 		);
 	}
 

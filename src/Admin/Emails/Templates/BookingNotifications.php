@@ -23,7 +23,7 @@ final class BookingNotifications {
 	public static function render(): void {
 		echo '<h2>' . esc_html__( 'Booking Notifications', 'mhm-rentiva' ) . '</h2>';
 		echo '<p class="description">' . esc_html__( 'Configure email notifications for booking creation and status changes.', 'mhm-rentiva' ) . '</p>';
-		echo '<p class="description">' . esc_html__( 'Available placeholders: {booking_id}, {vehicle_title}, {pickup_date}, {dropoff_date}, {total_price}, {contact_name}, {contact_email}, {status}, {site_name}, {site_url}', 'mhm-rentiva' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Available placeholders: {booking_id}, {vehicle_title}, {pickup_date}, {dropoff_date}, {pickup_time}, {return_time}, {pickup_datetime}, {return_datetime}, {total_price}, {contact_name}, {contact_email}, {status}, {site_name}, {site_url}', 'mhm-rentiva' ) . '</p>';
 		echo '<p class="description">' . esc_html__( 'Allowed HTML tags: a, b, strong, em, i, u, p, br, span, ul, ol, li, h1, h2, h3, table, tr, td, th, img.', 'mhm-rentiva' ) . '</p>';
 
 		/**

@@ -153,11 +153,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</div>
 				<div class="detail-row">
 					<span class="detail-label"><?php esc_html_e( 'Pickup Date:', 'mhm-rentiva' ); ?></span>
-					<span class="detail-value"><?php echo esc_html( $data['booking']['pickup_date'] ?? '' ); ?></span>
+					<span class="detail-value"><?php echo esc_html( $data['booking']['pickup_datetime'] ?? ( $data['booking']['pickup_date'] ?? '' ) ); ?></span>
 				</div>
 				<div class="detail-row">
 					<span class="detail-label"><?php esc_html_e( 'Return Date:', 'mhm-rentiva' ); ?></span>
-					<span class="detail-value"><?php echo esc_html( $data['booking']['return_date'] ?? '' ); ?></span>
+					<span class="detail-value"><?php echo esc_html( $data['booking']['return_datetime'] ?? ( $data['booking']['return_date'] ?? '' ) ); ?></span>
 				</div>
 				<div class="detail-row">
 					<span class="detail-label"><?php esc_html_e( 'Amount Paid:', 'mhm-rentiva' ); ?></span>

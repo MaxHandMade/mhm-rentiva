@@ -132,8 +132,8 @@ final class EmailSettings {
     <tr style="background: #f1f1f1;"><th colspan="2" style="padding: 12px 15px; text-align: left; border-bottom: 2px solid #ddd;">' . __( 'Reservation Details', 'mhm-rentiva' ) . '</th></tr>
     <tr><td style="padding: 10px 15px; border-bottom: 1px solid #eee; color: #666;">' . __( 'Reservation No:', 'mhm-rentiva' ) . '</td><td style="padding: 10px 15px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">#{booking_id}</td></tr>
     <tr><td style="padding: 10px 15px; border-bottom: 1px solid #eee; color: #666;">' . __( 'Vehicle:', 'mhm-rentiva' ) . '</td><td style="padding: 10px 15px; border-bottom: 1px solid #eee; text-align: right;">{vehicle_title}</td></tr>
-    <tr><td style="padding: 10px 15px; border-bottom: 1px solid #eee; color: #666;">' . __( 'Pickup Date:', 'mhm-rentiva' ) . '</td><td style="padding: 10px 15px; border-bottom: 1px solid #eee; text-align: right;">{pickup_date}</td></tr>
-    <tr><td style="padding: 10px 15px; border-bottom: 1px solid #eee; color: #666;">' . __( 'Return Date:', 'mhm-rentiva' ) . '</td><td style="padding: 10px 15px; border-bottom: 1px solid #eee; text-align: right;">{dropoff_date}</td></tr>
+    <tr><td style="padding: 10px 15px; border-bottom: 1px solid #eee; color: #666;">' . __( 'Pickup Date:', 'mhm-rentiva' ) . '</td><td style="padding: 10px 15px; border-bottom: 1px solid #eee; text-align: right;">{pickup_datetime}</td></tr>
+    <tr><td style="padding: 10px 15px; border-bottom: 1px solid #eee; color: #666;">' . __( 'Return Date:', 'mhm-rentiva' ) . '</td><td style="padding: 10px 15px; border-bottom: 1px solid #eee; text-align: right;">{return_datetime}</td></tr>
     <tr style="background: #fff8e1;"><td style="padding: 12px 15px; color: #333; font-weight: bold;">' . __( 'Total Amount:', 'mhm-rentiva' ) . '</td><td style="padding: 12px 15px; text-align: right; font-size: 18px; color: #d32f2f; font-weight: bold;">{total_price}</td></tr>
 </table>
 
@@ -176,7 +176,7 @@ final class EmailSettings {
     <tr><td style="width: 40%; color: #888; padding: 8px 0;">' . __( 'Booking ID:', 'mhm-rentiva' ) . '</td><td style="font-weight: bold; padding: 8px 0;">#{booking_id}</td></tr>
     <tr><td style="color: #888; padding: 8px 0;">' . __( 'Customer:', 'mhm-rentiva' ) . '</td><td style="font-weight: bold; padding: 8px 0;">{contact_name} ({contact_email})</td></tr>
     <tr><td style="color: #888; padding: 8px 0;">' . __( 'Vehicle:', 'mhm-rentiva' ) . '</td><td style="padding: 8px 0;">{vehicle_title}</td></tr>
-    <tr><td style="color: #888; padding: 8px 0;">' . __( 'Dates:', 'mhm-rentiva' ) . '</td><td style="padding: 8px 0;">{pickup_date} - {dropoff_date}</td></tr>
+    <tr><td style="color: #888; padding: 8px 0;">' . __( 'Dates:', 'mhm-rentiva' ) . '</td><td style="padding: 8px 0;">{pickup_datetime} - {return_datetime}</td></tr>
     <tr><td style="color: #888; padding: 8px 0;">' . __( 'Revenue:', 'mhm-rentiva' ) . '</td><td style="color: #28a745; font-weight: bold; padding: 8px 0;">{total_price}</td></tr>
 </table>';
 	}
@@ -224,7 +224,8 @@ final class EmailSettings {
 <div style="background: #fff9c4; padding: 20px; border-radius: 8px; border: 1px solid #fbc02d; margin: 20px 0;">
     <h4 style="margin-top: 0; color: #f57f17;">' . __( 'Pickup Details', 'mhm-rentiva' ) . '</h4>
     <p><strong>' . __( 'Vehicle:', 'mhm-rentiva' ) . '</strong> {vehicle_title}</p>
-    <p><strong>' . __( 'Pickup Time:', 'mhm-rentiva' ) . '</strong> {pickup_date}</p>
+    <p><strong>' . __( 'Pickup Date:', 'mhm-rentiva' ) . '</strong> {pickup_datetime}</p>
+    <p><strong>' . __( 'Return Date:', 'mhm-rentiva' ) . '</strong> {return_datetime}</p>
 </div>
 
 <p>' . __( 'Please make sure to have your identity documents and driver\'s license ready. We look forward to seeing you!', 'mhm-rentiva' ) . '</p>';
@@ -234,7 +235,7 @@ final class EmailSettings {
 	 * GOLD STANDARD TEMPLATE: Cancelled (Manual)
 	 */
 	public static function get_default_booking_cancelled_body(): string {
-		return '<p>' . __( 'Dear {salutation_name},', 'mhm-rentiva' ) . '</p><p>' . __( 'Your booking #{booking_id} has been cancelled.', 'mhm-rentiva' ) . '</p><table style="width: 100%; border-collapse: collapse; margin: 15px 0; background: #f8f9fa; border-radius: 8px;"><tr><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; color: #555;"><strong>' . __( 'Booking ID:', 'mhm-rentiva' ) . '</strong></td><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; text-align: right;">#{booking_id}</td></tr><tr><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; color: #555;"><strong>' . __( 'Vehicle:', 'mhm-rentiva' ) . '</strong></td><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; text-align: right;">{vehicle_title}</td></tr><tr><td style="padding: 10px 15px; color: #555;"><strong>' . __( 'Status:', 'mhm-rentiva' ) . '</strong></td><td style="padding: 10px 15px; text-align: right; color: #dc3545; font-weight: bold;">' . __( 'Cancelled', 'mhm-rentiva' ) . '</td></tr></table>';
+		return '<p>' . __( 'Dear {salutation_name},', 'mhm-rentiva' ) . '</p><p>' . __( 'Your booking #{booking_id} has been cancelled.', 'mhm-rentiva' ) . '</p><table style="width: 100%; border-collapse: collapse; margin: 15px 0; background: #f8f9fa; border-radius: 8px;"><tr><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; color: #555;"><strong>' . __( 'Booking ID:', 'mhm-rentiva' ) . '</strong></td><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; text-align: right;">#{booking_id}</td></tr><tr><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; color: #555;"><strong>' . __( 'Vehicle:', 'mhm-rentiva' ) . '</strong></td><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; text-align: right;">{vehicle_title}</td></tr><tr><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; color: #555;"><strong>' . __( 'Pickup Date:', 'mhm-rentiva' ) . '</strong></td><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; text-align: right;">{pickup_datetime}</td></tr><tr><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; color: #555;"><strong>' . __( 'Return Date:', 'mhm-rentiva' ) . '</strong></td><td style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; text-align: right;">{return_datetime}</td></tr><tr><td style="padding: 10px 15px; color: #555;"><strong>' . __( 'Status:', 'mhm-rentiva' ) . '</strong></td><td style="padding: 10px 15px; text-align: right; color: #dc3545; font-weight: bold;">' . __( 'Cancelled', 'mhm-rentiva' ) . '</td></tr></table>';
 	}
 
 	/**
