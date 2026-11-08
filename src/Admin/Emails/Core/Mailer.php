@@ -159,6 +159,51 @@ final class Mailer {
 	}
 
 	/**
+	 * An e-mail the operator wrote (or edited) for one customer, already
+	 * rendered (PR 3b-3). It is not an automatic notification: the template's
+	 * "Enabled" box and the customer's automatic-notification preference do not
+	 * stop it -- the operator chose to send it, and the booking screen says when
+	 * the customer turned notifications off. Every global rule still applies:
+	 * outgoing mail switched off, test mode (sandbox recipient). The send is
+	 * logged through mhmrentiva_email_sent like every other e-mail.
+	 *
+	 * @param string $log_key Template key, or 'manual_customer' for a custom message.
+	 * @return array{sent: bool, to: string} Whether it went out, and to whom (the test address in test mode).
+	 */
+	public static function send_operator_message( string $log_key, string $to, string $subject, string $body, array $context = array() ): array {
+		if ( '' === $to || ! is_email( $to ) || ! \MHMRentiva\Admin\Settings\Groups\EmailSettings::is_send_enabled() ) {
+			return array(
+				'sent' => false,
+				'to'   => $to,
+			);
+		}
+
+		$to      = \MHMRentiva\Admin\Settings\Groups\EmailSettings::sandbox_recipient( $to );
+		$headers = array(
+			'From: ' . \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_from_name() . ' <' . \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_from_address() . '>',
+			'Content-Type: text/html; charset=UTF-8',
+		);
+		$ok      = wp_mail( $to, $subject, $body, $headers );
+
+		do_action( 'mhmrentiva_email_sent', $log_key, $to, $ok, $subject, $context );
+
+		return array(
+			'sent' => (bool) $ok,
+			'to'   => $to,
+		);
+	}
+
+	/**
+	 * Whether the customer with this address turned automatic booking
+	 * notifications off on their account page.
+	 */
+	public static function customer_turned_off_notifications( string $email ): bool {
+		$user = '' !== $email ? get_user_by( 'email', $email ) : false;
+
+		return $user instanceof \WP_User && '0' === get_user_meta( $user->ID, 'mhmrentiva_booking_notifications', true );
+	}
+
+	/**
 	 * Render and hand a template to wp_mail().
 	 *
 	 * @param string $key     Template key.
@@ -380,6 +425,8 @@ final class Mailer {
 			);
 		}
 
+		$customer_name = trim( (string) $customer_info['first_name'] . ' ' . (string) $customer_info['last_name'] );
+
 		return array(
 			'booking'  => array(
 				'id'               => $booking_id,
@@ -393,8 +440,12 @@ final class Mailer {
 				'payment_status'   => $payment_status,
 				'payment_gateway'  => $payment_gateway,
 				'total_price'      => $total_price,
-				'pickup_date'      => $date_info['pickup_date'] ?? '',
-				'return_date'      => $date_info['return_date'] ?? '',
+				// Printed in the site's date format, in the site language (PR 3b-3);
+				// the stored value stays under *_raw for anything that compares.
+				'pickup_date'      => self::display_date( (string) ( $date_info['pickup_date'] ?? '' ) ),
+				'return_date'      => self::display_date( (string) ( $date_info['return_date'] ?? '' ) ),
+				'pickup_date_raw'  => (string) ( $date_info['pickup_date'] ?? '' ),
+				'return_date_raw'  => (string) ( $date_info['return_date'] ?? '' ),
 				'rental_days'      => $date_info['rental_days'] ?? 0,
 				'payment_type'     => $payment_type,
 				'payment_method'   => $payment_method,
@@ -403,11 +454,19 @@ final class Mailer {
 				'payment_deadline' => $payment_deadline ? get_date_from_gmt( (string) $payment_deadline ) : '',
 			),
 			'customer' => array(
-				'name'       => $customer_info['first_name'] . ' ' . $customer_info['last_name'],
-				'first_name' => $customer_info['first_name'],
-				'last_name'  => $customer_info['last_name'],
-				'email'      => $customer_info['email'],
-				'phone'      => $customer_info['phone'],
+				// Kept as the name itself (admin templates print it in a table).
+				'name'            => $customer_name,
+				// What a greeting prints: the name, or a phrase when there is none,
+				// so a customer never reads "Dear ," (PR 3b-3).
+				'salutation_name' => '' !== $customer_name
+					? $customer_name
+					: \MHMRentiva\Admin\Core\Utilities\SiteLocaleString::resolve(
+						static fn (): string => __( 'valued customer', 'mhm-rentiva' )
+					),
+				'first_name'      => $customer_info['first_name'],
+				'last_name'       => $customer_info['last_name'],
+				'email'           => $customer_info['email'],
+				'phone'           => $customer_info['phone'],
 			),
 			'vehicle'  => array(
 				'id'             => $vehicle_info['id'] ?? 0,
@@ -430,6 +489,24 @@ final class Mailer {
 				'url'         => home_url( '/' ),
 				'admin_email' => get_option( 'admin_email' ),
 			),
+		);
+	}
+
+	/**
+	 * A stored Y-m-d date as the site prints dates, in the site language.
+	 *
+	 * Built from midnight in the site's time zone so a western zone does not
+	 * print the day before (wp_date() turns a UTC stamp into local time).
+	 * Anything that is not a Y-m-d date prints empty.
+	 */
+	private static function display_date( string $raw ): string {
+		$date = \DateTimeImmutable::createFromFormat( '!Y-m-d', $raw, wp_timezone() );
+		if ( false === $date || $date->format( 'Y-m-d' ) !== $raw ) {
+			return '';
+		}
+
+		return (string) \MHMRentiva\Admin\Core\Utilities\SiteLocaleString::in_site_locale(
+			static fn () => wp_date( (string) get_option( 'date_format' ), $date->getTimestamp(), wp_timezone() )
 		);
 	}
 

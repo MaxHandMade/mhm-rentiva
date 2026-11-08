@@ -188,7 +188,9 @@ final class Templates {
 		// unknown, a dynamic 'Notification: {key}' fallback that was never
 		// translatable). Re-wrapping either in __() here would be invalid i18n
 		// (variable first argument) — pass the value through as-is.
-		$tpl = $reg[ $key ]['subject'] ?? ( 'Notification: ' . $key );
+		// The Settings screen's default first, so an unsaved subject goes out as
+		// the screen shows it (PR 3b-3); otherwise the registry's.
+		$tpl = EmailSettings::default_subject( $key ) ?? ( $reg[ $key ]['subject'] ?? ( 'Notification: ' . $key ) );
 		$sub = self::replace_placeholders( $tpl, $context );
 		$sub = apply_filters( 'mhmrentiva_email_subject', $sub, $key, $context );
 		$sub = apply_filters( 'mhmrentiva_email_subject_' . $key, $sub, $context );
@@ -247,8 +249,91 @@ final class Templates {
 	}
 
 	/**
-	 * Wrap inner HTML with the standard modern email layout
+	 * The inner part of a template that the booking's e-mail box lets the
+	 * operator edit (PR 3b-3). Mirrors render_body()'s branches:
+	 * - a saved or default body (getBodyOverride): that body, raw context, no
+	 *   filters -- render_body() filters the WRAPPED document in this branch;
+	 *   a full document or a <body>-only one gives its <body> content;
+	 * - a file template: context filters, the file, then mhmrentiva_email_body
+	 *   on the inner HTML, as render_body() does;
+	 * - no file: the same fallback paragraph.
+	 * send_body() wraps it the way render_body() would for the same branch.
 	 */
+	public static function editable_body( string $key, array $context ): string {
+		$override = self::getBodyOverride( $key, $context );
+		if ( $override !== null && $override !== '' ) {
+			return self::inner_html( (string) $override );
+		}
+
+		$ctx = self::filtered_context( $key, $context );
+
+		return self::inner_html( (string) apply_filters( 'mhmrentiva_email_body', self::file_body( $key, $ctx ), $key, $ctx ) );
+	}
+
+	/**
+	 * The full e-mail for a fragment from editable_body() -- edited or not --
+	 * wrapped once, with render_body()'s filter order for the template's branch.
+	 * The branch is worked out here again, never taken from the request.
+	 * $subject is the subject that goes out when the operator changed it: the
+	 * layout prints it as the e-mail's heading (Codex bot #178).
+	 */
+	public static function send_body( string $key, array $context, string $fragment, ?string $subject = null ): string {
+		$override = self::getBodyOverride( $key, $context );
+		if ( $override !== null && $override !== '' ) {
+			$html = self::wrapWithLayout( $context, $subject ?? self::compile_subject( $key, $context ), $fragment );
+			$html = apply_filters( 'mhmrentiva_email_body', $html, $key, $context );
+
+			return (string) apply_filters( 'mhmrentiva_email_body_' . $key, $html, $context );
+		}
+
+		$ctx = self::filtered_context( $key, $context );
+
+		return self::wrapWithLayout( $ctx, $subject ?? self::compile_subject( $key, $ctx ), $fragment );
+	}
+
+	/**
+	 * The context render_body() hands a file template.
+	 *
+	 * @param array<string, mixed> $context
+	 * @return array<string, mixed>
+	 */
+	private static function filtered_context( string $key, array $context ): array {
+		$ctx = apply_filters( 'mhmrentiva_email_context', $context, $key );
+
+		return (array) apply_filters( 'mhmrentiva_email_context_' . $key, $ctx );
+	}
+
+	/**
+	 * A file template's HTML, or render_body()'s fallback paragraph.
+	 *
+	 * @param array<string, mixed> $ctx Filtered context.
+	 */
+	private static function file_body( string $key, array $ctx ): string {
+		$reg  = self::registry();
+		$slug = $reg[ $key ]['file'] ?? $key;
+		$path = self::locate_template( $slug );
+		if ( $path ) {
+			ob_start();
+			$data = $ctx; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- read by the included template.
+			include $path;
+
+			return (string) ob_get_clean();
+		}
+
+		return '<p>' . esc_html__( 'No content available for this email.', 'mhm-rentiva' ) . '</p>';
+	}
+
+	/**
+	 * The content of a document's <body>, or the HTML itself when it has none.
+	 */
+	private static function inner_html( string $html ): string {
+		if ( preg_match( '#<body\b[^>]*>(.*)</body>#is', $html, $m ) ) {
+			return trim( $m[1] );
+		}
+
+		return $html;
+	}
+
 	/**
 	 * Wrap inner HTML with the standard modern email layout
 	 */
@@ -606,6 +691,10 @@ final class Templates {
 				return EmailSettings::get_default_refund_admin_body();
 			case 'booking_cancelled':
 				return EmailSettings::get_default_booking_cancelled_body();
+			// The body the Settings screen shows for the reminder; the sender
+			// used to fall back to the .html.php file instead (PR 3b-3 R3).
+			case 'booking_reminder_customer':
+				return EmailSettings::get_default_booking_reminder_body();
 			case 'welcome_customer':
 				return EmailSettings::get_default_welcome_email_body();
 			default:
@@ -614,6 +703,12 @@ final class Templates {
 	}
 
 	public static function replace_placeholders( string $tpl, array $context ): string {
+		// A greeting reads customer.salutation_name (PR 3b-3); a context that
+		// does not carry it (Pro's message e-mails) greets by the name.
+		if ( isset( $context['customer'] ) && is_array( $context['customer'] ) && ! isset( $context['customer']['salutation_name'] ) ) {
+			$context['customer']['salutation_name'] = (string) ( $context['customer']['name'] ?? '' );
+		}
+
 		// Pass 1: {{dot.path}} format
 		$out = preg_replace_callback(
 			'/\{\{\s*([a-zA-Z0-9_\.\-]+)\s*\}\}/',
@@ -650,6 +745,7 @@ final class Templates {
 			'total_price'     => 'booking.total_price',
 			'status'          => 'booking.status',
 			'customer_name'   => 'customer.name',
+			'salutation_name' => 'customer.salutation_name',
 			// Pro's default custom body for the message-reply e-mail. The
 			// fallback below would read `reply.body`, which no context carries.
 			'reply_body'      => 'message.reply',

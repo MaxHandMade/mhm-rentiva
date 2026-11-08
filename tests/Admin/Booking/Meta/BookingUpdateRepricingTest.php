@@ -179,7 +179,9 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 		// The customer e-mail entry points BookingCustomerEmailTemplateTest drives.
 		$this->assertSame(10, has_action('wp_ajax_mhmrentiva_get_email_template', array( BookingMeta::class, 'ajax_get_email_template' )));
 		$this->assertSame(10, has_action('wp_ajax_mhmrentiva_send_customer_email', array( BookingMeta::class, 'ajax_send_customer_email' )));
-		$this->assertSame(10, has_action('admin_post_mhmrentiva_send_customer_email', array( BookingMeta::class, 'handle_send_customer_email' )));
+		// PR 3b-3: the admin-post twin (a second send path that wrote no
+		// history row) is gone; the AJAX handler is the one send path.
+		$this->assertFalse(has_action('admin_post_mhmrentiva_send_customer_email'));
 	}
 
 	private function addon(): int

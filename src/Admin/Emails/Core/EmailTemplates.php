@@ -365,15 +365,22 @@ final class EmailTemplates {
 		if ($booking_id > 0) {
 			$paymentState = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id );
 
-			$ctx['booking'] = array(
-				'id'          => $booking_id,
-				// The number every subject prints ({{booking.order_id}}); the
-				// preview showed "Booking #" with no number without it.
-				'order_id'    => mhmrentiva_get_display_id( (int) $booking_id ),
-				'display_id'  => mhmrentiva_get_display_id( (int) $booking_id ),
-				'title'       => get_the_title($booking_id),
-				'status'      => (string) get_post_meta($booking_id, '_mhmrentiva_status', true),
-				'payment'     => array(
+			// The context the automatic e-mail is built from (PR 3b-3), so the
+			// preview shows what the customer gets: formatted dates, the greeting
+			// name, the real total. A cancellation adds what its automatic
+			// e-mail adds (status change, reason).
+			$ctx = array_merge($ctx, \MHMRentiva\Admin\Emails\Core\Mailer::getBookingContext($booking_id) ?? array());
+			if ('booking_cancelled' === $key) {
+				// The change TO cancelled, whatever the status is now (Fable #178 D2).
+				$status = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
+				$ctx    = array_merge($ctx, \MHMRentiva\Admin\Emails\Notifications\BookingNotifications::status_change_context($booking_id, $status, \MHMRentiva\Admin\Booking\Core\Status::CANCELLED));
+			}
+
+			// What the refund templates read on top of it (booking.payment).
+			$ctx['booking'] = (array) ( $ctx['booking'] ?? array() ) + array(
+				'id'         => $booking_id,
+				'display_id' => mhmrentiva_get_display_id( (int) $booking_id ),
+				'payment'    => array(
 					'status'   => (string) get_post_meta($booking_id, '_mhmrentiva_payment_status', true),
 					'amount'   => $paymentState->paid(),
 					// Falls back to the STORE's currency, not a fixed 'TRY': a
@@ -382,22 +389,14 @@ final class EmailTemplates {
 					'currency' => (string) get_post_meta($booking_id, '_mhmrentiva_payment_currency', true)
 						?: CurrencyHelper::get_currency_code(),
 				),
-				// Helper for direct access. NUMERIC on purpose: the display layer
-				// (Templates::compile / the email templates) formats it. This used
-				// to be a `number_format_i18n()` string, so every consumer that
-				// cast it to float read "1.500,00" as 1.5 — a silent 1000x error
-				// in a customer-facing figure — and the one consumer that guarded
-				// with `is_numeric()` printed the amount with no currency at all.
-				'total_price' => (float) Money::toMajor( $paymentState->paid() ),
 			);
-			$ctx['customer'] = array(
+			// Only where the booking context had nothing (it reads the customer
+			// and vehicle through the booking data provider).
+			$ctx['customer'] = (array) ( $ctx['customer'] ?? array() ) + array(
 				'email' => (string) get_post_meta($booking_id, '_mhmrentiva_contact_email', true),
 				'name'  => (string) get_post_meta($booking_id, '_mhmrentiva_contact_name', true),
 			);
-			// Include vehicle info if available (simplified for now as context is mostly meta based)
-			// The vehicle's own title. This used to be the English literal
-			// "Vehicle Title (ID: N)", which every preview printed as is.
-			$ctx['vehicle'] = array(
+			$ctx['vehicle']  = (array) ( $ctx['vehicle'] ?? array() ) + array(
 				'title' => get_the_title( (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true) ),
 			);
 		} else {

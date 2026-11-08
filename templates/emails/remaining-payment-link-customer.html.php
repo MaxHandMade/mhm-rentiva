@@ -7,7 +7,7 @@
 		printf(
 			/* translators: %s: customer name. */
 			esc_html__( 'Dear %s,', 'mhm-rentiva' ),
-			esc_html( $data['customer']['name'] ?? '' )
+			esc_html( $data['customer']['salutation_name'] ?? ( $data['customer']['name'] ?? '' ) )
 		);
 		?>
 	</p>

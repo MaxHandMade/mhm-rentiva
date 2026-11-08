@@ -13,6 +13,8 @@ use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 use MHMRentiva\Admin\Core\Utilities\SiteLocaleString;
+use MHMRentiva\Admin\Emails\Core\Mailer;
+use MHMRentiva\Admin\Emails\Core\Templates;
 
 
 
@@ -44,11 +46,15 @@ final class BookingMeta extends AbstractMetaBox {
 	private static bool $registered = false;
 
 	/**
-	 * The "Send email to customer" types: the select's options, and the keys
-	 * prepare_email_content() has a default subject and message for. Anything
-	 * else is refused before a template is looked up.
+	 * The "Send email to customer" types (PR 3b-3): the Settings templates the
+	 * customer also receives automatically, and a custom message. "Payment
+	 * reminder" left the box (user decision 2026-11-08): the payment link goes
+	 * out from Payment management only. Anything else is refused.
 	 */
-	private const CUSTOMER_EMAIL_TYPES = array( 'booking_confirmation', 'payment_reminder', 'booking_reminder', 'booking_cancelled', 'custom' );
+	private const CUSTOMER_EMAIL_TEMPLATES = array( 'booking_created_customer', 'booking_reminder_customer', 'booking_cancelled' );
+
+	/** The custom message's key in the e-mail log. */
+	private const CUSTOMER_EMAIL_CUSTOM_LOG_KEY = 'manual_customer';
 
 	/** Note types an operator may add by hand ('manual' is the AJAX default). */
 	private const NOTE_TYPES = array( 'note', 'manual', 'customer_contact' );
@@ -115,9 +121,6 @@ final class BookingMeta extends AbstractMetaBox {
 		// fingerprint is taken before the writers at 5 and 10.
 		add_action('save_post', array( \MHMRentiva\Admin\Booking\Core\BookingPricingInputs::class, 'open' ), 1, 2);
 		add_action('save_post', array( \MHMRentiva\Admin\Booking\Core\BookingPricingInputs::class, 'close' ), 99, 2);
-
-		// Email sending handler
-		add_action('admin_post_mhmrentiva_send_customer_email', array( self::class, 'handle_send_customer_email' ));
 
 		// AJAX handlers
 		add_action('wp_ajax_mhmrentiva_send_customer_email', array( self::class, 'ajax_send_customer_email' ));
@@ -210,17 +213,19 @@ final class BookingMeta extends AbstractMetaBox {
 					'confirmRefund'        => __( 'Proceed with refund?', 'mhm-rentiva' ),
 					'priceDecimals'        => \MHMRentiva\Admin\Payment\Core\Money::decimals(),
 					'strings'              => array(
-						'noteEmpty'       => __( 'Please enter a note.', 'mhm-rentiva' ),
-						'noteAdded'       => __( 'Note added.', 'mhm-rentiva' ),
+						'noteEmpty'      => __( 'Please enter a note.', 'mhm-rentiva' ),
+						'noteAdded'      => __( 'Note added.', 'mhm-rentiva' ),
 						/* translators: %s: the error message the server returned. */
-						'noteError'       => __( 'Error: %s', 'mhm-rentiva' ),
-						'noteFailed'      => __( 'The note could not be added.', 'mhm-rentiva' ),
-						'sending'         => __( 'Sending...', 'mhm-rentiva' ),
-						'success'         => __( 'Email sent successfully!', 'mhm-rentiva' ),
-						'error'           => __( 'Error:', 'mhm-rentiva' ),
-						'unknownError'    => __( 'Unknown error', 'mhm-rentiva' ),
-						'errorOccurred'   => __( 'An error occurred:', 'mhm-rentiva' ),
-						'loadingTemplate' => __( 'Loading template...', 'mhm-rentiva' ),
+						'noteError'      => __( 'Error: %s', 'mhm-rentiva' ),
+						'noteFailed'     => __( 'The note could not be added.', 'mhm-rentiva' ),
+						'sending'        => __( 'Sending...', 'mhm-rentiva' ),
+						'success'        => __( 'Email sent successfully!', 'mhm-rentiva' ),
+						/* translators: %s: the error message the server returned. */
+						'sendError'      => __( 'The e-mail was not sent: %s', 'mhm-rentiva' ),
+						'sendFailed'     => __( 'The e-mail could not be sent. Please try again.', 'mhm-rentiva' ),
+						'securityError'  => __( 'Please refresh the page and try again.', 'mhm-rentiva' ),
+						'templateError'  => __( 'The template could not be loaded.', 'mhm-rentiva' ),
+						'confirmReplace' => __( 'Replace your changes with the selected template?', 'mhm-rentiva' ),
 					),
 				)
 			);
@@ -761,220 +766,68 @@ final class BookingMeta extends AbstractMetaBox {
 
 		echo '<hr style="margin: 15px 0;">';
 
-		// Email types
-		echo '<h4>' . esc_html__('Send Email', 'mhm-rentiva') . '</h4>';
-
-		echo '<div class="mhm-customer-email-box mhm-email-form" data-booking-id="' . (int) $post->ID . '">';
+		// PR 3b-3: the Settings templates the customer also gets automatically,
+		// plus a custom message; type and subject side by side, the message in
+		// the WordPress editor, the button on the right (canvas).
+		echo '<div class="mhm-email-form" data-booking-id="' . (int) $post->ID . '">';
 		wp_nonce_field('mhmrentiva_send_email', 'mhmrentiva_email_nonce');
 
-		echo '<p>';
-		echo '<label for="email_type">' . esc_html__('Email Type:', 'mhm-rentiva') . '</label><br/>';
-		echo '<select id="email_type" name="email_type" class="widefat" style="margin-bottom: 10px;">';
-		echo '<option value="booking_confirmation">' . esc_html__('Booking Confirmation', 'mhm-rentiva') . '</option>';
-		echo '<option value="payment_reminder">' . esc_html__('Payment Reminder', 'mhm-rentiva') . '</option>';
-		echo '<option value="booking_reminder">' . esc_html__('Booking Reminder', 'mhm-rentiva') . '</option>';
-		echo '<option value="booking_cancelled">' . esc_html__('Booking Cancelled', 'mhm-rentiva') . '</option>';
-		echo '<option value="custom">' . esc_html__('Custom Message', 'mhm-rentiva') . '</option>';
-		echo '</select>';
-		echo '</p>';
+		if (Mailer::customer_turned_off_notifications( (string) $customer_email)) {
+			echo '<p class="description mhm-email-optout">' . esc_html__('The customer turned off automatic notifications. An e-mail you send here still goes out.', 'mhm-rentiva') . '</p>';
+		}
 
-		echo '<p>';
-		echo '<label for="email_subject">' . esc_html__('Subject:', 'mhm-rentiva') . '</label><br/>';
-		echo '<input type="text" id="email_subject" name="email_subject" class="widefat" placeholder="' . esc_attr__('Email subject...', 'mhm-rentiva') . '" style="margin-bottom: 10px;">';
-		echo '</p>';
-
-		echo '<p>';
-		echo '<label for="email_message">' . esc_html__('Message:', 'mhm-rentiva') . '</label><br/>';
-		echo '<textarea id="email_message" name="email_message" rows="4" class="widefat" placeholder="' . esc_attr__('Your message...', 'mhm-rentiva') . '" style="margin-bottom: 10px;"></textarea>';
-		echo '</p>';
-
-		echo '<p>';
-		echo '<button type="button" class="button button-primary mhm-email-send-btn" style="width: 100%;">' . esc_html__('Send Email', 'mhm-rentiva') . '</button>';
-		echo '</p>';
-
+		echo '<div class="mhm-email-row">';
+		echo '<p class="mhm-email-field"><label for="email_type">' . esc_html__('Email type', 'mhm-rentiva') . '</label>';
+		echo '<select id="email_type" class="widefat">';
+		foreach (self::customer_email_type_labels() as $type => $label) {
+			echo '<option value="' . esc_attr($type) . '">' . esc_html($label) . '</option>';
+		}
+		echo '</select></p>';
+		echo '<p class="mhm-email-field"><label for="email_subject">' . esc_html__('Subject', 'mhm-rentiva') . '</label>';
+		echo '<input type="text" id="email_subject" class="widefat"></p>';
 		echo '</div>';
-		echo '</div>';
-	}
 
-	/**
-	 * Customer email sending handler
-	 */
-	public static function handle_send_customer_email(): void
-	{
-		// Nonce check
-		$nonce = sanitize_text_field(wp_unslash($_POST['mhmrentiva_email_nonce'] ?? ''));
-		if (! wp_verify_nonce($nonce, 'mhmrentiva_send_email')) {
-			wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
-		}
-
-		$req = VerifiedRequest::from($_POST);
-
-		$booking_id = $req->int('booking_id');
-
-		// edit_post on the booking the request actually names, not the blanket
-		// edit_posts: this handler acts on whichever booking_id arrives, so a
-		// generic "can edit something" check was not a check on this object.
-		if (! $booking_id || ! current_user_can('edit_post', $booking_id)) {
-			wp_die(esc_html__('You do not have permission to send emails.', 'mhm-rentiva'));
-		}
-
-		// edit_post answers "may this user edit that post", never "is that post a
-		// booking". map_meta_cap grants it for any post the caller owns, so without a
-		// type check this handler acts on whatever id arrives.
-		if ('mhmrentiva_booking' !== get_post_type($booking_id)) {
-			wp_die(esc_html__('Booking not found.', 'mhm-rentiva'));
-		}
-
-		$email_type = $req->text('email_type');
-		if (! in_array($email_type, self::CUSTOMER_EMAIL_TYPES, true)) {
-			wp_die(esc_html__('Missing required fields.', 'mhm-rentiva'));
-		}
-		$subject = $req->text('email_subject');
-		// wp_kses_post rather than sanitize_text_field: the body is authored in a
-		// rich-text field and its HTML formatting has to survive into the email.
-		$message = wp_kses_post( (string) ( $req->raw('email_message') ?? '' ) );
-
-		$customer_email = get_post_meta($booking_id, '_mhmrentiva_customer_email', true);
-		$customer_name  = get_post_meta($booking_id, '_mhmrentiva_customer_name', true);
-
-		if (! $customer_email) {
-			wp_die(esc_html__('Customer email not found.', 'mhm-rentiva'));
-		}
-
-		// Prepare subject and message based on email type, wrapped in the layout
-		$email_data = self::compose_customer_email($booking_id, $email_type, $subject, $message);
-		$html_body  = $email_data['html'];
-
-		// Get sender settings
-		$from_name    = \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_from_name();
-		$from_address = \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_from_address();
-
-		// Handle test mode
-		if (\MHMRentiva\Admin\Settings\Groups\EmailSettings::is_test_mode()) {
-			$customer_email = \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_test_address();
-		}
-
-		// Send email
-		$sent = wp_mail(
-			$customer_email,
-			$email_data['subject'],
-			$html_body,
+		echo '<div class="mhm-email-message"><label for="email_message">' . esc_html__('Message', 'mhm-rentiva') . '</label>';
+		wp_editor(
+			'',
+			'email_message',
 			array(
-				'Content-Type: text/html; charset=UTF-8',
-				'From: ' . $from_name . ' <' . $from_address . '>',
+				// Not posted with the booking form's Update: the box sends by AJAX.
+				'textarea_name'  => 'mhmrentiva_email_message_draft',
+				'media_buttons'  => false,
+				'teeny'          => true,
+				'quicktags'      => true,
+				'wpautop'        => false,
+				'textarea_rows'  => 8,
+				'default_editor' => 'tinymce',
+				'tinymce'        => array(
+					'toolbar1' => 'bold,italic,link,unlink,bullist,numlist,undo,redo',
+				),
 			)
 		);
+		echo '</div>';
 
-		if ($sent) {
-			self::queue_admin_notice('email_sent');
-			$redirect_url = add_query_arg(
-				array(
-					'post'   => $booking_id,
-					'action' => 'edit',
-				),
-				admin_url('post.php')
-			);
+		echo '<p class="mhm-email-actions">';
+		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-settings&tab=email-templates&type=booking_notifications')) . '">' . esc_html__('Settings → E-mail templates', 'mhm-rentiva') . '</a>';
+		echo '<button type="button" class="button button-primary mhm-email-send-btn">' . esc_html__('Send email', 'mhm-rentiva') . '</button>';
+		echo '</p>';
 
-			wp_safe_redirect( $redirect_url );
-			exit;
-		} else {
-			wp_die(esc_html__('Failed to send email.', 'mhm-rentiva'));
-		}
+		echo '</div>';
+		echo '</div>';
 	}
 
 	/**
-	 * Prepares email content
-	 */
-	/**
-	 * A customer e-mail from this screen, subject resolved and body wrapped in
-	 * the layout, written in the SITE's language: the operator sending it may
-	 * have a different profile language, and the defaults and the layout's
-	 * footer used to follow the operator.
+	 * The box's options, in the order the canvas shows them.
 	 *
-	 * @return array{subject: string, message: string, html: string}
+	 * @return array<string, string>
 	 */
-	private static function compose_customer_email(int $booking_id, string $email_type, string $subject, string $message): array
+	private static function customer_email_type_labels(): array
 	{
-		return SiteLocaleString::in_site_locale(
-			static function () use ($booking_id, $email_type, $subject, $message): array {
-				$content         = self::prepare_email_content($booking_id, $email_type, $subject, $message);
-				$content['html'] = \MHMRentiva\Admin\Emails\Core\Templates::wrapWithLayout(
-					\MHMRentiva\Admin\Emails\Core\Mailer::getBookingContext($booking_id) ?? array(),
-					$content['subject'],
-					$content['message']
-				);
-
-				return $content;
-			}
-		);
-	}
-
-	private static function prepare_email_content(int $booking_id, string $email_type, string $subject, string $message): array
-	{
-		$customer_name = get_post_meta($booking_id, '_mhmrentiva_customer_name', true);
-		$vehicle_id    = get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
-		$vehicle_name  = $vehicle_id ? get_the_title($vehicle_id) : __('Unknown Vehicle', 'mhm-rentiva');
-
-		$pickup_date  = get_post_meta($booking_id, '_mhmrentiva_pickup_date', true);
-		$dropoff_date = get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true);
-		$total_amount = (float) get_post_meta($booking_id, '_mhmrentiva_total_price', true);
-
-		// Default subjects
-		$default_subjects = array(
-			/* translators: %s: vehicle name */
-			'booking_confirmation' => sprintf(__('Booking Confirmation - %s', 'mhm-rentiva'), $vehicle_name),
-			/* translators: %s: vehicle name */
-			'payment_reminder'     => sprintf(__('Payment Reminder - %s', 'mhm-rentiva'), $vehicle_name),
-			/* translators: %s: vehicle name */
-			'booking_reminder'     => sprintf(__('Booking Reminder - %s', 'mhm-rentiva'), $vehicle_name),
-			/* translators: %s: vehicle name */
-			'booking_cancelled'    => sprintf(__('Booking Cancelled - %s', 'mhm-rentiva'), $vehicle_name),
-			/* translators: %s: blog name. */
-			'custom'               => $subject ? $subject : sprintf(__('Message from %s', 'mhm-rentiva'), get_bloginfo('name')),
-		);
-
-		// Default messages
-		$default_messages = array(
-			'booking_confirmation' => sprintf(
-				/* translators: 1: customer name; 2: vehicle name; 3: pickup date; 4: return date; 5: total amount. */
-				__('Hello %1$s,<br><br>Your booking for %2$s has been confirmed.<br><br>Pickup Date: %3$s<br>Return Date: %4$s<br>Total Amount: %5$s<br><br>Thank you for choosing us!', 'mhm-rentiva'),
-				$customer_name,
-				$vehicle_name,
-				$pickup_date,
-				$dropoff_date,
-				self::format_price( (float) $total_amount)
-			),
-			'payment_reminder'     => sprintf(
-				/* translators: 1: customer name; 2: vehicle name; 3: total amount. */
-				__('Hello %1$s,<br><br>This is a reminder about your payment for %2$s.<br><br>Total Amount: %3$s<br><br>Please complete your payment as soon as possible.', 'mhm-rentiva'),
-				$customer_name,
-				$vehicle_name,
-				self::format_price( (float) $total_amount)
-			),
-			'booking_reminder'     => sprintf(
-				/* translators: 1: customer name; 2: vehicle name; 3: pickup date; 4: return date. */
-				__('Hello %1$s,<br><br>This is a reminder about your upcoming booking for %2$s.<br><br>Pickup Date: %3$s<br>Return Date: %4$s<br><br>We look forward to serving you!', 'mhm-rentiva'),
-				$customer_name,
-				$vehicle_name,
-				$pickup_date,
-				$dropoff_date
-			),
-			'booking_cancelled'    => sprintf(
-				/* translators: 1: customer name; 2: vehicle name. */
-				__('Hello %1$s,<br><br>We regret to inform you that your booking for %2$s has been cancelled.<br><br>If you have any questions, please contact us.', 'mhm-rentiva'),
-				$customer_name,
-				$vehicle_name
-			),
-			/* translators: %s: blog name */
-			'custom'               => $message ? $message : sprintf(__('You have received a message from %s', 'mhm-rentiva'), get_bloginfo('name')),
-		);
-
-		$resolved_subject = $subject ? $subject : $default_subjects[ $email_type ];
-		$resolved_message = $message ? $message : $default_messages[ $email_type ];
-
 		return array(
-			'subject' => $resolved_subject,
-			'message' => $resolved_message,
+			'booking_created_customer'  => __('Booking confirmation', 'mhm-rentiva'),
+			'booking_reminder_customer' => __('Booking reminder', 'mhm-rentiva'),
+			'booking_cancelled'         => __('Booking cancellation', 'mhm-rentiva'),
+			'custom'                    => __('Custom message', 'mhm-rentiva'),
 		);
 	}
 
@@ -1732,9 +1585,6 @@ final class BookingMeta extends AbstractMetaBox {
 		$message = self::take_admin_notice();
 
 		switch ($message) {
-			case 'email_sent':
-				echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Email sent successfully!', 'mhm-rentiva') . '</p></div>';
-				break;
 			case 'availability_conflict':
 				echo '<div class="notice notice-error"><p>' . esc_html__('The vehicle is already booked for these dates. The booking details were not saved.', 'mhm-rentiva') . '</p></div>';
 				break;
@@ -1790,21 +1640,30 @@ final class BookingMeta extends AbstractMetaBox {
 
 		$email_type = $req->text('email_type');
 
-		if (! $booking_id || ! in_array($email_type, self::CUSTOMER_EMAIL_TYPES, true)) {
+		if (! $booking_id || ! self::is_customer_email_type($email_type)) {
 			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));
 			return;
 		}
 
-		// Get template content (empty subject and message to get defaults)
-		// The defaults the operator edits are the ones the customer will read.
-		$template = SiteLocaleString::in_site_locale(static fn(): array => self::prepare_email_content($booking_id, $email_type, '', ''));
-
-		wp_send_json_success(
-			array(
-				'subject' => $template['subject'],
-				'message' => $template['message'],
-			)
+		// The Settings template with the context the automatic e-mail uses, in
+		// the site language; a custom message starts empty (PR 3b-3).
+		$template = SiteLocaleString::in_site_locale(
+			static function () use ($booking_id, $email_type): array {
+				if ('custom' === $email_type) {
+					return array(
+						'subject' => '',
+						'message' => '',
+					);
+				}
+				$context = self::customer_email_context($booking_id, $email_type);
+				return array(
+					'subject' => Templates::compile_subject($email_type, $context),
+					'message' => Templates::editable_body($email_type, $context),
+				);
+			}
 		);
+
+		wp_send_json_success($template);
 	}
 
 	public static function ajax_send_customer_email()
@@ -1843,56 +1702,88 @@ final class BookingMeta extends AbstractMetaBox {
 		// rich-text field and its HTML formatting has to survive into the email.
 		$message = wp_kses_post( (string) ( $req->raw('email_message') ?? '' ) );
 
-		if (! in_array($email_type, self::CUSTOMER_EMAIL_TYPES, true)) {
+		if (! self::is_customer_email_type($email_type)) {
 			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));
 			return;
 		}
 
-		// Prepare email content (if subject/message empty, defaults will be used)
-		$email_content = self::compose_customer_email($booking_id, $email_type, $subject, $message);
+		if ('custom' === $email_type && ( '' === trim($subject) || '' === trim(wp_strip_all_tags($message)) )) {
+			wp_send_json_error(__('Please enter a subject and a message.', 'mhm-rentiva'));
+		}
 
-		// Get customer information
-		$customer_email = get_post_meta($booking_id, '_mhmrentiva_customer_email', true);
+		// Rendered in the site language, from the context the automatic e-mail
+		// uses; an empty subject or message takes the template's (PR 3b-3).
+		$email                            = SiteLocaleString::in_site_locale(
+			static function () use ($booking_id, $email_type, $subject, $message): array {
+				$context = self::customer_email_context($booking_id, $email_type);
+				if ('custom' === $email_type) {
+					return array( $context, $subject, Templates::wrapWithLayout($context, $subject, $message) );
+				}
+				$edited_subject = '' !== trim($subject) ? $subject : null;
+				$subject        = $edited_subject ?? Templates::compile_subject($email_type, $context);
+				$message        = '' !== trim(wp_strip_all_tags($message)) ? $message : Templates::editable_body($email_type, $context);
+				// The heading is the operator's subject when they wrote one; else
+				// render_body()'s own (the file branch compiles it from the
+				// filtered context).
+				return array( $context, $subject, Templates::send_body($email_type, $context, $message, $edited_subject) );
+			}
+		);
+		list( $context, $subject, $html ) = $email;
 
-		if (! $customer_email) {
+		$to = (string) ( $context['customer']['email'] ?? '' );
+		if ('' === $to) {
 			wp_send_json_error(__('Customer email not found.', 'mhm-rentiva'));
 			return;
 		}
 
-		$html_body = $email_content['html'];
+		$opted_out = Mailer::customer_turned_off_notifications($to);
+		$result    = Mailer::send_operator_message('custom' === $email_type ? self::CUSTOMER_EMAIL_CUSTOM_LOG_KEY : $email_type, $to, $subject, $html, $context);
 
-		// Get sender settings
-		$from_name    = \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_from_name();
-		$from_address = \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_from_address();
-
-		// Handle test mode
-		if (\MHMRentiva\Admin\Settings\Groups\EmailSettings::is_test_mode()) {
-			$customer_email = \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_test_address();
-		}
-
-		// Send email
-		$sent = wp_mail(
-			$customer_email,
-			$email_content['subject'],
-			$html_body,
-			array(
-				'Content-Type: text/html; charset=UTF-8',
-				'From: ' . $from_name . ' <' . $from_address . '>',
-			)
-		);
-
-		if ($sent) {
-			// In the booking history (function scan H16): which e-mail went out.
-			self::add_history_note(
-				$booking_id,
-				/* translators: %s: e-mail subject */
-				sprintf(__('E-mail sent to the customer: %s', 'mhm-rentiva'), (string) $email_content['subject']),
-				'customer_contact'
-			);
-			wp_send_json_success(__('Email sent successfully!', 'mhm-rentiva'));
-		} else {
+		if (! $result['sent']) {
 			wp_send_json_error(__('Failed to send email. Please check your WordPress email configuration.', 'mhm-rentiva'));
 		}
+
+		// In the booking history (function scan H16): which e-mail went out, to
+		// the test address in test mode, and whether the customer had turned
+		// automatic notifications off.
+		/* translators: %s: e-mail subject */
+		$note = sprintf(__('E-mail sent to the customer: %s', 'mhm-rentiva'), $subject);
+		if ($result['to'] !== $to) {
+			/* translators: %s: the test address the e-mail went to instead. */
+			$note .= ' ' . sprintf(__('(test mode: sent to %s)', 'mhm-rentiva'), $result['to']);
+		}
+		if ($opted_out) {
+			$note .= ' ' . __('(the customer turned off automatic notifications)', 'mhm-rentiva');
+		}
+		self::add_history_note($booking_id, $note, 'customer_contact');
+
+		wp_send_json_success(__('Email sent successfully!', 'mhm-rentiva'));
+	}
+
+	private static function is_customer_email_type(string $type): bool
+	{
+		return 'custom' === $type || in_array($type, self::CUSTOMER_EMAIL_TEMPLATES, true);
+	}
+
+	/**
+	 * The context the automatic e-mail of this type is built from: the
+	 * booking's, plus the status change and cancellation reason a cancellation
+	 * e-mail carries (BookingNotifications::status_change_context()).
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function customer_email_context(int $booking_id, string $email_type): array
+	{
+		$context = Mailer::getBookingContext($booking_id) ?? array();
+		if ('booking_cancelled' === $email_type) {
+			// A cancellation e-mail announces the change TO cancelled, whatever
+			// the booking's status is now (Fable #178 D2: on a confirmed booking
+			// the reason was left out).
+			$status  = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
+			$context = array_merge($context, \MHMRentiva\Admin\Emails\Notifications\BookingNotifications::status_change_context($booking_id, $status, Status::CANCELLED));
+		}
+
+		return $context;
 	}
 
 	/**

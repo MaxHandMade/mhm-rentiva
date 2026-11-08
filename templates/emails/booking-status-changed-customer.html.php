@@ -6,7 +6,7 @@
 		<p>
 		<?php
 			/* translators: %s: customer name */
-			printf( esc_html__( 'Dear %s,', 'mhm-rentiva' ), esc_html( $data['customer']['name'] ?? '' ) );
+			printf( esc_html__( 'Dear %s,', 'mhm-rentiva' ), esc_html( $data['customer']['salutation_name'] ?? ( $data['customer']['name'] ?? '' ) ) );
 		?>
 		</p>
 		<p><?php esc_html_e( 'Your booking status has been updated.', 'mhm-rentiva' ); ?></p>

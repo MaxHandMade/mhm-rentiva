@@ -25,12 +25,11 @@ final class RefundEmails {
 		echo '<p class="description">' . esc_html__( 'Manage email templates for refund operations.', 'mhm-rentiva' ) . '</p>';
 		echo '<p class="description">' . esc_html__( 'Available placeholders: {booking_id}, {vehicle_title}, {amount}, {currency}, {status}, {reason}, {contact_name}, {contact_email}, {site_name}', 'mhm-rentiva' ) . '</p>';
 
-		$get_val = function ( $key, $default_callback, $content_check = '{' ) {
+		// The saved value as saved, else the default (PR 3b-3; see
+		// BookingNotifications::render()).
+		$get_val = function ( $key, $default_callback ) {
 			$val = get_option( $key, '' );
 			if ( ! is_string( $val ) || trim( $val ) === '' ) {
-				return $default_callback();
-			}
-			if ( $content_check !== null && strpos( $val, $content_check ) === false ) {
 				return $default_callback();
 			}
 			return $val;
@@ -49,12 +48,12 @@ final class RefundEmails {
 
 		echo '<tr>';
 		echo '<th scope="row"><label for="mhmrentiva_refund_customer_subject">' . esc_html__( 'Subject', 'mhm-rentiva' ) . '</label></th>';
-		echo '<td><input type="text" id="mhmrentiva_refund_customer_subject" name="mhmrentiva_refund_customer_subject" value="' . esc_attr( $get_val( 'mhmrentiva_refund_customer_subject', fn() => __( 'Refund Processed for Booking #{booking_id}', 'mhm-rentiva' ), null ) ) . '" class="regular-text" /></td>';
+		echo '<td><input type="text" id="mhmrentiva_refund_customer_subject" name="mhmrentiva_refund_customer_subject" value="' . esc_attr( $get_val( 'mhmrentiva_refund_customer_subject', fn() => EmailSettings::default_subject( 'refund_customer' ) ) ) . '" class="regular-text" /></td>';
 		echo '</tr>';
 
 		echo '<tr>';
 		echo '<th scope="row"><label for="mhmrentiva_refund_customer_body">' . esc_html__( 'Content (HTML)', 'mhm-rentiva' ) . '</label></th>';
-		echo '<td><textarea id="mhmrentiva_refund_customer_body" name="mhmrentiva_refund_customer_body" class="large-text code" rows="10">' . esc_textarea( $get_val( 'mhmrentiva_refund_customer_body', array( EmailSettings::class, 'get_default_refund_customer_body' ), 'amount' ) ) . '</textarea></td>';
+		echo '<td><textarea id="mhmrentiva_refund_customer_body" name="mhmrentiva_refund_customer_body" class="large-text code" rows="10">' . esc_textarea( $get_val( 'mhmrentiva_refund_customer_body', array( EmailSettings::class, 'get_default_refund_customer_body' ) ) ) . '</textarea></td>';
 		echo '</tr>';
 		echo '</table>';
 
@@ -77,12 +76,12 @@ final class RefundEmails {
 
 		echo '<tr>';
 		echo '<th scope="row"><label for="mhmrentiva_refund_admin_subject">' . esc_html__( 'Subject', 'mhm-rentiva' ) . '</label></th>';
-		echo '<td><input type="text" id="mhmrentiva_refund_admin_subject" name="mhmrentiva_refund_admin_subject" value="' . esc_attr( $get_val( 'mhmrentiva_refund_admin_subject', fn() => __( 'Refund Alert: Booking #{booking_id}', 'mhm-rentiva' ), null ) ) . '" class="regular-text" /></td>';
+		echo '<td><input type="text" id="mhmrentiva_refund_admin_subject" name="mhmrentiva_refund_admin_subject" value="' . esc_attr( $get_val( 'mhmrentiva_refund_admin_subject', fn() => EmailSettings::default_subject( 'refund_admin' ) ) ) . '" class="regular-text" /></td>';
 		echo '</tr>';
 
 		echo '<tr>';
 		echo '<th scope="row"><label for="mhmrentiva_refund_admin_body">' . esc_html__( 'Content (HTML)', 'mhm-rentiva' ) . '</label></th>';
-		echo '<td><textarea id="mhmrentiva_refund_admin_body" name="mhmrentiva_refund_admin_body" class="large-text code" rows="10">' . esc_textarea( $get_val( 'mhmrentiva_refund_admin_body', array( EmailSettings::class, 'get_default_refund_admin_body' ), 'amount' ) ) . '</textarea></td>';
+		echo '<td><textarea id="mhmrentiva_refund_admin_body" name="mhmrentiva_refund_admin_body" class="large-text code" rows="10">' . esc_textarea( $get_val( 'mhmrentiva_refund_admin_body', array( EmailSettings::class, 'get_default_refund_admin_body' ) ) ) . '</textarea></td>';
 		echo '</tr>';
 		echo '</table>';
 	}

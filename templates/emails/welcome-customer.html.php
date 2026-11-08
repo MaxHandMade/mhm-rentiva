@@ -7,7 +7,7 @@
 			<?php
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 			/* translators: %s: customer name. */
-			echo esc_html( sprintf( __( 'Hello %s, thanks for joining us!', 'mhm-rentiva' ), (string) ( $data['customer']['name'] ?? '' ) ) );
+			echo esc_html( sprintf( __( 'Hello %s, thanks for joining us!', 'mhm-rentiva' ), (string) ( $data['customer']['salutation_name'] ?? ( $data['customer']['name'] ?? '' ) ) ) );
 			?>
 		</p>
 		<p><?php esc_html_e( 'You can access your account anytime using the button below:', 'mhm-rentiva' ); ?></p>

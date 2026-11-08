@@ -129,8 +129,9 @@ final class EmailSiteLocaleTest extends WP_Ajax_UnitTestCase
     {
         $data = $this->preview('booking_created_customer');
 
-        $this->assertStringContainsString('Rezervasyon #9999 onaylandı', $data['subject']);
-        $this->assertStringContainsString('<h1>Rezervasyon #9999 onaylandı', $data['html'], 'The e-mail heading is the subject.');
+        // PR 3b-3: the subject is the Settings screen's default (one source).
+        $this->assertStringContainsString('Rezervasyon onaylandı: #9999', $data['subject']);
+        $this->assertStringContainsString('<h1>Rezervasyon onaylandı: #9999', $data['html'], 'The e-mail heading is the subject.');
         $this->assertStringContainsString('Rezervasyon ayrıntıları', $data['html']);
         $this->assertStringNotContainsString('Reservation Details', $data['html']);
     }
@@ -143,8 +144,8 @@ final class EmailSiteLocaleTest extends WP_Ajax_UnitTestCase
     {
         $english = array(
             'booking_created_customer'        => 'Confirmed',
-            'booking_created_admin'           => 'New Booking Request',
-            'booking_status_changed_customer' => 'Status Updated',
+            'booking_created_admin'           => 'New Booking Alert',
+            'booking_status_changed_customer' => 'status updated',
             'booking_status_changed_admin'    => 'Status Updated',
             'booking_reminder_customer'       => 'Starts Soon',
             'remaining_payment_link_customer' => 'Complete Your Payment',
