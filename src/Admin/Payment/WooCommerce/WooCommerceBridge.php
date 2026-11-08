@@ -3123,7 +3123,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				'new_status' => $new_status,
 			),
 		);
-		update_post_meta($booking_id, '_mhmrentiva_booking_logs', $logs);
+		// Rewritten whole; slashed so older rows keep their backslashes.
+		update_post_meta($booking_id, '_mhmrentiva_booking_logs', wp_slash($logs));
 	}
 
 	/**
@@ -4231,7 +4232,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		if ($refund) {
 			$refund_reason = $refund->get_reason() ?: '';
 			add_post_meta($booking_id, '_mhmrentiva_refund_txn_id', (string) $refund_id);
-			update_post_meta($booking_id, '_mhmrentiva_refund_reason', $refund_reason);
+			update_post_meta($booking_id, '_mhmrentiva_refund_reason', wp_slash($refund_reason));
 		}
 
 		// One e-mail per refund OPERATION, not per WooCommerce refund object.
@@ -4319,7 +4320,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				'currency'      => $currency,
 			),
 		);
-		update_post_meta($booking_id, '_mhmrentiva_booking_logs', $logs);
+		// Rewritten whole; slashed so older rows keep their backslashes.
+		update_post_meta($booking_id, '_mhmrentiva_booking_logs', wp_slash($logs));
 	}
 
 	/**

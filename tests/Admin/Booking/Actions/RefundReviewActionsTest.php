@@ -400,6 +400,17 @@ final class RefundReviewActionsTest extends WP_Ajax_UnitTestCase
         );
     }
 
+    /** Backslash class (2026-11-08): the dismiss reason keeps a typed backslash. */
+    public function test_a_backslash_in_the_dismiss_reason_is_kept(): void
+    {
+        $response = $this->call('mhmrentiva_review_dismiss', array( 'reason' => wp_slash('Dekont C:\arsiv\12') ));
+        $this->assertTrue((bool) ( $response['success'] ?? false ), 'Sanity. Raw: ' . $this->_last_response);
+
+        $this->assertSame('Dekont C:\arsiv\12', get_post_meta($this->booking_id, '_mhmrentiva_refund_review_dismissed_reason', true));
+        $logs = (array) get_post_meta($this->booking_id, '_mhmrentiva_booking_logs', true);
+        $this->assertSame('Dekont C:\arsiv\12', end($logs)['data']['reason'] ?? null);
+    }
+
     public function test_dismiss_writes_a_booking_log_entry(): void
     {
         $response = $this->call('mhmrentiva_review_dismiss', array( 'reason' => 'No refund owed.' ));

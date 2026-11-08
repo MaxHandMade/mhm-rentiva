@@ -610,7 +610,8 @@ final class DepositManagementAjax {
 				// to close.
 				update_post_meta( $booking_id, '_mhmrentiva_refund_completed_by', $actor );
 				update_post_meta( $booking_id, '_mhmrentiva_refund_completed_at', current_time( 'mysql' ) );
-				update_post_meta( $booking_id, '_mhmrentiva_refund_completed_reference', $reference );
+				// Unslashed on input; the meta API unslashes again (backslash class).
+				update_post_meta( $booking_id, '_mhmrentiva_refund_completed_reference', wp_slash( $reference ) );
 
 				$order_id = BookingQueryHelper::resolve_wc_order_id( $booking_id );
 				$order    = $order_id && function_exists( 'wc_get_order' ) ? wc_get_order( $order_id ) : null;
@@ -881,7 +882,7 @@ final class DepositManagementAjax {
 				if ( $moved ) {
 					update_post_meta( $booking_id, '_mhmrentiva_refund_review_dismissed_by', $actor );
 					update_post_meta( $booking_id, '_mhmrentiva_refund_review_dismissed_at', current_time( 'mysql' ) );
-					update_post_meta( $booking_id, '_mhmrentiva_refund_review_dismissed_reason', $reason );
+					update_post_meta( $booking_id, '_mhmrentiva_refund_review_dismissed_reason', wp_slash( $reason ) );
 
 					self::add_booking_log(
 						$booking_id,
@@ -939,7 +940,9 @@ final class DepositManagementAjax {
 			'data'      => $data,
 		);
 
-		update_post_meta( $booking_id, '_mhmrentiva_booking_logs', $logs );
+		// The whole array is rewritten and the meta API unslashes it deeply:
+		// slashed, neither the new row nor an older one loses a backslash.
+		update_post_meta( $booking_id, '_mhmrentiva_booking_logs', wp_slash( $logs ) );
 	}
 
 	private static function format_price( float $price ): string {
