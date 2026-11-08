@@ -64,7 +64,13 @@ final class PaymentAmountMetaRetiredTest extends WP_UnitTestCase
             $ctx['booking']['payment']['amount'],
             'Reading the retired key here reports 0 for every booking on every site.'
         );
-        $this->assertSame(120.0, $ctx['booking']['total_price']);
+        // PR 3b-3: the preview's total is the booking's total, as in the
+        // automatic e-mail (it used to be the paid amount, a preview-only
+        // figure no customer ever received).
+        $this->assertSame(
+            \MHMRentiva\Admin\Emails\Core\Mailer::getBookingContext($this->booking_id)['booking']['total_price'],
+            $ctx['booking']['total_price']
+        );
     }
 
     public function test_the_refund_mail_body_no_longer_formats_a_zero(): void
