@@ -208,6 +208,49 @@ describe( 'booking customer e-mail box', () => {
 		expect( alertSpy ).not.toHaveBeenCalled();
 	} );
 
+	test( 'Codex #178 r3: a Text-tab toolbar change (a non-bubbling change event) is an edit', () => {
+		calls.length = 0;
+		change( 'booking_created_customer' );
+		answer( calls[ 0 ], 'A-subj', '<p>A</p>' );
+		calls.length = 0;
+
+		message().value = '<p><strong>A</strong></p>';
+		message().dispatchEvent( new Event( 'change', { bubbles: false } ) );
+		send();
+
+		expect( calls[ 0 ].data ).toMatchObject( { email_subject: 'A-subj', email_message: '<p><strong>A</strong></p>' } );
+		calls[ 0 ].complete();
+	} );
+
+	test( 'Codex #178 r3: the dirty state TinyMCE keeps counts (link edits, shortcuts) and is reset by a fill', () => {
+		let dirty = false;
+		const editor = {
+			id: 'email_message',
+			isHidden: () => false,
+			isDirty: () => dirty,
+			setDirty: ( value ) => {
+				dirty = value;
+			},
+			save: () => {},
+			getContent: () => '<p>A <a href="https://new.example/">x</a></p>',
+			setContent: () => {},
+			undoManager: { clear: () => {}, add: () => {} },
+		};
+		window.tinymce = { get: () => editor };
+
+		calls.length = 0;
+		change( 'booking_created_customer' ); // the box is dirty from the last test: confirm → true
+		answer( calls[ 0 ], 'A-subj', '<p>A</p>' );
+		expect( dirty ).toBe( false );
+
+		dirty = true; // what TinyMCE reports after the link dialog or Ctrl+U
+		calls.length = 0;
+		send();
+		expect( calls[ 0 ].data ).toMatchObject( { email_message: '<p>A <a href="https://new.example/">x</a></p>' } );
+		calls[ 0 ].complete();
+		delete window.tinymce;
+	} );
+
 	test( 'Enter in the subject does not submit the booking form', () => {
 		const event = jQuery.Event( 'keydown', { key: 'Enter' } );
 		jQuery( '#email_subject' ).trigger( event );

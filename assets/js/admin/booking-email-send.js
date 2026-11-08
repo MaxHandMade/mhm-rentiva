@@ -47,7 +47,7 @@
 	function getMessage() {
 		var editor = tinymceEditor();
 		if ( editor && ! editor.isHidden() ) {
-			editor.save();
+			// Not editor.save(): saving marks TinyMCE "not dirty" (measured).
 			return editor.getContent();
 		}
 		return String( $( '#' + EDITOR_ID ).val() || '' );
@@ -68,6 +68,9 @@
 		var editor = tinymceEditor();
 		if ( ! editor ) {
 			return false;
+		}
+		if ( editorDirty() ) {
+			state.dirty = true;
 		}
 		editor.save();
 		window.tinymce.execCommand( 'mceRemoveEditor', false, EDITOR_ID );
@@ -90,9 +93,10 @@
 
 	// The box's state (Codex #178): the send button is locked while a template
 	// loads OR an e-mail is being sent; `loadedType` is the type whose text the
-	// box holds; `dirty` is set by what the operator does (typing, pasting, the
-	// toolbar, undo) -- never by comparing serialisations, which TinyMCE
-	// normalises on its own -- and cleared when a template fills the box.
+	// box holds. "Edited" is never a comparison of serialisations (TinyMCE
+	// normalises on its own): it is `dirty` -- the subject and the Text tab's
+	// input/change -- or TinyMCE's own dirty state, which every content change
+	// sets (typing, shortcuts, the link dialog, undo), and a fill clears both.
 	var state = {
 		request: 0,
 		loading: false,
@@ -103,8 +107,14 @@
 		filling: false,
 	};
 
-	// What counts as an operator's change inside TinyMCE.
-	var EDITING_COMMANDS = [ 'Bold', 'Italic', 'mceInsertLink', 'unlink', 'InsertUnorderedList', 'InsertOrderedList', 'mceToggleFormat', 'mceInsertContent', 'Delete', 'ForwardDelete', 'Undo', 'Redo' ];
+	function editorDirty() {
+		var editor = tinymceEditor();
+		return !! ( editor && typeof editor.isDirty === 'function' && editor.isDirty() );
+	}
+
+	function isEdited() {
+		return state.dirty || editorDirty();
+	}
 
 	function markDirty() {
 		if ( ! state.filling ) {
@@ -120,6 +130,17 @@
 		state.filling = true;
 		$( '#email_subject' ).val( subjectText );
 		setMessage( body );
+		var editor = tinymceEditor();
+		if ( editor && typeof editor.setDirty === 'function' ) {
+			// The filled text is the new baseline: an empty undo history would
+			// make the operator's first change the "first level", which TinyMCE
+			// does not count as a change (measured in a browser).
+			if ( editor.undoManager && typeof editor.undoManager.clear === 'function' ) {
+				editor.undoManager.clear();
+				editor.undoManager.add();
+			}
+			editor.setDirty( false );
+		}
 		state.filling    = false;
 		state.dirty      = false;
 		state.loadedType = emailType;
@@ -204,7 +225,7 @@
 		var type    = $box.find( '#email_type' ).val() || '';
 		// An untouched template goes out empty: the server renders it itself,
 		// byte for byte the automatic e-mail (the editor trims and normalises).
-		var edited  = 'custom' === type || state.dirty;
+		var edited  = 'custom' === type || isEdited();
 
 		state.sending = true;
 		refreshButton( $box );
@@ -259,14 +280,16 @@
 			}
 		} );
 
-		// The operator's own changes (the editor's Text tab is the textarea).
-		$( document ).off( 'input', '#email_subject, #' + EDITOR_ID ).on( 'input', '#email_subject, #' + EDITOR_ID, markDirty );
+		// The operator's own changes. The Text tab's toolbar (Quicktags) fires a
+		// change that does not bubble, so the textarea is bound directly.
+		$( document ).off( 'input', '#email_subject' ).on( 'input', '#email_subject', markDirty );
+		$( '#' + EDITOR_ID ).off( 'input.mhmEmail change.mhmEmail' ).on( 'input.mhmEmail change.mhmEmail', markDirty );
 
 		// A type change replaces the box; edits are not thrown away unasked.
 		state.selected = $( '#email_type' ).val() || '';
 		$( document ).off( 'change', '#email_type' ).on( 'change', '#email_type', function () {
 			var $select = $( this );
-			if ( state.dirty && ! window.confirm( strings().confirmReplace || 'Replace your changes with the selected template?' ) ) {
+			if ( isEdited() && ! window.confirm( strings().confirmReplace || 'Replace your changes with the selected template?' ) ) {
 				$select.val( state.selected );
 				return;
 			}
@@ -285,15 +308,8 @@
 			if ( ! editor || EDITOR_ID !== editor.id ) {
 				return;
 			}
-			editor.on( 'input paste cut drop Undo Redo', markDirty );
-			editor.on( 'ExecCommand', function ( e ) {
-				if ( e && EDITING_COMMANDS.indexOf( e.command ) !== -1 ) {
-					markDirty();
-				}
-			} );
-			editor.on( 'change input', function () {
-				editor.save();
-			} );
+			// A belt to TinyMCE's own dirty state: none of these fire on setContent().
+			editor.on( 'input paste cut drop', markDirty );
 		} );
 
 		// Drag and drop of the postbox.
