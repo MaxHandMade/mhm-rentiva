@@ -1721,7 +1721,7 @@ final class BookingMeta extends AbstractMetaBox {
 				}
 				$subject = '' !== trim($subject) ? $subject : Templates::compile_subject($email_type, $context);
 				$message = '' !== trim(wp_strip_all_tags($message)) ? $message : Templates::editable_body($email_type, $context);
-				return array( $context, $subject, Templates::send_body($email_type, $context, $message) );
+				return array( $context, $subject, Templates::send_body($email_type, $context, $message, $subject) );
 			}
 		);
 		list( $context, $subject, $html ) = $email;

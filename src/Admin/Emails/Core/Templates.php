@@ -274,11 +274,13 @@ final class Templates {
 	 * The full e-mail for a fragment from editable_body() -- edited or not --
 	 * wrapped once, with render_body()'s filter order for the template's branch.
 	 * The branch is worked out here again, never taken from the request.
+	 * $subject is the subject that goes out when the operator changed it: the
+	 * layout prints it as the e-mail's heading (Codex bot #178).
 	 */
-	public static function send_body( string $key, array $context, string $fragment ): string {
+	public static function send_body( string $key, array $context, string $fragment, ?string $subject = null ): string {
 		$override = self::getBodyOverride( $key, $context );
 		if ( $override !== null && $override !== '' ) {
-			$html = self::wrapWithLayout( $context, self::compile_subject( $key, $context ), $fragment );
+			$html = self::wrapWithLayout( $context, $subject ?? self::compile_subject( $key, $context ), $fragment );
 			$html = apply_filters( 'mhmrentiva_email_body', $html, $key, $context );
 
 			return (string) apply_filters( 'mhmrentiva_email_body_' . $key, $html, $context );
@@ -286,7 +288,7 @@ final class Templates {
 
 		$ctx = self::filtered_context( $key, $context );
 
-		return self::wrapWithLayout( $ctx, self::compile_subject( $key, $ctx ), $fragment );
+		return self::wrapWithLayout( $ctx, $subject ?? self::compile_subject( $key, $ctx ), $fragment );
 	}
 
 	/**

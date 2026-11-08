@@ -199,6 +199,17 @@ final class BookingCustomerEmailTemplateTest extends WP_Ajax_UnitTestCase
 		$this->assertSame('fonk@example.test', $this->sent[0]['to']);
 	}
 
+	/** Codex bot #178: the heading inside the e-mail is the subject that went out. */
+	public function test_an_edited_subject_is_also_the_heading_inside_the_e_mail(): void
+	{
+		$this->assertTrue($this->send('booking_created_customer', 'Elle yazılan konu', '')['success'] ?? false);
+
+		$this->assertSame('Elle yazılan konu', $this->sent[0]['subject']);
+		$this->assertStringContainsString('Elle yazılan konu', (string) $this->sent[0]['message']);
+		$ctx = Mailer::getBookingContext($this->booking);
+		$this->assertStringNotContainsString(esc_html(Templates::compile_subject('booking_created_customer', $ctx)), (string) $this->sent[0]['message']);
+	}
+
 	public function test_a_sent_email_is_written_to_the_history(): void
 	{
 		$this->assertTrue($this->send('booking_cancelled')['success'] ?? false);

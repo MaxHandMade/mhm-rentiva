@@ -72,13 +72,25 @@
 		if ( editorDirty() ) {
 			state.dirty = true;
 		}
-		editor.save();
+		if ( editor.isHidden() ) {
+			// The Text tab is active: the textarea holds the operator's text and
+			// the hidden editor a stale copy. Removing saves the editor into the
+			// textarea, so it is handed the textarea's text first (Codex bot #178).
+			editor.setContent( String( $( '#' + EDITOR_ID ).val() || '' ) );
+		} else {
+			editor.save();
+		}
 		window.tinymce.execCommand( 'mceRemoveEditor', false, EDITOR_ID );
 		return true;
 	}
 
 	function attachEditor() {
 		if ( ! window.tinymce || tinymceEditor() || ! $( '#' + EDITOR_ID ).length ) {
+			return;
+		}
+		// In the Text tab the editor stays down; WordPress sets it up again when
+		// the operator switches back to Visual (switchEditors).
+		if ( $( '#wp-' + EDITOR_ID + '-wrap' ).hasClass( 'html-active' ) ) {
 			return;
 		}
 		var pre = window.tinyMCEPreInit && window.tinyMCEPreInit.mceInit && window.tinyMCEPreInit.mceInit[ EDITOR_ID ];
