@@ -463,6 +463,11 @@ final class EmailTemplates {
 				'status'           => __('confirmed', 'mhm-rentiva'),
 				'pickup_date'      => gmdate('d.m.Y H:i', strtotime('+1 day')),
 				'return_date'      => gmdate('d.m.Y H:i', strtotime('+4 days')),
+				// What the default bodies print (Mailer::getBookingContext()).
+				'pickup_time'      => '10:00',
+				'return_time'      => '10:00',
+				'pickup_datetime'  => gmdate('d.m.Y', strtotime('+1 day')) . ', 10:00',
+				'return_datetime'  => gmdate('d.m.Y', strtotime('+4 days')) . ', 10:00',
 				'rental_days'      => 3,
 				'total_price'      => 1500.00, // MUST be numeric for number_format()
 				'payment'          => array(

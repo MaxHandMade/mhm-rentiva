@@ -731,30 +731,36 @@ final class Templates {
 
 		// Pass 2: {snake_case_or_dot} format (admin UI uses single braces)
 		$map = array(
-			'site_name'       => 'site.name',
-			'site_url'        => 'site.url',
-			'my_account_url'  => '_special.my_account_url', // Special handler
-			'contact_name'    => 'customer.name',
-			'contact_email'   => 'customer.email',
-			'booking_id'      => 'booking.order_id', // Shows WooCommerce order ID (customer-facing)
-			'order_id'        => 'booking.order_id', // WooCommerce order ID
-			'vehicle_title'   => 'vehicle.title',
-			'pickup_date'     => 'booking.pickup_date',
-			'dropoff_date'    => 'booking.return_date',
-			'return_date'     => 'booking.return_date',
-			'total_price'     => 'booking.total_price',
-			'status'          => 'booking.status',
-			'customer_name'   => 'customer.name',
-			'salutation_name' => 'customer.salutation_name',
+			'site_name'        => 'site.name',
+			'site_url'         => 'site.url',
+			'my_account_url'   => '_special.my_account_url', // Special handler
+			'contact_name'     => 'customer.name',
+			'contact_email'    => 'customer.email',
+			'booking_id'       => 'booking.order_id', // Shows WooCommerce order ID (customer-facing)
+			'order_id'         => 'booking.order_id', // WooCommerce order ID
+			'vehicle_title'    => 'vehicle.title',
+			'pickup_date'      => 'booking.pickup_date',
+			'dropoff_date'     => 'booking.return_date',
+			'return_date'      => 'booking.return_date',
+			'pickup_time'      => 'booking.pickup_time',
+			'return_time'      => 'booking.return_time',
+			'dropoff_time'     => 'booking.return_time',
+			'pickup_datetime'  => 'booking.pickup_datetime',
+			'return_datetime'  => 'booking.return_datetime',
+			'dropoff_datetime' => 'booking.return_datetime',
+			'total_price'      => 'booking.total_price',
+			'status'           => 'booking.status',
+			'customer_name'    => 'customer.name',
+			'salutation_name'  => 'customer.salutation_name',
 			// Pro's default custom body for the message-reply e-mail. The
 			// fallback below would read `reply.body`, which no context carries.
-			'reply_body'      => 'message.reply',
+			'reply_body'       => 'message.reply',
 			// Both context keys are flat (top-level), not nested -- the
 			// fallback below (str_replace('_', '.', $token)) would rewrite
 			// them to 'mode.text' / 'admin.mode.text' and silently resolve
 			// to nothing, since $context['mode'] is a string, not an array.
-			'mode_text'       => 'mode_text',
-			'admin_mode_text' => 'admin_mode_text',
+			'mode_text'        => 'mode_text',
+			'admin_mode_text'  => 'admin_mode_text',
 		);
 
 		$out = preg_replace_callback(

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-11-08T14:53:31+00:00\n"
+"POT-Creation-Date: 2026-11-08T17:41:03+00:00\n"
 "PO-Revision-Date: 2026-10-24 18:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -577,7 +577,7 @@ msgstr ""
 #: src/Admin/Addons/AddonListTable.php:82 src/Admin/Addons/AddonManager.php:281
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:123
 #: src/Admin/Core/AssetManager.php:1209 src/Admin/Core/AssetManager.php:1697
-#: src/Admin/Emails/Core/EmailTemplates.php:560
+#: src/Admin/Emails/Core/EmailTemplates.php:566
 #: src/Admin/Frontend/Account/AccountController.php:289
 #: src/Admin/Frontend/Account/AccountController.php:348
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:348
@@ -587,7 +587,7 @@ msgstr "İşleniyor..."
 #: src/Admin/Addons/AddonListTable.php:83 src/Admin/Addons/AddonManager.php:282
 #: src/Admin/Addons/AddonScreen.php:112 src/Admin/Core/AssetManager.php:1373
 #: src/Admin/Core/AssetManager.php:1419
-#: src/Admin/Emails/Core/EmailTemplates.php:561
+#: src/Admin/Emails/Core/EmailTemplates.php:567
 #: src/Admin/Frontend/Account/AccountController.php:326
 msgid "An error occurred. Please try again."
 msgstr "Bir hata oluştu. Lütfen yeniden deneyin."
@@ -671,7 +671,7 @@ msgstr "\"%s\" ek hizmeti gereklidir."
 #: src/Admin/Booking/Actions/BookingActionGuard.php:76
 #: src/Admin/Booking/Meta/BookingMeta.php:1616
 #: src/Admin/Booking/Meta/BookingMeta.php:1674
-#: src/Admin/Booking/Meta/BookingMeta.php:1792
+#: src/Admin/Booking/Meta/BookingMeta.php:1797
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:125
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:771
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:879
@@ -1071,7 +1071,7 @@ msgstr "Geçersiz rezervasyon kimliği."
 #: src/Admin/Booking/Actions/BookingApproveAjax.php:77
 #: src/Admin/Booking/Meta/BookingMeta.php:1638
 #: src/Admin/Booking/Meta/BookingMeta.php:1696
-#: src/Admin/Booking/Meta/BookingMeta.php:1814
+#: src/Admin/Booking/Meta/BookingMeta.php:1819
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:142
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:49
 #: src/Admin/Emails/Templates/EmailPreview.php:109
@@ -1276,7 +1276,7 @@ msgstr "Ödenmemiş"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:292
 #: src/Admin/Booking/Meta/BookingMeta.php:1503
 #: src/Admin/Core/AssetManager.php:1225
-#: src/Admin/Emails/Core/EmailTemplates.php:502
+#: src/Admin/Emails/Core/EmailTemplates.php:508
 #: src/Admin/Emails/Notifications/BookingNotifications.php:220
 #: src/Admin/Frontend/Account/AccountRenderer.php:934
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:339
@@ -1327,7 +1327,7 @@ msgstr "Kısmen iade edildi"
 #: src/Admin/Frontend/Account/BookingTimeline.php:78
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:341
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:83
-#: src/Admin/Settings/Groups/EmailSettings.php:237
+#: src/Admin/Settings/Groups/EmailSettings.php:238
 #: templates/emails/booking-created-admin.html.php:67
 #: assets/blocks/my-bookings/index.js:42
 #: assets/blocks/payment-history/index.js:40
@@ -1366,7 +1366,7 @@ msgstr "Bekleyen ödeme"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:293
 #: src/Admin/Booking/Meta/BookingMeta.php:1504
 #: src/Admin/Core/AssetManager.php:1226
-#: src/Admin/Emails/Core/EmailTemplates.php:503
+#: src/Admin/Emails/Core/EmailTemplates.php:509
 #: src/Admin/Emails/Notifications/BookingNotifications.php:221
 #: src/Admin/Frontend/Account/BookingTimeline.php:70
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:80
@@ -1557,7 +1557,7 @@ msgstr "Rezervasyon ayrıntıları:"
 #: src/Admin/Booking/Helpers/CancellationHandler.php:687
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:1024
 #: src/Admin/Settings/Groups/EmailSettings.php:176
-#: src/Admin/Settings/Groups/EmailSettings.php:237
+#: src/Admin/Settings/Groups/EmailSettings.php:238
 #: templates/emails/booking-cancelled.html.php:59
 msgid "Booking ID:"
 msgstr "Rezervasyon kimliği:"
@@ -1570,7 +1570,7 @@ msgstr "Rezervasyon kimliği:"
 #: src/Admin/Settings/Groups/EmailSettings.php:134
 #: src/Admin/Settings/Groups/EmailSettings.php:178
 #: src/Admin/Settings/Groups/EmailSettings.php:226
-#: src/Admin/Settings/Groups/EmailSettings.php:237
+#: src/Admin/Settings/Groups/EmailSettings.php:238
 #: templates/emails/booking-cancelled.html.php:67
 #: templates/emails/booking-created-admin.html.php:37
 #: templates/emails/booking-created-customer.html.php:24
@@ -1582,6 +1582,8 @@ msgstr "Araç:"
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:689
 #: src/Admin/Settings/Groups/EmailSettings.php:135
+#: src/Admin/Settings/Groups/EmailSettings.php:227
+#: src/Admin/Settings/Groups/EmailSettings.php:238
 #: templates/emails/booking-cancelled.html.php:75
 #: templates/emails/booking-created-admin.html.php:41
 #: templates/emails/booking-created-customer.html.php:28
@@ -2663,7 +2665,7 @@ msgid "Sending..."
 msgstr "Gönderiliyor..."
 
 #: src/Admin/Booking/Meta/BookingMeta.php:222
-#: src/Admin/Booking/Meta/BookingMeta.php:1758
+#: src/Admin/Booking/Meta/BookingMeta.php:1760
 msgid "Email sent successfully!"
 msgstr "E-posta başarıyla gönderildi!"
 
@@ -2718,7 +2720,7 @@ msgid "No receipt uploaded."
 msgstr "Makbuz yüklenmedi."
 
 #: src/Admin/Booking/Meta/BookingMeta.php:291
-#: src/Admin/Settings/Groups/EmailSettings.php:237
+#: src/Admin/Settings/Groups/EmailSettings.php:238
 #: templates/admin/booking-meta/receipt-box.php:34
 #: templates/emails/receipt-status-email.html.php:249
 #: templates/emails/refund-admin.html.php:29
@@ -2812,7 +2814,9 @@ msgstr "Müşteri:"
 msgid ""
 "The customer turned off automatic notifications. An e-mail you send here "
 "still goes out."
-msgstr "Müşteri otomatik bildirimleri kapattı. Buradan gönderdiğiniz e-posta yine de gider."
+msgstr ""
+"Müşteri otomatik bildirimleri kapattı. Buradan gönderdiğiniz e-posta yine de "
+"gider."
 
 #: src/Admin/Booking/Meta/BookingMeta.php:780
 msgid "Email type"
@@ -2969,7 +2973,7 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:1628
 #: src/Admin/Booking/Meta/BookingMeta.php:1686
-#: src/Admin/Booking/Meta/BookingMeta.php:1804
+#: src/Admin/Booking/Meta/BookingMeta.php:1809
 #: src/Admin/Core/Utilities/UXHelper.php:138
 #: src/Admin/Emails/Core/EmailTemplates.php:176
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:29
@@ -2979,8 +2983,8 @@ msgstr "Bu eylemi gerçekleştirmek için izniniz yok."
 
 #: src/Admin/Booking/Meta/BookingMeta.php:1644
 #: src/Admin/Booking/Meta/BookingMeta.php:1706
-#: src/Admin/Booking/Meta/BookingMeta.php:1823
-#: src/Admin/Booking/Meta/BookingMeta.php:1827
+#: src/Admin/Booking/Meta/BookingMeta.php:1828
+#: src/Admin/Booking/Meta/BookingMeta.php:1832
 msgid "Missing required fields."
 msgstr "Gerekli alanlar eksik."
 
@@ -2988,37 +2992,37 @@ msgstr "Gerekli alanlar eksik."
 msgid "Please enter a subject and a message."
 msgstr "Lütfen bir konu ve ileti girin."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1732
+#: src/Admin/Booking/Meta/BookingMeta.php:1735
 msgid "Customer email not found."
 msgstr "Müşteri e-postası bulunamadı."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1740
+#: src/Admin/Booking/Meta/BookingMeta.php:1743
 msgid "Failed to send email. Please check your WordPress email configuration."
 msgstr ""
 "E-posta gönderilemedi. Lütfen WordPress e-posta yapılandırmanızı kontrol "
 "edin."
 
 #. translators: %s: e-mail subject
-#: src/Admin/Booking/Meta/BookingMeta.php:1748
+#: src/Admin/Booking/Meta/BookingMeta.php:1750
 #, php-format
 msgid "E-mail sent to the customer: %s"
 msgstr "Müşteriye e-posta gönderildi: %s"
 
 #. translators: %s: the test address the e-mail went to instead.
-#: src/Admin/Booking/Meta/BookingMeta.php:1751
+#: src/Admin/Booking/Meta/BookingMeta.php:1753
 #, php-format
 msgid "(test mode: sent to %s)"
 msgstr "(test kipi: %s adresine gönderildi)"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1754
+#: src/Admin/Booking/Meta/BookingMeta.php:1756
 msgid "(the customer turned off automatic notifications)"
 msgstr "(müşteri otomatik bildirimleri kapattı)"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1835
+#: src/Admin/Booking/Meta/BookingMeta.php:1840
 msgid "Note added successfully!"
 msgstr "Not başarıyla eklendi!"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1837
+#: src/Admin/Booking/Meta/BookingMeta.php:1842
 msgid "Failed to add note."
 msgstr "Not eklenemedi."
 
@@ -3886,7 +3890,7 @@ msgid "Yes"
 msgstr "Evet"
 
 #: src/Admin/Core/AssetManager.php:1202 src/Admin/Core/AssetManager.php:1669
-#: src/Admin/Emails/Core/EmailTemplates.php:569
+#: src/Admin/Emails/Core/EmailTemplates.php:575
 #: src/Admin/Frontend/Account/AccountController.php:459
 #: src/Admin/Frontend/Account/AccountRenderer.php:503
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:94
@@ -3914,7 +3918,7 @@ msgstr "Emin misiniz?"
 #: src/Admin/Core/AssetManager.php:1676
 #: src/Admin/Customers/AddCustomerPage.php:176
 #: src/Admin/Customers/CustomersPage.php:580
-#: src/Admin/Emails/Core/EmailTemplates.php:565
+#: src/Admin/Emails/Core/EmailTemplates.php:571
 #: templates/account/account-details.php:189
 #: templates/shortcodes/vehicle-rating-form.php:168
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:20
@@ -3926,7 +3930,7 @@ msgstr "İptal"
 
 #: src/Admin/Core/AssetManager.php:1207 src/Admin/Core/AssetManager.php:1513
 #: src/Admin/Core/AssetManager.php:1678
-#: src/Admin/Emails/Core/EmailTemplates.php:572
+#: src/Admin/Emails/Core/EmailTemplates.php:578
 msgid "Save"
 msgstr "Kaydet"
 
@@ -6269,7 +6273,7 @@ msgid "Missing parameters."
 msgstr "Eksik parametreler."
 
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:178
-#: src/Admin/Emails/Core/EmailTemplates.php:558
+#: src/Admin/Emails/Core/EmailTemplates.php:564
 msgid "Test email sent successfully!"
 msgstr "Test e-postası başarıyla gönderildi!"
 
@@ -6310,33 +6314,33 @@ msgid "Refund Emails"
 msgstr "İade e-postaları"
 
 #: src/Admin/Emails/Core/EmailTemplates.php:308
-#: src/Admin/Emails/Core/EmailTemplates.php:556
+#: src/Admin/Emails/Core/EmailTemplates.php:562
 #: src/Admin/Emails/Templates/EmailPreview.php:28
 msgid "Email Preview"
 msgstr "E-posta ön izleme"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:461
+#: src/Admin/Emails/Core/EmailTemplates.php:462
 msgid "Mock Booking #9999"
 msgstr "Örnek rezervasyon #9999"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:462
+#: src/Admin/Emails/Core/EmailTemplates.php:463
 msgid "confirmed"
 msgstr "onaylandı"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:468
-#: src/Admin/Emails/Core/EmailTemplates.php:477
+#: src/Admin/Emails/Core/EmailTemplates.php:474
+#: src/Admin/Emails/Core/EmailTemplates.php:483
 msgid "pending"
 msgstr "bekliyor"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:476
+#: src/Admin/Emails/Core/EmailTemplates.php:482
 msgid "credit_card"
 msgstr "kredi kartı"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:494
+#: src/Admin/Emails/Core/EmailTemplates.php:500
 msgid "Example Message Subject"
 msgstr "Örnek ileti konusu"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:495
+#: src/Admin/Emails/Core/EmailTemplates.php:501
 msgid ""
 "This is a sample message content for preview purposes. It demonstrates how "
 "long text will appear in the email body."
@@ -6344,67 +6348,74 @@ msgstr ""
 "Bu, ön izleme amacıyla kullanılan örnek bir ileti içeriğidir. E-posta "
 "gövdesinde uzun metnin nasıl görüneceğini gösterir."
 
-#: src/Admin/Emails/Core/EmailTemplates.php:496
+#: src/Admin/Emails/Core/EmailTemplates.php:502
 msgid "This is a sample reply content from the administrator."
 msgstr "Bu, yöneticiden gelen örnek bir yanıt içeriğidir."
 
-#: src/Admin/Emails/Core/EmailTemplates.php:557
+#: src/Admin/Emails/Core/EmailTemplates.php:563
 msgid "Send Test"
 msgstr "Test gönder"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:559
+#: src/Admin/Emails/Core/EmailTemplates.php:565
 msgid "Test email could not be sent."
 msgstr "Test e-postası gönderilemedi."
 
-#: src/Admin/Emails/Core/EmailTemplates.php:563
+#: src/Admin/Emails/Core/EmailTemplates.php:569
 #: src/Admin/Emails/Templates/EmailPreview.php:57
 #: src/Admin/Setup/SetupWizard.php:567
 msgid "Send Test Email"
 msgstr "Test e-postası gönder"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:564
+#: src/Admin/Emails/Core/EmailTemplates.php:570
 #: templates/account/account-details.php:94
 msgid "Email Address"
 msgstr "E-posta adresi"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:566
+#: src/Admin/Emails/Core/EmailTemplates.php:572
 msgid "Please enter email address"
 msgstr "Lütfen e-posta adresi girin"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:567
+#: src/Admin/Emails/Core/EmailTemplates.php:573
 msgid "Edit Template"
 msgstr "Şablonu düzenle"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:568
+#: src/Admin/Emails/Core/EmailTemplates.php:574
 #: src/Admin/Emails/Templates/EmailPreview.php:119
 msgid "Subject:"
 msgstr "Konu:"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:570
+#: src/Admin/Emails/Core/EmailTemplates.php:576
 #: src/Admin/Emails/Templates/EmailPreview.php:58
 #: src/Admin/Settings/Groups/FrontendColorsSection.php:109
 msgid "Preview"
 msgstr "Ön izleme"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:571
+#: src/Admin/Emails/Core/EmailTemplates.php:577
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:91
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:48
 msgid "Content"
 msgstr "İçerik"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:573
+#: src/Admin/Emails/Core/EmailTemplates.php:579
 msgid "Template saved successfully!"
 msgstr "Şablon başarıyla kaydedildi!"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:574
+#: src/Admin/Emails/Core/EmailTemplates.php:580
 msgid "Template reset to default!"
 msgstr "Şablon varsayılan ayarlara sıfırlandı!"
 
-#: src/Admin/Emails/Core/Mailer.php:464
+#: src/Admin/Emails/Core/Mailer.php:475
 msgid "valued customer"
 msgstr "değerli müşterimiz"
 
-#: src/Admin/Emails/Core/Mailer.php:547
+#. translators: 1: a date, 2: a time of day (e.g. "November 20, 2026, 9:30 am").
+#: src/Admin/Emails/Core/Mailer.php:572
+#, php-format
+msgctxt "e-mail date and time"
+msgid "%1$s, %2$s"
+msgstr "%1$s, %2$s"
+
+#: src/Admin/Emails/Core/Mailer.php:610
 #: src/Admin/Frontend/Shortcodes/ReviewsView.php:140
 msgid "Anonymous"
 msgstr "Anonim"
@@ -6494,12 +6505,12 @@ msgstr "İade uyarısı (yönetici)"
 msgid "Remaining Payment Link (Customer)"
 msgstr "Kalan ödeme bağlantısı (müşteri)"
 
-#: src/Admin/Emails/Core/Templates.php:232
-#: src/Admin/Emails/Core/Templates.php:319
+#: src/Admin/Emails/Core/Templates.php:234
+#: src/Admin/Emails/Core/Templates.php:323
 msgid "No content available for this email."
 msgstr "Bu e-posta için içerik mevcut değil."
 
-#: src/Admin/Emails/Core/Templates.php:547
+#: src/Admin/Emails/Core/Templates.php:551
 msgid "All rights reserved."
 msgstr "Her hakkı saklıdır."
 
@@ -6612,11 +6623,13 @@ msgstr ""
 #: src/Admin/Emails/Templates/BookingNotifications.php:26
 msgid ""
 "Available placeholders: {booking_id}, {vehicle_title}, {pickup_date}, "
-"{dropoff_date}, {total_price}, {contact_name}, {contact_email}, {status}, "
+"{dropoff_date}, {pickup_time}, {return_time}, {pickup_datetime}, "
+"{return_datetime}, {total_price}, {contact_name}, {contact_email}, {status}, "
 "{site_name}, {site_url}"
 msgstr ""
 "Kullanılabilir yer belirticiler: {booking_id}, {vehicle_title}, "
-"{pickup_date}, {dropoff_date}, {total_price}, {contact_name}, "
+"{pickup_date}, {dropoff_date}, {pickup_time}, {return_time}, "
+"{pickup_datetime}, {return_datetime}, {total_price}, {contact_name}, "
 "{contact_email}, {status}, {site_name}, {site_url}"
 
 #: src/Admin/Emails/Templates/BookingNotifications.php:27
@@ -6646,11 +6659,6 @@ msgstr ""
 msgid "Enabled"
 msgstr "Etkin"
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:55
-#: src/Admin/Settings/Groups/EmailSettings.php:92
-msgid "Booking Confirmed: #{booking_id}"
-msgstr "Rezervasyon onaylandı: #{booking_id}"
-
 #: src/Admin/Emails/Templates/BookingNotifications.php:60
 #: src/Admin/Emails/Templates/BookingNotifications.php:89
 #: src/Admin/Emails/Templates/BookingNotifications.php:125
@@ -6671,11 +6679,6 @@ msgstr "Yeni rezervasyon e-postası"
 msgid "Email sent to customer when a new booking is created."
 msgstr "Yeni bir rezervasyon oluşturulduğunda müşteriye gönderilen e-posta."
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:84
-#: src/Admin/Settings/Groups/EmailSettings.php:96
-msgid "Booking #{booking_id} status updated"
-msgstr "Rezervasyon #{booking_id} durumu güncellendi"
-
 #: src/Admin/Emails/Templates/BookingNotifications.php:96
 msgid "Booking Status Change Email"
 msgstr "Rezervasyon durumu değişikliği e-postası"
@@ -6693,11 +6696,6 @@ msgstr "Yönetici e-postası"
 msgid "Recipient for administrative alerts."
 msgstr "İdari uyarılar için alıcı."
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:120
-#: src/Admin/Settings/Groups/EmailSettings.php:100
-msgid "New Booking Alert: #{booking_id} - {site_name}"
-msgstr "Yeni rezervasyon uyarısı: #{booking_id} - {site_name}"
-
 #: src/Admin/Emails/Templates/BookingNotifications.php:132
 msgid "Admin Notification Email"
 msgstr "Yönetici bildirim e-postası"
@@ -6706,11 +6704,6 @@ msgstr "Yönetici bildirim e-postası"
 msgid "Alert sent to administrator for every new reservation."
 msgstr "Her yeni rezervasyon için yöneticiye uyarı gönderilir."
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:143
-#: src/Admin/Settings/Groups/EmailSettings.php:104
-msgid "Booking Cancelled (Payment Timeout): #{booking_id}"
-msgstr "Rezervasyon iptal edildi (ödeme süresi doldu): #{booking_id}"
-
 #: src/Admin/Emails/Templates/BookingNotifications.php:155
 msgid "Auto Cancel Email"
 msgstr "Otomatik iptal e-postası"
@@ -6718,10 +6711,6 @@ msgstr "Otomatik iptal e-postası"
 #: src/Admin/Emails/Templates/BookingNotifications.php:156
 msgid "Sent when payment period expires."
 msgstr "Ödeme süresi dolduğunda gönderilir."
-
-#: src/Admin/Emails/Templates/BookingNotifications.php:172
-msgid "Booking Cancelled: #{booking_id}"
-msgstr "Rezervasyon iptal edildi: #{booking_id}"
 
 #: src/Admin/Emails/Templates/BookingNotifications.php:184
 msgid "Manual Cancellation Email"
@@ -6733,11 +6722,6 @@ msgstr ""
 "Bir rezervasyon personel tarafından manuel olarak iptal edildiğinde "
 "gönderilir."
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:201
-#: src/Admin/Settings/Groups/EmailSettings.php:108
-msgid "Reminder: Your Booking #{booking_id} Starts Soon"
-msgstr "Hatırlatma: #{booking_id} numaralı rezervasyonunuz yakında başlıyor"
-
 #: src/Admin/Emails/Templates/BookingNotifications.php:212
 msgid "Pickup Reminder Email"
 msgstr "Teslim alma hatırlatma e-postası"
@@ -6745,10 +6729,6 @@ msgstr "Teslim alma hatırlatma e-postası"
 #: src/Admin/Emails/Templates/BookingNotifications.php:213
 msgid "Friendly reminder sent to customer shortly before pickup."
 msgstr "Teslim almadan kısa süre önce müşteriye gönderilen hatırlatma."
-
-#: src/Admin/Emails/Templates/BookingNotifications.php:223
-msgid "Welcome to {site_name}"
-msgstr "{site_name} sitesine hoş geldiniz"
 
 #: src/Admin/Emails/Templates/BookingNotifications.php:234
 msgid "Customer Welcome Email"
@@ -6808,19 +6788,9 @@ msgstr ""
 msgid "Customer Refund Email"
 msgstr "Müşteri iade e-postası"
 
-#: src/Admin/Emails/Templates/RefundEmails.php:51
-#: src/Admin/Settings/Groups/EmailSettings.php:112
-msgid "Refund Processed for Booking #{booking_id}"
-msgstr "Rezervasyon #{booking_id} için iade işleme alındı"
-
 #: src/Admin/Emails/Templates/RefundEmails.php:61
 msgid "Admin Refund Email"
 msgstr "Yönetici iade e-postası"
-
-#: src/Admin/Emails/Templates/RefundEmails.php:79
-#: src/Admin/Settings/Groups/EmailSettings.php:114
-msgid "Refund Alert: Booking #{booking_id}"
-msgstr "İade uyarısı: rezervasyon #{booking_id}"
 
 #: src/Admin/Frontend/Account/AccountBookingsView.php:82
 #: src/Admin/Frontend/Account/AccountDashboardView.php:161
@@ -11849,8 +11819,8 @@ msgstr "Sistem optimizasyonlarını ve başarım eşiklerini yapılandırın."
 #: src/Admin/Settings/Groups/EmailSettings.php:151
 #: src/Admin/Settings/Groups/EmailSettings.php:189
 #: src/Admin/Settings/Groups/EmailSettings.php:221
-#: src/Admin/Settings/Groups/EmailSettings.php:237
-#: src/Admin/Settings/Groups/EmailSettings.php:250
+#: src/Admin/Settings/Groups/EmailSettings.php:238
+#: src/Admin/Settings/Groups/EmailSettings.php:251
 msgid "Dear {salutation_name},"
 msgstr "Sayın {salutation_name},"
 
@@ -11877,6 +11847,8 @@ msgid "Reservation No:"
 msgstr "Rezervasyon No:"
 
 #: src/Admin/Settings/Groups/EmailSettings.php:136
+#: src/Admin/Settings/Groups/EmailSettings.php:228
+#: src/Admin/Settings/Groups/EmailSettings.php:238
 #: templates/emails/booking-created-admin.html.php:45
 #: templates/emails/booking-created-customer.html.php:32
 #: templates/emails/booking-reminder-customer.html.php:17
@@ -12002,11 +11974,7 @@ msgstr "Yaklaşan kiralamanızın çok yakında başlayacağını hatırlatmak i
 msgid "Pickup Details"
 msgstr "Teslim alma ayrıntıları"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:227
-msgid "Pickup Time:"
-msgstr "Teslim alma saati:"
-
-#: src/Admin/Settings/Groups/EmailSettings.php:230
+#: src/Admin/Settings/Groups/EmailSettings.php:231
 msgid ""
 "Please make sure to have your identity documents and driver's license ready. "
 "We look forward to seeing you!"
@@ -12014,142 +11982,142 @@ msgstr ""
 "Lütfen kimlik belgelerinizi ve ehliyetinizi hazır bulundurun. Sizi görmekten "
 "mutluluk duyarız!"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:237
+#: src/Admin/Settings/Groups/EmailSettings.php:238
 msgid "Your booking #{booking_id} has been cancelled."
 msgstr "#{booking_id} numaralı rezervasyonunuz iptal edildi."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:250
+#: src/Admin/Settings/Groups/EmailSettings.php:251
 msgid "A refund of {amount} has been processed for your booking #{booking_id}."
 msgstr ""
 "#{booking_id} numaralı rezervasyonunuz için {amount} tutarında iade işlendi."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:250
+#: src/Admin/Settings/Groups/EmailSettings.php:251
 #: templates/emails/refund-admin.html.php:25
 #: templates/emails/refund-customer.html.php:23
 msgid "Refund Amount:"
 msgstr "İade tutarı:"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:258
+#: src/Admin/Settings/Groups/EmailSettings.php:259
 msgid "Refund Notification"
 msgstr "İade bildirimi"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:258
+#: src/Admin/Settings/Groups/EmailSettings.php:259
 msgid "A refund of {amount} has been processed for booking #{booking_id}."
 msgstr ""
 "#{booking_id} numaralı rezervasyon için {amount} tutarında iade işlendi."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:262
+#: src/Admin/Settings/Groups/EmailSettings.php:263
 msgid "Booking Status Update"
 msgstr "Rezervasyon durumu güncellemesi"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:262
+#: src/Admin/Settings/Groups/EmailSettings.php:263
 msgid "The status of booking #{booking_id} has been changed to {new_status}."
 msgstr ""
 "#{booking_id} numaralı rezervasyonun durumu {new_status} olarak değiştirildi."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:273
+#: src/Admin/Settings/Groups/EmailSettings.php:274
 #: src/Admin/Settings/View/TabRendererRegistry.php:152
 msgid "Email Configuration"
 msgstr "E-posta yapılandırması"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:278
+#: src/Admin/Settings/Groups/EmailSettings.php:279
 #: src/Admin/Setup/SetupWizard.php:359
 msgid "Sender Name"
 msgstr "Gönderen adı"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:279
+#: src/Admin/Settings/Groups/EmailSettings.php:280
 #: src/Admin/Setup/SetupWizard.php:363
 msgid "Sender Email"
 msgstr "Gönderen e-postası"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:280
+#: src/Admin/Settings/Groups/EmailSettings.php:281
 #: src/Admin/Setup/SetupWizard.php:367
 msgid "Reply-To Address"
 msgstr "Yanıt adresi"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:284
+#: src/Admin/Settings/Groups/EmailSettings.php:285
 msgid "Base Color"
 msgstr "Temel renk"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:290
+#: src/Admin/Settings/Groups/EmailSettings.php:291
 msgid "Header Image (Logo URL)"
 msgstr "Üst kısım görseli (logo adresi)"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:291
+#: src/Admin/Settings/Groups/EmailSettings.php:292
 msgid "Footer Text"
 msgstr "Alt kısım metni"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:293
+#: src/Admin/Settings/Groups/EmailSettings.php:294
 msgid "Enable Outgoing Emails"
 msgstr "Giden e-postaları etkinleştir"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:293
+#: src/Admin/Settings/Groups/EmailSettings.php:294
 msgid "Allow system to send automated transaction emails."
 msgstr "Sistemin otomatik işlem e-postaları göndermesine izin verin."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:294
+#: src/Admin/Settings/Groups/EmailSettings.php:295
 msgid "Production Sandbox (Test Mode)"
 msgstr "Üretim deneme ortamı (test kipi)"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:294
+#: src/Admin/Settings/Groups/EmailSettings.php:295
 msgid "Redirect all outgoing mails to the test address below."
 msgstr "Tüm giden postaları aşağıdaki test adresine yönlendirin."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:295
+#: src/Admin/Settings/Groups/EmailSettings.php:296
 #: src/Admin/Setup/SetupWizard.php:380
 msgid "Test Email Address"
 msgstr "Test e-posta adresi"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:297
+#: src/Admin/Settings/Groups/EmailSettings.php:298
 msgid "Template Override Path"
 msgstr "Şablon değiştirme yolu"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:298
+#: src/Admin/Settings/Groups/EmailSettings.php:299
 msgid "Automatic Background Sending"
 msgstr "Arka planda otomatik gönderim"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:299
+#: src/Admin/Settings/Groups/EmailSettings.php:300
 msgid "Enable Communication Logs"
 msgstr "İletişim günlüklerini etkinleştir"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:300
+#: src/Admin/Settings/Groups/EmailSettings.php:301
 #: src/Admin/Settings/Groups/LogsSettings.php:94
 msgid "Log Retention (Days)"
 msgstr "Günlük saklama süresi (gün)"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:305
+#: src/Admin/Settings/Groups/EmailSettings.php:306
 msgid "Customer Notification Toggles"
 msgstr "Müşteri bildirim ayarları"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:306
+#: src/Admin/Settings/Groups/EmailSettings.php:307
 msgid "Control which automated emails are sent to customers."
 msgstr "Müşterilere gönderilen otomatik e-postaları kontrol edin."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:310
+#: src/Admin/Settings/Groups/EmailSettings.php:311
 msgid "Send Welcome Email"
 msgstr "Hoş geldiniz e-postası gönder"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:310
+#: src/Admin/Settings/Groups/EmailSettings.php:311
 msgid "Send a one-time welcome email to customers on their first booking."
 msgstr ""
 "Müşterilere ilk rezervasyonlarında tek seferlik hoş geldiniz e-postası "
 "gönder."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:311
+#: src/Admin/Settings/Groups/EmailSettings.php:312
 msgid "Send Booking Notifications"
 msgstr "Rezervasyon bildirimlerini gönder"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:311
+#: src/Admin/Settings/Groups/EmailSettings.php:312
 msgid ""
 "Send booking confirmation, reminder, and cancellation emails to customers."
 msgstr ""
 "Müşterilere rezervasyon onayı, hatırlatma ve iptal e-postaları gönderin."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:316
+#: src/Admin/Settings/Groups/EmailSettings.php:317
 msgid "WooCommerce Detected:"
 msgstr "WooCommerce algılandı:"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:316
+#: src/Admin/Settings/Groups/EmailSettings.php:317
 msgid ""
 "Transactional emails are managed by WooCommerce. These settings apply to "
 "plugin-specific internal alerts."
@@ -12157,9 +12125,45 @@ msgstr ""
 "İşlem e-postaları WooCommerce tarafından yönetilir. Bu ayarlar, eklentiye "
 "özgü dahili uyarılar için geçerlidir."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:321
+#: src/Admin/Settings/Groups/EmailSettings.php:322
 msgid "Send Test Connection Email"
 msgstr "Test bağlantısı e-postası gönder"
+
+#: src/Admin/Settings/Groups/EmailSettings.php:437
+msgid "Booking Confirmed: #{booking_id}"
+msgstr "Rezervasyon onaylandı: #{booking_id}"
+
+#: src/Admin/Settings/Groups/EmailSettings.php:439
+msgid "Booking #{booking_id} status updated"
+msgstr "Rezervasyon #{booking_id} durumu güncellendi"
+
+#: src/Admin/Settings/Groups/EmailSettings.php:441
+msgid "New Booking Alert: #{booking_id} - {site_name}"
+msgstr "Yeni rezervasyon uyarısı: #{booking_id} - {site_name}"
+
+#: src/Admin/Settings/Groups/EmailSettings.php:443
+msgid "Booking Cancelled (Payment Timeout): #{booking_id}"
+msgstr "Rezervasyon iptal edildi (ödeme süresi doldu): #{booking_id}"
+
+#: src/Admin/Settings/Groups/EmailSettings.php:445
+msgid "Booking Cancelled: #{booking_id}"
+msgstr "Rezervasyon iptal edildi: #{booking_id}"
+
+#: src/Admin/Settings/Groups/EmailSettings.php:447
+msgid "Reminder: Your Booking #{booking_id} Starts Soon"
+msgstr "Hatırlatma: #{booking_id} numaralı rezervasyonunuz yakında başlıyor"
+
+#: src/Admin/Settings/Groups/EmailSettings.php:449
+msgid "Welcome to {site_name}"
+msgstr "{site_name} sitesine hoş geldiniz"
+
+#: src/Admin/Settings/Groups/EmailSettings.php:451
+msgid "Refund Processed for Booking #{booking_id}"
+msgstr "Rezervasyon #{booking_id} için iade işleme alındı"
+
+#: src/Admin/Settings/Groups/EmailSettings.php:453
+msgid "Refund Alert: Booking #{booking_id}"
+msgstr "İade uyarısı: rezervasyon #{booking_id}"
 
 #: src/Admin/Settings/Groups/FrontendColorsSection.php:47
 msgid "Automatic — use the site's color"
@@ -18420,6 +18424,9 @@ msgstr "Araç listesi"
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste yerleşiminde görüntüleyin."
+
+#~ msgid "Pickup Time:"
+#~ msgstr "Teslim alma saati:"
 
 #~ msgid "An error occurred:"
 #~ msgstr "Hata oluştu:"

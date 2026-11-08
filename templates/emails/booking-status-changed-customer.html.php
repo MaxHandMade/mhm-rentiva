@@ -38,11 +38,11 @@
 		</tr>
 		<tr>
 			<td style="padding: 12px 0; border-bottom: 1px solid #eee; color: #777;"><strong><?php esc_html_e( 'Pickup Date:', 'mhm-rentiva' ); ?></strong></td>
-			<td style="padding: 12px 0; border-bottom: 1px solid #eee; text-align: right;"><?php echo esc_html( $data['booking']['pickup_date'] ?? '' ); ?></td>
+			<td style="padding: 12px 0; border-bottom: 1px solid #eee; text-align: right;"><?php echo esc_html( $data['booking']['pickup_datetime'] ?? ( $data['booking']['pickup_date'] ?? '' ) ); ?></td>
 		</tr>
 		<tr>
 			<td style="padding: 12px 0; color: #777;"><strong><?php esc_html_e( 'Return Date:', 'mhm-rentiva' ); ?></strong></td>
-			<td style="padding: 12px 0; text-align: right;"><?php echo esc_html( $data['booking']['return_date'] ?? '' ); ?></td>
+			<td style="padding: 12px 0; text-align: right;"><?php echo esc_html( $data['booking']['return_datetime'] ?? ( $data['booking']['return_date'] ?? '' ) ); ?></td>
 		</tr>
 	</table>
 
