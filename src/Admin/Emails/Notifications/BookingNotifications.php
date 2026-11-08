@@ -159,20 +159,7 @@ final class BookingNotifications {
 	 * @param string $new_status New status
 	 */
 	private static function send_status_change_emails( int $booking_id, string $old_status, string $new_status ): void {
-		$additional_context = array(
-			'status_change' => array(
-				'old_status'       => $old_status,
-				'new_status'       => $new_status,
-				'old_status_label' => self::get_status_label( $old_status ),
-				'new_status_label' => self::get_status_label( $new_status ),
-			),
-		);
-
-		// Include cancellation reason when booking is cancelled
-		if ( $new_status === Status::CANCELLED ) {
-			$cancellation_data                         = get_post_meta( $booking_id, '_mhmrentiva_cancellation_data', true );
-			$additional_context['cancellation_reason'] = is_array( $cancellation_data ) ? ( $cancellation_data['cancellation_reason'] ?? '' ) : '';
-		}
+		$additional_context = self::status_change_context( $booking_id, $old_status, $new_status );
 
 		$send_customer = SettingsCore::get( 'mhmrentiva_booking_send_confirmation_emails', '1' ) === '1';
 		if ( $send_customer ) {
@@ -202,6 +189,32 @@ final class BookingNotifications {
 	 * @param string $status Status
 	 * @return string Status label
 	 */
+	/**
+	 * What a status e-mail adds to the booking context: the change, and the
+	 * cancellation reason for a cancellation. Public so the booking screen's
+	 * e-mail box fills a cancellation e-mail exactly as the automatic one
+	 * (PR 3b-3).
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function status_change_context( int $booking_id, string $old_status, string $new_status ): array {
+		$context = array(
+			'status_change' => array(
+				'old_status'       => $old_status,
+				'new_status'       => $new_status,
+				'old_status_label' => self::get_status_label( $old_status ),
+				'new_status_label' => self::get_status_label( $new_status ),
+			),
+		);
+
+		if ( $new_status === Status::CANCELLED ) {
+			$cancellation_data              = get_post_meta( $booking_id, '_mhmrentiva_cancellation_data', true );
+			$context['cancellation_reason'] = is_array( $cancellation_data ) ? ( $cancellation_data['cancellation_reason'] ?? '' ) : '';
+		}
+
+		return $context;
+	}
+
 	private static function get_status_label( string $status ): string {
 		$labels = array(
 			'pending'         => __( 'Pending', 'mhm-rentiva' ),

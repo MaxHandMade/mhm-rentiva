@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Admin\Booking\Meta;
 
 use MHMRentiva\Admin\Booking\Meta\BookingMeta;
+use MHMRentiva\Admin\Emails\Core\Mailer;
+use MHMRentiva\Admin\Emails\Core\Templates;
 use WP_Ajax_UnitTestCase;
 
 /**
- * "Send email to customer" on the booking edit screen: every type in the
- * select has a default subject and message, so choosing one fills both and
- * sending it works. "Booking cancelled" had a message but no subject: the
- * template came back with `subject: null` and sending it ended in a fatal
- * TypeError (Templates::wrapWithLayout(), string $subject) -- found by the
- * booking edit screen's functional sweep (H1, 2026-11-04).
+ * "Send email to customer" on the booking edit screen (PR 3b-3): the types are
+ * the Settings templates the customer also receives automatically -- booking
+ * confirmation, booking reminder, cancellation -- plus a custom message that
+ * starts empty. A template fills the box from the same context and the same
+ * Settings text as the automatic e-mail; the operator may edit it for this one
+ * send. "Payment reminder" left the box (user decision 2026-11-08): the payment
+ * link goes out from the Payment management button only.
  *
  * @covers \MHMRentiva\Admin\Booking\Meta\BookingMeta
  */
@@ -27,6 +30,9 @@ final class BookingCustomerEmailTemplateTest extends WP_Ajax_UnitTestCase
 	/** @var list<array<string, mixed>> */
 	private array $sent = array();
 
+	/** @var list<array<int, mixed>> */
+	private array $logged = array();
+
 	public function setUp(): void
 	{
 		parent::setUp();
@@ -34,29 +40,37 @@ final class BookingCustomerEmailTemplateTest extends WP_Ajax_UnitTestCase
 		$this->booking = (int) self::factory()->post->create(array(
 			'post_type'   => 'mhmrentiva_booking',
 			'post_status' => 'publish',
+			'meta_input'  => array(
+				'_mhmrentiva_customer_email'      => 'fonk@example.test',
+				'_mhmrentiva_customer_first_name' => 'Ayşe',
+				'_mhmrentiva_customer_last_name'  => 'Yılmaz',
+				'_mhmrentiva_pickup_date'         => '2099-05-10',
+				'_mhmrentiva_dropoff_date'        => '2099-05-12',
+			),
 		));
-		update_post_meta($this->booking, '_mhmrentiva_customer_email', 'fonk@example.test');
-		update_post_meta($this->booking, '_mhmrentiva_customer_name', 'Ayşe Yılmaz');
 		add_action('wp_ajax_mhmrentiva_get_email_template', array( BookingMeta::class, 'ajax_get_email_template' ));
 		add_action('wp_ajax_mhmrentiva_send_customer_email', array( BookingMeta::class, 'ajax_send_customer_email' ));
-		// Nothing leaves the test: record the message, answer "sent".
 		add_filter('pre_wp_mail', function ($short, array $atts) {
 			unset($short);
 			$this->sent[] = $atts;
 			return true;
 		}, 10, 2);
+		add_action('mhmrentiva_email_sent', function (...$args) {
+			$this->logged[] = $args;
+		}, 10, 5);
 	}
 
 	public function tearDown(): void
 	{
 		$_POST = array();
+		delete_option('mhmrentiva_booking_cancelled_body');
 		parent::tearDown();
 	}
 
 	/** @return array<string, mixed> */
 	private function ajax(string $action, array $post): array
 	{
-		$_POST = $post;
+		$_POST = wp_slash($post);
 		try {
 			$this->_handleAjax($action);
 		} catch (\WPAjaxDieContinueException $e) {
@@ -67,92 +81,139 @@ final class BookingCustomerEmailTemplateTest extends WP_Ajax_UnitTestCase
 		return is_array($response) ? $response : array( 'raw' => 'no json' );
 	}
 
-	/** @return iterable<string, array{0: string}> */
-	public static function types(): iterable
+	private function fetch(string $type): array
 	{
-		foreach (array( 'booking_confirmation', 'payment_reminder', 'booking_reminder', 'booking_cancelled', 'custom' ) as $type) {
-			yield $type => array( $type );
-		}
-	}
-
-	/**
-	 * @dataProvider types
-	 */
-	public function test_every_type_fills_a_subject_and_a_message(string $type): void
-	{
-		$response = $this->ajax('mhmrentiva_get_email_template', array(
+		return $this->ajax('mhmrentiva_get_email_template', array(
 			'nonce'      => wp_create_nonce('mhmrentiva_send_email'),
 			'booking_id' => (string) $this->booking,
 			'email_type' => $type,
 		));
-
-		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
-		$this->assertIsString($response['data']['subject'] ?? null);
-		$this->assertNotSame('', trim((string) $response['data']['subject']));
-		$this->assertNotSame('', trim((string) ( $response['data']['message'] ?? '' )));
 	}
 
-	public function test_a_cancellation_email_can_be_sent(): void
+	private function send(string $type, string $subject = '', string $message = ''): array
 	{
-		$response = $this->ajax('mhmrentiva_send_customer_email', array(
+		return $this->ajax('mhmrentiva_send_customer_email', array(
 			'mhmrentiva_email_nonce' => wp_create_nonce('mhmrentiva_send_email'),
 			'booking_id'             => (string) $this->booking,
-			'email_type'             => 'booking_cancelled',
-			'email_subject'          => '',
-			'email_message'          => '',
+			'email_type'             => $type,
+			'email_subject'          => $subject,
+			'email_message'          => $message,
 		));
-
-		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
-		$this->assertCount(1, $this->sent);
-		$this->assertNotSame('', trim((string) $this->sent[0]['subject']));
 	}
 
-	public function test_the_admin_post_handler_refuses_an_unknown_type(): void
+	/** @return iterable<string, array{0: string}> */
+	public static function templates(): iterable
 	{
-		$_POST = array(
-			'mhmrentiva_email_nonce' => wp_create_nonce('mhmrentiva_send_email'),
-			'booking_id'             => (string) $this->booking,
-			'email_type'             => 'no_such_type',
-		);
-		$this->expectException(\WPDieException::class);
-		$this->expectExceptionMessage('Missing required fields.');
-		// The ajax die handler collects the response with ob_get_clean().
-		ob_start();
-		try {
-			BookingMeta::handle_send_customer_email();
-		} finally {
-			$this->assertSame(array(), $this->sent);
+		foreach (array( 'booking_created_customer', 'booking_reminder_customer', 'booking_cancelled' ) as $type) {
+			yield $type => array( $type );
 		}
 	}
 
-	public function test_an_unknown_type_is_refused_not_a_server_error(): void
+	/** @dataProvider templates */
+	public function test_a_template_fills_the_box_with_the_automatic_texts(string $type): void
 	{
-		$response = $this->ajax('mhmrentiva_get_email_template', array(
-			'nonce'      => wp_create_nonce('mhmrentiva_send_email'),
-			'booking_id' => (string) $this->booking,
-			'email_type' => 'no_such_type',
-		));
+		$response = $this->fetch($type);
 
-		$this->assertFalse($response['success'] ?? true, wp_json_encode($response));
+		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
+		$ctx = Mailer::getBookingContext($this->booking);
+		$this->assertSame(Templates::compile_subject($type, $ctx), $response['data']['subject']);
+		$this->assertStringNotContainsString('<html', (string) $response['data']['message']);
+		$this->assertStringContainsString('Ayşe Yılmaz', (string) $response['data']['message']);
 	}
 
-	/**
-	 * Function scan H16: which e-mail went out is now a history row.
-	 */
+	public function test_the_custom_message_starts_empty_and_is_refused_empty(): void
+	{
+		$response = $this->fetch('custom');
+		$this->assertTrue($response['success'] ?? false);
+		$this->assertSame('', $response['data']['subject']);
+		$this->assertSame('', $response['data']['message']);
+
+		$this->assertFalse($this->send('custom')['success'] ?? true);
+		$this->assertSame(array(), $this->sent);
+	}
+
+	public function test_a_custom_message_goes_out_wrapped_once(): void
+	{
+		$response = $this->send('custom', 'Anahtar teslimi', '<p>Anahtarınız ofiste.</p>');
+
+		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
+		$this->assertSame('Anahtar teslimi', $this->sent[0]['subject']);
+		$this->assertSame(1, substr_count(strtolower((string) $this->sent[0]['message']), '<html'));
+		$this->assertStringContainsString('Anahtarınız ofiste.', (string) $this->sent[0]['message']);
+		$this->assertSame('manual_customer', $this->logged[0][0] ?? null, 'The e-mail log records it.');
+	}
+
+	/** @return iterable<string, array{0: string}> */
+	public static function refused_types(): iterable
+	{
+		foreach (array( 'payment_reminder', 'booking_confirmation', 'booking_reminder', 'remaining_payment_link_customer', 'no_such_type' ) as $type) {
+			yield $type => array( $type );
+		}
+	}
+
+	/** @dataProvider refused_types */
+	public function test_other_types_are_refused(string $type): void
+	{
+		$this->assertFalse($this->fetch($type)['success'] ?? true);
+		$this->assertFalse($this->send($type, 'x', '<p>x</p>')['success'] ?? true);
+		$this->assertSame(array(), $this->sent);
+	}
+
+	public function test_a_cancellation_reads_the_reason_like_the_automatic_e_mail(): void
+	{
+		update_option('mhmrentiva_booking_cancelled_body', '<p>Neden: {{cancellation_reason}}</p>');
+		update_post_meta($this->booking, '_mhmrentiva_cancellation_data', array( 'cancellation_reason' => 'Uçuş iptal' ));
+
+		$this->assertStringContainsString('Neden: Uçuş iptal', (string) $this->fetch('booking_cancelled')['data']['message']);
+		$this->assertTrue($this->send('booking_cancelled')['success'] ?? false);
+		$this->assertStringContainsString('Neden: Uçuş iptal', (string) $this->sent[0]['message']);
+	}
+
+	public function test_an_unedited_template_sends_what_the_automatic_e_mail_sends(): void
+	{
+		$this->assertTrue($this->send('booking_created_customer')['success'] ?? false);
+
+		list( $subject, $body ) = Mailer::render_in_site_locale('booking_created_customer', Mailer::getBookingContext($this->booking));
+		$this->assertSame($subject, $this->sent[0]['subject']);
+		$this->assertSame($body, $this->sent[0]['message']);
+	}
+
+	public function test_an_edited_message_goes_out(): void
+	{
+		$this->assertTrue($this->send('booking_reminder_customer', 'Yarın görüşürüz', '<p>Düzenlenmiş metin</p>')['success'] ?? false);
+
+		$this->assertSame('Yarın görüşürüz', $this->sent[0]['subject']);
+		$this->assertStringContainsString('Düzenlenmiş metin', (string) $this->sent[0]['message']);
+		$this->assertSame('fonk@example.test', $this->sent[0]['to']);
+	}
+
 	public function test_a_sent_email_is_written_to_the_history(): void
 	{
-		$response = $this->ajax('mhmrentiva_send_customer_email', array(
-			'mhmrentiva_email_nonce' => wp_create_nonce('mhmrentiva_send_email'),
-			'booking_id'             => (string) $this->booking,
-			'email_type'             => 'booking_cancelled',
-			'email_subject'          => '',
-			'email_message'          => '',
-		));
-		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
+		$this->assertTrue($this->send('booking_cancelled')['success'] ?? false);
 
 		$history = (array) get_post_meta($this->booking, '_mhmrentiva_booking_history', true);
 		$last    = end($history);
 		$this->assertSame('customer_contact', $last['type'] ?? null);
 		$this->assertSame('E-mail sent to the customer: ' . $this->sent[0]['subject'], $last['note'] ?? null);
+	}
+
+	public function test_a_customer_who_turned_off_notifications_still_gets_it_and_the_history_says_so(): void
+	{
+		$user = (int) self::factory()->user->create(array( 'user_email' => 'fonk@example.test' ));
+		update_user_meta($user, 'mhmrentiva_booking_notifications', '0');
+
+		$this->assertTrue($this->send('booking_reminder_customer')['success'] ?? false);
+		$this->assertCount(1, $this->sent);
+
+		$history = (array) get_post_meta($this->booking, '_mhmrentiva_booking_history', true);
+		$this->assertStringContainsString('turned off', (string) ( end($history)['note'] ?? '' ));
+	}
+
+	public function test_the_admin_post_twin_is_gone(): void
+	{
+		BookingMeta::register();
+
+		$this->assertFalse(has_action('admin_post_mhmrentiva_send_customer_email'));
+		$this->assertFalse(method_exists(BookingMeta::class, 'handle_send_customer_email'));
 	}
 }

@@ -159,6 +159,51 @@ final class Mailer {
 	}
 
 	/**
+	 * An e-mail the operator wrote (or edited) for one customer, already
+	 * rendered (PR 3b-3). It is not an automatic notification: the template's
+	 * "Enabled" box and the customer's automatic-notification preference do not
+	 * stop it -- the operator chose to send it, and the booking screen says when
+	 * the customer turned notifications off. Every global rule still applies:
+	 * outgoing mail switched off, test mode (sandbox recipient). The send is
+	 * logged through mhmrentiva_email_sent like every other e-mail.
+	 *
+	 * @param string $log_key Template key, or 'manual_customer' for a custom message.
+	 * @return array{sent: bool, to: string} Whether it went out, and to whom (the test address in test mode).
+	 */
+	public static function send_operator_message( string $log_key, string $to, string $subject, string $body, array $context = array() ): array {
+		if ( '' === $to || ! is_email( $to ) || ! \MHMRentiva\Admin\Settings\Groups\EmailSettings::is_send_enabled() ) {
+			return array(
+				'sent' => false,
+				'to'   => $to,
+			);
+		}
+
+		$to      = \MHMRentiva\Admin\Settings\Groups\EmailSettings::sandbox_recipient( $to );
+		$headers = array(
+			'From: ' . \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_from_name() . ' <' . \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_from_address() . '>',
+			'Content-Type: text/html; charset=UTF-8',
+		);
+		$ok      = wp_mail( $to, $subject, $body, $headers );
+
+		do_action( 'mhmrentiva_email_sent', $log_key, $to, $ok, $subject, $context );
+
+		return array(
+			'sent' => (bool) $ok,
+			'to'   => $to,
+		);
+	}
+
+	/**
+	 * Whether the customer with this address turned automatic booking
+	 * notifications off on their account page.
+	 */
+	public static function customer_turned_off_notifications( string $email ): bool {
+		$user = '' !== $email ? get_user_by( 'email', $email ) : false;
+
+		return $user instanceof \WP_User && '0' === get_user_meta( $user->ID, 'mhmrentiva_booking_notifications', true );
+	}
+
+	/**
 	 * Render and hand a template to wp_mail().
 	 *
 	 * @param string $key     Template key.
@@ -418,10 +463,10 @@ final class Mailer {
 					: \MHMRentiva\Admin\Core\Utilities\SiteLocaleString::resolve(
 						static fn (): string => __( 'valued customer', 'mhm-rentiva' )
 					),
-				'first_name' => $customer_info['first_name'],
-				'last_name'  => $customer_info['last_name'],
-				'email'      => $customer_info['email'],
-				'phone'      => $customer_info['phone'],
+				'first_name'      => $customer_info['first_name'],
+				'last_name'       => $customer_info['last_name'],
+				'email'           => $customer_info['email'],
+				'phone'           => $customer_info['phone'],
 			),
 			'vehicle'  => array(
 				'id'             => $vehicle_info['id'] ?? 0,
