@@ -1719,9 +1719,13 @@ final class BookingMeta extends AbstractMetaBox {
 				if ('custom' === $email_type) {
 					return array( $context, $subject, Templates::wrapWithLayout($context, $subject, $message) );
 				}
-				$subject = '' !== trim($subject) ? $subject : Templates::compile_subject($email_type, $context);
-				$message = '' !== trim(wp_strip_all_tags($message)) ? $message : Templates::editable_body($email_type, $context);
-				return array( $context, $subject, Templates::send_body($email_type, $context, $message, $subject) );
+				$edited_subject = '' !== trim($subject) ? $subject : null;
+				$subject        = $edited_subject ?? Templates::compile_subject($email_type, $context);
+				$message        = '' !== trim(wp_strip_all_tags($message)) ? $message : Templates::editable_body($email_type, $context);
+				// The heading is the operator's subject when they wrote one; else
+				// render_body()'s own (the file branch compiles it from the
+				// filtered context).
+				return array( $context, $subject, Templates::send_body($email_type, $context, $message, $edited_subject) );
 			}
 		);
 		list( $context, $subject, $html ) = $email;

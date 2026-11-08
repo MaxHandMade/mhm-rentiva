@@ -72,14 +72,9 @@
 		if ( editorDirty() ) {
 			state.dirty = true;
 		}
-		if ( editor.isHidden() ) {
-			// The Text tab is active: the textarea holds the operator's text and
-			// the hidden editor a stale copy. Removing saves the editor into the
-			// textarea, so it is handed the textarea's text first (Codex bot #178).
-			editor.setContent( String( $( '#' + EDITOR_ID ).val() || '' ) );
-		} else {
-			editor.save();
-		}
+		// A hidden editor (Text tab) saves the textarea's own text: WordPress's
+		// SaveContent handler keeps the textarea for a hidden editor.
+		editor.save();
 		window.tinymce.execCommand( 'mceRemoveEditor', false, EDITOR_ID );
 		return true;
 	}
@@ -144,6 +139,10 @@
 		setMessage( body );
 		var editor = tinymceEditor();
 		if ( editor && typeof editor.setDirty === 'function' ) {
+			// The baseline in TinyMCE's normal form: one parse/serialise round
+			// re-orders attributes, so a later round (a tab switch, a move)
+			// would otherwise look like an edit (Fable #178 Δ4).
+			editor.setContent( editor.getContent() );
 			// The filled text is the new baseline: an empty undo history would
 			// make the operator's first change the "first level", which TinyMCE
 			// does not count as a change (measured in a browser).
