@@ -621,10 +621,14 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 					__( 'Booking - %s', 'mhm-rentiva' ),
 					$vehicle_post->post_title
 				);
+				// The vehicle title comes from the database; wp_update_post()
+				// unslashes (backslash class, second write).
 				wp_update_post(
-					array(
-						'ID'         => (int) $post_id,
-						'post_title' => $new_title,
+					wp_slash(
+						array(
+							'ID'         => (int) $post_id,
+							'post_title' => $new_title,
+						)
 					)
 				);
 
@@ -675,7 +679,8 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 					'addon_quantities' => $selection->quantities(),
 				)
 			);
-			update_post_meta( $post_id, '_mhmrentiva_addon_details', $addon_details );
+			// Add-on titles from the database; slashed for the unslashing meta API.
+			update_post_meta( $post_id, '_mhmrentiva_addon_details', wp_slash( $addon_details ) );
 			update_post_meta( $post_id, '_mhmrentiva_addon_total', (float) array_sum( array_column( $addon_details, 'line_total' ) ) );
 		}
 
