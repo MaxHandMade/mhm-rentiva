@@ -57,6 +57,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 		// Order processing
 		add_action('woocommerce_checkout_create_order_line_item', array( self::class, 'add_order_item_meta' ), 10, 4);
+		// The snapshot array would lose every backslash on its way into the row.
+		add_action('added_order_item_meta', array( self::class, 'keep_booking_snapshot_backslashes' ), 10, 4);
 		// ⭐ Create booking when order is processed - use primary hook with fallback
 		add_action('woocommerce_checkout_order_processed', array( self::class, 'create_booking_from_order' ), 10, 3);
 		// Safety net: a rental order that still reaches the Store API gets its booking.
@@ -886,6 +888,72 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 		// date_i18n() returns an int for the 'U' format.
 		return false !== $timestamp ? (string) date_i18n( (string) get_option('date_format'), $timestamp) : $date;
+	}
+
+	/**
+	 * Rewrites the saved booking snapshot with the value the line holds in memory.
+	 *
+	 * WC_Data_Store_WP::add_meta() slashes a string value for add_metadata(),
+	 * which unslashes every value, but passes an array as it is: each "\" in the
+	 * snapshot (a signed-in customer's name or phone, an add-on title) was lost
+	 * in the row. The classic checkout reloads the order before booking from it,
+	 * so the booking lost them too. WC_Data::save_meta_data() fires this hook
+	 * right after the insert with the in-memory value, and
+	 * update_metadata_by_mid() does not unslash, so the row ends up exact while
+	 * the in-memory value -- which the Store API books from -- is left alone.
+	 * Slashing the value before add_meta_data() would fix the row and leave the
+	 * in-memory copy double-slashed instead.
+	 *
+	 * add_metadata() fires the same hook first, with the lossy value; WooCommerce
+	 * fires it after with the exact one, so the last write is exact.
+	 *
+	 * @param int|false $meta_id    The new row's id (false when the insert failed).
+	 * @param int       $item_id    Order item id.
+	 * @param string    $meta_key   Meta key.
+	 * @param mixed     $meta_value The value as it was written.
+	 */
+	public static function keep_booking_snapshot_backslashes($meta_id, $item_id, $meta_key, $meta_value): void
+	{
+		if ( (int) $meta_id <= 0 || '_mhmrentiva_booking_data' !== $meta_key || ! is_array($meta_value)) {
+			return;
+		}
+
+		// Nothing add_metadata() could have stripped: no second write.
+		if (! self::holds_a_backslash($meta_value)) {
+			return;
+		}
+
+		// The stub types $meta_value as string; core serializes it itself
+		// ("Must be serializable if non-scalar"), and a pre-serialized string
+		// would be serialized twice (phpstan.neon ignoreErrors says so too).
+		update_metadata_by_mid('order_item', (int) $meta_id, $meta_value);
+	}
+
+	/**
+	 * Whether a value holds a backslash anywhere. Read-only: wp_unslash() would
+	 * change an object inside the value in place (map_deep()).
+	 *
+	 * @param mixed $value
+	 */
+	private static function holds_a_backslash($value): bool
+	{
+		if (is_string($value)) {
+			return str_contains($value, '\\');
+		}
+		if (is_array($value)) {
+			// Values only: map_deep() leaves array keys as they are.
+			foreach ($value as $inner) {
+				if (self::holds_a_backslash($inner)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		// An object is rewritten as it is. That cannot bring a backslash back:
+		// add_metadata()'s wp_unslash() already stripped the object in place.
+		// No snapshot carries one today.
+		return is_object($value);
 	}
 
 	/**
