@@ -606,6 +606,10 @@ final class Templates {
 				return EmailSettings::get_default_refund_admin_body();
 			case 'booking_cancelled':
 				return EmailSettings::get_default_booking_cancelled_body();
+			// The body the Settings screen shows for the reminder; the sender
+			// used to fall back to the .html.php file instead (PR 3b-3 R3).
+			case 'booking_reminder_customer':
+				return EmailSettings::get_default_booking_reminder_body();
 			case 'welcome_customer':
 				return EmailSettings::get_default_welcome_email_body();
 			default:
