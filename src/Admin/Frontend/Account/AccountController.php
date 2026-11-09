@@ -280,10 +280,7 @@ final class AccountController {
 					'ajaxUrl' => admin_url('admin-ajax.php'),
 					'nonce'   => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_gdpr_nonce'),
 					'i18n'    => array(
-						'confirmExport'       => __('Are you sure you want to export your data? This may take a few minutes.', 'mhm-rentiva'),
-						'exporting'           => __('Exporting...', 'mhm-rentiva'),
-						'exportSuccess'       => __('Data exported successfully!', 'mhm-rentiva'),
-						'exportError'         => __('An error occurred while exporting data', 'mhm-rentiva'),
+						'confirmExport'       => __('A request to export your personal data will be created. We will send you a confirmation e-mail.', 'mhm-rentiva'),
 						'confirmWithdraw'     => __('Are you sure you want to withdraw your consent? This will disable data processing for your account.', 'mhm-rentiva'),
 						'processing'          => __('Processing...', 'mhm-rentiva'),
 						'withdrawSuccess'     => __('Consent withdrawn successfully!', 'mhm-rentiva'),

@@ -19,7 +19,11 @@ jQuery(document).ready(
 			MHMRentivaToast.show(message, { type: type || 'info' });
 		}
 
-		// Data Export
+		// Request Data Export. Like the erasure button, this opens a WordPress
+		// privacy request: the customer confirms by e-mail and the site
+		// administrator sends the download link. No data comes back here (an
+		// account's address is not proof of identity), so the server's message
+		// is shown and nothing is downloaded.
 		$('#export-data').on(
 			'click',
 			function (e) {
@@ -32,7 +36,7 @@ jQuery(document).ready(
 				var button = $(this);
 				var originalText = button.text();
 
-				button.prop('disabled', true).text(mhmRentivaPrivacy.i18n.exporting);
+				button.prop('disabled', true).text(mhmRentivaPrivacy.i18n.processing);
 
 				$.ajax(
 					{
@@ -43,25 +47,15 @@ jQuery(document).ready(
 							nonce: mhmRentivaPrivacy.nonce
 						},
 						success: function (response) {
-							if (response.success) {
-								// Create download link
-								var blob = new Blob([response.data], { type: 'application/json' });
-								var url = window.URL.createObjectURL(blob);
-								var a = document.createElement('a');
-								a.href = url;
-								a.download = 'my-data-export.json';
-								document.body.appendChild(a);
-								a.click();
-								document.body.removeChild(a);
-								window.URL.revokeObjectURL(url);
-
-								showNotification(mhmRentivaPrivacy.i18n.exportSuccess, 'success');
+							var message = (response && response.data && response.data.message) ? response.data.message : '';
+							if (response && response.success) {
+								showNotification(message, 'success');
 							} else {
-								showNotification(mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError), 'error');
+								showNotification(mhmRentivaPrivacy.i18n.error + ': ' + (message || mhmRentivaPrivacy.i18n.unknownError), 'error');
 							}
 						},
 						error: function (xhr, status, error) {
-							showNotification(mhmRentivaPrivacy.i18n.exportError + ': ' + error, 'error');
+							showNotification(mhmRentivaPrivacy.i18n.error + ': ' + (error || mhmRentivaPrivacy.i18n.unknownError), 'error');
 						},
 						complete: function () {
 							button.prop('disabled', false).text(originalText);

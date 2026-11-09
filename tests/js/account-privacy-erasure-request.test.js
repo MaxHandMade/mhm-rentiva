@@ -18,7 +18,8 @@ describe( 'account privacy: erasure request', () => {
 	const flush = () => new Promise( ( resolve ) => setTimeout( resolve, 50 ) );
 
 	beforeAll( async () => {
-		document.body.innerHTML = '<button type="button" id="delete-account">Request Data Erasure</button>';
+		document.body.innerHTML = '<button type="button" id="export-data">Request Data Export</button><button type="button" id="delete-account">Request Data Erasure</button>';
+		window.URL.createObjectURL = jest.fn( () => 'blob:x' );
 		$ = require( 'jquery' );
 		global.jQuery = $;
 		window.jQuery = $;
@@ -33,6 +34,7 @@ describe( 'account privacy: erasure request', () => {
 			nonce: 'n',
 			i18n: {
 				confirmErasure: 'CONFIRM ERASURE',
+				confirmExport: 'CONFIRM EXPORT',
 				processing: 'PROCESSING',
 				error: 'ERR',
 				unknownError: 'UNKNOWN',
@@ -49,6 +51,34 @@ describe( 'account privacy: erasure request', () => {
 		toasts.length = 0;
 		window.prompt.mockClear();
 		window.confirm.mockClear();
+		window.URL.createObjectURL.mockClear();
+	} );
+
+	// 5a U5: the export button opens an e-mail-confirmed request too; it no
+	// longer receives (or downloads) any data.
+	test( 'export: one confirm, the server message, no file', () => {
+		const before = window.location.href;
+
+		$( '#export-data' ).trigger( 'click' );
+
+		expect( window.confirm ).toHaveBeenCalledWith( 'CONFIRM EXPORT' );
+		expect( calls ).toHaveLength( 1 );
+		expect( calls[ 0 ].data ).toEqual( { action: 'mhmrentiva_data_export', nonce: 'n' } );
+
+		calls[ 0 ].success( { success: true, data: { message: 'Confirmation e-mail sent.' } } );
+		calls[ 0 ].complete();
+
+		expect( toasts ).toEqual( [ { message: 'Confirmation e-mail sent.', type: 'success' } ] );
+		expect( window.URL.createObjectURL ).not.toHaveBeenCalled();
+		expect( window.location.href ).toBe( before );
+		expect( $( '#export-data' ).prop( 'disabled' ) ).toBe( false );
+	} );
+
+	test( 'export: a refusal shows the server message', () => {
+		$( '#export-data' ).trigger( 'click' );
+		calls[ 0 ].success( { success: false, data: { message: 'Security check failed.' } } );
+
+		expect( toasts ).toEqual( [ { message: 'ERR: Security check failed.', type: 'error' } ] );
 	} );
 
 	test( 'submits once after a single confirm, shows the server message, does not redirect', () => {

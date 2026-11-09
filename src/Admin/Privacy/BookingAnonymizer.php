@@ -75,8 +75,10 @@ final class BookingAnonymizer {
 	/**
 	 * Anonymise the booking. Returns the targets that did NOT end anonymised.
 	 *
-	 * @param int $booking_id      Booking ID.
-	 * @param int $subject_user_id Account of the request's address, 0 for none.
+	 * @param int    $booking_id      Booking ID.
+	 * @param int    $subject_user_id Account of the request's address, 0 for none.
+	 * @param string $request_email   The request's address; its keyed hash is pinned
+	 *                                on the booking while the identity is written.
 	 * @return string[] Empty on full success.
 	 */
 	public static function anonymize( int $booking_id, int $subject_user_id, string $request_email = '' ): array {
