@@ -1,0 +1,265 @@
+<?php
+declare(strict_types=1);
+
+namespace MHMRentiva\Tests\Integrations\WooCommerce;
+
+use MHMRentiva\Admin\Payment\Core\Money;
+use MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler;
+use MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge;
+use MHMRentiva\Tests\Support\WooCommerceFixtures;
+use WP_UnitTestCase;
+
+/**
+ * A remaining-payment order can only take what the booking owes now.
+ *
+ * An admin re-price moves the remaining amount (function scan H2 face 2), and
+ * an order built before that -- or between the admin's check and the write --
+ * still asks for the old amount (Codex plan audits r7-r9: a customer could pay
+ * 2,050 for a booking re-priced to owe nothing). The order now carries the
+ * gross amount it was built for; the pay-time claim refuses an order whose
+ * amount is not the booking's current remaining, before the gateway; and a
+ * new link is a new order rather than the stale one handed out again. The
+ * stale order is not cancelled (cancelling runs the booking's cancellation
+ * hooks); it just cannot take money.
+ *
+ * Plan: docs/superpowers/plans/2026-11-09-h2-yuz-2-fark-kalan.md (r9-r10, T-h′/T-e″).
+ *
+ * @covers \MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::get_or_create_remaining_order
+ * @covers \MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge::claim_before_pay
+ */
+final class RemainingOrderStaleGuardTest extends WP_UnitTestCase
+{
+	use WooCommerceFixtures;
+
+	private int $booking_id;
+
+	/** @var callable */
+	private $no_transactions;
+
+	public function setUp(): void
+	{
+		parent::setUp();
+		$this->require_woocommerce();
+
+		// get_or_create_remaining_order() takes the booking lock in a
+		// transaction; a nested START TRANSACTION would commit the test's.
+		// Removed in tearDown() before the framework's own ROLLBACK.
+		$this->no_transactions = static function ($query) {
+			return preg_match('/^\s*(START TRANSACTION|COMMIT|ROLLBACK)\b/i', (string) $query) ? 'SELECT 1' : $query;
+		};
+		add_filter('query', $this->no_transactions);
+
+		$customer         = (int) self::factory()->user->create(array( 'role' => 'customer' ));
+		$this->booking_id = (int) self::factory()->post->create(array(
+			'post_type'   => 'mhmrentiva_booking',
+			'post_status' => 'publish',
+		));
+		foreach (array(
+			'_mhmrentiva_customer_user_id' => $customer,
+			'_mhmrentiva_payment_type'     => 'deposit',
+			'_mhmrentiva_payment_status'   => 'paid',
+			'_mhmrentiva_status'           => 'confirmed',
+			'_mhmrentiva_total_price'      => '1500',
+			'_mhmrentiva_deposit_amount'   => '500',
+			'_mhmrentiva_remaining_amount' => '1000',
+		) as $key => $value) {
+			update_post_meta($this->booking_id, $key, $value);
+		}
+		// The deposit, paid through WooCommerce.
+		$this->create_paid_order_for_booking($this->booking_id, '500');
+
+		wc_load_cart();
+		wc_clear_notices();
+	}
+
+	public function tearDown(): void
+	{
+		remove_filter('query', $this->no_transactions);
+		wc_clear_notices();
+		parent::tearDown();
+	}
+
+	private function link(): \WC_Order
+	{
+		$order = RemainingPaymentHandler::get_or_create_remaining_order($this->booking_id);
+		$this->assertInstanceOf(\WC_Order::class, $order);
+
+		return $order;
+	}
+
+	private function pay(\WC_Order $order): bool
+	{
+		wc_clear_notices();
+		WooCommerceBridge::claim_before_pay(wc_get_order($order->get_id()));
+
+		return 0 === wc_notice_count('error');
+	}
+
+	public function test_the_order_carries_the_amount_it_was_built_for(): void
+	{
+		$order = $this->link();
+
+		$this->assertSame( (string) Money::toMinor(1000), (string) $order->get_meta('_mhmrentiva_remaining_due_minor', true));
+	}
+
+	public function test_an_unchanged_booking_reuses_its_pending_order(): void
+	{
+		$first = $this->link();
+
+		$this->assertSame($first->get_id(), $this->link()->get_id());
+	}
+
+	public function test_a_re_priced_booking_gets_a_new_order_and_the_old_one_stays_unpaid(): void
+	{
+		$old = $this->link();
+		update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '1340');
+
+		$new = $this->link();
+
+		$this->assertNotSame($old->get_id(), $new->get_id(), 'not the stale order again');
+		$this->assertSame('pending', wc_get_order($old->get_id())->get_status(), 'not cancelled: that runs the booking cancellation hooks');
+		$this->assertSame( (string) Money::toMinor(1340), (string) $new->get_meta('_mhmrentiva_remaining_due_minor', true));
+	}
+
+	public function test_a_stale_order_cannot_take_money_and_a_current_one_can(): void
+	{
+		$old = $this->link();
+		// The admin re-prices after the customer built the link.
+		update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '1340');
+
+		$this->assertFalse($this->pay($old), 'the 1,000 order is refused before the gateway');
+		$this->assertStringContainsString('no longer current', wp_strip_all_tags( (string) ( wc_get_notices('error')[0]['notice'] ?? '' )));
+
+		$this->assertTrue($this->pay($this->link()), 'the order for 1,340 goes through');
+	}
+
+	public function test_an_order_for_a_booking_that_owes_nothing_any_more_is_refused(): void
+	{
+		$old = $this->link();
+		update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
+
+		$this->assertFalse($this->pay($old));
+	}
+
+	public function test_tax_on_the_order_does_not_make_a_current_order_stale(): void
+	{
+		$order = $this->link();
+		// The order's own total recalculated with tax for the billing address.
+		$order->set_total('1180');
+		$order->save();
+
+		$this->assertTrue($this->pay($order), 'compared with the gross amount it was built for, not its total');
+	}
+
+	public function test_the_order_is_built_in_the_stores_currency_whatever_the_visitor_sees(): void
+	{
+		update_option('woocommerce_currency', 'TRY');
+		// A per-visitor currency switcher answers the filtered currency.
+		$visitor = static function () {
+			return 'EUR';
+		};
+		add_filter('woocommerce_currency', $visitor);
+		try {
+			$order = $this->link();
+		} finally {
+			remove_filter('woocommerce_currency', $visitor);
+		}
+
+		$this->assertSame('TRY', $order->get_currency(), 'the number 1,000 is TRY; it was never converted');
+	}
+
+	public function test_an_order_in_another_currency_is_neither_reused_nor_paid(): void
+	{
+		update_option('woocommerce_currency', 'TRY');
+		$order = $this->link();
+		// Same number, other currency (Codex r10 1 probe).
+		$order->set_currency('EUR');
+		$order->save();
+
+		$this->assertFalse($this->pay($order), '1,000 EUR is not 1,000 TRY');
+		$this->assertNotSame($order->get_id(), $this->link()->get_id(), 'a fresh TRY order instead of the EUR one');
+	}
+
+	public function test_the_debt_is_measured_at_the_stores_precision_whatever_the_visitor_sees(): void
+	{
+		update_option('woocommerce_price_num_decimals', '2');
+		update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '1000.40');
+		// A per-visitor currency switcher answers the filtered precision.
+		$visitor = static function () {
+			return 0;
+		};
+		add_filter('wc_get_price_decimals', $visitor);
+		try {
+			$order = $this->link();
+		} finally {
+			remove_filter('wc_get_price_decimals', $visitor);
+		}
+
+		$this->assertSame('100040', (string) $order->get_meta('_mhmrentiva_remaining_due_minor', true), 'stamped at 2 decimals');
+		$this->assertEqualsWithDelta(1000.40, (float) wc_get_order($order->get_id())->get_total(), 0.001, 'the order asks for 1,000.40, not 1,000 (Codex r11 1)');
+
+		add_filter('wc_get_price_decimals', $visitor);
+		try {
+			$this->assertTrue($this->pay($order), 'a 0-decimal visitor pays the same current debt');
+		} finally {
+			remove_filter('wc_get_price_decimals', $visitor);
+		}
+		$this->assertTrue($this->pay($order), 'and so does a 2-decimal one');
+	}
+
+	public function test_the_precision_pin_is_removed_when_the_build_throws(): void
+	{
+		update_option('woocommerce_price_num_decimals', '2');
+		$visitor = static function () {
+			return 3;
+		};
+		$boom    = static function () {
+			throw new \RuntimeException('boom');
+		};
+		add_filter('wc_get_price_decimals', $visitor);
+		add_filter('woocommerce_get_price_excluding_tax', $boom);
+		$thrown = false;
+		try {
+			RemainingPaymentHandler::get_or_create_remaining_order($this->booking_id);
+		} catch (\RuntimeException $e) {
+			$thrown = true;
+		} finally {
+			remove_filter('woocommerce_get_price_excluding_tax', $boom);
+		}
+		$decimals = wc_get_price_decimals();
+		remove_filter('wc_get_price_decimals', $visitor);
+
+		$this->assertTrue($thrown, 'PREMISE: the build threw midway');
+		$this->assertSame(3, $decimals, 'the rest of the request sees the visitor precision again (Codex r12 1)');
+	}
+
+	public function test_the_amount_owed_is_read_from_the_database_not_the_cache(): void
+	{
+		$old = $this->link();
+		// The admin's re-price is in the database; a stale value answers from
+		// the cache layer (another request refilled a persistent cache).
+		global $wpdb;
+		$wpdb->update($wpdb->postmeta, array( 'meta_value' => '1340' ), array( 'post_id' => $this->booking_id, 'meta_key' => '_mhmrentiva_remaining_amount' ));
+		$stale = function ($value, $object_id, $meta_key) {
+			return $object_id === $this->booking_id && '_mhmrentiva_remaining_amount' === $meta_key ? array( '1000' ) : $value;
+		};
+		add_filter('get_post_metadata', $stale, 10, 3);
+		try {
+			$this->assertFalse($this->pay($old), 'the 1,000 order is refused: the database says 1,340');
+		} finally {
+			remove_filter('get_post_metadata', $stale, 10);
+		}
+	}
+
+	public function test_an_order_from_before_the_stamp_is_compared_by_its_total(): void
+	{
+		$order = $this->link();
+		$order->delete_meta_data('_mhmrentiva_remaining_due_minor');
+		$order->set_total('1000');
+		$order->save();
+		$this->assertTrue($this->pay($order), 'total = remaining');
+
+		update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '1340');
+		$this->assertFalse($this->pay($order), 'total ≠ remaining');
+	}
+}

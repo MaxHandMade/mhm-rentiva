@@ -599,6 +599,24 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		$check_range  = BookingEditDates::to_check( $post_id, $posted_range );
 		list( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) = BookingEditDates::to_write( $post_id, $posted_range );
 
+		// Process selected add-ons. Not filter_sellable(): a booking may carry a
+		// service switched off since, and this save must not delete it. Each
+		// quantity is held to its add-on's maximum; the rows are priced for the
+		// rental the way every other path prices them (they used to be written
+		// at the unit price, so a per-day service read as one day).
+		$selection = self::posted_selection( $post_id, $request );
+
+		// A price change that cannot be written yet (below what was collected, a
+		// remaining-payment link exists, ...) keeps the vehicle, dates, times and
+		// add-ons as stored; the rest of the Update goes on. Decided before
+		// anything is written. See BookingEditPriceFloor.
+		if ( BookingEditPriceFloor::refuse( $post_id, $new_vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time, $selection ) ) {
+			$new_vehicle_id = (int) get_post_meta( $post_id, '_mhmrentiva_vehicle_id', true );
+			list( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) = BookingEditPriceFloor::stored_range( $post_id );
+			$check_range = array( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time );
+			$selection   = AddonSelection::for_booking( $post_id );
+		}
+
 		// This handler runs first (priority 5) and writes the vehicle and dates
 		// before anything else does, so the availability check has to come before
 		// that. A refused edit writes nothing; see guard_edit_availability().
@@ -607,7 +625,8 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		}
 
 		// Update vehicle if changed
-		$old_vehicle_id = get_post_meta( $post_id, '_mhmrentiva_vehicle_id', true );
+		$vehicle_changed = false;
+		$old_vehicle_id  = get_post_meta( $post_id, '_mhmrentiva_vehicle_id', true );
 		if ( $new_vehicle_id > 0 && $new_vehicle_id != $old_vehicle_id ) {
 			// Verify vehicle exists
 			$vehicle_post = get_post( $new_vehicle_id );
@@ -632,19 +651,9 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 					)
 				);
 
-				// Recalculate booking costs if dates are set
-				if ( $pickup_date && $dropoff_date ) {
-					\MHMRentiva\Admin\Booking\Meta\BookingMeta::recalculate_booking_costs( $post_id, $pickup_date, $dropoff_date );
-				}
+				$vehicle_changed = true;
 			}
 		}
-
-		// Process selected add-ons. Not filter_sellable(): a booking may carry a
-		// service switched off since, and this save must not delete it. Each
-		// quantity is held to its add-on's maximum; the rows are priced for the
-		// rental the way every other path prices them (they used to be written
-		// at the unit price, so a per-day service read as one day).
-		$selection = self::posted_selection( $post_id, $request );
 
 		// Update meta values
 		update_post_meta( $post_id, '_mhmrentiva_pickup_date', $pickup_date );
@@ -682,6 +691,13 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 			// Add-on titles from the database; slashed for the unslashing meta API.
 			update_post_meta( $post_id, '_mhmrentiva_addon_details', wp_slash( $addon_details ) );
 			update_post_meta( $post_id, '_mhmrentiva_addon_total', (float) array_sum( array_column( $addon_details, 'line_total' ) ) );
+		}
+
+		// A new vehicle re-prices the booking -- after the add-ons and times are
+		// written, so the calculator reads this Update's inputs, not the ones it
+		// replaces (Fable H2 r4 E1).
+		if ( $vehicle_changed && $pickup_date && $dropoff_date ) {
+			BookingMeta::recalculate_booking_costs( $post_id, $pickup_date, $dropoff_date );
 		}
 
 		// Update status. The status-change history note is written by the

@@ -70,6 +70,34 @@ final class RemainingPaymentHandler {
 	}
 
 	/**
+	 * The currency a booking's remaining amount is in: the store's own setting,
+	 * read unfiltered. A currency switcher filters get_woocommerce_currency()
+	 * per visitor; the booking's prices are never converted.
+	 */
+	public static function debt_currency(): string
+	{
+		return (string) get_option('woocommerce_currency', '');
+	}
+
+	/**
+	 * The precision of that amount: the store's own decimals setting, read
+	 * without the wc_get_price_decimals filter a currency switcher answers per
+	 * visitor. Money::toMinor() follows the filter, so an order built and a
+	 * payment checked under two different visitors would measure the same
+	 * debt in two scales (Codex r11 1).
+	 */
+	public static function debt_decimals(): int
+	{
+		return absint(get_option('woocommerce_price_num_decimals', 2));
+	}
+
+	/** A remaining amount (major units) at the debt's own precision. */
+	public static function debt_minor(float|string $major): int
+	{
+		return (int) round( (float) $major * ( 10 ** self::debt_decimals() ));
+	}
+
+	/**
 	 * Create (or reuse an existing pending/on-hold) WC order for a booking's
 	 * remaining amount. Pure order logic — no AJAX/nonce/ownership concerns,
 	 * safe to call from both the customer-facing AJAX handler above and
@@ -179,12 +207,24 @@ final class RemainingPaymentHandler {
 			return new \WP_Error('mhmrentiva_no_remaining_amount', __('No remaining amount due for this booking.', 'mhm-rentiva'));
 		}
 
-		// Check for an existing pending remaining-payment order to avoid duplicates
+		// Reuse an existing pending remaining-payment order to avoid duplicates --
+		// only while it asks for what the booking owes now. An admin re-price
+		// moves the remaining amount (H2 face 2); an order built for the old
+		// amount is not handed out again. It is not cancelled either: cancelling
+		// an order runs the booking's cancellation hooks, and a payment started
+		// on it could still complete. It simply cannot take money any more:
+		// WooCommerceBridge::stale_remaining_order_notice() refuses it before the
+		// gateway.
+		$due_minor                   = self::debt_minor($remaining_amount);
 		$existing_remaining_order_id = (int) get_post_meta($booking_id, '_mhmrentiva_remaining_order_id', true);
 		if ($existing_remaining_order_id) {
 			$existing_order = wc_get_order($existing_remaining_order_id);
 			if ($existing_order && in_array($existing_order->get_status(), array( 'pending', 'on-hold' ), true)) {
-				return $existing_order;
+				$stamp = $existing_order->get_meta('_mhmrentiva_remaining_due_minor', true);
+				$asks  = is_numeric($stamp) ? (int) $stamp : self::debt_minor( (string) $existing_order->get_total());
+				if ($asks === $due_minor && (string) $existing_order->get_currency() === self::debt_currency()) {
+					return $existing_order;
+				}
 			}
 		}
 
@@ -212,6 +252,37 @@ final class RemainingPaymentHandler {
 		// -----------------------------------------------------------------------
 		// Create the WC order
 		// -----------------------------------------------------------------------
+		// Priced and totalled at the store's own precision: a currency switcher
+		// answers wc_get_price_decimals() with the visitor's, and a 0-decimal
+		// visitor would round 2,050.40 owed to an order of 2,050 (Codex r11 1).
+		// Every step of the build sits inside the try, so the pin is removed
+		// whatever throws (Codex r12 1).
+		$pin_precision = static function () {
+			return self::debt_decimals();
+		};
+		add_filter('wc_get_price_decimals', $pin_precision, PHP_INT_MAX);
+		try {
+			$order = self::build_remaining_order($booking_id, $customer_user_id, $product, $vehicle_name, $remaining_amount, $due_minor, (int) $original_order_id);
+		} finally {
+			remove_filter('wc_get_price_decimals', $pin_precision, PHP_INT_MAX);
+		}
+
+		if (is_wp_error($order)) {
+			return $order;
+		}
+
+		// Persist remaining order ID on the booking so we can reuse it
+		update_post_meta($booking_id, '_mhmrentiva_remaining_order_id', $order->get_id());
+
+		return $order;
+	}
+
+	/**
+	 * The remaining-payment order itself, built, totalled and saved. Called with
+	 * the price precision pinned to the debt's own.
+	 */
+	private static function build_remaining_order(int $booking_id, int $customer_user_id, \WC_Product $product, string $vehicle_name, float|string $remaining_amount, int $due_minor, int $original_order_id): \WC_Order|\WP_Error
+	{
 		$order = wc_create_order(array(
 			'customer_id' => $customer_user_id,
 			'status'      => 'pending',
@@ -220,6 +291,12 @@ final class RemainingPaymentHandler {
 		if (is_wp_error($order)) {
 			return new \WP_Error('mhmrentiva_order_create_failed', __('Failed to create payment order. Please try again.', 'mhm-rentiva'));
 		}
+
+		// The remaining amount is a number in the store's own currency.
+		// wc_create_order() takes the filterable get_woocommerce_currency(), which
+		// a per-visitor currency switcher answers with the visitor's currency, and
+		// nothing converts the number (Codex r10 1).
+		$order->set_currency(self::debt_currency());
 
 		// Add line item: use the booking product but override name & price
 		$item_name = sprintf(
@@ -276,15 +353,16 @@ final class RemainingPaymentHandler {
 		// HPOS-compatible order meta
 		$order->update_meta_data('_mhmrentiva_booking_id', $booking_id);
 		$order->update_meta_data('_mhmrentiva_is_remaining_payment', '1');
+		// The gross amount this order was built for, in minor units: its own
+		// total is recalculated with tax for the billing address and can differ.
+		// The pay-time check compares the booking's current remaining with this.
+		$order->update_meta_data('_mhmrentiva_remaining_due_minor', (string) $due_minor);
 		if ($original_order_id) {
 			$order->update_meta_data('_mhmrentiva_original_order_id', $original_order_id);
 		}
 
 		$order->calculate_totals();
 		$order->save();
-
-		// Persist remaining order ID on the booking so we can reuse it
-		update_post_meta($booking_id, '_mhmrentiva_remaining_order_id', $order->get_id());
 
 		return $order;
 	}
