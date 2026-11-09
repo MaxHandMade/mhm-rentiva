@@ -79,7 +79,7 @@ final class BookingAnonymizer {
 	 * @param int $subject_user_id Account of the request's address, 0 for none.
 	 * @return string[] Empty on full success.
 	 */
-	public static function anonymize( int $booking_id, int $subject_user_id ): array {
+	public static function anonymize( int $booking_id, int $subject_user_id, string $request_email = '' ): array {
 		$customer_id = (int) get_post_meta( $booking_id, '_mhmrentiva_customer_user_id', true );
 		$text        = (string) wp_privacy_anonymize_data( 'text' );
 
@@ -107,6 +107,19 @@ final class BookingAnonymizer {
 		}
 
 		// Match keys last: only now may the booking stop matching its person.
+		// The keys are several separate writes, so first pin the request's
+		// keyed hash on the booking: if a later write fails half-way, the
+		// matcher still finds the booking by that hash and a later run
+		// finishes the job (Codex r4 B1).
+		$subject = EmailMatch::subject_hash( $request_email );
+		if ( '' !== $subject ) {
+			update_post_meta( $booking_id, BookingMatcher::SUBJECT_KEY, $subject );
+			wp_cache_delete( $booking_id, 'post_meta' );
+			if ( get_post_meta( $booking_id, BookingMatcher::SUBJECT_KEY, true ) !== $subject ) {
+				return array( 'identity' );
+			}
+		}
+
 		$email = (string) wp_privacy_anonymize_data( 'email' );
 		foreach ( self::EMAIL_KEYS as $key ) {
 			if ( metadata_exists( 'post', $booking_id, $key ) && get_post_meta( $booking_id, $key, true ) !== $email ) {
@@ -122,7 +135,11 @@ final class BookingAnonymizer {
 			return array( 'identity' );
 		}
 
-		update_post_meta( $booking_id, '_mhmrentiva_personal_data_erased', gmdate( 'c' ) );
+		// The first erasure's time is the one worth keeping.
+		if ( ! metadata_exists( 'post', $booking_id, BookingMatcher::ERASED_KEY ) ) {
+			update_post_meta( $booking_id, BookingMatcher::ERASED_KEY, gmdate( 'c' ) );
+		}
+		delete_post_meta( $booking_id, BookingMatcher::SUBJECT_KEY );
 
 		return array();
 	}
@@ -232,6 +249,18 @@ final class BookingAnonymizer {
 	private static function write_receipt( int $booking_id ): void {
 		$attachment = (int) get_post_meta( $booking_id, '_mhmrentiva_receipt_attachment_id', true );
 		if ( $attachment > 0 && get_post( $attachment ) instanceof \WP_Post ) {
+			// The file first, and checked on disk: wp_delete_attachment() drops
+			// the post even when the file stays, and then nothing points at the
+			// file any more. Until the file is really gone, keep the post and
+			// the link so verify() reports the receipt and the booking keeps
+			// matching its person (Codex r4 B4).
+			$file = (string) get_attached_file( $attachment );
+			if ( '' !== $file && file_exists( $file ) ) {
+				wp_delete_file( $file );
+				if ( file_exists( $file ) ) {
+					return;
+				}
+			}
 			wp_delete_attachment( $attachment, true );
 		}
 		if ( $attachment > 0 && get_post( $attachment ) instanceof \WP_Post ) {
@@ -349,7 +378,10 @@ final class BookingAnonymizer {
 	 */
 	private static function write_snapshots( int $booking_id ): array {
 		if ( ! function_exists( 'wc_get_order_item_meta' ) ) {
-			return array();
+			// WooCommerce is off but its tables may still hold this booking's
+			// copy. An API we cannot call is not an absent copy: report every
+			// linked line as left, so the identity is not cleared (Codex r4 B5).
+			return self::linked_item_ids( $booking_id );
 		}
 
 		$with_snapshot = array();
@@ -460,6 +492,10 @@ final class BookingAnonymizer {
 		}
 
 		foreach ( $snapshots as $item_id ) {
+			if ( ! function_exists( 'wc_get_order_item_meta' ) ) {
+				$left[] = 'order_snapshot:' . $item_id . ' (WooCommerce inactive)';
+				continue;
+			}
 			$snapshot = self::decode_snapshot( wc_get_order_item_meta( $item_id, self::SNAPSHOT_KEY, true ) );
 			if ( null === $snapshot || self::anonymous_snapshot( $snapshot ) !== $snapshot ) {
 				$left[] = 'order_snapshot:' . $item_id;

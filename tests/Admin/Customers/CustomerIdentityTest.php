@@ -181,6 +181,8 @@ final class CustomerIdentityTest extends WP_UnitTestCase
     public function test_no_id_and_no_email_matches_nothing(): void
     {
         $this->guest_booking('a@example.test');
+        $odd = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking', 'post_status' => 'publish'));
+        update_post_meta($odd, '_mhmrentiva_customer_user_id', '-1');
 
         $this->assertSame(array(), $this->owned_ids(0, ''));
     }

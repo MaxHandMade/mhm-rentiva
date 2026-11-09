@@ -70,23 +70,25 @@ final class BookingState {
 	public static function sql_closed( string $alias ): string {
 		global $wpdb;
 
-		$a       = (string) preg_replace( '/[^A-Za-z0-9_]/', '', $alias );
-		$closed  = self::in_list( self::CLOSED );
-		$allowed = self::in_list( Status::allowed() );
+		$a      = (string) preg_replace( '/[^A-Za-z0-9_]/', '', $alias );
+		$closed = self::in_list( self::CLOSED );
+		$open   = self::in_list( array_values( array_diff( Status::allowed(), self::CLOSED ) ) );
+		$any    = self::in_list( Status::allowed() );
+		$row    = static fn( string $tag, string $key, string $list ): string => "EXISTS ( SELECT 1 FROM {$wpdb->postmeta} {$a}_{$tag}
+				WHERE {$a}_{$tag}.post_id = {$a}.ID AND {$a}_{$tag}.meta_key = '{$key}'
+				AND BINARY {$a}_{$tag}.meta_value IN ( {$list} ) )";
 
-		return "(
-			EXISTS ( SELECT 1 FROM {$wpdb->postmeta} {$a}_sn
-				WHERE {$a}_sn.post_id = {$a}.ID AND {$a}_sn.meta_key = '_mhmrentiva_status'
-				AND BINARY {$a}_sn.meta_value IN ( {$closed} ) )
+		// Closed only when nothing says otherwise: a key with a closed row AND
+		// an open row (two rows for one key) is a conflict, and a conflict is
+		// kept, never erased.
+		return '(
+			( ' . $row( 'nc', '_mhmrentiva_status', $closed ) . ' AND NOT ' . $row( 'no', '_mhmrentiva_status', $open ) . ' )
 			OR (
-				NOT EXISTS ( SELECT 1 FROM {$wpdb->postmeta} {$a}_sv
-					WHERE {$a}_sv.post_id = {$a}.ID AND {$a}_sv.meta_key = '_mhmrentiva_status'
-					AND BINARY {$a}_sv.meta_value IN ( {$allowed} ) )
-				AND EXISTS ( SELECT 1 FROM {$wpdb->postmeta} {$a}_so
-					WHERE {$a}_so.post_id = {$a}.ID AND {$a}_so.meta_key = '_mhmrentiva_booking_status'
-					AND BINARY {$a}_so.meta_value IN ( {$closed} ) )
+				NOT ' . $row( 'na', '_mhmrentiva_status', $any ) . '
+				AND ' . $row( 'oc', '_mhmrentiva_booking_status', $closed ) . '
+				AND NOT ' . $row( 'oo', '_mhmrentiva_booking_status', $open ) . '
 			)
-		)";
+		)';
 	}
 
 	/**

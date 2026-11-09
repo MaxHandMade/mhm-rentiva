@@ -266,9 +266,18 @@ final class CustomerIdentity {
 		}
 
 		if ( '' === $email && $user_id <= 0 ) {
+			// A clause no row can satisfy (the key both exists and does not),
+			// rather than a sentinel value some row might actually hold.
 			$clauses[] = array(
-				'key'   => MetaKeys::BOOKING_CUSTOMER_USER_ID,
-				'value' => '-1',
+				'relation' => 'AND',
+				array(
+					'key'     => MetaKeys::BOOKING_CUSTOMER_USER_ID,
+					'compare' => 'EXISTS',
+				),
+				array(
+					'key'     => MetaKeys::BOOKING_CUSTOMER_USER_ID,
+					'compare' => 'NOT EXISTS',
+				),
 			);
 		}
 

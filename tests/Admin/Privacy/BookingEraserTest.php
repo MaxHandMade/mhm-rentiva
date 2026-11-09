@@ -208,6 +208,58 @@ final class BookingEraserTest extends WP_UnitTestCase
 		$this->assertSame('+90 555', get_post_meta($ids[1], '_mhmrentiva_customer_phone', true));
 	}
 
+	/**
+	 * Core's anonymous e-mail is the fixed 'deleted@site.invalid'. A request
+	 * for that very address must still finish: an erased booking leaves the
+	 * queue even though its e-mail still "matches" (Codex r4 B2).
+	 */
+	public function test_a_request_for_the_anonymous_address_finishes(): void
+	{
+		$anon = (string) wp_privacy_anonymize_data('email');
+		$ids  = array();
+		for ($i = 0; $i < 60; $i++) {
+			$ids[] = $this->guest('completed', $anon);
+		}
+
+		$page1 = BookingEraser::erase($anon, 1);
+		$page2 = BookingEraser::erase($anon, 2);
+
+		$this->assertFalse($page1['done']);
+		$this->assertTrue($page2['done']);
+		foreach ($ids as $id) {
+			$this->assertSame('', get_post_meta($id, '_mhmrentiva_customer_phone', true));
+		}
+		$this->assertSame(array(), BookingMatcher::ids($anon, 'queue', 50));
+	}
+
+	/**
+	 * Identity half-written: the e-mail key changed but the user ID did not.
+	 * The booking must stay findable by the request's address (Codex r4 B1).
+	 */
+	public function test_a_half_written_identity_stays_findable(): void
+	{
+		$user = (int) self::factory()->user->create(array('user_email' => 'new@example.test'));
+		$id   = $this->guest('completed', 'old@example.test');
+		update_post_meta($id, '_mhmrentiva_customer_user_id', $user);
+		$this->block = static fn($check, $object_id, $meta_key) => ((int) $object_id === $id && '_mhmrentiva_customer_user_id' === $meta_key) ? false : $check;
+		add_filter('update_post_metadata', $this->block, 10, 3);
+
+		$result = BookingEraser::erase('old@example.test', 1);
+
+		$this->assertTrue($result['items_retained']);
+		$this->assertTrue(BookingMatcher::matches($id, 'old@example.test'));
+
+		remove_filter('update_post_metadata', $this->block, 10);
+		$this->block = null;
+		update_post_meta($id, ErasureMarker::KEY, time() - ErasureMarker::WINDOW - 1);
+
+		$retry = BookingEraser::erase('old@example.test', 1);
+
+		$this->assertTrue($retry['items_removed']);
+		$this->assertFalse(BookingMatcher::matches($id, 'old@example.test'));
+		$this->assertSame('', get_post_meta($id, '_mhmrentiva_privacy_subject', true));
+	}
+
 	public function test_account_and_order_messages_on_page_one(): void
 	{
 		self::factory()->user->create(array('user_email' => self::EMAIL));

@@ -58,7 +58,7 @@ final class BookingEraser {
 
 		$queue = BookingMatcher::ids( $email, 'queue', self::PER_PAGE );
 		foreach ( $queue as $booking_id ) {
-			$left = BookingAnonymizer::anonymize( $booking_id, $subject_user_id );
+			$left = BookingAnonymizer::anonymize( $booking_id, $subject_user_id, $email );
 			if ( array() === $left ) {
 				ErasureMarker::clear( $booking_id );
 				$result['items_removed'] = true;

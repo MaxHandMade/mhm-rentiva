@@ -95,6 +95,37 @@ final class PrivacyPrimitivesTest extends WP_UnitTestCase
 		$this->assertCount(6, $expected);
 	}
 
+	/**
+	 * Conflicting rows: an active row wins over a closed one, whatever the
+	 * row order. Expected values are written out, not derived from of().
+	 */
+	public function test_conflicting_status_rows_are_never_closed(): void
+	{
+		$both_new = $this->booking(array());
+		add_post_meta($both_new, '_mhmrentiva_status', 'confirmed');
+		add_post_meta($both_new, '_mhmrentiva_status', 'completed');
+
+		$both_new_reversed = $this->booking(array());
+		add_post_meta($both_new_reversed, '_mhmrentiva_status', 'completed');
+		add_post_meta($both_new_reversed, '_mhmrentiva_status', 'confirmed');
+
+		$both_old = $this->booking(array());
+		add_post_meta($both_old, '_mhmrentiva_booking_status', 'confirmed');
+		add_post_meta($both_old, '_mhmrentiva_booking_status', 'completed');
+
+		$upper  = $this->booking(array('_mhmrentiva_status' => 'COMPLETED'));
+		$spaced = $this->booking(array('_mhmrentiva_status' => 'completed '));
+		$closed = $this->booking(array('_mhmrentiva_status' => 'completed'));
+
+		$this->assertSame('active', BookingState::of($both_new));
+		$this->assertSame('active', BookingState::of($both_new_reversed));
+		$this->assertSame('active', BookingState::of($both_old));
+		$this->assertSame('active', BookingState::of($upper));
+		$this->assertSame('active', BookingState::of($spaced));
+		$this->assertSame('closed', BookingState::of($closed));
+		$this->assertSame(array($closed), $this->sql_closed_ids(array($both_new, $both_new_reversed, $both_old, $upper, $spaced, $closed)));
+	}
+
 	public function test_marker_hides_a_post_inside_the_window_only(): void
 	{
 		global $wpdb;
@@ -124,6 +155,7 @@ final class PrivacyPrimitivesTest extends WP_UnitTestCase
 
 		$this->assertContains('_mhmrentiva_privacy_erase_failed', $keys);
 		$this->assertContains('_mhmrentiva_personal_data_erased', $keys);
+		$this->assertContains('_mhmrentiva_privacy_subject', $keys);
 	}
 
 	public function test_unknown_and_draft_are_kept(): void

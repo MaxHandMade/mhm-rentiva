@@ -260,6 +260,40 @@ final class BookingAnonymizerTest extends WP_UnitTestCase
 		$this->assertSame('', get_post_meta($id, '_mhmrentiva_personal_data_erased', true));
 	}
 
+	/**
+	 * wp_delete_attachment() can drop the post and leave the file (Codex r4 B4):
+	 * the receipt counts as erased only when the file is gone, and until then
+	 * the booking keeps matching its person.
+	 */
+	public function test_a_receipt_file_left_on_disk_keeps_the_booking_findable(): void
+	{
+		$upload = wp_upload_bits('receipt-' . wp_generate_password(6, false) . '.png', null, 'png-bytes');
+		$this->assertEmpty($upload['error']);
+		$attachment = (int) self::factory()->attachment->create_object($upload['file'], 0, array('post_mime_type' => 'image/png'));
+		$id         = $this->closed_guest(array('_mhmrentiva_receipt_attachment_id' => $attachment));
+		$keep_file  = static fn() => '';
+		add_filter('wp_delete_file', $keep_file);
+
+		$left = BookingAnonymizer::anonymize($id, 0);
+
+		remove_filter('wp_delete_file', $keep_file);
+		$this->assertContains('receipt', $left);
+		$this->assertFileExists($upload['file']);
+		$this->assertTrue(BookingMatcher::matches($id, 'guest@example.test'));
+		wp_delete_file($upload['file']);
+	}
+
+	public function test_first_erased_timestamp_is_kept(): void
+	{
+		$id = $this->closed_guest();
+		BookingAnonymizer::anonymize($id, 0);
+		update_post_meta($id, '_mhmrentiva_personal_data_erased', '2020-01-01T00:00:00+00:00');
+
+		BookingAnonymizer::anonymize($id, 0);
+
+		$this->assertSame('2020-01-01T00:00:00+00:00', get_post_meta($id, '_mhmrentiva_personal_data_erased', true));
+	}
+
 	public function test_running_twice_is_harmless(): void
 	{
 		$id = $this->closed_guest(array('_mhmrentiva_cancellation_data' => array('cancelled_via' => 'admin', 'cancellation_reason' => 'x')));

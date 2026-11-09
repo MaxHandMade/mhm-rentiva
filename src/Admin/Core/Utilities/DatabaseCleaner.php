@@ -366,6 +366,7 @@ final class DatabaseCleaner {
 			'_mhmrentiva_pickup_time',
 			'_mhmrentiva_price_per_day',
 			'_mhmrentiva_privacy_erase_failed',
+			'_mhmrentiva_privacy_subject',
 			'_mhmrentiva_read_at',
 			'_mhmrentiva_receipt_attachment_id',
 			'_mhmrentiva_receipt_note',

@@ -36,6 +36,20 @@ final class EmailMatch {
 	}
 
 	/**
+	 * Keyed hash of the address, stored on a booking while its identity is
+	 * being anonymised so a half-written identity stays findable (spec T4).
+	 * Not reversible without the site's salts.
+	 *
+	 * @param string $email Raw address.
+	 * @return string '' when the address is not valid.
+	 */
+	public static function subject_hash( string $email ): string {
+		$email = self::normalise( $email );
+
+		return '' === $email ? '' : wp_hash( 'mhmrentiva-privacy|' . $email );
+	}
+
+	/**
 	 * A LIKE pattern that finds the address as a whole JSON string.
 	 *
 	 * The address is JSON-encoded first (quotes included, and "/" escaped the

@@ -40,6 +40,10 @@ final class BookingMatcher {
 
 	private const SCOPES = array( 'all', 'queue', 'active', 'recently_marked' );
 
+	public const SUBJECT_KEY = '_mhmrentiva_privacy_subject';
+
+	public const ERASED_KEY = '_mhmrentiva_personal_data_erased';
+
 	/**
 	 * Matching booking IDs, ascending.
 	 *
@@ -132,6 +136,11 @@ final class BookingMatcher {
 		$owner_sql[]  = "EXISTS ( SELECT 1 FROM {$wpdb->postmeta} me WHERE me.post_id = p.ID AND me.meta_key IN ( {$keys} ) AND LOWER( TRIM( me.meta_value ) ) = %s )";
 		$owner_args[] = $email;
 
+		// A booking whose identity was half-anonymised still carries the
+		// request's keyed hash (BookingAnonymizer), so it stays findable.
+		$owner_sql[]  = "EXISTS ( SELECT 1 FROM {$wpdb->postmeta} ms WHERE ms.post_id = p.ID AND ms.meta_key = '" . self::SUBJECT_KEY . "' AND BINARY ms.meta_value = %s )";
+		$owner_args[] = EmailMatch::subject_hash( $email );
+
 		$where = $wpdb->prepare(
 			"p.post_type = 'mhmrentiva_booking' AND p.post_status NOT IN ( 'trash', 'auto-draft' ) AND ( " . implode( ' OR ', $owner_sql ) . ' )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders are in $owner_sql.
 			$owner_args
@@ -139,7 +148,12 @@ final class BookingMatcher {
 
 		switch ( $scope ) {
 			case 'queue':
-				$where .= ' AND ' . BookingState::sql_closed( 'p' ) . ' AND ' . ErasureMarker::sql_not_recently_marked( 'p' );
+				// An erased booking leaves the queue by its marker, not by its
+				// e-mail changing: core's anonymous address is the fixed
+				// 'deleted@site.invalid', so a request for that address would
+				// otherwise get the same fifty bookings back on every page.
+				$where .= ' AND ' . BookingState::sql_closed( 'p' ) . ' AND ' . ErasureMarker::sql_not_recently_marked( 'p' )
+					. " AND NOT EXISTS ( SELECT 1 FROM {$wpdb->postmeta} mx WHERE mx.post_id = p.ID AND mx.meta_key = '" . self::ERASED_KEY . "' )";
 				break;
 			case 'active':
 				$where .= ' AND NOT ' . BookingState::sql_closed( 'p' );
