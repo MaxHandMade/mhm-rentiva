@@ -365,6 +365,8 @@ final class CalendarView {
 
 	/**
 	 * Daily price with WooCommerce's suffix, or the card's wording without a price.
+	 * Reads "amount · per day · suffix" (canvas Takvim, Ç5): the suffix used to sit
+	 * between the amount and "per day".
 	 */
 	private static function price_html( int $vehicle_id ): string {
 		if ( VehicleDataHelper::get_price_per_day( $vehicle_id ) <= 0 ) {
@@ -372,7 +374,7 @@ final class CalendarView {
 		}
 		$daily = PriceDisplay::for_shop( RentalPricing::quote_for_days( $vehicle_id, 1, 0 )->rental_amount );
 
-		return $daily['html'] . $daily['suffix'] . ' ' . esc_html__( 'per day', 'mhm-rentiva' );
+		return $daily['html'] . ' ' . esc_html__( 'per day', 'mhm-rentiva' ) . $daily['suffix'];
 	}
 
 	/**
