@@ -278,6 +278,7 @@ src/Admin/Vehicle/Hooks/ReviewEnforcer.php
 src/Admin/Vehicle/Hooks/ReviewNormalization.php
 src/Admin/Vehicle/ListTable/VehicleColumns.php
 src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php
+src/Admin/Vehicle/Meta/VehicleEditLayout.php
 src/Admin/Vehicle/Meta/VehicleGallery.php
 src/Admin/Vehicle/Meta/VehicleMeta.php
 src/Admin/Vehicle/PostType/Vehicle.php

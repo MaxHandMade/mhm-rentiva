@@ -18,7 +18,6 @@ generic BookingPricingInputs::adopt_legacy_keys
 generic LayoutRollbackService::restore_snapshot
 generic QueueManager::process_bulk_booking_update
 generic QueueManager::process_bulk_vehicle_update
-generic VehicleMeta::ajax_save_item_order
 generic VehicleMeta::save_meta
 generic VehicleMeta::save_vehicle_meta
 generic WooCommerceBridge::write_booking_meta

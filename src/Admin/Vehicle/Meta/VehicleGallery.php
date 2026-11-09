@@ -47,7 +47,8 @@ final class VehicleGallery extends AbstractMetaBox {
 		return array(
 			'mhmrentiva_vehicle_gallery' => array(
 				'title'    => __( 'Vehicle Gallery', 'mhm-rentiva' ),
-				'context'  => 'side',
+				// Main column, first (canvas Yon-Arac-Duzenle).
+				'context'  => 'normal',
 				'priority' => 'high',
 				'template' => 'render_gallery_meta_box',
 			),
@@ -87,9 +88,10 @@ final class VehicleGallery extends AbstractMetaBox {
 	 * Enqueue scripts and styles
 	 */
 	public static function enqueue_scripts(): void {
-		global $post_type;
+		global $post_type, $pagenow;
 
-		if ( $post_type !== 'mhmrentiva_vehicle' ) {
+		// The edit screens only: the gallery box is not on the vehicle list.
+		if ( $post_type !== 'mhmrentiva_vehicle' || ! in_array( $pagenow, array( 'post.php', 'post-new.php' ), true ) ) {
 			return;
 		}
 
@@ -103,10 +105,11 @@ final class VehicleGallery extends AbstractMetaBox {
 			true
 		);
 
+		// Literal dependency: the style-token gate reads registrations literally.
 		wp_enqueue_style(
 			'mhm-rentiva-vehicle-gallery',
 			MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-gallery.css',
-			array( 'mhm-rentiva-css-variables' ),
+			array( 'mhmuicore-admin' ),
 			MHMRENTIVA_VERSION
 		);
 
