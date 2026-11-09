@@ -1194,7 +1194,7 @@ final class BookingMeta extends AbstractMetaBox {
 			// payment, which would call the whole total paid): keep the deposit
 			// the booking carries -- none, if none was stored -- and leave the
 			// rest of the new total owed.
-			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', max(0.0, round((float) $total_price - $stored_deposit, 2)));
+			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', max(0.0, round( (float) $total_price - $stored_deposit, 2)));
 		} elseif ('deposit' === $payment_type || 'full' === $payment_type) {
 			update_post_meta($booking_id, '_mhmrentiva_deposit_amount', $result['deposit_amount']);
 			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', $result['remaining_amount']);
