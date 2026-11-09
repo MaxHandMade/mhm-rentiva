@@ -27,10 +27,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * (The list and occupancy views fall back only when the current key is EMPTY;
  * the privacy rule also falls back past an invalid value.)
  *
- * ONE definition: of() runs the same SQL predicate the erasure queue uses, so
- * the queue and a single-booking check cannot disagree -- not on a second
- * meta row for the same key, and not on letter case (comparisons are BINARY;
- * the postmeta collation is case-insensitive, Status values are lower-case).
+ * ONE definition, in SQL only (BookingMatcher's scopes use it), so no PHP
+ * copy can drift from it -- not on a second meta row for the same key, and
+ * not on letter case (comparisons are BINARY; the postmeta collation is
+ * case-insensitive, Status values are lower-case).
  */
 final class BookingState {
 
@@ -40,22 +40,6 @@ final class BookingState {
 		Status::REFUNDED,
 		Status::NO_SHOW,
 	);
-
-	/**
-	 * 'closed' or 'active'.
-	 *
-	 * @param int $booking_id Booking post ID.
-	 * @return string
-	 */
-	public static function of( int $booking_id ): string {
-		global $wpdb;
-
-		$closed = self::sql_closed( 'p' );
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $closed is built from Status constants and a sanitised alias; no input.
-		$sql = $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} p WHERE p.ID = %d AND {$closed}", $booking_id );
-
-		return '1' === (string) $wpdb->get_var( $sql ) ? 'closed' : 'active'; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above.
-	}
 
 	/**
 	 * SQL predicate: the booking row aliased $alias is closed.

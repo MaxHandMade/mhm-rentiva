@@ -12,7 +12,7 @@ use WP_UnitTestCase;
  * The shared pieces every privacy exporter and eraser leans on (5a spec T2, T3, T7).
  *
  * @covers \MHMRentiva\Admin\Privacy\EmailMatch
- * @covers \MHMRentiva\Admin\Privacy\BookingState
+ * @covers \MHMRentiva\Admin\Privacy\BookingState::sql_closed
  */
 final class PrivacyPrimitivesTest extends WP_UnitTestCase
 {
@@ -34,6 +34,14 @@ final class PrivacyPrimitivesTest extends WP_UnitTestCase
 		$this->assertSame('', EmailMatch::json_like_needle('not an address'));
 	}
 
+	/**
+	 * 'closed' or 'active' for one booking, through the SQL predicate itself.
+	 */
+	private function state(int $id): string
+	{
+		return array($id) === $this->sql_closed_ids(array($id)) ? 'closed' : 'active';
+	}
+
 	private function booking(array $meta): int
 	{
 		$id = (int) self::factory()->post->create(array('post_type' => 'mhmrentiva_booking'));
@@ -46,13 +54,13 @@ final class PrivacyPrimitivesTest extends WP_UnitTestCase
 
 	public function test_state_prefers_a_valid_current_key(): void
 	{
-		$this->assertSame('active', BookingState::of($this->booking(array('_mhmrentiva_status' => 'confirmed', '_mhmrentiva_booking_status' => 'completed'))));
-		$this->assertSame('closed', BookingState::of($this->booking(array('_mhmrentiva_status' => 'no_show'))));
+		$this->assertSame('active', $this->state($this->booking(array('_mhmrentiva_status' => 'confirmed', '_mhmrentiva_booking_status' => 'completed'))));
+		$this->assertSame('closed', $this->state($this->booking(array('_mhmrentiva_status' => 'no_show'))));
 	}
 
 	public function test_state_falls_back_past_an_invalid_current_value(): void
 	{
-		$this->assertSame('closed', BookingState::of($this->booking(array('_mhmrentiva_status' => 'garbage', '_mhmrentiva_booking_status' => 'completed'))));
+		$this->assertSame('closed', $this->state($this->booking(array('_mhmrentiva_status' => 'garbage', '_mhmrentiva_booking_status' => 'completed'))));
 	}
 
 	/**
@@ -89,10 +97,12 @@ final class PrivacyPrimitivesTest extends WP_UnitTestCase
 			$ids[] = $this->booking($meta);
 		}
 
-		$expected = array_values(array_filter($ids, static fn(int $id): bool => 'closed' === BookingState::of($id)));
+		// Written out, not derived: completed/no_show/refunded/cancelled on the
+		// current key, garbage + legacy completed, legacy cancelled alone,
+		// empty current + legacy refunded.
+		$expected = array($ids[1], $ids[2], $ids[3], $ids[4], $ids[5], $ids[6]);
 
 		$this->assertSame($expected, $this->sql_closed_ids($ids));
-		$this->assertCount(6, $expected);
 	}
 
 	/**
@@ -117,12 +127,12 @@ final class PrivacyPrimitivesTest extends WP_UnitTestCase
 		$spaced = $this->booking(array('_mhmrentiva_status' => 'completed '));
 		$closed = $this->booking(array('_mhmrentiva_status' => 'completed'));
 
-		$this->assertSame('active', BookingState::of($both_new));
-		$this->assertSame('active', BookingState::of($both_new_reversed));
-		$this->assertSame('active', BookingState::of($both_old));
-		$this->assertSame('active', BookingState::of($upper));
-		$this->assertSame('active', BookingState::of($spaced));
-		$this->assertSame('closed', BookingState::of($closed));
+		$this->assertSame('active', $this->state($both_new));
+		$this->assertSame('active', $this->state($both_new_reversed));
+		$this->assertSame('active', $this->state($both_old));
+		$this->assertSame('active', $this->state($upper));
+		$this->assertSame('active', $this->state($spaced));
+		$this->assertSame('closed', $this->state($closed));
 		$this->assertSame(array($closed), $this->sql_closed_ids(array($both_new, $both_new_reversed, $both_old, $upper, $spaced, $closed)));
 	}
 
@@ -160,8 +170,8 @@ final class PrivacyPrimitivesTest extends WP_UnitTestCase
 
 	public function test_unknown_and_draft_are_kept(): void
 	{
-		$this->assertSame('active', BookingState::of($this->booking(array())));
-		$this->assertSame('active', BookingState::of($this->booking(array('_mhmrentiva_status' => 'garbage'))));
-		$this->assertSame('active', BookingState::of($this->booking(array('_mhmrentiva_status' => 'draft'))));
+		$this->assertSame('active', $this->state($this->booking(array())));
+		$this->assertSame('active', $this->state($this->booking(array('_mhmrentiva_status' => 'garbage'))));
+		$this->assertSame('active', $this->state($this->booking(array('_mhmrentiva_status' => 'draft'))));
 	}
 }
