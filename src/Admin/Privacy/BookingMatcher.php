@@ -89,6 +89,31 @@ final class BookingMatcher {
 	}
 
 	/**
+	 * Whether any of the address's bookings is tied to a WooCommerce order
+	 * (the booking's own order ID, or an order line carrying its ID).
+	 *
+	 * @param string $email Requested address (raw).
+	 * @return bool
+	 */
+	public static function any_linked_order( string $email ): bool {
+		global $wpdb;
+
+		$where = self::where( $email, 'all' );
+		if ( null === $where ) {
+			return false;
+		}
+
+		$items = $wpdb->prefix . 'woocommerce_order_itemmeta';
+		$line  = $items === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $items ) ) ) // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			? " OR EXISTS ( SELECT 1 FROM {$items} oi WHERE oi.meta_key = '_mhmrentiva_booking_id' AND oi.meta_value = CAST( p.ID AS CHAR ) )"
+			: '';
+
+		$sql = "SELECT 1 FROM {$wpdb->posts} p WHERE {$where} AND ( EXISTS ( SELECT 1 FROM {$wpdb->postmeta} mo WHERE mo.post_id = p.ID AND mo.meta_key = '_mhmrentiva_wc_order_id' AND CAST( mo.meta_value AS SIGNED ) > 0 ){$line} ) LIMIT 1";
+
+		return '1' === (string) $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery -- $where is prepared in where(); the rest is constants.
+	}
+
+	/**
 	 * Whether one booking still belongs to the address.
 	 *
 	 * @param int    $booking_id Booking ID.

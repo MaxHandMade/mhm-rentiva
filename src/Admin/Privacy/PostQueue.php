@@ -114,7 +114,12 @@ final class PostQueue {
 	}
 
 	/**
-	 * Common WHERE for "posts of this type, not trashed, not recently marked".
+	 * Common WHERE for "posts of this type", every status but auto-draft.
+	 *
+	 * Trashed contact messages and logs are included on purpose: the trash
+	 * still holds the person's data, and deleting it is harmless. (Bookings
+	 * leave trash out -- spec T2 -- because an anonymised booking is kept,
+	 * not deleted.) The failure window is added by each caller.
 	 *
 	 * @param string $post_type Post type.
 	 * @return string Prepared SQL fragment on alias p.

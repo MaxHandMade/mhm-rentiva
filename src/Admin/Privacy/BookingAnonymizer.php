@@ -84,9 +84,7 @@ final class BookingAnonymizer {
 		$text        = (string) wp_privacy_anonymize_data( 'text' );
 
 		foreach ( self::NAME_KEYS as $key ) {
-			if ( metadata_exists( 'post', $booking_id, $key ) && get_post_meta( $booking_id, $key, true ) !== $text ) {
-				update_post_meta( $booking_id, $key, $text );
-			}
+			self::set_every_row( $booking_id, $key, $text );
 		}
 		foreach ( array_merge( self::PHONE_KEYS, self::FREE_TEXT_KEYS ) as $key ) {
 			delete_post_meta( $booking_id, $key );
@@ -122,26 +120,64 @@ final class BookingAnonymizer {
 
 		$email = (string) wp_privacy_anonymize_data( 'email' );
 		foreach ( self::EMAIL_KEYS as $key ) {
-			if ( metadata_exists( 'post', $booking_id, $key ) && get_post_meta( $booking_id, $key, true ) !== $email ) {
-				update_post_meta( $booking_id, $key, $email );
-			}
+			self::set_every_row( $booking_id, $key, $email );
 		}
-		if ( metadata_exists( 'post', $booking_id, '_mhmrentiva_customer_user_id' ) && '0' !== (string) get_post_meta( $booking_id, '_mhmrentiva_customer_user_id', true ) ) {
-			update_post_meta( $booking_id, '_mhmrentiva_customer_user_id', 0 );
-		}
+		self::set_every_row( $booking_id, '_mhmrentiva_customer_user_id', '0' );
 		wp_cache_delete( $booking_id, 'post_meta' );
 
 		if ( ! self::identity_is_anonymous( $booking_id ) ) {
 			return array( 'identity' );
 		}
 
-		// The first erasure's time is the one worth keeping.
+		// The first erasure's time is the one worth keeping. The mark is what
+		// takes the booking out of the queue (core's anonymous address is a
+		// fixed one), so it is read back: unwritten, the booking is not done
+		// and keeps its subject hash (Codex r5).
 		if ( ! metadata_exists( 'post', $booking_id, BookingMatcher::ERASED_KEY ) ) {
 			update_post_meta( $booking_id, BookingMatcher::ERASED_KEY, gmdate( 'c' ) );
+			wp_cache_delete( $booking_id, 'post_meta' );
+			if ( ! metadata_exists( 'post', $booking_id, BookingMatcher::ERASED_KEY ) ) {
+				return array( 'erased_mark' );
+			}
 		}
 		delete_post_meta( $booking_id, BookingMatcher::SUBJECT_KEY );
 
 		return array();
+	}
+
+	/**
+	 * Give every row of a meta key one value (existing keys only).
+	 *
+	 * update_post_meta() without a previous value updates every row of the
+	 * key, so one call covers a key stored twice; the check reads all rows.
+	 *
+	 * @param int    $booking_id Booking ID.
+	 * @param string $key        Meta key.
+	 * @param string $value      Value every row should hold.
+	 * @return void
+	 */
+	private static function set_every_row( int $booking_id, string $key, string $value ): void {
+		if ( ! self::every_row_is( $booking_id, $key, $value ) ) {
+			update_post_meta( $booking_id, $key, $value );
+		}
+	}
+
+	/**
+	 * Whether every row of a meta key holds the value (true when the key is absent).
+	 *
+	 * @param int    $booking_id Booking ID.
+	 * @param string $key        Meta key.
+	 * @param string $value      Expected value.
+	 * @return bool
+	 */
+	private static function every_row_is( int $booking_id, string $key, string $value ): bool {
+		foreach ( (array) get_post_meta( $booking_id, $key, false ) as $row ) {
+			if ( (string) $row !== $value ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -254,9 +290,10 @@ final class BookingAnonymizer {
 			// file any more. Until the file is really gone, keep the post and
 			// the link so verify() reports the receipt and the booking keeps
 			// matching its person (Codex r4 B4).
-			$file = (string) get_attached_file( $attachment );
-			if ( '' !== $file && file_exists( $file ) ) {
-				wp_delete_file( $file );
+			foreach ( self::attachment_files( $attachment ) as $file ) {
+				if ( file_exists( $file ) ) {
+					wp_delete_file( $file );
+				}
 				if ( file_exists( $file ) ) {
 					return;
 				}
@@ -270,6 +307,32 @@ final class BookingAnonymizer {
 		foreach ( self::RECEIPT_KEYS as $key ) {
 			delete_post_meta( $booking_id, $key );
 		}
+	}
+
+	/**
+	 * Every file an attachment owns: the attached file, the pre-scaling
+	 * original and each generated size, read before anything is deleted.
+	 *
+	 * @param int $attachment Attachment ID.
+	 * @return string[] Absolute paths.
+	 */
+	private static function attachment_files( int $attachment ): array {
+		$main  = (string) get_attached_file( $attachment );
+		$files = '' !== $main ? array( $main ) : array();
+		$meta  = wp_get_attachment_metadata( $attachment );
+		if ( '' !== $main && is_array( $meta ) ) {
+			$dir = dirname( $main );
+			if ( ! empty( $meta['original_image'] ) ) {
+				$files[] = $dir . '/' . wp_basename( (string) $meta['original_image'] );
+			}
+			foreach ( (array) ( $meta['sizes'] ?? array() ) as $size ) {
+				if ( is_array( $size ) && ! empty( $size['file'] ) ) {
+					$files[] = $dir . '/' . wp_basename( (string) $size['file'] );
+				}
+			}
+		}
+
+		return array_values( array_unique( $files ) );
 	}
 
 	/**
@@ -444,7 +507,7 @@ final class BookingAnonymizer {
 		$text = (string) wp_privacy_anonymize_data( 'text' );
 
 		foreach ( self::NAME_KEYS as $key ) {
-			if ( metadata_exists( 'post', $booking_id, $key ) && get_post_meta( $booking_id, $key, true ) !== $text ) {
+			if ( ! self::every_row_is( $booking_id, $key, $text ) ) {
 				$left[] = 'customer_name';
 				break;
 			}

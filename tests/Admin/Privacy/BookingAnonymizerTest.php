@@ -283,6 +283,68 @@ final class BookingAnonymizerTest extends WP_UnitTestCase
 		wp_delete_file($upload['file']);
 	}
 
+	/**
+	 * A second row of the same key holds the real name (Codex r5): every row
+	 * is anonymised and checked, not only the first.
+	 */
+	public function test_every_row_of_a_name_key_is_anonymised(): void
+	{
+		$id = $this->closed_guest();
+		update_post_meta($id, '_mhmrentiva_customer_name', wp_privacy_anonymize_data('text'));
+		add_post_meta($id, '_mhmrentiva_customer_name', 'Ahmet Yılmaz');
+
+		$this->assertSame(array(), BookingAnonymizer::anonymize($id, 0));
+
+		$rows = get_post_meta($id, '_mhmrentiva_customer_name', false);
+		$this->assertCount(2, $rows);
+		$this->assertSame(array(wp_privacy_anonymize_data('text')), array_values(array_unique($rows)));
+	}
+
+	/**
+	 * The erased mark is what takes a booking out of the queue for core's
+	 * fixed anonymous address; if it cannot be written the booking is not done
+	 * (Codex r5 B2).
+	 */
+	public function test_an_unwritable_erased_mark_is_a_target_left(): void
+	{
+		$id    = $this->closed_guest();
+		$block = static fn($check, $object_id, $meta_key) => ((int) $object_id === $id && '_mhmrentiva_personal_data_erased' === $meta_key) ? false : $check;
+		add_filter('add_post_metadata', $block, 10, 3);
+		add_filter('update_post_metadata', $block, 10, 3);
+
+		$left = BookingAnonymizer::anonymize($id, 0, 'guest@example.test');
+
+		remove_filter('add_post_metadata', $block, 10);
+		remove_filter('update_post_metadata', $block, 10);
+		$this->assertSame(array('erased_mark'), $left);
+		$this->assertNotSame('', get_post_meta($id, '_mhmrentiva_privacy_subject', true));
+	}
+
+	/**
+	 * Image receipts have generated sizes; every file must go before the link
+	 * does (Codex r5).
+	 */
+	public function test_a_receipt_size_file_left_on_disk_keeps_the_link(): void
+	{
+		$upload = wp_upload_bits('receipt-' . wp_generate_password(6, false) . '.png', null, 'png-bytes');
+		$attachment = (int) self::factory()->attachment->create_object($upload['file'], 0, array('post_mime_type' => 'image/png'));
+		$size_file  = dirname($upload['file']) . '/' . pathinfo($upload['file'], PATHINFO_FILENAME) . '-150x150.png';
+		file_put_contents($size_file, 'png-size');
+		wp_update_attachment_metadata($attachment, array('file' => _wp_relative_upload_path($upload['file']), 'sizes' => array('thumbnail' => array('file' => basename($size_file), 'width' => 150, 'height' => 150, 'mime-type' => 'image/png'))));
+		$id   = $this->closed_guest(array('_mhmrentiva_receipt_attachment_id' => $attachment));
+		$keep = static fn($file) => (basename($file) === basename($size_file)) ? '' : $file;
+		add_filter('wp_delete_file', $keep);
+
+		$left = BookingAnonymizer::anonymize($id, 0);
+
+		remove_filter('wp_delete_file', $keep);
+		$this->assertContains('receipt', $left);
+		$this->assertNotNull(get_post($attachment));
+		$this->assertSame((string) $attachment, (string) get_post_meta($id, '_mhmrentiva_receipt_attachment_id', true));
+		wp_delete_file($size_file);
+		wp_delete_file($upload['file']);
+	}
+
 	public function test_first_erased_timestamp_is_kept(): void
 	{
 		$id = $this->closed_guest();

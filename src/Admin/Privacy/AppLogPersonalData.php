@@ -34,7 +34,7 @@ final class AppLogPersonalData {
 	public static function erase( string $email, int $page = 1 ): array {
 		return PostQueue::erase(
 			static fn( int $limit ): array => LogQuery::ids( self::TYPE, $email, true, $limit ),
-			static fn(): int => count( LogQuery::ids( self::TYPE, $email, 'marked', 1000 ) ),
+			static fn(): int => LogQuery::count_marked( self::TYPE, $email ),
 			array( PostQueue::class, 'delete_post' ),
 			__( 'Application log entry', 'mhm-rentiva' ),
 			$page

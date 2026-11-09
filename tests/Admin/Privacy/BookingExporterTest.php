@@ -109,6 +109,37 @@ final class BookingExporterTest extends WP_UnitTestCase
 		$this->assertStringContainsString('Called the customer about the seat', $all);
 	}
 
+	/**
+	 * Built with the real writer: `at` is a UTC Unix time, and the export
+	 * shows it as a site date, not as a number (Codex r5).
+	 */
+	public function test_history_written_by_the_real_writer_shows_a_date(): void
+	{
+		$id = $this->booking(array('_mhmrentiva_customer_email' => 'real@example.test', '_mhmrentiva_status' => 'completed'));
+		\MHMRentiva\Admin\Booking\Meta\BookingMeta::add_history_note($id, 'Called about the seat', 'note', 0, array('at' => 1767225600));
+
+		$all = implode("\n", $this->fields(BookingExporter::export('real@example.test', 1)['data'][0]));
+
+		$this->assertStringContainsString(wp_date(get_option('date_format'), 1767225600), $all);
+		$this->assertStringNotContainsString('1767225600', $all);
+		$this->assertStringContainsString('Called about the seat', $all);
+	}
+
+	public function test_legacy_customer_keys_are_exported(): void
+	{
+		$this->booking(array(
+			'_mhmrentiva_booking_customer_email' => 'legacy@example.test',
+			'_mhmrentiva_booking_customer_name'  => 'Eski Ad',
+			'_mhmrentiva_contact_phone'          => '+90 1',
+		));
+
+		$all = implode("\n", $this->fields(BookingExporter::export('legacy@example.test', 1)['data'][0]));
+
+		$this->assertStringContainsString('legacy@example.test', $all);
+		$this->assertStringContainsString('Eski Ad', $all);
+		$this->assertStringContainsString('+90 1', $all);
+	}
+
 	public function test_cancelled_by_roles_and_booking_logs_are_absent(): void
 	{
 		$this->full_booking();

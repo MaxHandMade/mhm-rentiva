@@ -48,7 +48,7 @@ final class PolicyText {
 			. '<h2>' . esc_html__( 'Contact form', 'mhm-rentiva' ) . '</h2>'
 			. $p( esc_html__( 'When you send us a message we store your name, e-mail address, phone number, company, the message, any file you attach, your IP address and your browser, to answer you and to keep out spam.', 'mhm-rentiva' ) )
 			. '<h2>' . esc_html__( 'E-mails and logs', 'mhm-rentiva' ) . '</h2>'
-			. $p( esc_html__( 'If e-mail logging is on, we keep a record of the e-mails sent about your booking, including your contact details. Our application log may record your account ID, IP address and browser. Both are deleted after the periods set on this site.', 'mhm-rentiva' ) )
+			. $p( esc_html__( 'If e-mail logging is on, we keep a record of the e-mails sent about your booking, including your contact details. Our application log may record your account ID, IP address and browser. Both are deleted after the retention periods set on this site, when automatic clean-up is switched on.', 'mhm-rentiva' ) )
 			. '<h2>' . esc_html__( 'Your account', 'mhm-rentiva' ) . '</h2>'
 			. $p( esc_html__( 'With an account we also store your phone number, address, favourite vehicles, your notification choices and when you last signed in.', 'mhm-rentiva' ) )
 			. '<p class="privacy-policy-tutorial">' . esc_html__( 'Database backups made with the MHM Rentiva database tools contain this data and are not changed by an erasure request. Delete old backups yourself.', 'mhm-rentiva' ) . '</p>';

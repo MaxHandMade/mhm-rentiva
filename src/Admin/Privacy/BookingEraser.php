@@ -126,11 +126,8 @@ final class BookingEraser {
 			$result['items_retained'] = true;
 		}
 
-		foreach ( BookingMatcher::ids( $email, 'all', 200 ) as $booking_id ) {
-			if ( BookingAnonymizer::has_linked_order( $booking_id ) ) {
-				$result['messages'][] = __( 'Linked WooCommerce orders keep their billing details according to the WooCommerce privacy setting.', 'mhm-rentiva' );
-				break;
-			}
+		if ( BookingMatcher::any_linked_order( $email ) ) {
+			$result['messages'][] = __( 'Linked WooCommerce orders keep their billing details according to the WooCommerce privacy setting.', 'mhm-rentiva' );
 		}
 
 		if ( $subject_user_id > 0 ) {

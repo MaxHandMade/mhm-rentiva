@@ -67,7 +67,7 @@ final class ContactPersonalData {
 	public static function erase( string $email, int $page = 1 ): array {
 		return PostQueue::erase(
 			static fn( int $limit ): array => self::ids( $email, true, $limit ),
-			static fn(): int => count( self::ids( $email, 'marked', 1000 ) ),
+			static fn(): int => self::count_marked( $email ),
 			array( self::class, 'erase_one' ),
 			__( 'Contact message', 'mhm-rentiva' ),
 			$page
@@ -123,6 +123,28 @@ final class ContactPersonalData {
 		$sql = $wpdb->prepare( "SELECT p.ID FROM {$wpdb->posts} p WHERE {$where} ORDER BY p.ID ASC LIMIT %d OFFSET %d", $limit, $offset ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $where is prepared above.
 
 		return array_map( 'intval', (array) $wpdb->get_col( $sql ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery -- prepared above.
+	}
+
+	/**
+	 * Number of matching messages marked failed inside the window.
+	 *
+	 * @param string $email Requested address.
+	 * @return int
+	 */
+	private static function count_marked( string $email ): int {
+		global $wpdb;
+
+		$email = EmailMatch::normalise( $email );
+		if ( '' === $email ) {
+			return 0;
+		}
+
+		$where = PostQueue::sql_type( self::TYPE ) . $wpdb->prepare(
+			" AND EXISTS ( SELECT 1 FROM {$wpdb->postmeta} ce WHERE ce.post_id = p.ID AND ce.meta_key = '_mhmrentiva_contact_email' AND LOWER( TRIM( ce.meta_value ) ) = %s )",
+			$email
+		) . ' AND ' . ErasureMarker::sql_recently_marked( 'p' );
+
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} p WHERE {$where}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery -- $where is prepared above.
 	}
 
 	/**

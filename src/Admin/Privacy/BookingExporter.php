@@ -74,9 +74,21 @@ final class BookingExporter {
 		$receipt_id   = (int) $meta( '_mhmrentiva_receipt_attachment_id' );
 		$status       = (string) get_post_meta( $id, '_mhmrentiva_status', true );
 		$payment      = $meta( '_mhmrentiva_payment_status' );
-		$name         = $meta( '_mhmrentiva_customer_name' );
+		// Current key first, then the legacy spellings the matcher also finds.
+		$first = static function ( array $keys ) use ( $meta ): string {
+			foreach ( $keys as $key ) {
+				if ( '' !== $meta( $key ) ) {
+					return $meta( $key );
+				}
+			}
+			return '';
+		};
+		$name = $meta( '_mhmrentiva_customer_name' );
 		if ( '' === $name ) {
 			$name = trim( $meta( '_mhmrentiva_customer_first_name' ) . ' ' . $meta( '_mhmrentiva_customer_last_name' ) );
+		}
+		if ( '' === $name ) {
+			$name = $first( array( '_mhmrentiva_booking_customer_name', '_mhmrentiva_booking_customer_first_name', '_mhmrentiva_contact_name' ) );
 		}
 
 		$pairs = array(
@@ -86,8 +98,8 @@ final class BookingExporter {
 			__( 'Pick-up date', 'mhm-rentiva' )            => trim( $meta( '_mhmrentiva_pickup_date' ) . ' ' . $meta( '_mhmrentiva_start_time' ) ),
 			__( 'Return date', 'mhm-rentiva' )             => trim( ( '' !== $meta( '_mhmrentiva_return_date' ) ? $meta( '_mhmrentiva_return_date' ) : $meta( '_mhmrentiva_dropoff_date' ) ) . ' ' . $meta( '_mhmrentiva_end_time' ) ),
 			__( 'Name', 'mhm-rentiva' )                    => $name,
-			__( 'E-mail', 'mhm-rentiva' )                  => $meta( '_mhmrentiva_customer_email' ),
-			__( 'Phone', 'mhm-rentiva' )                   => $meta( '_mhmrentiva_customer_phone' ),
+			__( 'E-mail', 'mhm-rentiva' )                  => $first( array( '_mhmrentiva_customer_email', '_mhmrentiva_booking_customer_email', '_mhmrentiva_contact_email' ) ),
+			__( 'Phone', 'mhm-rentiva' )                   => $first( array( '_mhmrentiva_customer_phone', '_mhmrentiva_booking_customer_phone', '_mhmrentiva_contact_phone' ) ),
 			__( 'Guests', 'mhm-rentiva' )                  => $meta( '_mhmrentiva_guests' ),
 			__( 'Special notes', 'mhm-rentiva' )           => $meta( '_mhmrentiva_special_notes' ),
 			__( 'Booking note', 'mhm-rentiva' )            => trim( (string) get_post_field( 'post_content', $id ) ),
@@ -117,16 +129,34 @@ final class BookingExporter {
 	}
 
 	/**
+	 * When a History entry was written, as a site date and time.
+	 *
+	 * `at` is the UTC instant (current writer); older entries only carry
+	 * `timestamp`, a site-local clock reading, shown the way the box does.
+	 *
+	 * @param array<string, mixed> $entry History entry.
+	 * @return string
+	 */
+	private static function when( array $entry ): string {
+		$format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+		if ( isset( $entry['at'] ) && is_numeric( $entry['at'] ) && (int) $entry['at'] > 0 ) {
+			return (string) wp_date( $format, (int) $entry['at'] );
+		}
+		if ( isset( $entry['timestamp'] ) && is_numeric( $entry['timestamp'] ) && (int) $entry['timestamp'] > 0 ) {
+			return (string) date_i18n( $format, (int) $entry['timestamp'] );
+		}
+
+		return '';
+	}
+
+	/**
 	 * The History box's entries, one per line: "date — type — note".
 	 *
 	 * @param int $id Booking ID.
 	 * @return string
 	 */
 	private static function history( int $id ): string {
-		$history = get_post_meta( $id, '_mhmrentiva_booking_history', true );
-		if ( ! is_array( $history ) ) {
-			return '';
-		}
+		$history = BookingMeta::history_sorted( $id );
 
 		$lines = array();
 		foreach ( $history as $entry ) {
@@ -141,7 +171,7 @@ final class BookingExporter {
 				' — ',
 				array_filter(
 					array(
-						(string) ( $entry['at'] ?? '' ),
+						self::when( $entry ),
 						BookingMeta::get_history_type_label( (string) ( $entry['type'] ?? 'note' ) ),
 						$note,
 					),

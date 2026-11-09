@@ -117,6 +117,16 @@ final class BookingMatcherTest extends WP_UnitTestCase
 		$this->assertLessThanOrEqual(2, $wpdb->num_queries - $before);
 	}
 
+	public function test_queue_returns_at_most_its_limit(): void
+	{
+		for ($i = 0; $i < 60; $i++) {
+			$this->guest('cap@example.test', 'completed');
+		}
+
+		$this->assertCount(50, BookingMatcher::ids('cap@example.test', 'queue', 50));
+		$this->assertSame(60, BookingMatcher::count('cap@example.test', 'all'));
+	}
+
 	public function test_invalid_email_runs_no_query_and_matches_nothing(): void
 	{
 		global $wpdb;

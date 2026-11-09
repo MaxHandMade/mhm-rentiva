@@ -51,6 +51,24 @@ final class LogQuery {
 	}
 
 	/**
+	 * Number of matching logs marked failed inside the window.
+	 *
+	 * @param string $post_type Log post type.
+	 * @param string $email     Requested address.
+	 * @return int
+	 */
+	public static function count_marked( string $post_type, string $email ): int {
+		global $wpdb;
+
+		$where = self::where( $post_type, $email );
+		if ( null === $where ) {
+			return 0;
+		}
+
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} p WHERE {$where} AND " . ErasureMarker::sql_recently_marked( 'p' ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery -- $where is prepared in where().
+	}
+
+	/**
 	 * Prepared WHERE on alias p, or null when no query may run.
 	 *
 	 * @param string $post_type Log post type.

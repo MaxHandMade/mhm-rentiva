@@ -197,15 +197,18 @@ final class BookingEraserTest extends WP_UnitTestCase
 
 	public function test_unmarkable_failure_stops_with_done(): void
 	{
+		// Only the first booking is blocked; the second would anonymise fine.
 		$ids = array($this->guest(), $this->guest());
-		$this->block_phone($ids, true);
+		$this->block_phone(array($ids[0]), true);
 
 		$result = BookingEraser::erase(self::EMAIL, 1);
 
 		$this->assertTrue($result['done']);
 		$this->assertTrue($result['items_retained']);
-		// Stopped at the first booking: the second one was not attempted.
+		// Stopped at the first booking: the second one was never attempted,
+		// though nothing would have stopped it.
 		$this->assertSame('+90 555', get_post_meta($ids[1], '_mhmrentiva_customer_phone', true));
+		$this->assertTrue(BookingMatcher::matches($ids[1], self::EMAIL));
 	}
 
 	/**
@@ -258,6 +261,19 @@ final class BookingEraserTest extends WP_UnitTestCase
 		$this->assertTrue($retry['items_removed']);
 		$this->assertFalse(BookingMatcher::matches($id, 'old@example.test'));
 		$this->assertSame('', get_post_meta($id, '_mhmrentiva_privacy_subject', true));
+	}
+
+	public function test_the_order_message_sees_past_the_first_two_hundred(): void
+	{
+		for ($i = 0; $i < 201; $i++) {
+			$last = $this->guest('confirmed');
+		}
+		update_post_meta($last, '_mhmrentiva_wc_order_id', 77);
+
+		$messages = implode("
+", BookingEraser::erase(self::EMAIL, 1)['messages']);
+
+		$this->assertStringContainsString('WooCommerce', $messages);
 	}
 
 	public function test_account_and_order_messages_on_page_one(): void
