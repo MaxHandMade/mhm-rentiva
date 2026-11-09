@@ -1020,3 +1020,18 @@
 		border-radius: 0;
 	}
 }
+/* Line under the core H1 (canvas Yon-Arac-Duzenle) ------------ */
+
+body.mhmui-admin .mhm-screen-subline {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--mhmui-space-1) var(--mhmui-space-3);
+	margin: 0 0 var(--mhmui-space-3);
+	color: var(--mhmui-text-muted);
+	font-size: 13px;
+}
+
+body.mhmui-admin .mhm-screen-subline a {
+	text-decoration: none;
+}

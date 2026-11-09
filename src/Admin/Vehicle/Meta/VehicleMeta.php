@@ -149,6 +149,28 @@ final class VehicleMeta extends AbstractMetaBox {
 		add_action('wp_ajax_mhmrentiva_save_item_order', array( self::class, 'ajax_save_item_order' ));
 
 		add_action('add_meta_boxes', array( self::class, 'reorder_meta_boxes' ), 999);
+
+		add_action('edit_form_top', array( self::class, 'render_header_strip' ));
+	}
+
+	/**
+	 * Line under the core H1 (canvas Yon-Arac-Duzenle): back to the list, then
+	 * the vehicle's name. Runs on edit_form_top, inside form#post: links and
+	 * text only, no fields. A new vehicle has no name yet, so only the link.
+	 */
+	public static function render_header_strip(\WP_Post $post): void
+	{
+		if ('mhmrentiva_vehicle' !== $post->post_type) {
+			return;
+		}
+
+		echo '<p class="mhm-screen-subline">';
+		echo '<a href="' . esc_url(admin_url('edit.php?post_type=mhmrentiva_vehicle')) . '">&larr; ' . esc_html__('Vehicles', 'mhm-rentiva') . '</a>';
+		$name = 'auto-draft' === $post->post_status ? '' : trim(wp_strip_all_tags(get_the_title($post)));
+		if ('' !== $name) {
+			echo ' <span>' . esc_html($name) . '</span>';
+		}
+		echo '</p>';
 	}
 
 	public static function enqueue_scripts(): void
