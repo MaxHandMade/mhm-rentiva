@@ -179,12 +179,24 @@ final class RemainingPaymentHandler {
 			return new \WP_Error('mhmrentiva_no_remaining_amount', __('No remaining amount due for this booking.', 'mhm-rentiva'));
 		}
 
-		// Check for an existing pending remaining-payment order to avoid duplicates
+		// Reuse an existing pending remaining-payment order to avoid duplicates --
+		// only while it asks for what the booking owes now. An admin re-price
+		// moves the remaining amount (H2 face 2); an order built for the old
+		// amount is not handed out again. It is not cancelled either: cancelling
+		// an order runs the booking's cancellation hooks, and a payment started
+		// on it could still complete. It simply cannot take money any more:
+		// WooCommerceBridge::stale_remaining_order_notice() refuses it before the
+		// gateway.
+		$due_minor                   = \MHMRentiva\Admin\Payment\Core\Money::toMinor($remaining_amount);
 		$existing_remaining_order_id = (int) get_post_meta($booking_id, '_mhmrentiva_remaining_order_id', true);
 		if ($existing_remaining_order_id) {
 			$existing_order = wc_get_order($existing_remaining_order_id);
 			if ($existing_order && in_array($existing_order->get_status(), array( 'pending', 'on-hold' ), true)) {
-				return $existing_order;
+				$stamp = $existing_order->get_meta('_mhmrentiva_remaining_due_minor', true);
+				$asks  = is_numeric($stamp) ? (int) $stamp : \MHMRentiva\Admin\Payment\Core\Money::toMinor( (string) $existing_order->get_total());
+				if ($asks === $due_minor) {
+					return $existing_order;
+				}
 			}
 		}
 
@@ -276,6 +288,10 @@ final class RemainingPaymentHandler {
 		// HPOS-compatible order meta
 		$order->update_meta_data('_mhmrentiva_booking_id', $booking_id);
 		$order->update_meta_data('_mhmrentiva_is_remaining_payment', '1');
+		// The gross amount this order was built for, in minor units: its own
+		// total is recalculated with tax for the billing address and can differ.
+		// The pay-time check compares the booking's current remaining with this.
+		$order->update_meta_data('_mhmrentiva_remaining_due_minor', (string) $due_minor);
 		if ($original_order_id) {
 			$order->update_meta_data('_mhmrentiva_original_order_id', $original_order_id);
 		}

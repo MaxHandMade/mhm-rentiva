@@ -386,6 +386,7 @@ final class DatabaseCleaner {
 			'_mhmrentiva_refunded_amount',
 			'_mhmrentiva_release_after',
 			'_mhmrentiva_remaining_amount',
+			'_mhmrentiva_remaining_due_minor',
 			'_mhmrentiva_remaining_order_id',
 			'_mhmrentiva_removed_details',
 			'_mhmrentiva_rental_days',

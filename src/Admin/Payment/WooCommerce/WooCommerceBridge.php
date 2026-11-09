@@ -1377,6 +1377,43 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
+	 * Is this remaining-payment order still for what the booking owes? '' when
+	 * it is; otherwise the customer-facing reason, and no payment is taken.
+	 *
+	 * The booking's remaining amount moves when an admin re-prices it (the
+	 * difference becomes owed, H2 face 2) -- and an order built before that, or
+	 * between the admin's check and the write, still asks for the old amount.
+	 * Checked here, before the gateway, on both the order-pay form and the
+	 * Store API path, so a stale order can never take money, whenever it was
+	 * built. The order carries the gross amount it was built for
+	 * (`_mhmrentiva_remaining_due_minor`, RemainingPaymentHandler): its own total
+	 * can differ through tax for the billing address. An order built before the
+	 * stamp existed is compared by its total.
+	 *
+	 * @param array<int, int|string> $booking_ids
+	 */
+	private static function stale_remaining_order_notice(\WC_Order $order, array $booking_ids): string
+	{
+		$stamp = $order->get_meta('_mhmrentiva_remaining_due_minor', true);
+		$asks  = is_numeric($stamp) ? (int) $stamp : Money::toMinor( (string) $order->get_total());
+
+		foreach ($booking_ids as $booking_id) {
+			$booking_id = (int) $booking_id;
+			if ($booking_id <= 0) {
+				continue;
+			}
+			// From the database: an admin may have re-priced it a moment ago.
+			wp_cache_delete($booking_id, 'post_meta');
+			$owed = Money::toMinor( (float) get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true));
+			if ($owed <= 0 || $owed !== $asks) {
+				return __('The amount on this payment link is no longer current. Please ask us for a new payment link.', 'mhm-rentiva');
+			}
+		}
+
+		return '';
+	}
+
+	/**
 	 * The booking this order made for a line on an earlier attempt: same order,
 	 * vehicle and instants. 0 when none, or when it is already another line's.
 	 *
@@ -1480,7 +1517,13 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	private static function claim_order_bookings(\WC_Order $order, ?array $booking_ids = null): string
 	{
 		$remaining = self::is_remaining_order($order);
-		$revived   = array();
+		if ($remaining) {
+			$stale = self::stale_remaining_order_notice($order, $booking_ids ?? self::linked_booking_ids($order));
+			if ('' !== $stale) {
+				return $stale;
+			}
+		}
+		$revived = array();
 		try {
 			foreach ($booking_ids ?? self::linked_booking_ids($order) as $booking_id) {
 				$refusal = self::claim_booking( (int) $booking_id, $remaining, $revived);

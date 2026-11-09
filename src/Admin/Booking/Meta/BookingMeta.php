@@ -579,11 +579,20 @@ final class BookingMeta extends AbstractMetaBox {
 		// Same rule as the edit box's saver (function scan H4): a reversed range
 		// keeps the stored dates. The notice is queued there.
 		if (BookingEditDates::is_refused($post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time)) {
-			// Queued here too: this saver can run alone (Codex code audit 3b-2, Minor 8).
-			BookingEditNotice::queue($post_id, BookingEditDates::notice(), 'warning');
+			// Queued here too: this saver can run alone (Codex code audit 3b-2, Minor
+			// 8). Not over a notice that already says it -- the edit box's saver
+			// may have joined it with a price refusal in the one slot.
+			if (! str_contains(BookingEditNotice::peek($post_id), BookingEditDates::notice())) {
+				BookingEditNotice::queue($post_id, BookingEditDates::notice(), 'warning');
+			}
 		}
 		// Refused or untouched: the database values stand (BookingEditDates::to_write()).
 		list($pickup_date, $pickup_time, $dropoff_date, $dropoff_time) = BookingEditDates::to_write($post_id, array( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ));
+		// A price change this request refused keeps the stored range here too
+		// (decided in save_meta(), before the availability check).
+		if (BookingEditPriceFloor::refused($post_id)) {
+			list($pickup_date, $pickup_time, $dropoff_date, $dropoff_time) = BookingEditPriceFloor::stored_range($post_id);
+		}
 
 		// Update meta data
 		update_post_meta($post_id, '_mhmrentiva_pickup_date', $pickup_date);
@@ -671,16 +680,27 @@ final class BookingMeta extends AbstractMetaBox {
 		if ($new_status === '') {
 			$new_status = $req->text('mhmrentiva_booking_status');
 		}
-		$dates        = array(
+		$dates = array(
 			$req->text('mhmrentiva_edit_pickup_date'),
 			$req->text('mhmrentiva_edit_pickup_time'),
 			$req->text('mhmrentiva_edit_dropoff_date'),
 			$req->text('mhmrentiva_edit_dropoff_time'),
 		);
-		$dates        = BookingEditDates::to_check($post_id, $dates);
+		$dates   = BookingEditDates::to_check($post_id, $dates);
+		$vehicle = $req->int('mhmrentiva_edit_vehicle_id');
+		// The same decision the edit box's saver took at priority 5 (asked once
+		// per request); taken here when this saver runs alone. A refused price
+		// change is checked for availability as stored.
+		if (! $cancellation) {
+			$written = BookingEditDates::to_write($post_id, $dates);
+			if (BookingEditPriceFloor::refuse($post_id, $vehicle, $written[0], $written[1], $written[2], $written[3], BookingEditMetaBox::posted_selection($post_id, $req))) {
+				$dates   = BookingEditPriceFloor::stored_range($post_id);
+				$vehicle = (int) get_post_meta($post_id, '_mhmrentiva_vehicle_id', true);
+			}
+		}
 		$edit_allowed = ! $cancellation && self::guard_edit_availability(
 			$post_id,
-			$req->int('mhmrentiva_edit_vehicle_id'),
+			$vehicle,
 			$dates[0],
 			$dates[1],
 			$dates[2],
@@ -1052,7 +1072,7 @@ final class BookingMeta extends AbstractMetaBox {
 	/**
 	 * Is this booking a transfer rather than a rental? Same detection the mailer uses.
 	 */
-	private static function is_transfer_booking(int $booking_id): bool
+	public static function is_transfer_booking(int $booking_id): bool
 	{
 		$is_transfer_flag = (string) get_post_meta($booking_id, '_mhmrentiva_is_transfer', true);
 
@@ -1073,9 +1093,17 @@ final class BookingMeta extends AbstractMetaBox {
 	 *
 	 * Limits: prices are read as they are today (a vehicle or add-on price changed
 	 * since the booking re-prices it), and per-passenger add-ons are counted once,
-	 * as the calculator counts them at checkout. A deposit booking keeps the deposit
-	 * it carries (what its order charged) and only the remaining amount follows the
-	 * new total; payments received beyond the deposit are not looked at.
+	 * as the calculator counts them at checkout.
+	 *
+	 * Money already collected is kept (function scan H2, face 2; user decisions
+	 * 2026-11-08/09): the offline channel's paid amount is DERIVED (PaymentState:
+	 * total − remaining), so writing a higher total with remaining 0 made the
+	 * whole new total read as paid. While anything has been collected, the
+	 * difference between the new total and the collected amount is what remains
+	 * owed; a full-payment booking that now owes something becomes a deposit
+	 * booking (deposit = collected), so the existing remaining-amount surfaces
+	 * show and collect it. A new total BELOW the collected amount never reaches
+	 * this method from the edit screen (BookingEditPriceFloor refuses it).
 	 */
 	public static function recalculate_booking_costs(int $booking_id, string $pickup_date, string $dropoff_date): void
 	{
@@ -1084,36 +1112,34 @@ final class BookingMeta extends AbstractMetaBox {
 			return;
 		}
 
-		$vehicle_id = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
-		if ($vehicle_id <= 0) {
-			return;
-		}
+		$vehicle_id   = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
+		$payment_type = (string) get_post_meta($booking_id, '_mhmrentiva_payment_type', true);
 
-		$datetimes = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes(
+		// Read before anything is written: the offline channel derives what was
+		// paid from the total and the remaining amount this method rewrites.
+		$state     = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
+		$collected = $state->isMixedCurrency() ? 0 : $state->paid();
+
+		// While money has been collected the total is computed in the
+		// calculator's full mode: its deposit mode rounds to two decimals, so a
+		// full -> deposit conversion would move the total on the next call.
+		$quote = self::quote_total(
+			$booking_id,
+			$vehicle_id,
 			$pickup_date,
 			(string) get_post_meta($booking_id, '_mhmrentiva_start_time', true),
 			$dropoff_date,
-			(string) get_post_meta($booking_id, '_mhmrentiva_end_time', true)
+			(string) get_post_meta($booking_id, '_mhmrentiva_end_time', true),
+			\MHMRentiva\Admin\Addons\AddonSelection::for_booking($booking_id),
+			$collected > 0 || 'full' === $payment_type ? 'full' : 'deposit'
 		);
-		if (is_wp_error($datetimes)) {
+		if (null === $quote) {
 			return;
 		}
 
-		$days         = \MHMRentiva\Admin\Booking\Helpers\Util::rental_days($datetimes['start_ts'], $datetimes['end_ts']);
-		$selection    = \MHMRentiva\Admin\Addons\AddonSelection::for_booking($booking_id);
-		$payment_type = (string) get_post_meta($booking_id, '_mhmrentiva_payment_type', true);
-
-		$result = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::calculate_booking_deposit(
-			$vehicle_id,
-			$days,
-			'full' === $payment_type ? 'full' : 'deposit',
-			$selection->ids(),
-			$datetimes['start_ts'],
-			$selection->quantities()
-		);
-		if (empty($result['success'])) {
-			return;
-		}
+		$days      = $quote['days'];
+		$selection = $quote['selection'];
+		$result    = $quote['result'];
 
 		// The detail rows follow the new total, so the order, the account page
 		// and the report do not keep the lines of the window before the edit.
@@ -1133,20 +1159,42 @@ final class BookingMeta extends AbstractMetaBox {
 			)
 		);
 
-		$total_price = $result['total_amount'];
+		$total_price = $quote['total'];
 
 		update_post_meta($booking_id, '_mhmrentiva_rental_days', $days);
 		update_post_meta($booking_id, '_mhmrentiva_addon_total', $result['addon_total']);
 		update_post_meta($booking_id, '_mhmrentiva_total_price', $total_price);
 
 		$stored_deposit = (float) get_post_meta($booking_id, '_mhmrentiva_deposit_amount', true);
-		if ('deposit' === $payment_type && ( $stored_deposit > 0 || 'full' === ( $result['payment_type'] ?? '' ) )) {
+		if ($collected > 0) {
+			// What was collected stays collected; the rest of the new total is
+			// owed. Minor units at the store's precision (Money), not "/100".
+			$owed = \MHMRentiva\Admin\Payment\Core\Money::toMinor($total_price) - $collected;
+			if ($owed > 0 && 'deposit' !== $payment_type) {
+				update_post_meta($booking_id, '_mhmrentiva_payment_type', 'deposit');
+				update_post_meta($booking_id, '_mhmrentiva_deposit_amount', \MHMRentiva\Admin\Payment\Core\Money::toMajor($collected));
+			}
+			if ($owed < 0) {
+				// Only a path that skipped BookingEditPriceFloor gets here; the
+				// collected money is not given back by writing a negative debt.
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning(
+					'Booking re-priced below the amount collected; nothing is owed and the excess is not recorded.',
+					array(
+						'booking_id' => $booking_id,
+						'collected'  => $collected,
+						'total'      => \MHMRentiva\Admin\Payment\Core\Money::toMinor($total_price),
+					),
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_PAYMENT
+				);
+			}
+			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', \MHMRentiva\Admin\Payment\Core\Money::toMajor(max(0, $owed)));
+		} elseif ('deposit' === $payment_type && ( $stored_deposit > 0 || 'full' === ( $result['payment_type'] ?? '' ) )) {
 			// The deposit is what the order charged. Today's rate may differ (the
 			// site or the vehicle changed since, or it now resolves to full
 			// payment, which would call the whole total paid): keep the deposit
 			// the booking carries -- none, if none was stored -- and leave the
 			// rest of the new total owed.
-			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', max(0.0, round($total_price - $stored_deposit, 2)));
+			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', max(0.0, round((float) $total_price - $stored_deposit, 2)));
 		} elseif ('deposit' === $payment_type || 'full' === $payment_type) {
 			update_post_meta($booking_id, '_mhmrentiva_deposit_amount', $result['deposit_amount']);
 			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', $result['remaining_amount']);
@@ -1155,6 +1203,50 @@ final class BookingMeta extends AbstractMetaBox {
 		// Update old meta keys for compatibility
 		update_post_meta($booking_id, '_mhmrentiva_booking_rental_days', $days);
 		update_post_meta($booking_id, '_mhmrentiva_booking_total_price', $total_price);
+	}
+
+	/**
+	 * What a rental would cost with these inputs, written nowhere.
+	 *
+	 * The total comes back at the store's precision (Money); in full mode it is
+	 * the calculator's total as it is, in deposit mode the calculator rounds.
+	 * Null when the inputs cannot be priced (no vehicle, unreadable dates, the
+	 * calculator refused).
+	 *
+	 * @param string $mode 'full' or 'deposit'.
+	 * @return array{days: int, total: string, selection: \MHMRentiva\Admin\Addons\AddonSelection, result: array<string, mixed>}|null
+	 */
+	public static function quote_total(int $booking_id, int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time, \MHMRentiva\Admin\Addons\AddonSelection $selection, string $mode): ?array
+	{
+		unset($booking_id);
+		if ($vehicle_id <= 0) {
+			return null;
+		}
+
+		$datetimes = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
+		if (is_wp_error($datetimes)) {
+			return null;
+		}
+
+		$days   = \MHMRentiva\Admin\Booking\Helpers\Util::rental_days($datetimes['start_ts'], $datetimes['end_ts']);
+		$result = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::calculate_booking_deposit(
+			$vehicle_id,
+			$days,
+			'full' === $mode ? 'full' : 'deposit',
+			$selection->ids(),
+			$datetimes['start_ts'],
+			$selection->quantities()
+		);
+		if (empty($result['success'])) {
+			return null;
+		}
+
+		return array(
+			'days'      => $days,
+			'total'     => \MHMRentiva\Admin\Payment\Core\Money::toMajor(\MHMRentiva\Admin\Payment\Core\Money::toMinor( (float) $result['total_amount'])),
+			'selection' => $selection,
+			'result'    => $result,
+		);
 	}
 
 	/**
