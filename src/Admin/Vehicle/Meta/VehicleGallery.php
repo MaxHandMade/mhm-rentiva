@@ -88,9 +88,10 @@ final class VehicleGallery extends AbstractMetaBox {
 	 * Enqueue scripts and styles
 	 */
 	public static function enqueue_scripts(): void {
-		global $post_type;
+		global $post_type, $pagenow;
 
-		if ( $post_type !== 'mhmrentiva_vehicle' ) {
+		// The edit screens only: the gallery box is not on the vehicle list.
+		if ( $post_type !== 'mhmrentiva_vehicle' || ! in_array( $pagenow, array( 'post.php', 'post-new.php' ), true ) ) {
 			return;
 		}
 

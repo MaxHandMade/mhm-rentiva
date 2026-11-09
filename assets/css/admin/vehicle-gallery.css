@@ -1,239 +1,298 @@
 /**
- * Vehicle Gallery CSS
+ * Vehicle Gallery box (vehicle edit screen).
  *
- * Vehicle gallery meta box styles
+ * Drawn after the canvas Yon-Arac-Duzenle v144 (PR 4): square-ish thumbnails,
+ * an always-visible round remove button in the corner, "Add image" under the
+ * grid. Scoped under body.mhmui-admin (VehicleMeta::add_body_class), values
+ * from the ui-core kit tokens with the canvas's WP core palette. Every state
+ * the gallery script draws keeps a style: bulk selection, "not shown on the
+ * site", sortable placeholder, empty and loading states, preview and
+ * notifications (spec M4).
  */
 
-/* ===== MAIN GALLERY CONTAINER ===== */
-.mhm-vehicle-gallery-container {
-	padding: 0;
-}
-
-.mhm-gallery-header {
+/* ===== CONTAINER ===== */
+body.mhmui-admin .mhm-vehicle-gallery-container {
 	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: var(--mhm-space-4);
-	padding-bottom: var(--mhm-space-3);
-	border-bottom: 1px solid var(--mhm-border-secondary);
+	flex-direction: column;
+	gap: 10px;
+	padding: 4px 0;
 }
 
-.mhm-gallery-title {
-	font-size: 14px;
-	font-weight: var(--mhm-font-semibold);
-	color: var(--mhm-text-primary);
+/* The box title already says "Vehicle Gallery": the inner heading is kept for
+   assistive tech, the add button moves under the grid (canvas). */
+body.mhmui-admin .mhm-gallery-header {
+	order: 3;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
 	margin: 0;
+	padding: 0;
+	border: 0;
 }
 
-.mhm-gallery-add-btn {
-	background: var(--mhm-primary);
-	color: var(--mhm-white);
-	border: none;
-	padding: 6px 12px;
-	border-radius: var(--mhm-radius-sm);
-	font-size: 12px;
+body.mhmui-admin .mhm-gallery-title {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+body.mhmui-admin .mhm-gallery-add-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	min-height: 32px;
+	padding: 0 12px;
+	font: inherit;
+	border: 1px solid #c3c4c7;
+	border-radius: 3px;
+	background: #ffffff;
+	color: #2271b1;
 	cursor: pointer;
-	transition: background-color var(--mhm-duration-200) ease;
+}
+
+body.mhmui-admin .mhm-gallery-add-btn:hover {
+	border-color: #2271b1;
+	color: #135e96;
+}
+
+body.mhmui-admin .mhm-gallery-add-btn .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+/* ===== GRID ===== */
+body.mhmui-admin .mhm-gallery-grid {
+	order: 2;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+	gap: 6px;
+	margin: 0;
+	min-height: 0;
+}
+
+body.mhmui-admin .mhm-gallery-item {
+	position: relative;
+	aspect-ratio: 4 / 3;
+	border-radius: 3px;
+	overflow: hidden;
+	background: #dcdcde;
+	cursor: move;
+}
+
+body.mhmui-admin .mhm-gallery-item-inner {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+body.mhmui-admin .mhm-gallery-item img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/* An entry the site does not show: listed without its image, marked. */
+body.mhmui-admin .mhm-gallery-item.is-hidden-on-site {
+	outline: 2px dashed #dba617;
+	outline-offset: -2px;
+}
+
+body.mhmui-admin .mhm-gallery-item-hidden {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+	width: 100%;
+	height: 100%;
+	padding: 6px;
+	box-sizing: border-box;
+	background: #f6f7f7;
+	color: #996800;
+	font-size: 12px;
+	line-height: 1.3;
+	text-align: center;
+}
+
+/* Remove button: always visible, round, in the corner (canvas). */
+body.mhmui-admin .mhm-gallery-item-overlay {
+	position: absolute;
+	right: 3px;
+	bottom: 3px;
+	display: flex;
+	background: none;
+	opacity: 1;
+}
+
+body.mhmui-admin .mhm-gallery-item-actions {
+	display: flex;
+	gap: 4px;
+}
+
+body.mhmui-admin .mhm-gallery-remove-btn {
 	display: flex;
 	align-items: center;
-	gap: var(--mhm-space-2);
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	padding: 0;
+	border: 0;
+	border-radius: 11px;
+	background: #ffffff;
+	color: #b32d2e;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+	cursor: pointer;
 }
 
-.mhm-gallery-add-btn:hover {
-	background: var(--mhm-primary-dark);
+body.mhmui-admin .mhm-gallery-remove-btn:hover {
+	background: #b32d2e;
+	color: #ffffff;
 }
 
-.mhm-gallery-add-btn .dashicons {
+body.mhmui-admin .mhm-gallery-remove-btn .dashicons {
 	font-size: 14px;
 	width: 14px;
 	height: 14px;
 }
 
-/* ===== GALLERY GRID ===== */
-.mhm-gallery-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-	gap: var(--mhm-space-2);
-	margin-bottom: var(--mhm-space-4);
-	min-height: 80px;
-}
-
-.mhm-gallery-item {
-	position: relative;
-	aspect-ratio: 1;
-	border-radius: var(--mhm-radius-md);
-	overflow: hidden;
-	cursor: move;
-	transition: transform var(--mhm-duration-200) ease, box-shadow var(--mhm-duration-200) ease;
-}
-
-.mhm-gallery-item:hover {
-	transform: translateY(-2px);
-	box-shadow: var(--mhm-shadow-lg);
-}
-
-.mhm-gallery-item-inner {
-	position: relative;
-	width: 100%;
-	height: 100%;
-}
-
-.mhm-gallery-item img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	display: block;
-}
-
-/* An entry the site does not show: listed without its image, marked. */
-.mhm-gallery-item.is-hidden-on-site {
-	outline: 2px dashed var(--mhm-warning);
-	outline-offset: -2px;
-}
-
-.mhm-gallery-item-hidden {
-	width: 100%;
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: var(--mhm-space-1);
-	padding: var(--mhm-space-2);
-	box-sizing: border-box;
-	background: var(--mhm-bg-hover);
-	color: var(--mhm-warning-dark);
-	text-align: center;
-	font-size: 12px;
-	line-height: 1.3;
-}
-
-.mhm-gallery-item-overlay {
+body.mhmui-admin .mhm-gallery-item-number {
 	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background: rgba(0, 0, 0, 0.7);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	opacity: 0;
-	transition: opacity var(--mhm-duration-200) ease;
+	top: 3px;
+	right: 3px;
+	padding: 1px 5px;
+	border-radius: 2px;
+	background: rgba(0, 0, 0, 0.6);
+	color: #ffffff;
+	font-size: 10px;
+	font-weight: 600;
+	line-height: 1.4;
 }
 
-.mhm-gallery-item:hover .mhm-gallery-item-overlay {
-	opacity: 1;
-}
-
-.mhm-gallery-item-actions {
-	display: flex;
-	gap: var(--mhm-space-2);
-}
-
-.mhm-gallery-remove-btn {
-	background: var(--mhm-error);
-	color: var(--mhm-white);
-	border: none;
-	padding: 6px;
-	border-radius: var(--mhm-radius-sm);
-	cursor: pointer;
-	transition: background-color var(--mhm-duration-200) ease;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.mhm-gallery-remove-btn:hover {
-	background: var(--mhm-error-dark);
-}
-
-.mhm-gallery-remove-btn .dashicons {
-	font-size: 12px;
-	width: 12px;
-	height: 12px;
-}
-
-.mhm-gallery-item-number {
+/* Bulk selection checkbox on each thumbnail. */
+body.mhmui-admin .gallery-item-checkbox {
 	position: absolute;
 	top: 4px;
 	left: 4px;
-	background: rgba(0, 0, 0, 0.7);
-	color: var(--mhm-white);
-	font-size: 10px;
-	font-weight: var(--mhm-font-semibold);
-	padding: 2px 6px;
-	border-radius: 2px;
-	line-height: 1;
+	z-index: 1;
+	width: 16px;
+	height: 16px;
+	margin: 0;
+	cursor: pointer;
 }
 
 /* ===== SORTABLE PLACEHOLDER ===== */
-.mhm-gallery-placeholder {
-	background: var(--mhm-bg-hover);
-	border: 2px dashed var(--mhm-primary);
-	border-radius: var(--mhm-radius-md);
-	aspect-ratio: 1;
-	opacity: 0.7;
+body.mhmui-admin .mhm-gallery-placeholder {
+	aspect-ratio: 4 / 3;
+	border: 1px dashed #8c8f94;
+	border-radius: 3px;
+	background: #f0f0f1;
 }
 
-/* ===== EMPTY GALLERY MESSAGE ===== */
-.mhm-gallery-no-images {
+/* ===== EMPTY AND LOADING ===== */
+body.mhmui-admin .mhm-gallery-no-images {
+	order: 2;
+	padding: 24px 12px;
+	border: 1px dashed #c3c4c7;
+	border-radius: 4px;
+	background: #f6f7f7;
+	color: #50575e;
 	text-align: center;
-	padding: 30px 15px;
-	color: var(--mhm-text-secondary);
-	font-style: italic;
-	background: var(--mhm-bg-secondary);
-	border: 1px dashed var(--mhm-border-secondary);
-	border-radius: var(--mhm-radius-md);
 }
 
-.mhm-gallery-no-images .dashicons {
-	font-size: 32px;
+body.mhmui-admin .mhm-gallery-no-images .dashicons {
+	display: block;
 	width: 32px;
 	height: 32px;
-	color: var(--mhm-border-secondary);
-	margin-bottom: var(--mhm-space-3);
+	margin: 0 auto 8px;
+	font-size: 32px;
+	color: #a7aaad;
 }
 
-/* ===== LOADING INDICATOR ===== */
-.mhm-gallery-loading {
-	text-align: center;
-	padding: var(--mhm-space-5);
-	color: var(--mhm-text-secondary);
+body.mhmui-admin .mhm-gallery-loading {
 	display: none;
+	padding: 12px;
+	color: #50575e;
+	text-align: center;
 }
 
-.mhm-gallery-loading .dashicons {
-	font-size: 20px;
+body.mhmui-admin .mhm-gallery-loading .dashicons {
 	width: 20px;
 	height: 20px;
-	animation: spin 1s linear infinite;
-	margin-right: var(--mhm-space-2);
+	margin-right: 6px;
+	font-size: 20px;
+	animation: mhm-gallery-spin 1s linear infinite;
 }
 
-@keyframes spin {
-	0% {
-		transform: rotate(0deg);
-	}
-
-	100% {
+@keyframes mhm-gallery-spin {
+	to {
 		transform: rotate(360deg);
 	}
 }
 
-/* ===== GALLERY PREVIEW ===== */
+body.mhmui-admin .mhm-gallery-info {
+	order: 4;
+}
+
+body.mhmui-admin .mhm-gallery-info .description {
+	margin: 0;
+}
+
+/* ===== BULK TOOLBAR ===== */
+body.mhmui-admin .gallery-bulk-toolbar {
+	order: 1;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 12px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #f6f7f7;
+}
+
+/* The script shows the toolbar with display:flex (inline style); hidden
+   until then by the template's display:none. */
+body.mhmui-admin .gallery-select-all-label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	cursor: pointer;
+}
+
+body.mhmui-admin .gallery-bulk-delete-btn {
+	border-color: #b32d2e !important;
+	background: #b32d2e !important;
+	color: #ffffff !important;
+}
+
+body.mhmui-admin .gallery-bulk-delete-btn:hover:not(:disabled) {
+	border-color: #8a2424 !important;
+	background: #8a2424 !important;
+}
+
+body.mhmui-admin .gallery-bulk-delete-btn:disabled {
+	border-color: #c3c4c7 !important;
+	background: #f0f0f1 !important;
+	color: #a7aaad !important;
+	cursor: not-allowed;
+}
+
+/* ===== PREVIEW ===== */
 .mhm-gallery-preview-overlay {
 	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background: rgba(0, 0, 0, 0.9);
+	inset: 0;
 	z-index: 999999;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	padding: 20px;
+	background: rgba(0, 0, 0, 0.9);
 }
 
 .mhm-gallery-preview-container {
@@ -246,59 +305,55 @@
 	max-width: 100%;
 	max-height: 100%;
 	object-fit: contain;
-	border-radius: var(--mhm-radius-md);
+	border-radius: 4px;
 }
 
 .mhm-gallery-preview-close {
 	position: absolute;
 	top: -40px;
 	right: 0;
-	background: rgba(255, 255, 255, 0.9);
-	color: #333;
-	border: none;
 	padding: 8px;
+	border: 0;
 	border-radius: 50%;
+	background: #ffffff;
+	color: #1d2327;
 	cursor: pointer;
-	transition: background-color var(--mhm-duration-200) ease;
-}
-
-.mhm-gallery-preview-close:hover {
-	background: rgba(255, 255, 255, 1);
 }
 
 .mhm-gallery-preview-close .dashicons {
-	font-size: 16px;
 	width: 16px;
 	height: 16px;
+	font-size: 16px;
 }
 
-/* ===== NOTIFICATIONS ===== */
+/* ===== NOTIFICATIONS (drawn by the gallery script) ===== */
 .mhm-gallery-notification {
 	position: fixed;
-	top: 32px;
+	top: 46px;
 	right: 20px;
-	background: var(--mhm-bg-card);
-	border-left: 4px solid var(--mhm-primary);
-	padding: 12px 16px;
-	border-radius: var(--mhm-radius-md);
-	box-shadow: var(--mhm-shadow-lg);
 	z-index: 999999;
-	max-width: 300px;
 	display: flex;
 	align-items: center;
-	gap: var(--mhm-space-3);
+	gap: 10px;
+	max-width: 320px;
+	padding: 10px 14px;
+	border: 1px solid #c3c4c7;
+	border-left: 4px solid #2271b1;
+	border-radius: 4px;
+	background: #ffffff;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.13);
 }
 
 .mhm-gallery-notification-success {
-	border-left-color: var(--mhm-success);
+	border-left-color: #00a32a;
 }
 
 .mhm-gallery-notification-error {
-	border-left-color: var(--mhm-error);
+	border-left-color: #d63638;
 }
 
 .mhm-gallery-notification-warning {
-	border-left-color: var(--mhm-warning);
+	border-left-color: #dba617;
 }
 
 .mhm-gallery-notification-message {
@@ -308,39 +363,39 @@
 }
 
 .mhm-gallery-notification-close {
-	background: none;
-	border: none;
-	color: var(--mhm-text-secondary);
-	cursor: pointer;
 	padding: 2px;
+	border: 0;
 	border-radius: 2px;
-	transition: background-color var(--mhm-duration-200) ease;
-}
-
-.mhm-gallery-notification-close:hover {
-	background: var(--mhm-bg-hover);
+	background: none;
+	color: #50575e;
+	cursor: pointer;
 }
 
 .mhm-gallery-notification-close .dashicons {
-	font-size: 14px;
 	width: 14px;
 	height: 14px;
+	font-size: 14px;
 }
 
-/* ===== RESPONSIVE DESIGN ===== */
+/* ===== FOCUS ===== */
+body.mhmui-admin .mhm-gallery-item:focus,
+body.mhmui-admin .mhm-gallery-add-btn:focus,
+body.mhmui-admin .mhm-gallery-remove-btn:focus,
+.mhm-gallery-preview-close:focus {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
+/* ===== NARROW SCREENS ===== */
 @media (max-width: 782px) {
-	.mhm-gallery-grid {
-		grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-		gap: 6px;
+	body.mhmui-admin .mhm-gallery-grid {
+		grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
 	}
 
-	.mhm-gallery-item-number {
-		font-size: 9px;
-		padding: 1px 4px;
-	}
-
-	.mhm-gallery-preview-overlay {
-		padding: 10px;
+	body.mhmui-admin .mhm-gallery-remove-btn {
+		width: 32px;
+		height: 32px;
+		border-radius: 16px;
 	}
 
 	.mhm-gallery-notification {
@@ -348,79 +403,4 @@
 		left: 10px;
 		max-width: none;
 	}
-}
-
-/* ===== WORDPRESS ADMIN INTEGRATION ===== */
-.postbox .mhm-vehicle-gallery-container {
-	padding: 12px;
-}
-
-.postbox .mhm-gallery-header {
-	margin-bottom: 12px;
-	padding-bottom: 8px;
-}
-
-/* ===== ACCESSIBILITY ===== */
-.mhm-gallery-item:focus {
-	outline: 2px solid var(--mhm-primary);
-	outline-offset: 2px;
-}
-
-.mhm-gallery-add-btn:focus,
-.mhm-gallery-remove-btn:focus,
-.mhm-gallery-preview-close:focus {
-	outline: 2px solid var(--mhm-primary);
-	outline-offset: 2px;
-}
-
-/* ===== BULK DELETE TOOLBAR ===== */
-.gallery-bulk-toolbar {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	margin-bottom: 10px;
-	padding: 8px 12px;
-	background: #f6f7f7;
-	border: 1px solid #dcdcde;
-	border-radius: 4px;
-}
-
-.gallery-select-all-label {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	cursor: pointer;
-	font-weight: 500;
-}
-
-.gallery-bulk-delete-btn {
-	background: #d63638 !important;
-	border-color: #d63638 !important;
-	color: #fff !important;
-}
-
-.gallery-bulk-delete-btn:hover:not(:disabled) {
-	background: #b32d2e !important;
-	border-color: #b32d2e !important;
-	color: #fff !important;
-}
-
-.gallery-bulk-delete-btn:disabled {
-	background: #ccc !important;
-	border-color: #ccc !important;
-	color: #fff !important;
-	cursor: not-allowed;
-	pointer-events: none;
-}
-
-/* Checkbox on gallery items */
-.gallery-item-checkbox {
-	position: absolute;
-	top: 6px;
-	left: 6px;
-	z-index: 10;
-	width: 16px;
-	height: 16px;
-	cursor: pointer;
-	margin: 0;
 }

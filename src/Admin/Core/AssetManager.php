@@ -1239,42 +1239,10 @@ final class AssetManager {
 		// Deposit Management
 		// Vehicle Gallery & Meta
 		if ($screen->id === 'mhmrentiva_vehicle' || $screen->post_type === 'mhmrentiva_vehicle') {
-			wp_enqueue_media();
-			wp_enqueue_script(
-				'mhm-rentiva-vehicle-gallery',
-				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-gallery.js',
-				array( 'jquery', 'jquery-ui-sortable' ),
-				self::get_file_version('assets/js/admin/vehicle-gallery.js'),
-				true
-			);
-
-			// ⭐ Get max gallery images from settings (default: 50)
-			$max_gallery_images = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
-				'mhmrentiva_vehicle_max_gallery_images',
-				50
-			);
-
-			wp_localize_script(
-				'mhm-rentiva-vehicle-gallery',
-				'mhmVehicleGallery',
-				array(
-					'ajaxUrl'   => admin_url('admin-ajax.php'),
-					'nonce'     => wp_create_nonce('mhmrentiva_gallery_nonce'),
-					'maxImages' => $max_gallery_images,
-					'strings'   => array(
-						/* translators: %d: maximum number of images allowed. */
-						'maxImages'     => sprintf(__('Maximum %d images allowed', 'mhm-rentiva'), $max_gallery_images),
-						'selectImages'  => __('Select Images', 'mhm-rentiva'),
-						'addImages'     => __('Add to Gallery', 'mhm-rentiva'),
-						'uploadError'   => __('Error uploading image', 'mhm-rentiva'),
-						'confirmRemove' => __('Are you sure you want to remove this image?', 'mhm-rentiva'),
-						'removeImage'   => __('Remove Image', 'mhm-rentiva'),
-						'addError'      => __('Error adding image', 'mhm-rentiva'),
-						'removeError'   => __('Error removing image', 'mhm-rentiva'),
-						'reorderError'  => __('Error reordering images', 'mhm-rentiva'),
-					),
-				)
-			);
+			// The gallery script and its mhmVehicleGallery data are VehicleGallery's
+			// (VehicleGallery::enqueue_scripts()). A second enqueue + localize here
+			// carried another nonce action than the gallery handlers verify; the
+			// later localize won, so it only ever risked the wrong one (PR 4).
 
 			// Vehicle Meta Component
 			self::enqueue_component_js('vehicle-meta');
