@@ -130,8 +130,7 @@ final class AccountPersonalData {
 				continue;
 			}
 			delete_user_meta( $user->ID, $key );
-			wp_cache_delete( $user->ID, 'user_meta' );
-			if ( metadata_exists( 'user', $user->ID, $key ) ) {
+			if ( EmailMatch::meta_exists_now( 'user', $user->ID, $key ) ) {
 				$result['items_retained'] = true;
 				/* translators: %s: internal meta key. */
 				$result['messages'][] = sprintf( __( 'Account detail %s could not be erased.', 'mhm-rentiva' ), $key );

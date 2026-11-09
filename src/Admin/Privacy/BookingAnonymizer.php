@@ -135,8 +135,7 @@ final class BookingAnonymizer {
 		// and keeps its subject hash (Codex r5).
 		if ( ! metadata_exists( 'post', $booking_id, BookingMatcher::ERASED_KEY ) ) {
 			update_post_meta( $booking_id, BookingMatcher::ERASED_KEY, gmdate( 'c' ) );
-			wp_cache_delete( $booking_id, 'post_meta' );
-			if ( ! metadata_exists( 'post', $booking_id, BookingMatcher::ERASED_KEY ) ) {
+			if ( ! EmailMatch::meta_exists_now( 'post', $booking_id, BookingMatcher::ERASED_KEY ) ) {
 				return array( 'erased_mark' );
 			}
 		}
@@ -148,8 +147,8 @@ final class BookingAnonymizer {
 	/**
 	 * Give every row of a meta key one value (existing keys only).
 	 *
-	 * update_post_meta() without a previous value updates every row of the
-	 * key, so one call covers a key stored twice; the check reads all rows.
+	 * One update_post_meta() call without a previous value updates every row
+	 * of the key, so it covers a key stored twice; the check reads all rows.
 	 *
 	 * @param int    $booking_id Booking ID.
 	 * @param string $key        Meta key.
@@ -322,8 +321,11 @@ final class BookingAnonymizer {
 		$meta  = wp_get_attachment_metadata( $attachment );
 		if ( '' !== $main && is_array( $meta ) ) {
 			$dir = dirname( $main );
-			if ( ! empty( $meta['original_image'] ) ) {
-				$files[] = $dir . '/' . wp_basename( (string) $meta['original_image'] );
+			// Core adds `original_image` when it scaled a large upload; the
+			// type stub does not list it.
+			$original = array_key_exists( 'original_image', $meta ) ? (string) $meta['original_image'] : '';
+			if ( '' !== $original ) {
+				$files[] = $dir . '/' . wp_basename( $original );
 			}
 			foreach ( (array) ( $meta['sizes'] ?? array() ) as $size ) {
 				if ( is_array( $size ) && ! empty( $size['file'] ) ) {

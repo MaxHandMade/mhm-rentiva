@@ -176,21 +176,24 @@ final class ContactPersonalData {
 	 * @return array<int, array{name: string, value: string}>
 	 */
 	private static function fields( int $id ): array {
-		$meta   = static fn( string $key ): string => is_scalar( $v = get_post_meta( $id, $key, true ) ) ? trim( (string) $v ) : '';
+		$meta   = static function ( string $key ) use ( $id ): string {
+			$v = get_post_meta( $id, $key, true );
+			return is_scalar( $v ) ? trim( (string) $v ) : '';
+		};
 		$record = ContactAttachmentStore::record( $id );
 
 		$pairs = array(
-			__( 'Date', 'mhm-rentiva' )         => $meta( '_mhmrentiva_contact_timestamp' ),
-			__( 'Type', 'mhm-rentiva' )         => $meta( '_mhmrentiva_contact_type' ),
-			__( 'Name', 'mhm-rentiva' )         => $meta( '_mhmrentiva_contact_name' ),
-			__( 'E-mail', 'mhm-rentiva' )       => $meta( '_mhmrentiva_contact_email' ),
-			__( 'Phone', 'mhm-rentiva' )        => $meta( '_mhmrentiva_contact_phone' ),
-			__( 'Company', 'mhm-rentiva' )      => $meta( '_mhmrentiva_contact_company' ),
-			__( 'Message', 'mhm-rentiva' )      => trim( (string) get_post_field( 'post_content', $id ) ),
+			__( 'Date', 'mhm-rentiva' )          => $meta( '_mhmrentiva_contact_timestamp' ),
+			__( 'Type', 'mhm-rentiva' )          => $meta( '_mhmrentiva_contact_type' ),
+			__( 'Name', 'mhm-rentiva' )          => $meta( '_mhmrentiva_contact_name' ),
+			__( 'E-mail', 'mhm-rentiva' )        => $meta( '_mhmrentiva_contact_email' ),
+			__( 'Phone', 'mhm-rentiva' )         => $meta( '_mhmrentiva_contact_phone' ),
+			__( 'Company', 'mhm-rentiva' )       => $meta( '_mhmrentiva_contact_company' ),
+			__( 'Message', 'mhm-rentiva' )       => trim( (string) get_post_field( 'post_content', $id ) ),
 			__( 'Consent given', 'mhm-rentiva' ) => $meta( '_mhmrentiva_contact_consent' ),
-			__( 'IP address', 'mhm-rentiva' )   => $meta( '_mhmrentiva_contact_ip_address' ),
-			__( 'Browser', 'mhm-rentiva' )      => $meta( '_mhmrentiva_contact_user_agent' ),
-			__( 'Attachment', 'mhm-rentiva' )   => null !== $record ? $record['name'] : '',
+			__( 'IP address', 'mhm-rentiva' )    => $meta( '_mhmrentiva_contact_ip_address' ),
+			__( 'Browser', 'mhm-rentiva' )       => $meta( '_mhmrentiva_contact_user_agent' ),
+			__( 'Attachment', 'mhm-rentiva' )    => null !== $record ? $record['name'] : '',
 		);
 
 		$out = array();

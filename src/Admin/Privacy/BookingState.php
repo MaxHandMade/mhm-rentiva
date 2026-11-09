@@ -50,10 +50,9 @@ final class BookingState {
 	public static function of( int $booking_id ): string {
 		global $wpdb;
 
-		$sql = $wpdb->prepare(
-			"SELECT COUNT(*) FROM {$wpdb->posts} p WHERE p.ID = %d AND " . self::sql_closed( 'p' ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the predicate is built from constants and a sanitised alias.
-			$booking_id
-		);
+		$closed = self::sql_closed( 'p' );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $closed is built from Status constants and a sanitised alias; no input.
+		$sql = $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} p WHERE p.ID = %d AND {$closed}", $booking_id );
 
 		return '1' === (string) $wpdb->get_var( $sql ) ? 'closed' : 'active'; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above.
 	}

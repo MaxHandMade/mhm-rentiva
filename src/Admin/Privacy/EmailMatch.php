@@ -50,13 +50,30 @@ final class EmailMatch {
 	}
 
 	/**
+	 * Whether a meta key exists right now, read past the object cache.
+	 *
+	 * The privacy writers read back what they wrote: a filter can short-circuit
+	 * any meta write, and a write that did not stick must not count as done.
+	 *
+	 * @param string $type      'post' or 'user'.
+	 * @param int    $object_id Object ID.
+	 * @param string $key       Meta key.
+	 * @return bool
+	 */
+	public static function meta_exists_now( string $type, int $object_id, string $key ): bool {
+		wp_cache_delete( $object_id, $type . '_meta' );
+
+		return metadata_exists( $type, $object_id, $key );
+	}
+
+	/**
 	 * A LIKE pattern that finds the address as a whole JSON string.
 	 *
 	 * The address is JSON-encoded first (quotes included, and "/" escaped the
 	 * way wp_json_encode() stores it), then escaped for LIKE. Keeping the
-	 * quotes stops "a@example.test" from matching "ba@example.test". The
-	 * pattern only nominates candidates: callers decode the JSON and compare
-	 * the field before acting.
+	 * quotes stops "a@example.test" from matching "ba@example.test". Callers
+	 * act on every match without a second check (spec r5 #7): a record that
+	 * carries the address as a whole JSON string holds the person's data.
 	 *
 	 * @param string $email Raw address.
 	 * @return string '' when the address is not valid.

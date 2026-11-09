@@ -66,7 +66,10 @@ final class BookingExporter {
 	 * @return array<int, array{name: string, value: string}>
 	 */
 	private static function fields( int $id ): array {
-		$meta = static fn( string $key ): string => is_scalar( $v = get_post_meta( $id, $key, true ) ) ? trim( (string) $v ) : '';
+		$meta = static function ( string $key ) use ( $id ): string {
+			$v = get_post_meta( $id, $key, true );
+			return is_scalar( $v ) ? trim( (string) $v ) : '';
+		};
 
 		$vehicle_id   = (int) $meta( '_mhmrentiva_vehicle_id' );
 		$cancellation = get_post_meta( $id, '_mhmrentiva_cancellation_data', true );
@@ -83,7 +86,7 @@ final class BookingExporter {
 			}
 			return '';
 		};
-		$name = $meta( '_mhmrentiva_customer_name' );
+		$name  = $meta( '_mhmrentiva_customer_name' );
 		if ( '' === $name ) {
 			$name = trim( $meta( '_mhmrentiva_customer_first_name' ) . ' ' . $meta( '_mhmrentiva_customer_last_name' ) );
 		}
@@ -92,27 +95,27 @@ final class BookingExporter {
 		}
 
 		$pairs = array(
-			__( 'Booking number', 'mhm-rentiva' )          => (string) $id,
-			__( 'Status', 'mhm-rentiva' )                  => '' !== $status ? Status::get_label( $status ) : '',
-			__( 'Vehicle', 'mhm-rentiva' )                 => $vehicle_id > 0 ? get_the_title( $vehicle_id ) : '',
-			__( 'Pick-up date', 'mhm-rentiva' )            => trim( $meta( '_mhmrentiva_pickup_date' ) . ' ' . $meta( '_mhmrentiva_start_time' ) ),
-			__( 'Return date', 'mhm-rentiva' )             => trim( ( '' !== $meta( '_mhmrentiva_return_date' ) ? $meta( '_mhmrentiva_return_date' ) : $meta( '_mhmrentiva_dropoff_date' ) ) . ' ' . $meta( '_mhmrentiva_end_time' ) ),
-			__( 'Name', 'mhm-rentiva' )                    => $name,
-			__( 'E-mail', 'mhm-rentiva' )                  => $first( array( '_mhmrentiva_customer_email', '_mhmrentiva_booking_customer_email', '_mhmrentiva_contact_email' ) ),
-			__( 'Phone', 'mhm-rentiva' )                   => $first( array( '_mhmrentiva_customer_phone', '_mhmrentiva_booking_customer_phone', '_mhmrentiva_contact_phone' ) ),
-			__( 'Guests', 'mhm-rentiva' )                  => $meta( '_mhmrentiva_guests' ),
-			__( 'Special notes', 'mhm-rentiva' )           => $meta( '_mhmrentiva_special_notes' ),
-			__( 'Booking note', 'mhm-rentiva' )            => trim( (string) get_post_field( 'post_content', $id ) ),
-			__( 'Total', 'mhm-rentiva' )                   => $meta( '_mhmrentiva_total_price' ),
-			__( 'Payment status', 'mhm-rentiva' )          => '' !== $payment ? PaymentView::label( $payment ) : '',
-			__( 'Cancellation reason', 'mhm-rentiva' )     => is_scalar( $cancellation['cancellation_reason'] ?? null ) ? (string) $cancellation['cancellation_reason'] : '',
-			__( 'Cancelled via', 'mhm-rentiva' )           => is_scalar( $cancellation['cancelled_via'] ?? null ) ? (string) $cancellation['cancelled_via'] : '',
-			__( 'Refund reason', 'mhm-rentiva' )           => $meta( '_mhmrentiva_refund_reason' ),
-			__( 'Refund reference', 'mhm-rentiva' )        => $meta( '_mhmrentiva_refund_completed_reference' ),
-			__( 'Refund review reason', 'mhm-rentiva' )    => $meta( '_mhmrentiva_refund_review_dismissed_reason' ),
-			__( 'Payment receipt', 'mhm-rentiva' )         => $receipt_id > 0 ? (string) wp_get_attachment_url( $receipt_id ) : '',
-			__( 'Payment receipt note', 'mhm-rentiva' )    => $meta( '_mhmrentiva_receipt_note' ),
-			__( 'History', 'mhm-rentiva' )                 => self::history( $id ),
+			__( 'Booking number', 'mhm-rentiva' )       => (string) $id,
+			__( 'Status', 'mhm-rentiva' )               => '' !== $status ? Status::get_label( $status ) : '',
+			__( 'Vehicle', 'mhm-rentiva' )              => $vehicle_id > 0 ? get_the_title( $vehicle_id ) : '',
+			__( 'Pick-up date', 'mhm-rentiva' )         => trim( $meta( '_mhmrentiva_pickup_date' ) . ' ' . $meta( '_mhmrentiva_start_time' ) ),
+			__( 'Return date', 'mhm-rentiva' )          => trim( ( '' !== $meta( '_mhmrentiva_return_date' ) ? $meta( '_mhmrentiva_return_date' ) : $meta( '_mhmrentiva_dropoff_date' ) ) . ' ' . $meta( '_mhmrentiva_end_time' ) ),
+			__( 'Name', 'mhm-rentiva' )                 => $name,
+			__( 'E-mail', 'mhm-rentiva' )               => $first( array( '_mhmrentiva_customer_email', '_mhmrentiva_booking_customer_email', '_mhmrentiva_contact_email' ) ),
+			__( 'Phone', 'mhm-rentiva' )                => $first( array( '_mhmrentiva_customer_phone', '_mhmrentiva_booking_customer_phone', '_mhmrentiva_contact_phone' ) ),
+			__( 'Guests', 'mhm-rentiva' )               => $meta( '_mhmrentiva_guests' ),
+			__( 'Special notes', 'mhm-rentiva' )        => $meta( '_mhmrentiva_special_notes' ),
+			__( 'Booking note', 'mhm-rentiva' )         => trim( (string) get_post_field( 'post_content', $id ) ),
+			__( 'Total', 'mhm-rentiva' )                => $meta( '_mhmrentiva_total_price' ),
+			__( 'Payment status', 'mhm-rentiva' )       => '' !== $payment ? PaymentView::label( $payment ) : '',
+			__( 'Cancellation reason', 'mhm-rentiva' )  => is_scalar( $cancellation['cancellation_reason'] ?? null ) ? (string) $cancellation['cancellation_reason'] : '',
+			__( 'Cancelled via', 'mhm-rentiva' )        => is_scalar( $cancellation['cancelled_via'] ?? null ) ? (string) $cancellation['cancelled_via'] : '',
+			__( 'Refund reason', 'mhm-rentiva' )        => $meta( '_mhmrentiva_refund_reason' ),
+			__( 'Refund reference', 'mhm-rentiva' )     => $meta( '_mhmrentiva_refund_completed_reference' ),
+			__( 'Refund review reason', 'mhm-rentiva' ) => $meta( '_mhmrentiva_refund_review_dismissed_reason' ),
+			__( 'Payment receipt', 'mhm-rentiva' )      => $receipt_id > 0 ? (string) wp_get_attachment_url( $receipt_id ) : '',
+			__( 'Payment receipt note', 'mhm-rentiva' ) => $meta( '_mhmrentiva_receipt_note' ),
+			__( 'History', 'mhm-rentiva' )              => self::history( $id ),
 		);
 
 		$out = array();
