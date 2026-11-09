@@ -963,8 +963,10 @@ final class BookingMeta extends AbstractMetaBox {
 
 	/**
 	 * Gets history type label
+	 *
+	 * Public so the personal data exporter labels entries the way this box does.
 	 */
-	private static function get_history_type_label(string $type): string
+	public static function get_history_type_label(string $type): string
 	{
 		$labels = array(
 			'note'             => __('Note', 'mhm-rentiva'),
