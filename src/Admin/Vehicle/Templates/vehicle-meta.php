@@ -96,7 +96,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						echo '<div class="mhm-detail-item" data-detail-key="' . esc_attr( $key ) . '">';
 						echo '<div class="mhm-detail-content">';
-						echo '<label class="mhm-detail-label"' . \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::detail_label_for( (string) $key ) . '>' . esc_html( $label ) . '</label>';
+						$label_for = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::detail_label_for( (string) $key );
+						echo '<label class="mhm-detail-label"' . ( '' !== $label_for ? ' for="' . esc_attr( $label_for ) . '"' : '' ) . '>' . esc_html( $label ) . '</label>';
 
 						if ( $key === 'price_per_day' ) {
 							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="0" step="1" placeholder="0" class="mhm-detail-input" />';
@@ -175,7 +176,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						echo '<div class="mhm-detail-item" data-detail-key="' . esc_attr( $key ) . '">';
 						echo '<div class="mhm-detail-content">';
-						echo '<label class="mhm-detail-label"' . \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::detail_label_for( (string) $key ) . '>' . esc_html( $label ) . '</label>';
+						$label_for = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::detail_label_for( (string) $key );
+						echo '<label class="mhm-detail-label"' . ( '' !== $label_for ? ' for="' . esc_attr( $label_for ) . '"' : '' ) . '>' . esc_html( $label ) . '</label>';
 
 						if ( $key === 'price_per_day' ) {
 							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="0" step="1" placeholder="0" class="mhm-detail-input" />';

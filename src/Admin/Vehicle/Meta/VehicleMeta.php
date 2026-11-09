@@ -772,9 +772,10 @@ final class VehicleMeta extends AbstractMetaBox {
 	}
 
 	/**
-	 * The for="" of a detail item's label: the input the template draws for
-	 * $key is always id="mhmrentiva_<key>". None for the large-luggage count
-	 * while the transfer box owns it -- no input is drawn then.
+	 * The id a detail item's label points at (for=""): the input the template
+	 * draws for $key is always id="mhmrentiva_<key>". '' for the large-luggage
+	 * count while the transfer box owns it -- no input is drawn then. The
+	 * template escapes it.
 	 */
 	public static function detail_label_for(string $key): string
 	{
@@ -782,7 +783,7 @@ final class VehicleMeta extends AbstractMetaBox {
 			return '';
 		}
 
-		return ' for="mhmrentiva_' . esc_attr($key) . '"';
+		return 'mhmrentiva_' . $key;
 	}
 
 	/**
