@@ -83,6 +83,27 @@ body.rvs-shell.rvs-summary {
 	gap: var(--rvs-s3);
 }
 
+/*
+ * A paid deposit is money received, not the amount to pay now (canvas
+ * Rezervasyon-Ozeti, Ç5): rvs-breakdown.css draws the deposit as "pay now",
+ * which the booking detail page corrects in rvs-account.css -- not loaded here.
+ * "Due at pickup" carries the weight only once the deposit is paid; an unpaid
+ * deposit keeps the breakdown's own look.
+ */
+.rvs-shell .rvs-summary__money .rvs-breakdown__deposit--paid {
+	padding: 0;
+	background: transparent;
+	color: var(--rvs-st-done-fg);
+}
+
+.rvs-shell .rvs-summary__money:has(.rvs-breakdown__deposit--paid) .rvs-breakdown__pickup {
+	padding: var(--rvs-s2) var(--rvs-s3);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-accent-100);
+	color: var(--rvs-text);
+	font-weight: 600;
+}
+
 .rvs-shell .rvs-summary__paid {
 	padding-top: var(--rvs-s2);
 	border-top: 1px solid var(--rvs-line);
