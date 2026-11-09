@@ -148,8 +148,6 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		add_action('admin_enqueue_scripts', array( self::class, 'hide_default_meta_boxes' ));
 
-		add_action('wp_ajax_mhmrentiva_save_item_order', array( self::class, 'ajax_save_item_order' ));
-
 		add_action('edit_form_top', array( self::class, 'render_header_strip' ));
 	}
 
@@ -600,9 +598,13 @@ final class VehicleMeta extends AbstractMetaBox {
 		// former feature/equipment reads were dead assignments and are gone.
 		$available_details = \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::get_all_available_details();
 
-		$details_order = json_decode($req->text('details-grid_order'), true);
+		// Item order, per vehicle, with the Update (filled by vehicle-meta.js on
+		// sort). Kept to the keys each grid draws; never written to the global
+		// field options.
+		$item_keys     = self::available_field_keys();
+		$details_order = self::posted_item_order($req, 'details', $item_keys['details']);
 
-		if ($details_order && is_array($details_order)) {
+		if (null !== $details_order) {
 			update_post_meta($post_id, '_mhmrentiva_details_order', $details_order);
 		}
 
@@ -714,14 +716,14 @@ final class VehicleMeta extends AbstractMetaBox {
 			update_post_meta($post_id, $meta_key, wp_slash($meta_value));
 		}
 
-		$features_order  = json_decode($req->text('features-grid_order'), true);
-		$equipment_order = json_decode($req->text('equipment-grid_order'), true);
+		$features_order  = self::posted_item_order($req, 'features', $item_keys['features']);
+		$equipment_order = self::posted_item_order($req, 'equipment', $item_keys['equipment']);
 
-		if ($features_order && is_array($features_order)) {
+		if (null !== $features_order) {
 			update_post_meta($post_id, '_mhmrentiva_features_order', $features_order);
 		}
 
-		if ($equipment_order && is_array($equipment_order)) {
+		if (null !== $equipment_order) {
 			update_post_meta($post_id, '_mhmrentiva_equipment_order', $equipment_order);
 		}
 
@@ -767,6 +769,20 @@ final class VehicleMeta extends AbstractMetaBox {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * The for="" of a detail item's label: the input the template draws for
+	 * $key is always id="mhmrentiva_<key>". None for the large-luggage count
+	 * while the transfer box owns it -- no input is drawn then.
+	 */
+	public static function detail_label_for(string $key): string
+	{
+		if ('vehicle_max_big_luggage' === $key && self::luggage_owned_by_transfer_box()) {
+			return '';
+		}
+
+		return ' for="mhmrentiva_' . esc_attr($key) . '"';
 	}
 
 	/**
@@ -1419,68 +1435,46 @@ final class VehicleMeta extends AbstractMetaBox {
 	}
 
 	/**
-	 * AJAX handler: Save ordering changes
+	 * The keys each item grid draws for this site, from the Vehicle Settings
+	 * selection -- the same set Templates/vehicle-meta.php renders (standard,
+	 * custom and taxonomy fields, each in its own group). An item order is kept
+	 * to these keys.
+	 *
+	 * @return array{details: list<string>, features: list<string>, equipment: list<string>}
 	 */
-	public static function ajax_save_item_order(): void
+	private static function available_field_keys(): array
 	{
-		$nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash( (string) $_POST['nonce'])) : '';
-		if (! wp_verify_nonce($nonce, 'mhmrentiva_vehicle_meta_action')) {
-			wp_send_json_error(__('Security error', 'mhm-rentiva'));
+		$settings = self::get_field_settings();
+
+		return array(
+			'details'   => array_map('strval', array_keys(self::build_available_fields($settings['selected_details'], $settings['default_details'], $settings['custom_details']))),
+			'features'  => array_map('strval', array_keys(self::build_available_fields($settings['selected_features'], $settings['default_features'], $settings['custom_features']))),
+			'equipment' => array_map('strval', array_keys(self::build_available_fields($settings['selected_equipment'], $settings['default_equipment'], $settings['custom_equipment']))),
+		);
+	}
+
+	/**
+	 * One grid's posted item order (JSON list in "<grid>-grid_order"), kept to
+	 * the keys that grid draws. Null when the field is absent or empty: the
+	 * saved order then stays as it is.
+	 *
+	 * @param list<string> $allowed
+	 * @return list<string>|null
+	 */
+	private static function posted_item_order(VerifiedRequest $req, string $grid, array $allowed): ?array
+	{
+		$decoded = json_decode($req->text($grid . '-grid_order'), true);
+		if (! is_array($decoded) || array() === $decoded) {
+			return null;
 		}
 
-		$req = VerifiedRequest::from($_POST);
-
-		$post_id = $req->int('post_id');
-		if (! $post_id) {
-			wp_send_json_error('Post ID not found');
-		}
-
-		// edit_post on the actual target, not the blanket edit_posts: this handler
-		// writes meta on whichever post id the request names, so a generic
-		// "can edit something" check let any contributor reorder any vehicle.
-		if (! current_user_can('edit_post', $post_id)) {
-			wp_send_json_error(__('Permission error', 'mhm-rentiva'));
-		}
-
-		// $grid_type is interpolated into both a meta key and an option key, so it
-		// is matched against the three grids that exist rather than merely sanitized.
-		// edit_post proves permission, never identity: map_meta_cap grants it for any post
-		// the caller owns, so without this check the handler wrote vehicle ordering meta
-		// onto whatever id arrived. Same M-1 class as the twelve swept in 1032c77e; this
-		// member sits outside the three files that sweep covered, which is why neither the
-		// fix nor its lock saw it. Found by an independent audit, not by a gate.
-		if ('mhmrentiva_vehicle' !== get_post_type($post_id)) {
-			wp_send_json_error(__('Vehicle not found.', 'mhm-rentiva'));
-		}
-
-		$grid_type = $req->text('grid_type');
-		if (! in_array($grid_type, array( 'details', 'features', 'equipment' ), true)) {
-			wp_send_json_error(__('Invalid data', 'mhm-rentiva'));
-		}
-
-		// Sanitize order array - each element should be a string key
-		$order = array_map(array( self::class, 'sanitize_text_field_safe' ), $req->arr('order'));
-
-		if (empty($order)) {
-			wp_send_json_error(__('Invalid data', 'mhm-rentiva'));
-		}
-
-		$meta_key = '_mhmrentiva_' . $grid_type . '_order';
-		update_post_meta($post_id, $meta_key, $order);
-
-		$option_key   = 'mhmrentiva_vehicle_' . $grid_type;
-		$current_data = get_option($option_key, array());
-
-		if (! empty($current_data)) {
-			$reordered_data = array();
-			foreach ($order as $key) {
-				if (isset($current_data[ $key ])) {
-					$reordered_data[ $key ] = $current_data[ $key ];
-				}
+		$order = array();
+		foreach ($decoded as $key) {
+			if (is_string($key) && in_array($key, $allowed, true) && ! in_array($key, $order, true)) {
+				$order[] = $key;
 			}
-			update_option($option_key, $reordered_data);
 		}
 
-		wp_send_json_success('Ordering saved');
+		return array() === $order ? null : $order;
 	}
 }

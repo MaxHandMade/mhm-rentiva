@@ -37,11 +37,10 @@ use WP_UnitTestCase;
  *
  * | key                            | mhm-rentiva-vehicle-meta | -js (VehicleMeta) | read by vehicle-meta.js at |
  * |----------------------------------|:---:|:---:|---|
- * | ajaxUrl                          | yes | yes (same value)                       | :263 |
- * | nonce                            | yes | yes (same nonce action)                | :270 |
- * | strings.orderUpdated             | yes | yes | :306 |
- * | strings.orderSaveError           | yes | yes | :276 |
- * | strings.ajaxError                | yes | yes | :283 |
+ * (PR 4, 2026-11-09: ajaxUrl, nonce and strings.orderUpdated / orderSaveError
+ * / ajaxError were the item-order AJAX saver's only data; the saver is gone,
+ * the order is saved with the Update, and those keys are no longer localized.)
+ *
  * | strings.enterNewFeature          | yes | yes | :359 |
  * | strings.enterNewEquipment        | yes | yes | :379 |
  * | strings.enterNewDetail           | yes | yes | :399 |
@@ -80,9 +79,6 @@ final class VehicleMetaSingleEnqueueTest extends WP_UnitTestCase {
 
 	/** Union of every strings.* key either handle localized before the fix. */
 	private const EXPECTED_STRING_KEYS = array(
-		'orderUpdated',
-		'orderSaveError',
-		'ajaxError',
 		'enterNewFeature',
 		'enterNewEquipment',
 		'enterNewDetail',
@@ -201,14 +197,16 @@ final class VehicleMetaSingleEnqueueTest extends WP_UnitTestCase {
 		return $cases;
 	}
 
-	public function test_surviving_handle_localizes_ajax_url_and_nonce(): void {
+	public function test_no_ajax_nonce_is_localized_for_the_vehicle_meta_script(): void {
+		// The item order is saved with the Update since PR 4; the AJAX saver and
+		// its nonce/URL are gone, and nothing on this screen reads them.
 		$this->trigger_vehicle_edit_screen_enqueue();
 
 		$decoded = $this->decode_localized_payload();
 
-		$this->assertArrayHasKey( 'ajaxUrl', $decoded );
-		$this->assertArrayHasKey( 'nonce', $decoded );
-		$this->assertNotEmpty( $decoded['nonce'] );
+		$this->assertArrayNotHasKey( 'ajaxUrl', $decoded );
+		$this->assertArrayNotHasKey( 'nonce', $decoded );
+		$this->assertArrayHasKey( 'strings', $decoded );
 	}
 
 	/**

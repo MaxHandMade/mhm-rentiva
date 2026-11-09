@@ -34,7 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<!-- Availability Status - First box -->
 				<div class="mhm-detail-item availability-status" data-detail-key="availability">
 					<div class="mhm-detail-content">
-						<label class="mhm-detail-label"><?php esc_html_e( 'Availability Status', 'mhm-rentiva' ); ?></label>
+						<label class="mhm-detail-label" for="_mhmrentiva_vehicle_status"><?php esc_html_e( 'Availability Status', 'mhm-rentiva' ); ?></label>
 						<select id="_mhmrentiva_vehicle_status" name="_mhmrentiva_vehicle_status" class="mhm-availability-dropdown">
 							<option value="active" <?php selected( $available, 'active' ); ?> data-icon="✅"><?php esc_html_e( 'Active', 'mhm-rentiva' ); ?></option>
 							<option value="maintenance" <?php selected( $available, 'maintenance' ); ?> data-icon="🔧"><?php esc_html_e( 'Maintenance', 'mhm-rentiva' ); ?></option>
@@ -47,7 +47,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php if ( ! empty( $available_locations ) ) : ?>
 					<div class="mhm-detail-item vehicle-location" data-detail-key="location">
 						<div class="mhm-detail-content">
-							<label class="mhm-detail-label"><?php esc_html_e( 'Location', 'mhm-rentiva' ); ?></label>
+							<label class="mhm-detail-label" for="_mhmrentiva_location_id"><?php esc_html_e( 'Location', 'mhm-rentiva' ); ?></label>
 							<select id="_mhmrentiva_location_id" name="_mhmrentiva_location_id" class="mhm-detail-select">
 								<option value=""><?php esc_html_e( 'Inherit (Vendor/Global)', 'mhm-rentiva' ); ?></option>
 								<?php foreach ( $available_locations as $loc ) : ?>
@@ -96,7 +96,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						echo '<div class="mhm-detail-item" data-detail-key="' . esc_attr( $key ) . '">';
 						echo '<div class="mhm-detail-content">';
-						echo '<label class="mhm-detail-label">' . esc_html( $label ) . '</label>';
+						echo '<label class="mhm-detail-label"' . \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::detail_label_for( (string) $key ) . '>' . esc_html( $label ) . '</label>';
 
 						if ( $key === 'price_per_day' ) {
 							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="0" step="1" placeholder="0" class="mhm-detail-input" />';
@@ -175,7 +175,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						echo '<div class="mhm-detail-item" data-detail-key="' . esc_attr( $key ) . '">';
 						echo '<div class="mhm-detail-content">';
-						echo '<label class="mhm-detail-label">' . esc_html( $label ) . '</label>';
+						echo '<label class="mhm-detail-label"' . \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::detail_label_for( (string) $key ) . '>' . esc_html( $label ) . '</label>';
 
 						if ( $key === 'price_per_day' ) {
 							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="0" step="1" placeholder="0" class="mhm-detail-input" />';
@@ -368,6 +368,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 		</div>
 
+		<?php // Item order per grid, filled by vehicle-meta.js on sort and saved with the Update (VehicleMeta::posted_item_order()). ?>
+		<input type="hidden" id="details-grid_order" name="details-grid_order" value="" />
+		<input type="hidden" id="features-grid_order" name="features-grid_order" value="" />
+		<input type="hidden" id="equipment-grid_order" name="equipment-grid_order" value="" />
 	</div>
 </div>
 

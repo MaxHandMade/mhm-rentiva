@@ -219,24 +219,33 @@
     }
 
     /**
-     * Drag & Drop functionality
+     * The sortable items of each grid. One map for both the sortable and the
+     * order it records, so the two can never disagree (PR 4: features and
+     * equipment were not draggable, and their order was never collected).
+     */
+    const GRID_ITEMS = {
+        'details-grid': '.mhm-detail-item[data-detail-key]',
+        'features-grid': '.mhm-feature-item[data-feature-key]',
+        'equipment-grid': '.mhm-equipment-item[data-equipment-key]'
+    };
+
+    /**
+     * Drag & Drop functionality. The new order goes into the grid's hidden
+     * "<grid>_order" field and is saved per vehicle with the Update.
      */
     function initializeDragAndDrop() {
-        const grids = ['details-grid', 'features-grid', 'equipment-grid'];
-
-        grids.forEach(gridId => {
+        Object.keys(GRID_ITEMS).forEach(gridId => {
             const grid = $('#' + gridId);
 
             if (grid.length && typeof $.fn.sortable !== 'undefined') {
                 grid.sortable({
-                    items: '.mhm-detail-item, .mhm-checkbox-item',
+                    items: GRID_ITEMS[gridId],
                     placeholder: 'mhm-sortable-placeholder',
                     forcePlaceholderSize: true,
                     cursor: 'move',
                     opacity: 0.8,
-                    update: function (event, ui) {
-                        // Save when order changes
-                        saveItemOrder(gridId);
+                    update: function () {
+                        updateFormFieldNames(grid);
                     }
                 });
             }
@@ -244,80 +253,11 @@
     }
 
     /**
-     * Save sorting changes via AJAX
-     */
-    function saveItemOrder(gridId) {
-        const grid = $('#' + gridId);
-        const items = grid.find('.mhm-detail-item, .mhm-checkbox-item');
-        const order = [];
-
-        items.each(function () {
-            const key = $(this).data('detail-key') || $(this).data('feature-key') || $(this).data('equipment-key');
-            if (key) {
-                order.push(key);
-            }
-        });
-
-        // Send to server via AJAX
-        $.ajax({
-            url: window.ajaxurl || window.mhmVehicleMeta?.ajaxUrl,
-            type: 'POST',
-            data: {
-                action: 'mhmrentiva_save_item_order',
-                grid_type: gridId.replace('-grid', ''),
-                order: order,
-                post_id: $('#post_ID').val(),
-                nonce: window.mhmVehicleMeta?.nonce || $('#mhmrentiva_vehicle_meta_nonce').val()
-            },
-            success: function (response) {
-                if (response.success) {
-                    showDragSuccessMessage();
-                } else {
-                    const errorMsg = (window.mhmVehicleMeta && window.mhmVehicleMeta.strings && window.mhmVehicleMeta.strings.orderSaveError) || 'Failed to save order';
-                    if (typeof console !== 'undefined' && console.error) {
-                        console.error(errorMsg, response.data);
-                    }
-                }
-            },
-            error: function () {
-                const errorMsg = (window.mhmVehicleMeta && window.mhmVehicleMeta.strings && window.mhmVehicleMeta.strings.ajaxError) || 'AJAX error: Failed to save order';
-                if (typeof console !== 'undefined' && console.error) {
-                    console.error(errorMsg);
-                }
-            }
-        });
-    }
-
-    /**
-     * Show drag success message
-     */
-    function showDragSuccessMessage() {
-        const message = $('<div>').css({
-            'position': 'fixed',
-            'top': '20px',
-            'right': '20px',
-            'z-index': '10000',
-            'background': '#4CAF50',
-            'color': 'white',
-            'padding': '10px 20px',
-            'border-radius': '4px',
-            'font-weight': 'bold',
-            'box-shadow': '0 2px 4px rgba(0,0,0,0.2)'
-        }).text(window.mhmVehicleMeta?.strings?.orderUpdated || 'Order updated!');
-
-        $('body').append(message);
-
-        setTimeout(() => {
-            message.remove();
-        }, 2000);
-    }
-
-    /**
      * Update form field names
      */
     function updateFormFieldNames(gridContainer) {
-        const items = gridContainer.find('.mhm-detail-item, .mhm-checkbox-item');
         const gridId = gridContainer.attr('id');
+        const items = gridContainer.find(GRID_ITEMS[gridId] || '.mhm-detail-item, .mhm-checkbox-item');
 
         // Create or update order hidden field
         let orderField = $('#' + gridId + '_order');

@@ -1078,12 +1078,9 @@ final class AssetManager {
 					'mhm-rentiva-vehicle-meta',
 					'mhmVehicleMeta',
 					array(
-						'ajaxUrl' => admin_url('admin-ajax.php'),
-						'nonce'   => wp_create_nonce('mhmrentiva_vehicle_meta_nonce'),
+						// No ajaxUrl / nonce: the item order is saved with the
+						// Update (hidden <grid>_order fields), not over AJAX (PR 4).
 						'strings' => array(
-							'orderUpdated'           => __('Order updated!', 'mhm-rentiva'),
-							'orderSaveError'         => __('Failed to save order', 'mhm-rentiva'),
-							'ajaxError'              => __('AJAX error: Failed to save order', 'mhm-rentiva'),
 							'enterNewFeature'        => __('Enter new feature name:', 'mhm-rentiva'),
 							'enterNewEquipment'      => __('Enter new equipment name:', 'mhm-rentiva'),
 							'enterNewDetail'         => __('Enter new detail name:', 'mhm-rentiva'),
