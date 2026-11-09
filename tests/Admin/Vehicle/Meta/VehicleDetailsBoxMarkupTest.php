@@ -89,6 +89,22 @@ final class VehicleDetailsBoxMarkupTest extends WP_UnitTestCase
 		$this->assertStringContainsString('id="mhmrentiva_price_per_day"', $html);
 	}
 
+	public function test_a_vehicle_without_a_saved_order_uses_the_settings_limits(): void
+	{
+		// A new vehicle has no _mhmrentiva_details_order. The template used to
+		// draw it from a second copy with hard-coded limits (engine size
+		// min 0.8): the stored 0 failed the browser's validation and Update
+		// would not submit. One loop, the settings' limits, for every vehicle.
+		update_option('mhmrentiva_selected_details', array( 'engine_size', 'seats', 'transmission' ));
+		delete_post_meta($this->vehicle->ID, '_mhmrentiva_details_order');
+
+		$html = $this->box();
+
+		$this->assertDoesNotMatchRegularExpression('/id="mhmrentiva_engine_size"[^>]*min="0\.8"/', $html);
+		$this->assertDoesNotMatchRegularExpression('/id="mhmrentiva_seats"[^>]*max="20"/', $html, 'the seats maximum comes from the settings (default 100)');
+		$this->assertSame('', (string) get_post_meta($this->vehicle->ID, '_mhmrentiva_details_order', true), 'drawing the box writes no order for a vehicle that has none');
+	}
+
 	public function test_location_card_only_with_locations(): void
 	{
 		$this->assertStringNotContainsString('vehicle-location', $this->box());

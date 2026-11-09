@@ -153,7 +153,9 @@ final class VehicleDepositFieldTest extends WP_UnitTestCase
 		$template = (string) file_get_contents(dirname(__DIR__, 4) . '/src/Admin/Vehicle/Templates/vehicle-meta.php');
 
 		$this->assertSame(0, substr_count($template, 'min="0" max="100" step="0.1" placeholder="10"'), 'The old 0-100 / placeholder-10 input must be gone.');
-		$this->assertSame(2, substr_count($template, 'min="1" max="100"'), 'Both deposit inputs accept 1-100.');
+		// One input since PR 4: the template's two render copies (saved order /
+		// no saved order) became one loop.
+		$this->assertSame(1, substr_count($template, 'min="1" max="100"'), 'The deposit input accepts 1-100.');
 	}
 
 	public function test_normaliser_is_the_single_rule(): void
