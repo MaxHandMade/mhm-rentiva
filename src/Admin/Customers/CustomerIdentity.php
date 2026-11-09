@@ -244,19 +244,33 @@ final class CustomerIdentity {
 	 * The same rule as a WP_Query meta_query, for callers that filter through
 	 * WP_Query rather than composing SQL.
 	 *
-	 * @param int    $user_id Account ID.
-	 * @param string $email   Account e-mail, '' when it has none.
+	 * A guest has no account, and guest bookings store user ID 0: a "user ID =
+	 * 0" branch would match every other guest's booking. So 0 drops the
+	 * user-id branch, as it does in sql_booking_owned_by(). With neither an ID
+	 * nor an e-mail the clause matches nothing -- an empty meta_query would
+	 * mean "no filter", i.e. every booking.
+	 *
+	 * @param int    $user_id Account ID, 0 drops the user-id branch.
+	 * @param string $email   Account e-mail, '' drops the e-mail branch.
 	 * @return array<int|string, array<string, string>|string> 'relation' holds a
 	 *         string ('OR'); the numeric keys each hold a {key, value} clause.
 	 */
 	public static function meta_query_owned_by( int $user_id, string $email ): array {
-		$clauses = array(
-			'relation' => 'OR',
-			array(
+		$clauses = array( 'relation' => 'OR' );
+
+		if ( $user_id > 0 ) {
+			$clauses[] = array(
 				'key'   => MetaKeys::BOOKING_CUSTOMER_USER_ID,
 				'value' => (string) $user_id,
-			),
-		);
+			);
+		}
+
+		if ( '' === $email && $user_id <= 0 ) {
+			$clauses[] = array(
+				'key'   => MetaKeys::BOOKING_CUSTOMER_USER_ID,
+				'value' => '-1',
+			);
+		}
 
 		if ( '' !== $email ) {
 			$clauses[] = array(
