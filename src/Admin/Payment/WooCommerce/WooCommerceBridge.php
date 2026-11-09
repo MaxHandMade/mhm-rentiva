@@ -1391,10 +1391,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * stamp existed is compared by its total.
 	 *
 	 * The booking's amount is read from the database, not the object cache. It
-	 * is not read under the booking lock: the admin save that moves it does not
-	 * take that lock, so holding it here would order nothing. An admin save
-	 * landing while the gateway is already charging stays open until PR-2 makes
-	 * that save take the lock (plan option A, user decision 2026-11-09).
+	 * is not read under a row lock. Such a lock would only wait out a single
+	 * meta UPDATE still in flight; released after this check, it could not stop
+	 * an admin save landing between the check and the charge. Closing that
+	 * window takes the admin save and the payment holding the same lock, which
+	 * is PR-2 (plan option A, user decision 2026-11-09; Codex r12 2).
 	 *
 	 * @param array<int, int|string> $booking_ids
 	 */

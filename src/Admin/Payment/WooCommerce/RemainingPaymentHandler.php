@@ -255,18 +255,40 @@ final class RemainingPaymentHandler {
 		// Priced and totalled at the store's own precision: a currency switcher
 		// answers wc_get_price_decimals() with the visitor's, and a 0-decimal
 		// visitor would round 2,050.40 owed to an order of 2,050 (Codex r11 1).
+		// Every step of the build sits inside the try, so the pin is removed
+		// whatever throws (Codex r12 1).
 		$pin_precision = static function () {
 			return self::debt_decimals();
 		};
 		add_filter('wc_get_price_decimals', $pin_precision, PHP_INT_MAX);
+		try {
+			$order = self::build_remaining_order($booking_id, $customer_user_id, $product, $vehicle_name, $remaining_amount, $due_minor, (int) $original_order_id);
+		} finally {
+			remove_filter('wc_get_price_decimals', $pin_precision, PHP_INT_MAX);
+		}
 
+		if (is_wp_error($order)) {
+			return $order;
+		}
+
+		// Persist remaining order ID on the booking so we can reuse it
+		update_post_meta($booking_id, '_mhmrentiva_remaining_order_id', $order->get_id());
+
+		return $order;
+	}
+
+	/**
+	 * The remaining-payment order itself, built, totalled and saved. Called with
+	 * the price precision pinned to the debt's own.
+	 */
+	private static function build_remaining_order(int $booking_id, int $customer_user_id, \WC_Product $product, string $vehicle_name, float|string $remaining_amount, int $due_minor, int $original_order_id): \WC_Order|\WP_Error
+	{
 		$order = wc_create_order(array(
 			'customer_id' => $customer_user_id,
 			'status'      => 'pending',
 		));
 
 		if (is_wp_error($order)) {
-			remove_filter('wc_get_price_decimals', $pin_precision, PHP_INT_MAX);
 			return new \WP_Error('mhmrentiva_order_create_failed', __('Failed to create payment order. Please try again.', 'mhm-rentiva'));
 		}
 
@@ -339,15 +361,8 @@ final class RemainingPaymentHandler {
 			$order->update_meta_data('_mhmrentiva_original_order_id', $original_order_id);
 		}
 
-		try {
-			$order->calculate_totals();
-			$order->save();
-		} finally {
-			remove_filter('wc_get_price_decimals', $pin_precision, PHP_INT_MAX);
-		}
-
-		// Persist remaining order ID on the booking so we can reuse it
-		update_post_meta($booking_id, '_mhmrentiva_remaining_order_id', $order->get_id());
+		$order->calculate_totals();
+		$order->save();
 
 		return $order;
 	}

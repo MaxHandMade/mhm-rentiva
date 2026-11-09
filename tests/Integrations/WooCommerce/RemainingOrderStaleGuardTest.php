@@ -207,6 +207,32 @@ final class RemainingOrderStaleGuardTest extends WP_UnitTestCase
 		$this->assertTrue($this->pay($order), 'and so does a 2-decimal one');
 	}
 
+	public function test_the_precision_pin_is_removed_when_the_build_throws(): void
+	{
+		update_option('woocommerce_price_num_decimals', '2');
+		$visitor = static function () {
+			return 3;
+		};
+		$boom    = static function () {
+			throw new \RuntimeException('boom');
+		};
+		add_filter('wc_get_price_decimals', $visitor);
+		add_filter('woocommerce_get_price_excluding_tax', $boom);
+		$thrown = false;
+		try {
+			RemainingPaymentHandler::get_or_create_remaining_order($this->booking_id);
+		} catch (\RuntimeException $e) {
+			$thrown = true;
+		} finally {
+			remove_filter('woocommerce_get_price_excluding_tax', $boom);
+		}
+		$decimals = wc_get_price_decimals();
+		remove_filter('wc_get_price_decimals', $visitor);
+
+		$this->assertTrue($thrown, 'PREMISE: the build threw midway');
+		$this->assertSame(3, $decimals, 'the rest of the request sees the visitor precision again (Codex r12 1)');
+	}
+
 	public function test_the_amount_owed_is_read_from_the_database_not_the_cache(): void
 	{
 		$old = $this->link();
