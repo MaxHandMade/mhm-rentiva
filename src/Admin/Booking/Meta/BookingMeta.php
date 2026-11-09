@@ -1118,7 +1118,10 @@ final class BookingMeta extends AbstractMetaBox {
 		// Read before anything is written: the offline channel derives what was
 		// paid from the total and the remaining amount this method rewrites.
 		$state     = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
-		$collected = $state->isMixedCurrency() ? 0 : $state->paid();
+		// Mixed currencies and an order shared with other bookings leave this
+		// booking's own share unknown; BookingEditPriceFloor refuses a total
+		// change for both, so the pre-existing branches below see an equal total.
+		$collected = $state->isMixedCurrency() || BookingEditPriceFloor::shares_an_order($state) ? 0 : $state->paid();
 
 		// While money has been collected the total is computed in the
 		// calculator's full mode: its deposit mode rounds to two decimals, so a

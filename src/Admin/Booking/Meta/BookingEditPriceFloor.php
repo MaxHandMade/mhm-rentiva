@@ -119,6 +119,36 @@ final class BookingEditPriceFloor {
 		return is_array( $found ) && array() !== $found;
 	}
 
+	/**
+	 * Does a paid order of this booking also carry another booking?
+	 *
+	 * WooCommerceBridge books one order line per booking, so a cart with two
+	 * vehicles is one order with two bookings, and PaymentState::paid() reads
+	 * the whole order total for each of them. No per-booking share is recorded,
+	 * so the amount this booking collected is unknown: re-pricing treats it as
+	 * nothing collected and a total change is refused (Codex P1, PR #183).
+	 */
+	public static function shares_an_order( PaymentState $state ): bool {
+		foreach ( $state->orders() as $order_id ) {
+			$order = function_exists( 'wc_get_order' ) ? wc_get_order( $order_id ) : false;
+			if ( ! $order instanceof \WC_Order ) {
+				continue;
+			}
+			$ids = array();
+			foreach ( $order->get_items() as $item ) {
+				$id = (int) $item->get_meta( '_mhmrentiva_booking_id', true );
+				if ( $id > 0 ) {
+					$ids[ $id ] = true;
+				}
+			}
+			if ( count( $ids ) > 1 ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	private static function decide( int $post_id, int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time, AddonSelection $selection ): string {
 		// A transfer is not re-priced (BookingMeta::recalculate_booking_costs()).
 		if ( BookingMeta::is_transfer_booking( $post_id ) ) {
@@ -127,7 +157,8 @@ final class BookingEditPriceFloor {
 
 		$state     = PaymentState::forBooking( $post_id );
 		$mixed     = $state->isMixedCurrency();
-		$collected = $mixed ? 0 : $state->paid();
+		$shared    = self::shares_an_order( $state );
+		$collected = $mixed || $shared ? 0 : $state->paid();
 		$type      = (string) get_post_meta( $post_id, '_mhmrentiva_payment_type', true );
 
 		// The same mode recalculate_booking_costs() prices with, so an unchanged
@@ -154,6 +185,10 @@ final class BookingEditPriceFloor {
 
 		if ( $mixed ) {
 			return __( 'This booking was paid in more than one currency, so the amount collected cannot be compared with a new price. The vehicle, dates and add-ons were not changed.', 'mhm-rentiva' );
+		}
+
+		if ( $shared ) {
+			return __( 'This booking was paid in one order together with other bookings, so the amount collected for it alone cannot be known. The vehicle, dates and add-ons were not changed. To change the price, cancel the booking and create a new one.', 'mhm-rentiva' );
 		}
 
 		if ( self::has_remaining_order( $post_id ) ) {

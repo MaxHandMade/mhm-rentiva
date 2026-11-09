@@ -217,6 +217,48 @@ final class BookingEditPriceFloorTest extends WP_UnitTestCase
 		$this->assertStringContainsString('more than one currency', BookingEditNotice::peek($this->booking));
 	}
 
+	public function test_an_order_shared_with_another_booking_keeps_the_price_inputs(): void
+	{
+		$this->require_woocommerce();
+		// One cart, two bookings at 1,000 each: an order of 2,000 with one line per booking.
+		$order = $this->create_paid_order_for_booking($this->booking, '1000');
+		$other = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
+		$items = array_values($order->get_items());
+		$items[0]->update_meta_data('_mhmrentiva_booking_id', $this->booking);
+		$items[0]->save();
+		$second = new \WC_Order_Item_Product();
+		$second->set_product($this->ensure_booking_product('1000'));
+		$second->set_quantity(1);
+		$second->set_subtotal(1000.0);
+		$second->set_total(1000.0);
+		$second->update_meta_data('_mhmrentiva_booking_id', $other);
+		$order->add_item($second);
+		$order->calculate_totals();
+		$order->save();
+		update_post_meta($this->booking, '_mhmrentiva_total_price', '1000');
+		$this->assertSame(Money::toMinor(2000), PaymentState::forBooking($this->booking)->paid(), 'PREMISE: paid() reads the whole order');
+		$this->assertTrue(BookingEditPriceFloor::shares_an_order(PaymentState::forBooking($this->booking)), 'PREMISE');
+
+		// 4 days at 1,000: above this booking's 1,000 but below the order's 2,000.
+		$this->update(array( 'mhmrentiva_edit_dropoff_date' => '2099-05-08' ));
+
+		$this->assertSame('2099-05-07', $this->meta('_mhmrentiva_dropoff_date'), 'dates kept');
+		$this->assertSame('1000', $this->meta('_mhmrentiva_total_price'), 'price kept');
+		$this->assertSame('full', $this->meta('_mhmrentiva_payment_type'), 'not turned into a deposit of the whole order');
+		$this->assertStringContainsString('together with other bookings', BookingEditNotice::peek($this->booking));
+	}
+
+	public function test_an_order_of_this_booking_alone_is_not_shared(): void
+	{
+		$this->require_woocommerce();
+		$order = $this->create_paid_order_for_booking($this->booking, '2550');
+		$items = array_values($order->get_items());
+		$items[0]->update_meta_data('_mhmrentiva_booking_id', $this->booking);
+		$items[0]->save();
+
+		$this->assertFalse(BookingEditPriceFloor::shares_an_order(PaymentState::forBooking($this->booking)));
+	}
+
 	public function test_a_reversed_range_and_a_cheaper_vehicle_say_both(): void
 	{
 		$cheaper = $this->vehicle_at('500');
