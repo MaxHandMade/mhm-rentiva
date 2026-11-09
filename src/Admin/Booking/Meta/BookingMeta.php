@@ -935,7 +935,15 @@ final class BookingMeta extends AbstractMetaBox {
 				echo '<span class="mhm-history-date">' . esc_html( $date . ' ' . $time ) . '</span>';
 				echo '</div>';
 				echo '<div class="mhm-history-content">';
-				echo '<p>' . esc_html( (string) ( $note['note'] ?? '' ) ) . '</p>';
+				// An anonymised booking keeps payment changes with the note
+				// emptied (personal data erasure); name the change instead.
+				$note_text = (string) ( $note['note'] ?? '' );
+				if ( '' === $note_text && isset( $note['payment_from'], $note['payment_to'] ) ) {
+					$note_text = \MHMRentiva\Admin\Booking\Core\PaymentView::label( (string) $note['payment_from'] ) . ' → ' . \MHMRentiva\Admin\Booking\Core\PaymentView::label( (string) $note['payment_to'] );
+				}
+				if ( '' !== $note_text ) {
+					echo '<p>' . esc_html( $note_text ) . '</p>';
+				}
 				echo '<div class="mhm-history-meta">';
 				/* translators: %s: user display name */
 				echo '<span class="mhm-history-user">' . esc_html( sprintf( esc_html__( 'By %s', 'mhm-rentiva' ), $user_name ) ) . '</span>';
@@ -963,8 +971,10 @@ final class BookingMeta extends AbstractMetaBox {
 
 	/**
 	 * Gets history type label
+	 *
+	 * Public so the personal data exporter labels entries the way this box does.
 	 */
-	private static function get_history_type_label(string $type): string
+	public static function get_history_type_label(string $type): string
 	{
 		$labels = array(
 			'note'             => __('Note', 'mhm-rentiva'),

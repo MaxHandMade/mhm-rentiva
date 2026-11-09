@@ -136,4 +136,54 @@ final class CustomerIdentityTest extends WP_UnitTestCase
 
         $this->assertFalse(CustomerIdentity::is_customer($user_id));
     }
+
+    /**
+     * Run a meta_query_owned_by() clause and return the matching booking IDs.
+     *
+     * @return int[]
+     */
+    private function owned_ids(int $user_id, string $email): array
+    {
+        $q = new \WP_Query(array(
+            'post_type'      => 'mhmrentiva_booking',
+            'post_status'    => 'any',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'orderby'        => 'ID',
+            'order'          => 'ASC',
+            'meta_query'     => CustomerIdentity::meta_query_owned_by($user_id, $email),
+        ));
+
+        return array_map('intval', $q->posts);
+    }
+
+    private function guest_booking(string $email): int
+    {
+        $id = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking', 'post_status' => 'publish'));
+        update_post_meta($id, '_mhmrentiva_customer_user_id', 0);
+        update_post_meta($id, '_mhmrentiva_customer_email', $email);
+
+        return (int) $id;
+    }
+
+    /**
+     * A guest has no account: user ID 0 must not become a branch that matches
+     * every other guest booking (5a privacy spec T2, Codex r1 §1).
+     */
+    public function test_zero_user_id_matches_only_the_email(): void
+    {
+        $a = $this->guest_booking('a@example.test');
+        $this->guest_booking('b@example.test');
+
+        $this->assertSame(array($a), $this->owned_ids(0, 'a@example.test'));
+    }
+
+    public function test_no_id_and_no_email_matches_nothing(): void
+    {
+        $this->guest_booking('a@example.test');
+        $odd = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking', 'post_status' => 'publish'));
+        update_post_meta($odd, '_mhmrentiva_customer_user_id', '-1');
+
+        $this->assertSame(array(), $this->owned_ids(0, ''));
+    }
 }

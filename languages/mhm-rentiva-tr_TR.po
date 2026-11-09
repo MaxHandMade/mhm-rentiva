@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-11-09T13:23:03+00:00\n"
+"POT-Creation-Date: 2026-11-09T22:45:55+00:00\n"
 "PO-Revision-Date: 2026-10-24 18:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -153,7 +153,7 @@ msgid "Could not calculate"
 msgstr "Hesaplanamadı"
 
 #: src/Admin/About/SystemInfo.php:223 src/Admin/Core/AssetManager.php:1635
-#: src/Admin/Frontend/Account/AccountController.php:297
+#: src/Admin/Frontend/Account/AccountController.php:290
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:596
 #: src/Admin/Settings/Groups/FrontendSettings.php:345
 msgid "Error"
@@ -257,6 +257,8 @@ msgstr "Toplam müşteri:"
 
 #: src/Admin/About/Tabs/GeneralTab.php:267
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:95
+#: src/Admin/Privacy/BookingExporter.php:103
+#: src/Admin/Privacy/ContactPersonalData.php:188
 #: templates/admin/partials/booking-popup.php:56
 #: assets/blocks/my-favorites/index.js:49
 msgid "Name"
@@ -578,8 +580,8 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:123
 #: src/Admin/Core/AssetManager.php:1206 src/Admin/Core/AssetManager.php:1662
 #: src/Admin/Emails/Core/EmailTemplates.php:566
-#: src/Admin/Frontend/Account/AccountController.php:289
-#: src/Admin/Frontend/Account/AccountController.php:348
+#: src/Admin/Frontend/Account/AccountController.php:286
+#: src/Admin/Frontend/Account/AccountController.php:341
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:348
 msgid "Processing..."
 msgstr "İşleniyor..."
@@ -588,7 +590,7 @@ msgstr "İşleniyor..."
 #: src/Admin/Addons/AddonScreen.php:112 src/Admin/Core/AssetManager.php:1338
 #: src/Admin/Core/AssetManager.php:1384
 #: src/Admin/Emails/Core/EmailTemplates.php:567
-#: src/Admin/Frontend/Account/AccountController.php:326
+#: src/Admin/Frontend/Account/AccountController.php:319
 msgid "An error occurred. Please try again."
 msgstr "Bir hata oluştu. Lütfen yeniden deneyin."
 
@@ -601,7 +603,7 @@ msgid "Error updating price"
 msgstr "Fiyat güncellenirken hata oluştu"
 
 #: src/Admin/Addons/AddonListTable.php:88 src/Admin/Addons/AddonManager.php:287
-#: src/Admin/Frontend/Account/AccountController.php:298
+#: src/Admin/Frontend/Account/AccountController.php:291
 msgid "Unknown error"
 msgstr "Bilinmeyen hata"
 
@@ -669,9 +671,9 @@ msgstr "\"%s\" ek hizmeti gereklidir."
 #: src/Admin/Addons/AddonScreen.php:372 src/Admin/Addons/AddonScreen.php:474
 #: src/Admin/Addons/AddonScreen.php:512
 #: src/Admin/Booking/Actions/BookingActionGuard.php:76
-#: src/Admin/Booking/Meta/BookingMeta.php:1727
-#: src/Admin/Booking/Meta/BookingMeta.php:1785
-#: src/Admin/Booking/Meta/BookingMeta.php:1908
+#: src/Admin/Booking/Meta/BookingMeta.php:1737
+#: src/Admin/Booking/Meta/BookingMeta.php:1795
+#: src/Admin/Booking/Meta/BookingMeta.php:1918
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:125
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:771
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:879
@@ -681,11 +683,11 @@ msgstr "\"%s\" ek hizmeti gereklidir."
 #: src/Admin/Emails/Core/EmailTemplates.php:182
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:34
 #: src/Admin/Emails/Settings/EmailTestAction.php:31
-#: src/Admin/Frontend/Account/AccountController.php:758
-#: src/Admin/Frontend/Account/AccountController.php:927
-#: src/Admin/Frontend/Account/AccountController.php:1069
-#: src/Admin/Frontend/Account/AccountController.php:1130
-#: src/Admin/Frontend/Account/AccountController.php:1248
+#: src/Admin/Frontend/Account/AccountController.php:751
+#: src/Admin/Frontend/Account/AccountController.php:920
+#: src/Admin/Frontend/Account/AccountController.php:1062
+#: src/Admin/Frontend/Account/AccountController.php:1123
+#: src/Admin/Frontend/Account/AccountController.php:1241
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:125
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1090
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1465
@@ -993,6 +995,7 @@ msgid "Short description"
 msgstr "Kısa açıklama"
 
 #: src/Admin/Addons/AddonScreen.php:695
+#: src/Admin/Privacy/ContactPersonalData.php:187
 #: templates/account/payment-history.php:69
 msgid "Type"
 msgstr "Tür"
@@ -1059,9 +1062,9 @@ msgstr "%s hizmetini sil"
 
 #: src/Admin/Booking/Actions/BookingActionGuard.php:82
 #: src/Admin/Booking/Helpers/CancellationHandler.php:107
-#: src/Admin/Frontend/Account/AccountController.php:764
-#: src/Admin/Frontend/Account/AccountController.php:1076
-#: src/Admin/Frontend/Account/AccountController.php:1307
+#: src/Admin/Frontend/Account/AccountController.php:757
+#: src/Admin/Frontend/Account/AccountController.php:1069
+#: src/Admin/Frontend/Account/AccountController.php:1300
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4560
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4619
 msgid "Invalid booking ID."
@@ -1069,9 +1072,9 @@ msgstr "Geçersiz rezervasyon kimliği."
 
 #: src/Admin/Booking/Actions/BookingActionGuard.php:88
 #: src/Admin/Booking/Actions/BookingApproveAjax.php:77
-#: src/Admin/Booking/Meta/BookingMeta.php:1749
-#: src/Admin/Booking/Meta/BookingMeta.php:1807
-#: src/Admin/Booking/Meta/BookingMeta.php:1930
+#: src/Admin/Booking/Meta/BookingMeta.php:1759
+#: src/Admin/Booking/Meta/BookingMeta.php:1817
+#: src/Admin/Booking/Meta/BookingMeta.php:1940
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:142
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:49
 #: src/Admin/Emails/Templates/EmailPreview.php:109
@@ -1274,7 +1277,7 @@ msgstr "Ödenmemiş"
 #: src/Admin/Booking/Core/Status.php:124
 #: src/Admin/Booking/ListTable/BookingColumns.php:1176
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:292
-#: src/Admin/Booking/Meta/BookingMeta.php:1614
+#: src/Admin/Booking/Meta/BookingMeta.php:1624
 #: src/Admin/Core/AssetManager.php:1222
 #: src/Admin/Emails/Core/EmailTemplates.php:508
 #: src/Admin/Emails/Notifications/BookingNotifications.php:220
@@ -1319,7 +1322,7 @@ msgstr "Kısmen iade edildi"
 #: src/Admin/Booking/Core/PaymentView.php:92
 #: src/Admin/Booking/Core/Status.php:128
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:302
-#: src/Admin/Booking/Meta/BookingMeta.php:1618
+#: src/Admin/Booking/Meta/BookingMeta.php:1628
 #: src/Admin/Core/AssetManager.php:1226
 #: src/Admin/Emails/Notifications/BookingNotifications.php:224
 #: src/Admin/Emails/Templates/EmailPreview.php:231
@@ -1364,7 +1367,7 @@ msgstr "Bekleyen ödeme"
 
 #: src/Admin/Booking/Core/Status.php:125
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:293
-#: src/Admin/Booking/Meta/BookingMeta.php:1615
+#: src/Admin/Booking/Meta/BookingMeta.php:1625
 #: src/Admin/Core/AssetManager.php:1223
 #: src/Admin/Emails/Core/EmailTemplates.php:509
 #: src/Admin/Emails/Notifications/BookingNotifications.php:221
@@ -1379,7 +1382,7 @@ msgstr "Onaylandı"
 
 #: src/Admin/Booking/Core/Status.php:126
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:294
-#: src/Admin/Booking/Meta/BookingMeta.php:1616
+#: src/Admin/Booking/Meta/BookingMeta.php:1626
 #: src/Admin/Core/AssetManager.php:1224
 #: src/Admin/Emails/Notifications/BookingNotifications.php:222
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:81
@@ -1391,7 +1394,7 @@ msgstr "Devam ediyor"
 #: src/Admin/Booking/Core/Status.php:127
 #: src/Admin/Booking/ListTable/BookingColumns.php:1189
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:295
-#: src/Admin/Booking/Meta/BookingMeta.php:1617
+#: src/Admin/Booking/Meta/BookingMeta.php:1627
 #: src/Admin/Core/AssetManager.php:1225
 #: src/Admin/Emails/Notifications/BookingNotifications.php:223
 #: src/Admin/Frontend/Account/AccountRenderer.php:935
@@ -1546,7 +1549,7 @@ msgid "Hello %s,"
 msgstr "Merhaba %s,"
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:691
-#: src/Admin/Frontend/Account/AccountController.php:327
+#: src/Admin/Frontend/Account/AccountController.php:320
 msgid "Your booking has been cancelled successfully."
 msgstr "Rezervasyonunuz başarıyla iptal edildi."
 
@@ -1790,7 +1793,7 @@ msgstr ""
 "deneyin."
 
 #: src/Admin/Booking/Helpers/Util.php:264
-#: src/Admin/Booking/Meta/BookingMeta.php:1703
+#: src/Admin/Booking/Meta/BookingMeta.php:1713
 msgid ""
 "This vehicle is not available for rental. Please select another vehicle."
 msgstr "Bu araç kiralanamaz. Lütfen başka bir araç seçin."
@@ -1836,7 +1839,7 @@ msgstr "Onayla"
 #: src/Admin/Booking/ListTable/BookingColumns.php:274
 #: src/Admin/Booking/ListTable/BookingColumns.php:384
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:532
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:709 src/Plugin.php:1164
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:709 src/Plugin.php:1170
 #: templates/account/booking-summary.php:59
 #: templates/admin/partials/booking-popup.php:52
 #: src-react/admin/customers/components/CustomerTable.jsx:9
@@ -1858,6 +1861,7 @@ msgstr "Rezervasyon kimliği"
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:494
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:548
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:982
+#: src/Admin/Privacy/BookingExporter.php:100
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:211
 #: src/Admin/Vehicle/PostType/Vehicle.php:26
 #: templates/account/booking-summary.php:64
@@ -1874,6 +1878,7 @@ msgstr "Tarihler"
 #: src/Admin/Booking/ListTable/BookingColumns.php:279
 #: src/Admin/Booking/ListTable/BookingColumns.php:387
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:297
+#: src/Admin/Privacy/BookingExporter.php:109
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:712
 #: templates/partials/rvs/breakdown.php:47
 #: src-react/admin/contact-messages/components/ContactStats.jsx:11
@@ -1907,8 +1912,8 @@ msgstr "Ödeme"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:290
 #: src/Admin/Booking/Meta/BookingMeta.php:382
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:723
-#: src/Admin/Setup/SetupWizard.php:235 src/Admin/Setup/SetupWizard.php:277
-#: src/Admin/Setup/SetupWizard.php:546
+#: src/Admin/Privacy/BookingExporter.php:99 src/Admin/Setup/SetupWizard.php:235
+#: src/Admin/Setup/SetupWizard.php:277 src/Admin/Setup/SetupWizard.php:546
 #: src/Admin/Utilities/ListTable/LogColumns.php:76
 #: src/Admin/Utilities/ListTable/LogColumns.php:145
 #: templates/account/payment-history.php:72
@@ -2473,6 +2478,7 @@ msgstr "Rezervasyon ayrıntılarını düzenle"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:95
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:464
 #: src/Admin/Booking/PostType/Booking.php:27
+#: src/Admin/Privacy/BookingExporter.php:50 src/Admin/Privacy/PolicyText.php:45
 #: src/Admin/Utilities/Menu/Menu.php:91 src/Admin/Utilities/Menu/Menu.php:92
 #: src-react/admin/customers/components/CustomerTable.jsx:10
 msgid "Bookings"
@@ -2518,7 +2524,6 @@ msgstr "Rezervasyon referansı"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:222
 #: src/Admin/Core/AssetManager.php:1117
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:89
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:197
 msgid "Manual"
 msgstr "Manuel"
 
@@ -2728,7 +2733,7 @@ msgid "Sending..."
 msgstr "Gönderiliyor..."
 
 #: src/Admin/Booking/Meta/BookingMeta.php:222
-#: src/Admin/Booking/Meta/BookingMeta.php:1871
+#: src/Admin/Booking/Meta/BookingMeta.php:1881
 msgid "Email sent successfully!"
 msgstr "E-posta başarıyla gönderildi!"
 
@@ -2895,11 +2900,13 @@ msgstr "E-posta türü"
 #: src/Admin/Emails/Templates/BookingNotifications.php:222
 #: src/Admin/Emails/Templates/RefundEmails.php:50
 #: src/Admin/Emails/Templates/RefundEmails.php:78
+#: src/Admin/Privacy/EmailLogPersonalData.php:54
 msgid "Subject"
 msgstr "Konu"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:810
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:886
+#: src/Admin/Privacy/ContactPersonalData.php:192
 #: src/Admin/Utilities/ListTable/LogColumns.php:79
 #: src-react/admin/contact-messages/components/ContactTable.jsx:66
 #: src-react/admin/contact-messages/ContactMessageDetail.jsx:300
@@ -2953,13 +2960,13 @@ msgid "Type:"
 msgstr "Tür:"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:892
-#: src/Admin/Booking/Meta/BookingMeta.php:970
-#: src/Admin/Booking/Meta/BookingMeta.php:977
+#: src/Admin/Booking/Meta/BookingMeta.php:980
+#: src/Admin/Booking/Meta/BookingMeta.php:987
 msgid "Note"
 msgstr "Not"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:893
-#: src/Admin/Booking/Meta/BookingMeta.php:973
+#: src/Admin/Booking/Meta/BookingMeta.php:983
 msgid "Customer Contact"
 msgstr "Müşteri iletişimi"
 
@@ -2968,6 +2975,7 @@ msgid "Rentiva writes the status, payment and system rows itself."
 msgstr "Durum, ödeme ve sistem satırlarını Rentiva kendisi yazar."
 
 #: src/Admin/Booking/Meta/BookingMeta.php:910
+#: src/Admin/Privacy/BookingExporter.php:118
 msgid "History"
 msgstr "Geçmiş"
 
@@ -2976,35 +2984,35 @@ msgid "No history found."
 msgstr "Geçmiş kaydı bulunamadı."
 
 #: src/Admin/Booking/Meta/BookingMeta.php:925
-#: src/Admin/Booking/Meta/BookingMeta.php:974
+#: src/Admin/Booking/Meta/BookingMeta.php:984
 #: src/Layout/CLI/LayoutImportCommand.php:426
 msgid "System"
 msgstr "Sistem"
 
 #. translators: %s: user display name
-#: src/Admin/Booking/Meta/BookingMeta.php:941
+#: src/Admin/Booking/Meta/BookingMeta.php:949
 #, php-format
 msgid "By %s"
 msgstr "%s tarafından"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:952
+#: src/Admin/Booking/Meta/BookingMeta.php:960
 msgid "more entries"
 msgstr "daha fazla kayıt"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:960
+#: src/Admin/Booking/Meta/BookingMeta.php:968
 msgid "These notes are included in the customer's personal data export."
 msgstr "Bu notlar müşterinin kişisel veri dışa aktarımında yer alır."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:971
+#: src/Admin/Booking/Meta/BookingMeta.php:981
 msgid "Status Change"
 msgstr "Durum değişikliği"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:972
+#: src/Admin/Booking/Meta/BookingMeta.php:982
 msgid "Payment Update"
 msgstr "Ödeme güncellemesi"
 
 #. translators: %s: list of the vehicle's closed days, joined by the site's list format ("1 June, 2 June and 3 June").
-#: src/Admin/Booking/Meta/BookingMeta.php:1526
+#: src/Admin/Booking/Meta/BookingMeta.php:1536
 #, php-format
 msgid ""
 "This vehicle has closed days in this period: %s. The booking was saved "
@@ -3013,12 +3021,12 @@ msgstr ""
 "Bu araç için bu dönemde kapalı gün var: %s. Rezervasyon yine de kaydedildi."
 
 #. translators: 1: old status, 2: new status
-#: src/Admin/Booking/Meta/BookingMeta.php:1626
+#: src/Admin/Booking/Meta/BookingMeta.php:1636
 #, php-format
 msgid "Status changed from %1$s to %2$s"
 msgstr "Durum değişti: %1$s → %2$s"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1700
+#: src/Admin/Booking/Meta/BookingMeta.php:1710
 msgid ""
 "The vehicle is already booked for these dates. The booking details were not "
 "saved."
@@ -3026,7 +3034,7 @@ msgstr ""
 "Araç bu tarihler için zaten rezerve edilmiş. Rezervasyon bilgileri "
 "kaydedilmedi."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1706
+#: src/Admin/Booking/Meta/BookingMeta.php:1716
 msgid ""
 "Vehicle availability could not be checked. The booking details were not "
 "saved. Please try again."
@@ -3034,9 +3042,9 @@ msgstr ""
 "Araç müsaitliği kontrol edilemedi. Rezervasyon bilgileri kaydedilmedi. "
 "Lütfen yeniden deneyin."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1739
-#: src/Admin/Booking/Meta/BookingMeta.php:1797
-#: src/Admin/Booking/Meta/BookingMeta.php:1920
+#: src/Admin/Booking/Meta/BookingMeta.php:1749
+#: src/Admin/Booking/Meta/BookingMeta.php:1807
+#: src/Admin/Booking/Meta/BookingMeta.php:1930
 #: src/Admin/Core/Utilities/UXHelper.php:138
 #: src/Admin/Emails/Core/EmailTemplates.php:176
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:29
@@ -3044,48 +3052,48 @@ msgstr ""
 msgid "You do not have permission to perform this action."
 msgstr "Bu eylemi gerçekleştirmek için izniniz yok."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1755
-#: src/Admin/Booking/Meta/BookingMeta.php:1817
-#: src/Admin/Booking/Meta/BookingMeta.php:1939
-#: src/Admin/Booking/Meta/BookingMeta.php:1943
+#: src/Admin/Booking/Meta/BookingMeta.php:1765
+#: src/Admin/Booking/Meta/BookingMeta.php:1827
+#: src/Admin/Booking/Meta/BookingMeta.php:1949
+#: src/Admin/Booking/Meta/BookingMeta.php:1953
 msgid "Missing required fields."
 msgstr "Gerekli alanlar eksik."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1822
+#: src/Admin/Booking/Meta/BookingMeta.php:1832
 msgid "Please enter a subject and a message."
 msgstr "Lütfen bir konu ve ileti girin."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1846
+#: src/Admin/Booking/Meta/BookingMeta.php:1856
 msgid "Customer email not found."
 msgstr "Müşteri e-postası bulunamadı."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1854
+#: src/Admin/Booking/Meta/BookingMeta.php:1864
 msgid "Failed to send email. Please check your WordPress email configuration."
 msgstr ""
 "E-posta gönderilemedi. Lütfen WordPress e-posta yapılandırmanızı kontrol "
 "edin."
 
 #. translators: %s: e-mail subject
-#: src/Admin/Booking/Meta/BookingMeta.php:1861
+#: src/Admin/Booking/Meta/BookingMeta.php:1871
 #, php-format
 msgid "E-mail sent to the customer: %s"
 msgstr "Müşteriye e-posta gönderildi: %s"
 
 #. translators: %s: the test address the e-mail went to instead.
-#: src/Admin/Booking/Meta/BookingMeta.php:1864
+#: src/Admin/Booking/Meta/BookingMeta.php:1874
 #, php-format
 msgid "(test mode: sent to %s)"
 msgstr "(test kipi: %s adresine gönderildi)"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1867
+#: src/Admin/Booking/Meta/BookingMeta.php:1877
 msgid "(the customer turned off automatic notifications)"
 msgstr "(müşteri otomatik bildirimleri kapattı)"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1951
+#: src/Admin/Booking/Meta/BookingMeta.php:1961
 msgid "Note added successfully!"
 msgstr "Not başarıyla eklendi!"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1953
+#: src/Admin/Booking/Meta/BookingMeta.php:1963
 msgid "Failed to add note."
 msgstr "Not eklenemedi."
 
@@ -3404,6 +3412,9 @@ msgstr "E-posta"
 #: src/Admin/Customers/CustomersPage.php:569
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:880
 #: src/Admin/Frontend/Shortcodes/ContactFormView.php:214
+#: src/Admin/Privacy/AccountPersonalData.php:63
+#: src/Admin/Privacy/BookingExporter.php:105
+#: src/Admin/Privacy/ContactPersonalData.php:190
 #: src/Admin/Settings/Groups/FrontendSettings.php:365
 #: templates/admin/partials/booking-popup.php:64
 #: src-react/admin/contact-messages/components/SenderWidget.jsx:72
@@ -3667,6 +3678,7 @@ msgstr "Tercih edilen tarih"
 
 #: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:466
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:881
+#: src/Admin/Privacy/ContactPersonalData.php:191
 msgid "Company"
 msgstr "Şirket"
 
@@ -3874,32 +3886,27 @@ msgstr "Araç ayarlarına yönlendiriliyor..."
 #: src/Admin/Core/AssetManager.php:1116
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:99
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:88
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:196
 #: assets/blocks/my-bookings/index.js:50
 msgid "Automatic"
 msgstr "Otomatik"
 
 #: src/Admin/Core/AssetManager.php:1118
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:72
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:201
 msgid "Petrol"
 msgstr "Benzin"
 
 #: src/Admin/Core/AssetManager.php:1119
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:73
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:202
 msgid "Diesel"
 msgstr "Dizel"
 
 #: src/Admin/Core/AssetManager.php:1120
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:74
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:203
 msgid "Hybrid"
 msgstr "Hibrit"
 
 #: src/Admin/Core/AssetManager.php:1121
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:75
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:204
 msgid "Electric"
 msgstr "Elektrikli"
 
@@ -3942,7 +3949,7 @@ msgstr "Evet"
 
 #: src/Admin/Core/AssetManager.php:1199 src/Admin/Core/AssetManager.php:1634
 #: src/Admin/Emails/Core/EmailTemplates.php:575
-#: src/Admin/Frontend/Account/AccountController.php:459
+#: src/Admin/Frontend/Account/AccountController.php:452
 #: src/Admin/Frontend/Account/AccountRenderer.php:503
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:94
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:344
@@ -3961,7 +3968,7 @@ msgid "Operation successful"
 msgstr "İşlem başarılı"
 
 #: src/Admin/Core/AssetManager.php:1202 src/Admin/Core/AssetManager.php:1667
-#: src/Admin/Frontend/Account/AccountController.php:462
+#: src/Admin/Frontend/Account/AccountController.php:455
 msgid "Are you sure?"
 msgstr "Emin misiniz?"
 
@@ -5386,7 +5393,7 @@ msgstr "Uygula"
 msgid "Select a city..."
 msgstr "Şehir seçin..."
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1040
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1044
 msgid ""
 "Cleanup cancelled: the backup table could not be created or filled. Nothing "
 "was deleted."
@@ -5395,7 +5402,7 @@ msgstr ""
 "Hiçbir şey silinmedi."
 
 #. translators: 1: current table-prefix length in characters. 2: maximum supported length in characters.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1223
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1227
 #, php-format
 msgid ""
 "This site's table prefix (%1$d characters) is too long for the invalid-meta "
@@ -5407,131 +5414,131 @@ msgstr ""
 "oluşturması için çok uzun (desteklenen en fazla: %2$d karakter). Temizlik "
 "çalıştırılmadı."
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1742
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1746
 msgid "Database Cleanup Report"
 msgstr "Veritabanı temizleme raporu"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1747
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1751
 #: templates/shortcodes/search-results.php:189
 msgid "Category"
 msgstr "Kategori"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1748
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1752
 msgid "Count"
 msgstr "Sayı"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1749
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1753
 msgid "Size"
 msgstr "Boyut"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1750
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1754
 #: src/Admin/Utilities/ListTable/LogColumns.php:75
 #: templates/partials/rvs/account-bookings.php:59
 msgid "Action"
 msgstr "Eylem"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1755
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1759
 msgid "Orphaned Post Meta"
 msgstr "Sahipsiz yazı üst verileri"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1761
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1776
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1806
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1833
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1765
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1780
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1810
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1837
 msgid "Cleanup Recommended"
 msgstr "Temizlik önerilir"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1764
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1779
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1809
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1836
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1768
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1783
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1813
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1840
 msgid "Clean"
 msgstr "Temiz"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1770
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1774
 msgid "Expired Transients"
 msgstr "Süresi dolmuş geçici veriler"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1785
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1789
 msgid "Autoload Options"
 msgstr "Otomatik yükleme seçenekleri"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1791
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1795
 msgid "Optimization Recommended"
 msgstr "Optimizasyon önerilir"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1794
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1798
 msgid "Optimized"
 msgstr "Optimize edildi"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1800
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1804
 msgid "Invalid Meta Keys"
 msgstr "Geçersiz üst veri anahtarları"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1813
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1817
 msgid "All Valid"
 msgstr "Tümü geçerli"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1819
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1823
 msgid "Log Records (>30 days)"
 msgstr "Günlük kayıtları (>30 gün)"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1843
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1847
 msgid "Custom Tables"
 msgstr "Özel tablolar"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1847
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1851
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:82
 msgid "Table"
 msgstr "Tablo"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1848
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1852
 msgid "Exists"
 msgstr "Mevcut"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1849
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1853
 msgid "Rows"
 msgstr "Satırlar"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1850
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1854
 msgid "Size (MB)"
 msgstr "Boyut (MB)"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1863
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1867
 msgid "Repair/Create"
 msgstr "Onarım/Oluşturma"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1891
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1895
 msgid "Analyze Database"
 msgstr "Veritabanını analiz et"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1896
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1900
 msgid "Clean Orphaned Meta"
 msgstr "Sahipsiz üst verileri temizle"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1901
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1905
 msgid "Clean Expired Transients"
 msgstr "Süresi dolmuş geçici verileri temizle"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1906
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1910
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:125
 msgid "Optimize Autoload"
 msgstr "Otomatik yüklemeyi optimize et"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1911
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1915
 msgid "Optimize Tables"
 msgstr "Tabloları optimize et"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1916
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1920
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:134
 msgid "Purge Old Logs"
 msgstr "Eski günlükleri temizle"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2079
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2083
 msgid "Backup table not found"
 msgstr "Yedekleme tablosu bulunamadı"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2097
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2101
 msgid ""
 "This backup holds discarded meta from two different tables and cannot be "
 "restored in place. Export it and reapply the rows you need."
@@ -5541,70 +5548,70 @@ msgstr ""
 "uygulayın."
 
 #. translators: 1: %d; 2: %s.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2143
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2147
 #, php-format
 msgid "Restored %1$d records to %2$s"
 msgstr "%1$d kayıt %2$s tablosuna geri yüklendi"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2161
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2165
 msgid "Not a backup table"
 msgstr "Yedek tablo değil"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2170
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2583
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2174
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2587
 msgid "Backup deleted successfully"
 msgstr "Yedekleme başarıyla silindi"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2170
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2174
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:450
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:597
 msgid "Failed to delete backup"
 msgstr "Yedek silinemedi"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2187
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2191
 msgid "Failed to initialize filesystem."
 msgstr "Dosya sistemi başlatılamadı."
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2228
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2232
 msgid "No tables found to backup"
 msgstr "Yedeklenecek tablo bulunamadı"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2278
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2282
 msgid "Failed to write backup file"
 msgstr "Yedek dosyası yazılamadı"
 
 #. translators: 1: %d; 2: %d.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2329
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2333
 #, php-format
 msgid "Full backup created successfully: %1$d tables, %2$d rows"
 msgstr "Tam yedekleme başarıyla oluşturuldu: %1$d tablo, %2$d satır"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2553
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2557
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:531
 msgid "Invalid backup file path"
 msgstr "Geçersiz yedekleme dosyası yolu"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2584
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2588
 msgid "Backup deletion completed with some warnings"
 msgstr "Yedekleme silme işlemi bazı uyarılarla tamamlandı"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2638
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2642
 msgid "Filesystem initialization failed"
 msgstr "Dosya sistemi başlatma başarısız"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2648
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2652
 msgid "Backup directory does not exist"
 msgstr "Yedekleme dizini mevcut değil"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2655
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2659
 msgid ".htaccess file missing - directory is not protected from web access"
 msgstr ".htaccess dosyası eksik - dizin web erişiminden korunmuyor"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2659
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2663
 msgid ".htaccess file exists but does not deny access properly"
 msgstr ".htaccess dosyası mevcut ancak erişimi düzgün bir şekilde engellemiyor"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2666
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2670
 msgid "index.php file missing - directory listing is possible"
 msgstr "index.php dosyası eksik - dizin listeleme mümkündür"
 
@@ -5861,7 +5868,7 @@ msgid "Password must be at least {length} characters."
 msgstr "Parola en az {length} karakter olmalıdır."
 
 #: src/Admin/Core/Utilities/UXHelper.php:131
-#: src/Admin/Frontend/Account/AccountController.php:471
+#: src/Admin/Frontend/Account/AccountController.php:464
 msgid "Passwords do not match."
 msgstr "Parolalar uyuşmuyor."
 
@@ -6133,6 +6140,7 @@ msgstr "Müşteri adı"
 #: src/Admin/Customers/AddCustomerPage.php:170
 #: src/Admin/Customers/CustomersPage.php:374
 #: src/Admin/Customers/CustomersPage.php:574
+#: src/Admin/Privacy/AccountPersonalData.php:64
 #: templates/account/account-details.php:123
 #: src-react/admin/customers/components/CustomerPanel.jsx:94
 msgid "Address"
@@ -6821,25 +6829,19 @@ msgstr "Yok"
 msgid "%1$s – %2$s"
 msgstr "%1$s – %2$s"
 
-#: src/Admin/Frontend/Account/AccountController.php:284
-msgid "Are you sure you want to export your data? This may take a few minutes."
+#: src/Admin/Frontend/Account/AccountController.php:283
+msgid ""
+"A request to export your personal data will be created. We will send you a "
+"confirmation e-mail."
 msgstr ""
-"Verilerinizi dışa aktarmak istediğinize emin misiniz? Bu birkaç dakika "
-"sürebilir."
+"Kişisel verilerinizin dışa aktarılması için bir talep oluşturulacak. Size "
+"bir onay e-postası göndereceğiz."
+
+#: src/Admin/Frontend/Account/AccountController.php:284
+msgid "Your data has been downloaded."
+msgstr "Verileriniz indirildi."
 
 #: src/Admin/Frontend/Account/AccountController.php:285
-msgid "Exporting..."
-msgstr "Dışa aktarılıyor..."
-
-#: src/Admin/Frontend/Account/AccountController.php:286
-msgid "Data exported successfully!"
-msgstr "Veriler başarıyla dışa aktarıldı!"
-
-#: src/Admin/Frontend/Account/AccountController.php:287
-msgid "An error occurred while exporting data"
-msgstr "Veriler dışa aktarılırken bir hata oluştu"
-
-#: src/Admin/Frontend/Account/AccountController.php:288
 msgid ""
 "Are you sure you want to withdraw your consent? This will disable data "
 "processing for your account."
@@ -6847,154 +6849,136 @@ msgstr ""
 "Onayınızı geri çekmek istediğinize emin misiniz? Bu, hesabınız için veri "
 "işlemeyi etkisizleştirecektir."
 
-#: src/Admin/Frontend/Account/AccountController.php:290
+#: src/Admin/Frontend/Account/AccountController.php:287
 msgid "Consent withdrawn successfully!"
 msgstr "Onay başarıyla geri çekildi!"
 
-#: src/Admin/Frontend/Account/AccountController.php:291
+#: src/Admin/Frontend/Account/AccountController.php:288
 msgid "An error occurred while withdrawing consent"
 msgstr "Onay geri çekilirken bir hata oluştu"
 
-#: src/Admin/Frontend/Account/AccountController.php:292
+#: src/Admin/Frontend/Account/AccountController.php:289
 msgid ""
-"This action cannot be undone. Type \"DELETE\" to confirm account deletion:"
+"A request to erase your personal data will be created. We will send you a "
+"confirmation e-mail."
 msgstr ""
-"Bu eylem geri alınamaz. Hesap silme işlemini onaylamak için \"DELETE\" yazın:"
+"Kişisel verilerinizin silinmesi için bir talep oluşturulacak. Size bir onay "
+"e-postası göndereceğiz."
 
-#: src/Admin/Frontend/Account/AccountController.php:293
-msgid ""
-"Are you absolutely sure? This will permanently delete your account and all "
-"data."
-msgstr ""
-"Emin misiniz? Bu işlem, hesabınızı ve tüm verilerinizi kalıcı olarak "
-"silecektir."
-
-#: src/Admin/Frontend/Account/AccountController.php:294
-msgid "Deleting..."
-msgstr "Siliniyor..."
-
-#: src/Admin/Frontend/Account/AccountController.php:295
-msgid "Account deleted successfully. You will be redirected to the homepage."
-msgstr "Hesap başarıyla silindi. Ana sayfaya yönlendirileceksiniz."
-
-#: src/Admin/Frontend/Account/AccountController.php:296
-msgid "An error occurred while deleting account"
-msgstr "Hesap silinirken bir hata oluştu"
-
-#: src/Admin/Frontend/Account/AccountController.php:325
+#: src/Admin/Frontend/Account/AccountController.php:318
 msgid "Cancelling..."
 msgstr "İptal ediliyor..."
 
-#: src/Admin/Frontend/Account/AccountController.php:349
-#: src/Admin/Frontend/Account/AccountController.php:460
+#: src/Admin/Frontend/Account/AccountController.php:342
+#: src/Admin/Frontend/Account/AccountController.php:453
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:608
 msgid "An error occurred."
 msgstr "Bir hata oluştu."
 
-#: src/Admin/Frontend/Account/AccountController.php:350
+#: src/Admin/Frontend/Account/AccountController.php:343
 #: templates/partials/rvs/account-booking-detail.php:137
 msgid "Pay Remaining Amount"
 msgstr "Kalan tutarı öde"
 
-#: src/Admin/Frontend/Account/AccountController.php:461
+#: src/Admin/Frontend/Account/AccountController.php:454
 msgid "Success!"
 msgstr "Başarılı!"
 
-#: src/Admin/Frontend/Account/AccountController.php:463
+#: src/Admin/Frontend/Account/AccountController.php:456
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:138
 msgid "Uploading..."
 msgstr "Yükleniyor..."
 
-#: src/Admin/Frontend/Account/AccountController.php:464
-#: src/Admin/Frontend/Account/AccountController.php:858
+#: src/Admin/Frontend/Account/AccountController.php:457
+#: src/Admin/Frontend/Account/AccountController.php:851
 msgid "Receipt uploaded successfully."
 msgstr "Makbuz başarıyla yüklendi."
 
-#: src/Admin/Frontend/Account/AccountController.php:465
+#: src/Admin/Frontend/Account/AccountController.php:458
 msgid "Receipt upload failed."
 msgstr "Makbuz yükleme başarısız."
 
-#: src/Admin/Frontend/Account/AccountController.php:466
+#: src/Admin/Frontend/Account/AccountController.php:459
 msgid "Are you sure you want to remove this receipt?"
 msgstr "Bu makbuzu kaldırmak istediğinize emin misiniz?"
 
-#: src/Admin/Frontend/Account/AccountController.php:467
+#: src/Admin/Frontend/Account/AccountController.php:460
 msgid "Account details saved successfully."
 msgstr "Hesap bilgileri başarıyla kaydedildi."
 
-#: src/Admin/Frontend/Account/AccountController.php:468
+#: src/Admin/Frontend/Account/AccountController.php:461
 msgid "Vehicle removed from favorites."
 msgstr "Araç favorilerden kaldırıldı."
 
-#: src/Admin/Frontend/Account/AccountController.php:469
+#: src/Admin/Frontend/Account/AccountController.php:462
 msgid "Vehicle added to favorites."
 msgstr "Araç favorilere eklendi."
 
-#: src/Admin/Frontend/Account/AccountController.php:470
+#: src/Admin/Frontend/Account/AccountController.php:463
 msgid "All favorites cleared."
 msgstr "Tüm favoriler silindi."
 
-#: src/Admin/Frontend/Account/AccountController.php:472
+#: src/Admin/Frontend/Account/AccountController.php:465
 msgid "Are you sure you want to cancel changes?"
 msgstr "Değişiklikleri iptal etmek istediğinize emin misiniz?"
 
-#: src/Admin/Frontend/Account/AccountController.php:473
+#: src/Admin/Frontend/Account/AccountController.php:466
 msgid "No favorite vehicles yet."
 msgstr "Henüz favori araç yok."
 
-#: src/Admin/Frontend/Account/AccountController.php:474
+#: src/Admin/Frontend/Account/AccountController.php:467
 msgid "You can add vehicles to favorites using the heart icon."
 msgstr "Kalp simgesini kullanarak araçları favorilere ekleyebilirsiniz."
 
-#: src/Admin/Frontend/Account/AccountController.php:475
+#: src/Admin/Frontend/Account/AccountController.php:468
 #: templates/account/account-details.php:186
 #: templates/admin/settings-page.php:76
 msgid "Save Changes"
 msgstr "Değişiklikleri kaydet"
 
-#: src/Admin/Frontend/Account/AccountController.php:476
+#: src/Admin/Frontend/Account/AccountController.php:469
 msgid "vehicle in your favorites"
 msgstr "favorilerinizdeki araç"
 
-#: src/Admin/Frontend/Account/AccountController.php:477
+#: src/Admin/Frontend/Account/AccountController.php:470
 msgid "vehicles in your favorites"
 msgstr "favorilerinizdeki araçlar"
 
-#: src/Admin/Frontend/Account/AccountController.php:703
+#: src/Admin/Frontend/Account/AccountController.php:696
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:267
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:325
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:412
 msgid "Security error."
 msgstr "Güvenlik hatası."
 
-#: src/Admin/Frontend/Account/AccountController.php:707
+#: src/Admin/Frontend/Account/AccountController.php:700
 msgid "You must be logged in"
 msgstr "Oturum açmalısınız"
 
-#: src/Admin/Frontend/Account/AccountController.php:715
+#: src/Admin/Frontend/Account/AccountController.php:708
 msgid "All favorites cleared"
 msgstr "Tüm favoriler silindi"
 
-#: src/Admin/Frontend/Account/AccountController.php:753
-#: src/Admin/Frontend/Account/AccountController.php:1064
+#: src/Admin/Frontend/Account/AccountController.php:746
+#: src/Admin/Frontend/Account/AccountController.php:1057
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:50
 msgid "You must be logged in."
 msgstr "Oturum açmalısınız."
 
-#: src/Admin/Frontend/Account/AccountController.php:773
+#: src/Admin/Frontend/Account/AccountController.php:766
 msgid "You are not allowed to upload for this booking."
 msgstr "Bu rezervasyon için yükleme yapamazsınız."
 
-#: src/Admin/Frontend/Account/AccountController.php:780
-#: src/Admin/Frontend/Account/AccountController.php:1090
+#: src/Admin/Frontend/Account/AccountController.php:773
+#: src/Admin/Frontend/Account/AccountController.php:1083
 msgid "A receipt cannot be uploaded for this booking."
 msgstr "Bu rezervasyon için makbuz yüklenemez."
 
-#: src/Admin/Frontend/Account/AccountController.php:784
+#: src/Admin/Frontend/Account/AccountController.php:777
 msgid "No file uploaded."
 msgstr "Dosya yüklenmedi."
 
-#: src/Admin/Frontend/Account/AccountController.php:892
+#: src/Admin/Frontend/Account/AccountController.php:885
 msgid ""
 "The receipt file for this booking is not available. Your booking is not "
 "affected. Contact us if you need a copy."
@@ -7002,62 +6986,62 @@ msgstr ""
 "Bu rezervasyonun makbuz dosyası bulunamıyor. Rezervasyonunuz etkilenmedi. "
 "Bir kopyasına ihtiyacınız varsa bizimle iletişime geçin."
 
-#: src/Admin/Frontend/Account/AccountController.php:931
+#: src/Admin/Frontend/Account/AccountController.php:924
 msgid "You are not allowed to view this receipt."
 msgstr "Bu makbuzu görüntüleme yetkiniz yok."
 
-#: src/Admin/Frontend/Account/AccountController.php:943
+#: src/Admin/Frontend/Account/AccountController.php:936
 msgid "Receipt not found"
 msgstr "Makbuz bulunamadı"
 
-#: src/Admin/Frontend/Account/AccountController.php:1083
+#: src/Admin/Frontend/Account/AccountController.php:1076
 msgid "You are not allowed to remove receipt for this booking."
 msgstr "Bu rezervasyonun makbuzunu silemezsiniz."
 
-#: src/Admin/Frontend/Account/AccountController.php:1095
+#: src/Admin/Frontend/Account/AccountController.php:1088
 msgid "No receipt found to remove."
 msgstr "Kaldırılacak makbuz bulunamadı."
 
-#: src/Admin/Frontend/Account/AccountController.php:1108
+#: src/Admin/Frontend/Account/AccountController.php:1101
 msgid "Receipt removed successfully."
 msgstr "Makbuz başarıyla silindi."
 
-#: src/Admin/Frontend/Account/AccountController.php:1110
+#: src/Admin/Frontend/Account/AccountController.php:1103
 msgid "Failed to remove receipt file."
 msgstr "Makbuz dosyası silinemedi."
 
-#: src/Admin/Frontend/Account/AccountController.php:1135
+#: src/Admin/Frontend/Account/AccountController.php:1128
 msgid "Please login."
 msgstr "Lütfen giriş yapın."
 
-#: src/Admin/Frontend/Account/AccountController.php:1141
+#: src/Admin/Frontend/Account/AccountController.php:1134
 #: templates/account/account-details.php:37
 msgid "Profile editing is currently disabled."
 msgstr "Profil düzenleme şu anda etkisizleştirilmiş."
 
-#: src/Admin/Frontend/Account/AccountController.php:1188
+#: src/Admin/Frontend/Account/AccountController.php:1181
 msgid "An error occurred while updating your account."
 msgstr "Hesabınız güncellenirken bir hata oluştu."
 
-#: src/Admin/Frontend/Account/AccountController.php:1197
+#: src/Admin/Frontend/Account/AccountController.php:1190
 msgid "Account updated successfully."
 msgstr "Hesap başarıyla güncellendi."
 
-#: src/Admin/Frontend/Account/AccountController.php:1215
-#: src/Admin/Frontend/Account/AccountController.php:1228
+#: src/Admin/Frontend/Account/AccountController.php:1208
+#: src/Admin/Frontend/Account/AccountController.php:1221
 msgid "This endpoint is deprecated. Please refresh your page."
 msgstr "Bu uç nokta kullanımdan kaldırılmıştır. Lütfen sayfanızı yenileyin."
 
-#: src/Admin/Frontend/Account/AccountController.php:1285
+#: src/Admin/Frontend/Account/AccountController.php:1278
 msgid "You must be logged in to cancel a booking."
 msgstr "Rezervasyonu iptal etmek için oturum açmanız gerekir."
 
-#: src/Admin/Frontend/Account/AccountController.php:1296
+#: src/Admin/Frontend/Account/AccountController.php:1289
 msgid "Security verification failed. Please refresh and try again."
 msgstr ""
 "Güvenlik doğrulaması başarısız. Lütfen sayfayı yenileyin ve yeniden deneyin."
 
-#: src/Admin/Frontend/Account/AccountController.php:1348
+#: src/Admin/Frontend/Account/AccountController.php:1341
 msgid ""
 "Booking cancelled, but the refund could not be completed automatically. We "
 "will contact you separately about your refund."
@@ -7065,7 +7049,7 @@ msgstr ""
 "Rezervasyon iptal edildi, ancak iade otomatik olarak tamamlanamadı. "
 "İadenizle ilgili sizinle ayrıca iletişime geçeceğiz."
 
-#: src/Admin/Frontend/Account/AccountController.php:1364
+#: src/Admin/Frontend/Account/AccountController.php:1357
 msgid "Booking cancelled successfully. A confirmation email has been sent."
 msgstr "Rezervasyon başarıyla iptal edildi. Onay e-postası gönderildi."
 
@@ -7802,18 +7786,18 @@ msgstr "Hf"
 msgid "The dates you selected include a booked day."
 msgstr "Seçtiğiniz tarihler arasında rezerve edilmiş bir gün var."
 
-#: src/Admin/Frontend/Shortcodes/CalendarView.php:371
+#: src/Admin/Frontend/Shortcodes/CalendarView.php:373
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:369
 msgid "Price on request"
 msgstr "Fiyat için sorun"
 
-#: src/Admin/Frontend/Shortcodes/CalendarView.php:375
+#: src/Admin/Frontend/Shortcodes/CalendarView.php:377
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:399
 msgid "per day"
 msgstr "günlük"
 
 #. translators: %s: pickup and return time.
-#: src/Admin/Frontend/Shortcodes/CalendarView.php:411
+#: src/Admin/Frontend/Shortcodes/CalendarView.php:413
 #, php-format
 msgid "Pickup and return at %s"
 msgstr "Teslim alma ve dönüş saati: %s"
@@ -9757,6 +9741,8 @@ msgstr "Güven puanı"
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:89
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:102
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:84
+#: src/Admin/Privacy/ContactPersonalData.php:186
+#: src/Admin/Privacy/EmailLogPersonalData.php:50
 #: src/Admin/Utilities/ListTable/LogColumns.php:80
 #: templates/account/payment-history.php:67
 #: assets/blocks/payment-history/index.js:48
@@ -11298,6 +11284,340 @@ msgstr ""
 #, php-format
 msgid "Auto-complete skipped a booking: %s"
 msgstr "Otomatik tamamlama bir rezervasyonu atladı: %s"
+
+#: src/Admin/Privacy/AccountPersonalData.php:65
+#: src/Admin/Privacy/AccountPersonalData.php:66
+msgid "Favourite vehicles"
+msgstr "Favori araçlar"
+
+#: src/Admin/Privacy/AccountPersonalData.php:67
+msgid "Vehicles to compare"
+msgstr "Karşılaştırılacak araçlar"
+
+#: src/Admin/Privacy/AccountPersonalData.php:68
+msgid "Last login"
+msgstr "Son giriş"
+
+#: src/Admin/Privacy/AccountPersonalData.php:69
+msgid "Last activity"
+msgstr "Son etkinlik"
+
+#: src/Admin/Privacy/AccountPersonalData.php:70
+msgid "Welcome e-mail"
+msgstr "Karşılama e-postası"
+
+#: src/Admin/Privacy/AccountPersonalData.php:71
+msgid "Booking notifications"
+msgstr "Rezervasyon bildirimleri"
+
+#: src/Admin/Privacy/AccountPersonalData.php:72
+msgid "Marketing e-mails"
+msgstr "Pazarlama e-postaları"
+
+#: src/Admin/Privacy/AccountPersonalData.php:73
+msgid "Welcome e-mail sent"
+msgstr "Karşılama e-postası gönderildi"
+
+#: src/Admin/Privacy/AccountPersonalData.php:98
+msgid "Rental account"
+msgstr "Kiralama hesabı"
+
+#. translators: %s: internal meta key.
+#: src/Admin/Privacy/AccountPersonalData.php:136
+#, php-format
+msgid "Account detail %s could not be erased."
+msgstr "%s hesap bilgisi silinemedi."
+
+#: src/Admin/Privacy/AppLogPersonalData.php:39
+msgid "Application log entry"
+msgstr "Uygulama günlüğü kaydı"
+
+#: src/Admin/Privacy/BookingEraser.php:71
+msgid "The erasure stopped: a booking could not be marked as failed."
+msgstr "Silme işlemi durdu: bir rezervasyon başarısız olarak işaretlenemedi."
+
+#. translators: 1: booking ID, 2: comma-separated internal field group names.
+#: src/Admin/Privacy/BookingEraser.php:79
+#, php-format
+msgid ""
+"Booking #%1$d could not be fully anonymised (%2$s); run the erasure again in "
+"15 minutes."
+msgstr ""
+"#%1$d numaralı rezervasyon tamamen anonimleştirilemedi (%2$s); silme "
+"işlemini 15 dakika sonra yeniden çalıştırın."
+
+#. translators: %d: number of further bookings not listed.
+#: src/Admin/Privacy/BookingEraser.php:108
+#, php-format
+msgid " (+%d more)"
+msgstr " (+%d daha)"
+
+#. translators: 1: number of bookings, 2: list of booking numbers.
+#: src/Admin/Privacy/BookingEraser.php:112
+#, php-format
+msgid "%1$d active booking kept: %2$s"
+msgid_plural "%1$d active bookings kept: %2$s"
+msgstr[0] "%1$d etkin rezervasyon korundu: %2$s"
+msgstr[1] "%1$d etkin rezervasyon korundu: %2$s"
+
+#. translators: %d: number of bookings.
+#: src/Admin/Privacy/BookingEraser.php:123
+#, php-format
+msgid ""
+"%d booking could not be fully anonymised in the last 15 minutes; run the "
+"erasure again in 15 minutes."
+msgid_plural ""
+"%d bookings could not be fully anonymised in the last 15 minutes; run the "
+"erasure again in 15 minutes."
+msgstr[0] ""
+"Son 15 dakikada %d rezervasyon tamamen anonimleştirilemedi; silme işlemini "
+"15 dakika sonra yeniden çalıştırın."
+msgstr[1] ""
+"Son 15 dakikada %d rezervasyon tamamen anonimleştirilemedi; silme işlemini "
+"15 dakika sonra yeniden çalıştırın."
+
+#: src/Admin/Privacy/BookingEraser.php:130
+msgid ""
+"Linked WooCommerce orders keep their billing details according to the "
+"WooCommerce privacy setting."
+msgstr ""
+"Bağlı WooCommerce siparişleri fatura bilgilerini WooCommerce gizlilik "
+"ayarına göre korur."
+
+#: src/Admin/Privacy/BookingEraser.php:134
+msgid ""
+"The user account was not deleted; delete it from the Users screen if needed."
+msgstr "Kullanıcı hesabı silinmedi; gerekirse Kullanıcılar ekranından silin."
+
+#: src/Admin/Privacy/BookingExporter.php:98
+msgid "Booking number"
+msgstr "Rezervasyon numarası"
+
+#: src/Admin/Privacy/BookingExporter.php:101
+msgid "Pick-up date"
+msgstr "Alış tarihi"
+
+#: src/Admin/Privacy/BookingExporter.php:102
+msgid "Return date"
+msgstr "Dönüş tarihi"
+
+#: src/Admin/Privacy/BookingExporter.php:104
+#: src/Admin/Privacy/ContactPersonalData.php:189
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:58
+msgid "E-mail"
+msgstr "E-posta"
+
+#: src/Admin/Privacy/BookingExporter.php:106
+msgid "Guests"
+msgstr "Misafirler"
+
+#: src/Admin/Privacy/BookingExporter.php:107
+msgid "Special notes"
+msgstr "Özel notlar"
+
+#: src/Admin/Privacy/BookingExporter.php:108
+msgid "Booking note"
+msgstr "Rezervasyon notu"
+
+#: src/Admin/Privacy/BookingExporter.php:110
+msgid "Payment status"
+msgstr "Ödeme durumu"
+
+#: src/Admin/Privacy/BookingExporter.php:111
+msgid "Cancellation reason"
+msgstr "İptal nedeni"
+
+#: src/Admin/Privacy/BookingExporter.php:112
+msgid "Cancelled via"
+msgstr "İptal yöntemi"
+
+#: src/Admin/Privacy/BookingExporter.php:113
+msgid "Refund reason"
+msgstr "İade nedeni"
+
+#: src/Admin/Privacy/BookingExporter.php:114
+msgid "Refund reference"
+msgstr "İade referansı"
+
+#: src/Admin/Privacy/BookingExporter.php:115
+msgid "Refund review reason"
+msgstr "İade inceleme nedeni"
+
+#: src/Admin/Privacy/BookingExporter.php:116
+msgid "Payment receipt"
+msgstr "Ödeme dekontu"
+
+#: src/Admin/Privacy/BookingExporter.php:117
+msgid "Payment receipt note"
+msgstr "Ödeme dekontu notu"
+
+#: src/Admin/Privacy/ContactPersonalData.php:48
+msgid "Contact messages"
+msgstr "İletişim mesajları"
+
+#: src/Admin/Privacy/ContactPersonalData.php:72
+msgid "Contact message"
+msgstr "İletişim mesajı"
+
+#: src/Admin/Privacy/ContactPersonalData.php:193
+msgid "Consent given"
+msgstr "Verilen onay"
+
+#: src/Admin/Privacy/ContactPersonalData.php:194
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:46
+msgid "IP address"
+msgstr "IP adresi"
+
+#: src/Admin/Privacy/ContactPersonalData.php:195
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:48
+msgid "Browser"
+msgstr "Tarayıcı"
+
+#: src/Admin/Privacy/ContactPersonalData.php:196
+msgid "Attachment"
+msgstr "Ek dosya"
+
+#: src/Admin/Privacy/EmailLogPersonalData.php:46
+msgid "E-mails sent"
+msgstr "Gönderilen e-postalar"
+
+#: src/Admin/Privacy/EmailLogPersonalData.php:79
+msgid "E-mail log entry"
+msgstr "E-posta günlüğü kaydı"
+
+#: src/Admin/Privacy/PolicyText.php:44
+msgid ""
+"MHM Rentiva stores the details below for vehicle rentals. Keep what applies "
+"to your site and adjust the retention periods to your own settings."
+msgstr ""
+"MHM Rentiva, araç kiralama için aşağıdaki bilgileri saklar. Sitenize uygun "
+"olanları bırakın ve saklama sürelerini kendi ayarlarınıza göre düzenleyin."
+
+#: src/Admin/Privacy/PolicyText.php:46
+msgid ""
+"When you book a vehicle we store your name, e-mail address, phone number, "
+"the rental dates, the vehicle, any notes you add and your payment status. "
+"Payments are taken through our WooCommerce payment provider; we do not store "
+"card details."
+msgstr ""
+"Bir araç rezerve ettiğinizde adınızı, e-posta adresinizi, telefon "
+"numaranızı, kiralama tarihlerini, aracı, eklediğiniz notları ve ödeme "
+"durumunuzu saklarız. Ödemeler WooCommerce ödeme sağlayıcımız üzerinden "
+"alınır; kart bilgilerinizi saklamayız."
+
+#: src/Admin/Privacy/PolicyText.php:47
+msgid ""
+"Bookings are kept for our accounts. When you ask us to erase your data, your "
+"name, contact details and notes are removed from completed, cancelled and "
+"refunded bookings; dates, vehicle and amounts stay. Bookings that are still "
+"pending, confirmed or in progress are kept until they end."
+msgstr ""
+"Rezervasyonlar muhasebe kayıtlarımız için saklanır. Verilerinizin "
+"silinmesini istediğinizde adınız, iletişim bilgileriniz ve notlarınız "
+"tamamlanmış, iptal edilmiş ve iade edilmiş rezervasyonlardan kaldırılır; "
+"tarihler, araç ve tutarlar kalır. Hâlâ beklemede olan, onaylanmış veya devam "
+"eden rezervasyonlar sona erene kadar saklanır."
+
+#: src/Admin/Privacy/PolicyText.php:48
+#: templates/shortcodes/contact-form.php:117
+msgid "Contact form"
+msgstr "İletişim formu"
+
+#: src/Admin/Privacy/PolicyText.php:49
+msgid ""
+"When you send us a message we store your name, e-mail address, phone number, "
+"company, the message, any file you attach, your IP address and your browser, "
+"to answer you and to keep out spam."
+msgstr ""
+"Bize bir mesaj gönderdiğinizde size yanıt verebilmek ve istenmeyen iletileri "
+"engellemek için adınızı, e-posta adresinizi, telefon numaranızı, "
+"şirketinizi, mesajı, eklediğiniz dosyayı, IP adresinizi ve tarayıcınızı "
+"saklarız."
+
+#: src/Admin/Privacy/PolicyText.php:50
+msgid "E-mails and logs"
+msgstr "E-postalar ve günlükler"
+
+#: src/Admin/Privacy/PolicyText.php:51
+msgid ""
+"If e-mail logging is on, we keep a record of the e-mails sent about your "
+"booking, including your contact details. Our application log may record your "
+"account ID, IP address and browser. Both are deleted after the retention "
+"periods set on this site, when automatic clean-up is switched on."
+msgstr ""
+"E-posta günlüğü açıksa rezervasyonunuzla ilgili gönderilen e-postaların, "
+"iletişim bilgilerinizi de içeren bir kaydını tutarız. Uygulama günlüğümüz "
+"hesap kimliğinizi, IP adresinizi ve tarayıcınızı kaydedebilir. Otomatik "
+"temizlik açıksa ikisi de bu sitede ayarlanan saklama sürelerinin sonunda "
+"silinir."
+
+#: src/Admin/Privacy/PolicyText.php:52
+msgid "Your account"
+msgstr "Hesabınız"
+
+#: src/Admin/Privacy/PolicyText.php:53
+msgid ""
+"With an account we also store your phone number, address, favourite "
+"vehicles, your notification choices and when you last signed in."
+msgstr ""
+"Bir hesabınız varsa ayrıca telefon numaranızı, adresinizi, favori "
+"araçlarınızı, bildirim tercihlerinizi ve en son ne zaman oturum açtığınızı "
+"saklarız."
+
+#: src/Admin/Privacy/PolicyText.php:54
+msgid ""
+"Database backups made with the MHM Rentiva database tools contain this data "
+"and are not changed by an erasure request. Delete old backups yourself."
+msgstr ""
+"MHM Rentiva veritabanı araçlarıyla alınan veritabanı yedekleri bu verileri "
+"içerir ve silme talebinden etkilenmez. Eski yedekleri kendiniz silin."
+
+#. translators: 1: number of items, 2: item noun such as "Contact message".
+#: src/Admin/Privacy/PostQueue.php:56
+#, php-format
+msgid ""
+"%1$d × %2$s could not be erased in the last 15 minutes; run the erasure "
+"again in 15 minutes."
+msgstr ""
+"Son 15 dakikada %1$d × %2$s silinemedi; silme işlemini 15 dakika sonra "
+"yeniden çalıştırın."
+
+#. translators: 1: item noun such as "Contact message", 2: item ID, 3: what was left.
+#: src/Admin/Privacy/PostQueue.php:74
+#, php-format
+msgid ""
+"%1$s #%2$d could not be erased (%3$s); run the erasure again in 15 minutes."
+msgstr ""
+"%1$s #%2$d silinemedi (%3$s); silme işlemini 15 dakika sonra yeniden "
+"çalıştırın."
+
+#: src/Admin/Privacy/PostQueue.php:83
+msgid "The erasure stopped: an item could not be marked as failed."
+msgstr "Silme işlemi durdu: bir öğe başarısız olarak işaretlenemedi."
+
+#: src/Admin/Privacy/PrivacyRegistry.php:42
+#: src/Admin/Privacy/PrivacyRegistry.php:69
+msgid "MHM Rentiva bookings"
+msgstr "MHM Rentiva rezervasyonları"
+
+#: src/Admin/Privacy/PrivacyRegistry.php:46
+#: src/Admin/Privacy/PrivacyRegistry.php:73
+msgid "MHM Rentiva contact messages"
+msgstr "MHM Rentiva iletişim mesajları"
+
+#: src/Admin/Privacy/PrivacyRegistry.php:50
+#: src/Admin/Privacy/PrivacyRegistry.php:77
+msgid "MHM Rentiva e-mail log"
+msgstr "MHM Rentiva e-posta günlüğü"
+
+#: src/Admin/Privacy/PrivacyRegistry.php:54
+#: src/Admin/Privacy/PrivacyRegistry.php:81
+msgid "MHM Rentiva account details"
+msgstr "MHM Rentiva hesap bilgileri"
+
+#: src/Admin/Privacy/PrivacyRegistry.php:85
+msgid "MHM Rentiva application log"
+msgstr "MHM Rentiva uygulama günlüğü"
 
 #: src/Admin/REST/Helpers/AuthHelper.php:68
 msgid "Authorization failed. Please refresh the page and try again."
@@ -14347,8 +14667,7 @@ msgid "Deposit:"
 msgstr "Kapora:"
 
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:758
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:120
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:193
+#: src/Admin/Vehicle/Templates/vehicle-meta.php:128
 msgid "L"
 msgstr "L"
 
@@ -15263,29 +15582,27 @@ msgstr "Aracın temel bilgilerini girin"
 msgid "Inherit (Vendor/Global)"
 msgstr "Devral (bayi/genel)"
 
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:109
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:187
+#: src/Admin/Vehicle/Templates/vehicle-meta.php:117
 msgid "Person"
 msgstr "Kişi"
 
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:114
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:190
+#: src/Admin/Vehicle/Templates/vehicle-meta.php:122
 msgid "Pieces"
 msgstr "Adet"
 
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:246
+#: src/Admin/Vehicle/Templates/vehicle-meta.php:184
 msgid "VEHICLE FEATURES"
 msgstr "ARAÇ ÖZELLİKLERİ"
 
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:247
+#: src/Admin/Vehicle/Templates/vehicle-meta.php:185
 msgid "Select the features of the vehicle"
 msgstr "Aracın özelliklerini seçin"
 
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:311
+#: src/Admin/Vehicle/Templates/vehicle-meta.php:249
 msgid "VEHICLE EQUIPMENT"
 msgstr "ARAÇ EKİPMANLARI"
 
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:312
+#: src/Admin/Vehicle/Templates/vehicle-meta.php:250
 msgid "Select the equipment of the vehicle"
 msgstr "Aracın ekipmanını seçin"
 
@@ -15723,7 +16040,7 @@ msgstr ""
 "Bu sayfa için geri alma hiçbir şey yazmadı: önceki manifest artık bu sayfaya "
 "çözümlenmiyor."
 
-#: src/Plugin.php:1178
+#: src/Plugin.php:1184
 msgid "Failed to create the customer role."
 msgstr "Müşteri rolü oluşturulamadı."
 
@@ -15839,16 +16156,16 @@ msgid "Manage your personal data and privacy settings"
 msgstr "Kişisel verilerinizi ve gizlilik ayarlarınızı yönetin"
 
 #: templates/account/dashboard.php:106
-msgid "Export My Data"
-msgstr "Verilerimi dışa aktar"
+msgid "Request Data Export"
+msgstr "Veri Dışa Aktarma Talebi"
 
 #: templates/account/dashboard.php:107
 msgid "Withdraw Consent"
 msgstr "Onayı geri çek"
 
 #: templates/account/dashboard.php:108
-msgid "Delete Account"
-msgstr "Hesabı sil"
+msgid "Request Data Erasure"
+msgstr "Veri Silme Talebi"
 
 #. translators: %s: number of favorite vehicles
 #: templates/account/favorites.php:46
@@ -16808,10 +17125,6 @@ msgstr "Bir azalt"
 msgid "Increase"
 msgstr "Bir artır"
 
-#: templates/shortcodes/contact-form.php:117
-msgid "Contact form"
-msgstr "İletişim formu"
-
 #: templates/shortcodes/contact-form.php:127
 msgid "Topic"
 msgstr "Konu"
@@ -17731,10 +18044,6 @@ msgid_plural "%d more messages from this address"
 msgstr[0] "Bu adresten %d ileti daha"
 msgstr[1] "Bu adresten %d ileti daha"
 
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:58
-msgid "E-mail"
-msgstr "E-posta"
-
 #: src-react/admin/contact-messages/components/SenderWidget.jsx:65
 msgid "Copy"
 msgstr "Kopyala"
@@ -17761,14 +18070,6 @@ msgid ""
 msgstr ""
 "Gönderenin IP adresi ve tarayıcı bilgisi. Kötüye kullanım incelemesi dışında "
 "gerekmez."
-
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:46
-msgid "IP address"
-msgstr "IP adresi"
-
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:48
-msgid "Browser"
-msgstr "Tarayıcı"
 
 #: src-react/admin/contact-messages/ContactMessageDetail.jsx:73
 msgid "The message could not be marked as read."
@@ -18451,6 +18752,50 @@ msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste yerleşiminde görüntüleyin."
 
+#~ msgid ""
+#~ "Are you sure you want to export your data? This may take a few minutes."
+#~ msgstr ""
+#~ "Verilerinizi dışa aktarmak istediğinize emin misiniz? Bu birkaç dakika "
+#~ "sürebilir."
+
+#~ msgid "Exporting..."
+#~ msgstr "Dışa aktarılıyor..."
+
+#~ msgid "Data exported successfully!"
+#~ msgstr "Veriler başarıyla dışa aktarıldı!"
+
+#~ msgid "An error occurred while exporting data"
+#~ msgstr "Veriler dışa aktarılırken bir hata oluştu"
+
+#~ msgid "Export My Data"
+#~ msgstr "Verilerimi dışa aktar"
+
+#~ msgid ""
+#~ "This action cannot be undone. Type \"DELETE\" to confirm account deletion:"
+#~ msgstr ""
+#~ "Bu eylem geri alınamaz. Hesap silme işlemini onaylamak için \"DELETE\" "
+#~ "yazın:"
+
+#~ msgid ""
+#~ "Are you absolutely sure? This will permanently delete your account and "
+#~ "all data."
+#~ msgstr ""
+#~ "Emin misiniz? Bu işlem, hesabınızı ve tüm verilerinizi kalıcı olarak "
+#~ "silecektir."
+
+#~ msgid "Deleting..."
+#~ msgstr "Siliniyor..."
+
+#~ msgid ""
+#~ "Account deleted successfully. You will be redirected to the homepage."
+#~ msgstr "Hesap başarıyla silindi. Ana sayfaya yönlendirileceksiniz."
+
+#~ msgid "An error occurred while deleting account"
+#~ msgstr "Hesap silinirken bir hata oluştu"
+
+#~ msgid "Delete Account"
+#~ msgstr "Hesabı sil"
+
 #, php-format
 #~ msgid "Pickup Time:"
 #~ msgstr "Teslim alma saati:"
@@ -18789,9 +19134,6 @@ msgstr "Araçları liste yerleşiminde görüntüleyin."
 
 #~ msgid "Write your message here..."
 #~ msgstr "İletinizi buraya yazın..."
-
-#~ msgid "Attachment"
-#~ msgstr "Ek dosya"
 
 #~ msgid "Choose File"
 #~ msgstr "Dosya seçin"
