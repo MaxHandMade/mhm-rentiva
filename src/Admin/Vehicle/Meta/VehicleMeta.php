@@ -156,11 +156,18 @@ final class VehicleMeta extends AbstractMetaBox {
 		global $post_type, $pagenow;
 
 		if ($post_type === 'mhmrentiva_vehicle' && ( $pagenow === 'post.php' || $pagenow === 'post-new.php' )) {
+			// The screen styles under the ui-core kit and body.mhmui-admin
+			// (spec §Ortak katman M2, the pattern of the setup wizard and the
+			// new-booking screen).
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_kit('admin');
+			add_filter('admin_body_class', array( self::class, 'add_body_class' ));
+
+			// Literal dependency: the style-token gate reads registrations literally.
 			wp_enqueue_style(
 				'mhm-rentiva-vehicle-meta-css',
 				\MHMRENTIVA_PLUGIN_URL . 'assets/css/components/vehicle-meta.css',
-				array(),
-				\MHMRENTIVA_VERSION . '-' . time()
+				array( 'mhmuicore-admin' ),
+				\MHMRENTIVA_VERSION
 			);
 
 			// vehicle-meta.js itself is enqueued and localized by
@@ -178,6 +185,15 @@ final class VehicleMeta extends AbstractMetaBox {
 			// was moved into AssetManager::localize_component_script()'s
 			// 'vehicle-meta' case so no data is lost.
 		}
+	}
+
+	/**
+	 * Scope the ui-core tokens to the vehicle edit screen. Added from
+	 * enqueue_scripts(), so it only exists once that screen was detected.
+	 */
+	public static function add_body_class(string $classes): string
+	{
+		return $classes . ' mhmui-admin ';
 	}
 
 	public static function add_meta_boxes(): void

@@ -103,10 +103,11 @@ final class VehicleGallery extends AbstractMetaBox {
 			true
 		);
 
+		// Literal dependency: the style-token gate reads registrations literally.
 		wp_enqueue_style(
 			'mhm-rentiva-vehicle-gallery',
 			MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-gallery.css',
-			array( 'mhm-rentiva-css-variables' ),
+			array( 'mhm-rentiva-css-variables', 'mhmuicore-admin' ),
 			MHMRENTIVA_VERSION
 		);
 
