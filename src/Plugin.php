@@ -511,6 +511,12 @@ final class Plugin {
 		if ($this->is_class_available('\MHMRentiva\Admin\Frontend\Shortcodes\ContactMessagePostType')) {
 			\MHMRentiva\Admin\Frontend\Shortcodes\ContactMessagePostType::register();
 		}
+
+		// Personal data: Tools → Export / Erase Personal Data, and the
+		// suggested privacy policy text (WP.org privacy guideline).
+		if ($this->is_class_available('\MHMRentiva\Admin\Privacy\PrivacyRegistry')) {
+			\MHMRentiva\Admin\Privacy\PrivacyRegistry::register();
+		}
 	}
 
 	/**
