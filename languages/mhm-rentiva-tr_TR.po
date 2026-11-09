@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-11-09T22:01:54+00:00\n"
+"POT-Creation-Date: 2026-11-09T22:45:55+00:00\n"
 "PO-Revision-Date: 2026-10-24 18:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -153,7 +153,7 @@ msgid "Could not calculate"
 msgstr "Hesaplanamadı"
 
 #: src/Admin/About/SystemInfo.php:223 src/Admin/Core/AssetManager.php:1635
-#: src/Admin/Frontend/Account/AccountController.php:289
+#: src/Admin/Frontend/Account/AccountController.php:290
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:596
 #: src/Admin/Settings/Groups/FrontendSettings.php:345
 msgid "Error"
@@ -580,8 +580,8 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:123
 #: src/Admin/Core/AssetManager.php:1206 src/Admin/Core/AssetManager.php:1662
 #: src/Admin/Emails/Core/EmailTemplates.php:566
-#: src/Admin/Frontend/Account/AccountController.php:285
-#: src/Admin/Frontend/Account/AccountController.php:340
+#: src/Admin/Frontend/Account/AccountController.php:286
+#: src/Admin/Frontend/Account/AccountController.php:341
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:348
 msgid "Processing..."
 msgstr "İşleniyor..."
@@ -590,7 +590,7 @@ msgstr "İşleniyor..."
 #: src/Admin/Addons/AddonScreen.php:112 src/Admin/Core/AssetManager.php:1338
 #: src/Admin/Core/AssetManager.php:1384
 #: src/Admin/Emails/Core/EmailTemplates.php:567
-#: src/Admin/Frontend/Account/AccountController.php:318
+#: src/Admin/Frontend/Account/AccountController.php:319
 msgid "An error occurred. Please try again."
 msgstr "Bir hata oluştu. Lütfen yeniden deneyin."
 
@@ -603,7 +603,7 @@ msgid "Error updating price"
 msgstr "Fiyat güncellenirken hata oluştu"
 
 #: src/Admin/Addons/AddonListTable.php:88 src/Admin/Addons/AddonManager.php:287
-#: src/Admin/Frontend/Account/AccountController.php:290
+#: src/Admin/Frontend/Account/AccountController.php:291
 msgid "Unknown error"
 msgstr "Bilinmeyen hata"
 
@@ -683,11 +683,11 @@ msgstr "\"%s\" ek hizmeti gereklidir."
 #: src/Admin/Emails/Core/EmailTemplates.php:182
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:34
 #: src/Admin/Emails/Settings/EmailTestAction.php:31
-#: src/Admin/Frontend/Account/AccountController.php:750
-#: src/Admin/Frontend/Account/AccountController.php:919
-#: src/Admin/Frontend/Account/AccountController.php:1061
-#: src/Admin/Frontend/Account/AccountController.php:1122
-#: src/Admin/Frontend/Account/AccountController.php:1240
+#: src/Admin/Frontend/Account/AccountController.php:751
+#: src/Admin/Frontend/Account/AccountController.php:920
+#: src/Admin/Frontend/Account/AccountController.php:1062
+#: src/Admin/Frontend/Account/AccountController.php:1123
+#: src/Admin/Frontend/Account/AccountController.php:1241
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:125
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1090
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1465
@@ -1062,9 +1062,9 @@ msgstr "%s hizmetini sil"
 
 #: src/Admin/Booking/Actions/BookingActionGuard.php:82
 #: src/Admin/Booking/Helpers/CancellationHandler.php:107
-#: src/Admin/Frontend/Account/AccountController.php:756
-#: src/Admin/Frontend/Account/AccountController.php:1068
-#: src/Admin/Frontend/Account/AccountController.php:1299
+#: src/Admin/Frontend/Account/AccountController.php:757
+#: src/Admin/Frontend/Account/AccountController.php:1069
+#: src/Admin/Frontend/Account/AccountController.php:1300
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4560
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4619
 msgid "Invalid booking ID."
@@ -1549,7 +1549,7 @@ msgid "Hello %s,"
 msgstr "Merhaba %s,"
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:691
-#: src/Admin/Frontend/Account/AccountController.php:319
+#: src/Admin/Frontend/Account/AccountController.php:320
 msgid "Your booking has been cancelled successfully."
 msgstr "Rezervasyonunuz başarıyla iptal edildi."
 
@@ -3949,7 +3949,7 @@ msgstr "Evet"
 
 #: src/Admin/Core/AssetManager.php:1199 src/Admin/Core/AssetManager.php:1634
 #: src/Admin/Emails/Core/EmailTemplates.php:575
-#: src/Admin/Frontend/Account/AccountController.php:451
+#: src/Admin/Frontend/Account/AccountController.php:452
 #: src/Admin/Frontend/Account/AccountRenderer.php:503
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:94
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:344
@@ -3968,7 +3968,7 @@ msgid "Operation successful"
 msgstr "İşlem başarılı"
 
 #: src/Admin/Core/AssetManager.php:1202 src/Admin/Core/AssetManager.php:1667
-#: src/Admin/Frontend/Account/AccountController.php:454
+#: src/Admin/Frontend/Account/AccountController.php:455
 msgid "Are you sure?"
 msgstr "Emin misiniz?"
 
@@ -5868,7 +5868,7 @@ msgid "Password must be at least {length} characters."
 msgstr "Parola en az {length} karakter olmalıdır."
 
 #: src/Admin/Core/Utilities/UXHelper.php:131
-#: src/Admin/Frontend/Account/AccountController.php:463
+#: src/Admin/Frontend/Account/AccountController.php:464
 msgid "Passwords do not match."
 msgstr "Parolalar uyuşmuyor."
 
@@ -6833,9 +6833,15 @@ msgstr "%1$s – %2$s"
 msgid ""
 "A request to export your personal data will be created. We will send you a "
 "confirmation e-mail."
-msgstr "Kişisel verilerinizin dışa aktarılması için bir talep oluşturulacak. Size bir onay e-postası göndereceğiz."
+msgstr ""
+"Kişisel verilerinizin dışa aktarılması için bir talep oluşturulacak. Size "
+"bir onay e-postası göndereceğiz."
 
 #: src/Admin/Frontend/Account/AccountController.php:284
+msgid "Your data has been downloaded."
+msgstr "Verileriniz indirildi."
+
+#: src/Admin/Frontend/Account/AccountController.php:285
 msgid ""
 "Are you sure you want to withdraw your consent? This will disable data "
 "processing for your account."
@@ -6843,15 +6849,15 @@ msgstr ""
 "Onayınızı geri çekmek istediğinize emin misiniz? Bu, hesabınız için veri "
 "işlemeyi etkisizleştirecektir."
 
-#: src/Admin/Frontend/Account/AccountController.php:286
+#: src/Admin/Frontend/Account/AccountController.php:287
 msgid "Consent withdrawn successfully!"
 msgstr "Onay başarıyla geri çekildi!"
 
-#: src/Admin/Frontend/Account/AccountController.php:287
+#: src/Admin/Frontend/Account/AccountController.php:288
 msgid "An error occurred while withdrawing consent"
 msgstr "Onay geri çekilirken bir hata oluştu"
 
-#: src/Admin/Frontend/Account/AccountController.php:288
+#: src/Admin/Frontend/Account/AccountController.php:289
 msgid ""
 "A request to erase your personal data will be created. We will send you a "
 "confirmation e-mail."
@@ -6859,120 +6865,120 @@ msgstr ""
 "Kişisel verilerinizin silinmesi için bir talep oluşturulacak. Size bir onay "
 "e-postası göndereceğiz."
 
-#: src/Admin/Frontend/Account/AccountController.php:317
+#: src/Admin/Frontend/Account/AccountController.php:318
 msgid "Cancelling..."
 msgstr "İptal ediliyor..."
 
-#: src/Admin/Frontend/Account/AccountController.php:341
-#: src/Admin/Frontend/Account/AccountController.php:452
+#: src/Admin/Frontend/Account/AccountController.php:342
+#: src/Admin/Frontend/Account/AccountController.php:453
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:608
 msgid "An error occurred."
 msgstr "Bir hata oluştu."
 
-#: src/Admin/Frontend/Account/AccountController.php:342
+#: src/Admin/Frontend/Account/AccountController.php:343
 #: templates/partials/rvs/account-booking-detail.php:137
 msgid "Pay Remaining Amount"
 msgstr "Kalan tutarı öde"
 
-#: src/Admin/Frontend/Account/AccountController.php:453
+#: src/Admin/Frontend/Account/AccountController.php:454
 msgid "Success!"
 msgstr "Başarılı!"
 
-#: src/Admin/Frontend/Account/AccountController.php:455
+#: src/Admin/Frontend/Account/AccountController.php:456
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:138
 msgid "Uploading..."
 msgstr "Yükleniyor..."
 
-#: src/Admin/Frontend/Account/AccountController.php:456
-#: src/Admin/Frontend/Account/AccountController.php:850
+#: src/Admin/Frontend/Account/AccountController.php:457
+#: src/Admin/Frontend/Account/AccountController.php:851
 msgid "Receipt uploaded successfully."
 msgstr "Makbuz başarıyla yüklendi."
 
-#: src/Admin/Frontend/Account/AccountController.php:457
+#: src/Admin/Frontend/Account/AccountController.php:458
 msgid "Receipt upload failed."
 msgstr "Makbuz yükleme başarısız."
 
-#: src/Admin/Frontend/Account/AccountController.php:458
+#: src/Admin/Frontend/Account/AccountController.php:459
 msgid "Are you sure you want to remove this receipt?"
 msgstr "Bu makbuzu kaldırmak istediğinize emin misiniz?"
 
-#: src/Admin/Frontend/Account/AccountController.php:459
+#: src/Admin/Frontend/Account/AccountController.php:460
 msgid "Account details saved successfully."
 msgstr "Hesap bilgileri başarıyla kaydedildi."
 
-#: src/Admin/Frontend/Account/AccountController.php:460
+#: src/Admin/Frontend/Account/AccountController.php:461
 msgid "Vehicle removed from favorites."
 msgstr "Araç favorilerden kaldırıldı."
 
-#: src/Admin/Frontend/Account/AccountController.php:461
+#: src/Admin/Frontend/Account/AccountController.php:462
 msgid "Vehicle added to favorites."
 msgstr "Araç favorilere eklendi."
 
-#: src/Admin/Frontend/Account/AccountController.php:462
+#: src/Admin/Frontend/Account/AccountController.php:463
 msgid "All favorites cleared."
 msgstr "Tüm favoriler silindi."
 
-#: src/Admin/Frontend/Account/AccountController.php:464
+#: src/Admin/Frontend/Account/AccountController.php:465
 msgid "Are you sure you want to cancel changes?"
 msgstr "Değişiklikleri iptal etmek istediğinize emin misiniz?"
 
-#: src/Admin/Frontend/Account/AccountController.php:465
+#: src/Admin/Frontend/Account/AccountController.php:466
 msgid "No favorite vehicles yet."
 msgstr "Henüz favori araç yok."
 
-#: src/Admin/Frontend/Account/AccountController.php:466
+#: src/Admin/Frontend/Account/AccountController.php:467
 msgid "You can add vehicles to favorites using the heart icon."
 msgstr "Kalp simgesini kullanarak araçları favorilere ekleyebilirsiniz."
 
-#: src/Admin/Frontend/Account/AccountController.php:467
+#: src/Admin/Frontend/Account/AccountController.php:468
 #: templates/account/account-details.php:186
 #: templates/admin/settings-page.php:76
 msgid "Save Changes"
 msgstr "Değişiklikleri kaydet"
 
-#: src/Admin/Frontend/Account/AccountController.php:468
+#: src/Admin/Frontend/Account/AccountController.php:469
 msgid "vehicle in your favorites"
 msgstr "favorilerinizdeki araç"
 
-#: src/Admin/Frontend/Account/AccountController.php:469
+#: src/Admin/Frontend/Account/AccountController.php:470
 msgid "vehicles in your favorites"
 msgstr "favorilerinizdeki araçlar"
 
-#: src/Admin/Frontend/Account/AccountController.php:695
+#: src/Admin/Frontend/Account/AccountController.php:696
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:267
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:325
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:412
 msgid "Security error."
 msgstr "Güvenlik hatası."
 
-#: src/Admin/Frontend/Account/AccountController.php:699
+#: src/Admin/Frontend/Account/AccountController.php:700
 msgid "You must be logged in"
 msgstr "Oturum açmalısınız"
 
-#: src/Admin/Frontend/Account/AccountController.php:707
+#: src/Admin/Frontend/Account/AccountController.php:708
 msgid "All favorites cleared"
 msgstr "Tüm favoriler silindi"
 
-#: src/Admin/Frontend/Account/AccountController.php:745
-#: src/Admin/Frontend/Account/AccountController.php:1056
+#: src/Admin/Frontend/Account/AccountController.php:746
+#: src/Admin/Frontend/Account/AccountController.php:1057
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:50
 msgid "You must be logged in."
 msgstr "Oturum açmalısınız."
 
-#: src/Admin/Frontend/Account/AccountController.php:765
+#: src/Admin/Frontend/Account/AccountController.php:766
 msgid "You are not allowed to upload for this booking."
 msgstr "Bu rezervasyon için yükleme yapamazsınız."
 
-#: src/Admin/Frontend/Account/AccountController.php:772
-#: src/Admin/Frontend/Account/AccountController.php:1082
+#: src/Admin/Frontend/Account/AccountController.php:773
+#: src/Admin/Frontend/Account/AccountController.php:1083
 msgid "A receipt cannot be uploaded for this booking."
 msgstr "Bu rezervasyon için makbuz yüklenemez."
 
-#: src/Admin/Frontend/Account/AccountController.php:776
+#: src/Admin/Frontend/Account/AccountController.php:777
 msgid "No file uploaded."
 msgstr "Dosya yüklenmedi."
 
-#: src/Admin/Frontend/Account/AccountController.php:884
+#: src/Admin/Frontend/Account/AccountController.php:885
 msgid ""
 "The receipt file for this booking is not available. Your booking is not "
 "affected. Contact us if you need a copy."
@@ -6980,62 +6986,62 @@ msgstr ""
 "Bu rezervasyonun makbuz dosyası bulunamıyor. Rezervasyonunuz etkilenmedi. "
 "Bir kopyasına ihtiyacınız varsa bizimle iletişime geçin."
 
-#: src/Admin/Frontend/Account/AccountController.php:923
+#: src/Admin/Frontend/Account/AccountController.php:924
 msgid "You are not allowed to view this receipt."
 msgstr "Bu makbuzu görüntüleme yetkiniz yok."
 
-#: src/Admin/Frontend/Account/AccountController.php:935
+#: src/Admin/Frontend/Account/AccountController.php:936
 msgid "Receipt not found"
 msgstr "Makbuz bulunamadı"
 
-#: src/Admin/Frontend/Account/AccountController.php:1075
+#: src/Admin/Frontend/Account/AccountController.php:1076
 msgid "You are not allowed to remove receipt for this booking."
 msgstr "Bu rezervasyonun makbuzunu silemezsiniz."
 
-#: src/Admin/Frontend/Account/AccountController.php:1087
+#: src/Admin/Frontend/Account/AccountController.php:1088
 msgid "No receipt found to remove."
 msgstr "Kaldırılacak makbuz bulunamadı."
 
-#: src/Admin/Frontend/Account/AccountController.php:1100
+#: src/Admin/Frontend/Account/AccountController.php:1101
 msgid "Receipt removed successfully."
 msgstr "Makbuz başarıyla silindi."
 
-#: src/Admin/Frontend/Account/AccountController.php:1102
+#: src/Admin/Frontend/Account/AccountController.php:1103
 msgid "Failed to remove receipt file."
 msgstr "Makbuz dosyası silinemedi."
 
-#: src/Admin/Frontend/Account/AccountController.php:1127
+#: src/Admin/Frontend/Account/AccountController.php:1128
 msgid "Please login."
 msgstr "Lütfen giriş yapın."
 
-#: src/Admin/Frontend/Account/AccountController.php:1133
+#: src/Admin/Frontend/Account/AccountController.php:1134
 #: templates/account/account-details.php:37
 msgid "Profile editing is currently disabled."
 msgstr "Profil düzenleme şu anda etkisizleştirilmiş."
 
-#: src/Admin/Frontend/Account/AccountController.php:1180
+#: src/Admin/Frontend/Account/AccountController.php:1181
 msgid "An error occurred while updating your account."
 msgstr "Hesabınız güncellenirken bir hata oluştu."
 
-#: src/Admin/Frontend/Account/AccountController.php:1189
+#: src/Admin/Frontend/Account/AccountController.php:1190
 msgid "Account updated successfully."
 msgstr "Hesap başarıyla güncellendi."
 
-#: src/Admin/Frontend/Account/AccountController.php:1207
-#: src/Admin/Frontend/Account/AccountController.php:1220
+#: src/Admin/Frontend/Account/AccountController.php:1208
+#: src/Admin/Frontend/Account/AccountController.php:1221
 msgid "This endpoint is deprecated. Please refresh your page."
 msgstr "Bu uç nokta kullanımdan kaldırılmıştır. Lütfen sayfanızı yenileyin."
 
-#: src/Admin/Frontend/Account/AccountController.php:1277
+#: src/Admin/Frontend/Account/AccountController.php:1278
 msgid "You must be logged in to cancel a booking."
 msgstr "Rezervasyonu iptal etmek için oturum açmanız gerekir."
 
-#: src/Admin/Frontend/Account/AccountController.php:1288
+#: src/Admin/Frontend/Account/AccountController.php:1289
 msgid "Security verification failed. Please refresh and try again."
 msgstr ""
 "Güvenlik doğrulaması başarısız. Lütfen sayfayı yenileyin ve yeniden deneyin."
 
-#: src/Admin/Frontend/Account/AccountController.php:1340
+#: src/Admin/Frontend/Account/AccountController.php:1341
 msgid ""
 "Booking cancelled, but the refund could not be completed automatically. We "
 "will contact you separately about your refund."
@@ -7043,7 +7049,7 @@ msgstr ""
 "Rezervasyon iptal edildi, ancak iade otomatik olarak tamamlanamadı. "
 "İadenizle ilgili sizinle ayrıca iletişime geçeceğiz."
 
-#: src/Admin/Frontend/Account/AccountController.php:1356
+#: src/Admin/Frontend/Account/AccountController.php:1357
 msgid "Booking cancelled successfully. A confirmation email has been sent."
 msgstr "Rezervasyon başarıyla iptal edildi. Onay e-postası gönderildi."
 

@@ -35,6 +35,7 @@ describe( 'account privacy: erasure request', () => {
 			i18n: {
 				confirmErasure: 'CONFIRM ERASURE',
 				confirmExport: 'CONFIRM EXPORT',
+				exportDownloaded: 'EXPORTED',
 				processing: 'PROCESSING',
 				error: 'ERR',
 				unknownError: 'UNKNOWN',
@@ -72,6 +73,21 @@ describe( 'account privacy: erasure request', () => {
 		expect( window.URL.createObjectURL ).not.toHaveBeenCalled();
 		expect( window.location.href ).toBe( before );
 		expect( $( '#export-data' ).prop( 'disabled' ) ).toBe( false );
+	} );
+
+	// Lite 6.4.0 can run next to an older Pro whose export still answers with
+	// the file itself (a JSON string): keep downloading it then.
+	test( 'export: an older add-on that sends the file still downloads it', () => {
+		const click = jest.spyOn( HTMLAnchorElement.prototype, 'click' ).mockImplementation( () => {} );
+		window.URL.revokeObjectURL = jest.fn();
+
+		$( '#export-data' ).trigger( 'click' );
+		calls[ 0 ].success( { success: true, data: '{"bookings":[]}' } );
+
+		expect( window.URL.createObjectURL ).toHaveBeenCalledTimes( 1 );
+		expect( click ).toHaveBeenCalledTimes( 1 );
+		expect( toasts ).toEqual( [ { message: 'EXPORTED', type: 'success' } ] );
+		click.mockRestore();
 	} );
 
 	test( 'export: a refusal shows the server message', () => {

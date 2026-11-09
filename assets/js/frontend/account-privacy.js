@@ -47,6 +47,21 @@ jQuery(document).ready(
 							nonce: mhmRentivaPrivacy.nonce
 						},
 						success: function (response) {
+							// An add-on older than this plugin still answers with the
+							// file itself (a JSON string): download it as it used to.
+							if (response && response.success && 'string' === typeof response.data) {
+								var blob = new Blob([response.data], { type: 'application/json' });
+								var url = window.URL.createObjectURL(blob);
+								var a = document.createElement('a');
+								a.href = url;
+								a.download = 'my-data-export.json';
+								document.body.appendChild(a);
+								a.click();
+								document.body.removeChild(a);
+								window.URL.revokeObjectURL(url);
+								showNotification(mhmRentivaPrivacy.i18n.exportDownloaded, 'success');
+								return;
+							}
 							var message = (response && response.data && response.data.message) ? response.data.message : '';
 							if (response && response.success) {
 								showNotification(message, 'success');

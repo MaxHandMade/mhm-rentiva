@@ -281,6 +281,7 @@ final class AccountController {
 					'nonce'   => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_gdpr_nonce'),
 					'i18n'    => array(
 						'confirmExport'       => __('A request to export your personal data will be created. We will send you a confirmation e-mail.', 'mhm-rentiva'),
+						'exportDownloaded'    => __('Your data has been downloaded.', 'mhm-rentiva'),
 						'confirmWithdraw'     => __('Are you sure you want to withdraw your consent? This will disable data processing for your account.', 'mhm-rentiva'),
 						'processing'          => __('Processing...', 'mhm-rentiva'),
 						'withdrawSuccess'     => __('Consent withdrawn successfully!', 'mhm-rentiva'),
