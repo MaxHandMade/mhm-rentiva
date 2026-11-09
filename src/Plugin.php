@@ -309,6 +309,7 @@ final class Plugin {
 		// Meta boxes
 		if (class_exists('\MHMRentiva\Admin\Vehicle\Meta\VehicleMeta')) {
 			\MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::register();
+			\MHMRentiva\Admin\Vehicle\Meta\VehicleEditLayout::register();
 		}
 
 		if (class_exists('\MHMRentiva\Admin\Vehicle\Meta\VehicleGallery')) {

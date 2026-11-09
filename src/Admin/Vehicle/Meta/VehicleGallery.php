@@ -47,7 +47,8 @@ final class VehicleGallery extends AbstractMetaBox {
 		return array(
 			'mhmrentiva_vehicle_gallery' => array(
 				'title'    => __( 'Vehicle Gallery', 'mhm-rentiva' ),
-				'context'  => 'side',
+				// Main column, first (canvas Yon-Arac-Duzenle).
+				'context'  => 'normal',
 				'priority' => 'high',
 				'template' => 'render_gallery_meta_box',
 			),

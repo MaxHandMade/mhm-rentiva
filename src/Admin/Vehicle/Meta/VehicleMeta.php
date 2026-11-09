@@ -123,8 +123,10 @@ final class VehicleMeta extends AbstractMetaBox {
 		return array(
 			'mhmrentiva_vehicle_details' => array(
 				'title'        => __('Vehicle Details', 'mhm-rentiva'),
-				'context'      => 'advanced',
-				'priority'     => 'high',
+				// Main column under the gallery (canvas Yon-Arac-Duzenle); the
+				// order itself comes from VehicleEditLayout.
+				'context'      => 'normal',
+				'priority'     => 'default',
 				'template'     => 'render_meta_box',
 				'save_handler' => 'save_vehicle_meta',
 			),
@@ -147,8 +149,6 @@ final class VehicleMeta extends AbstractMetaBox {
 		add_action('admin_enqueue_scripts', array( self::class, 'hide_default_meta_boxes' ));
 
 		add_action('wp_ajax_mhmrentiva_save_item_order', array( self::class, 'ajax_save_item_order' ));
-
-		add_action('add_meta_boxes', array( self::class, 'reorder_meta_boxes' ), 999);
 
 		add_action('edit_form_top', array( self::class, 'render_header_strip' ));
 	}
@@ -1482,52 +1482,5 @@ final class VehicleMeta extends AbstractMetaBox {
 		}
 
 		wp_send_json_success('Ordering saved');
-	}
-
-	/**
-	 * Reorder meta boxes
-	 */
-	public static function reorder_meta_boxes(): void
-	{
-		global $wp_meta_boxes;
-
-		if (! isset($wp_meta_boxes['mhmrentiva_vehicle']['side'])) {
-			return;
-		}
-
-		$desired_order = array(
-			'submitdiv',
-			'vehicle_categorydiv',
-			'postimagediv',
-			'mhmrentiva_vehicle_gallery',
-			'mhmrentiva_vehicle_featured',
-			'mhmrentiva_vehicle_transfer_settings',
-		);
-
-		// Flatten all priority buckets into a single map.
-		$all_boxes = array();
-		foreach ($wp_meta_boxes['mhmrentiva_vehicle']['side'] as $boxes) {
-			foreach ($boxes as $id => $box) {
-				$all_boxes[ $id ] = $box;
-			}
-		}
-
-		// Rebuild under a single 'default' bucket so priority doesn't interfere with order.
-		$reordered = array( 'default' => array() );
-
-		foreach ($desired_order as $box_id) {
-			if (isset($all_boxes[ $box_id ])) {
-				$reordered['default'][ $box_id ] = $all_boxes[ $box_id ];
-				unset($all_boxes[ $box_id ]);
-			}
-		}
-
-		// Append any remaining boxes not explicitly listed.
-		foreach ($all_boxes as $id => $box) {
-			$reordered['default'][ $id ] = $box;
-		}
-
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Reordering side meta boxes requires writing back to the core global registry.
-		$wp_meta_boxes['mhmrentiva_vehicle']['side'] = $reordered;
 	}
 }
