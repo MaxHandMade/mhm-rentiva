@@ -109,7 +109,7 @@ final class VehicleGallery extends AbstractMetaBox {
 		wp_enqueue_style(
 			'mhm-rentiva-vehicle-gallery',
 			MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-gallery.css',
-			array( 'mhm-rentiva-css-variables', 'mhmuicore-admin' ),
+			array( 'mhmuicore-admin' ),
 			MHMRENTIVA_VERSION
 		);
 
