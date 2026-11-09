@@ -1118,12 +1118,12 @@ final class BookingMeta extends AbstractMetaBox {
 		// Read before anything is written: the offline channel derives what was
 		// paid from the total and the remaining amount this method rewrites.
 		$state     = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
-		// Mixed currencies and an order shared with other bookings or products
-		// leave this booking's own share unknown. BookingEditPriceFloor refuses a
+		// Mixed or foreign currencies, and an order shared with other bookings or
+		// products, leave this booking's own share unknown. BookingEditPriceFloor refuses a
 		// total change for both; the payment fields are left as they are below,
 		// since rebuilding them from a deposit would reopen money already paid
 		// (Codex r10 3).
-		$unknown   = $state->isMixedCurrency() || BookingEditPriceFloor::shares_an_order($booking_id, $state);
+		$unknown   = BookingEditPriceFloor::collected_is_unknown($booking_id, $state);
 		$collected = $unknown ? 0 : $state->paid();
 
 		// While money has been collected the total is computed in the

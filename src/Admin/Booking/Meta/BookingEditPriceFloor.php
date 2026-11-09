@@ -199,6 +199,28 @@ final class BookingEditPriceFloor {
 		return false;
 	}
 
+	/**
+	 * Was the money taken in a currency other than the one the booking is
+	 * priced in? isMixedCurrency() compares the paid orders with one another
+	 * only, so a single EUR order on a TRY store reads as TRY money (Codex bot
+	 * P1 on PR #183, 030d58a9). No conversion is recorded: the amount collected
+	 * is unknown in the booking's own currency.
+	 */
+	public static function paid_in_a_foreign_currency( PaymentState $state ): bool {
+		return array() !== $state->orders()
+			&& $state->currency() !== \MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::debt_currency();
+	}
+
+	/**
+	 * Is the amount this booking collected unknown in its own currency? Mixed or
+	 * foreign currencies, or an order shared with other bookings or products.
+	 */
+	public static function collected_is_unknown( int $booking_id, PaymentState $state ): bool {
+		return $state->isMixedCurrency()
+			|| self::paid_in_a_foreign_currency( $state )
+			|| self::shares_an_order( $booking_id, $state );
+	}
+
 	private static function decide( int $post_id, int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time, AddonSelection $selection ): string {
 		// A transfer is not re-priced (BookingMeta::recalculate_booking_costs()).
 		if ( BookingMeta::is_transfer_booking( $post_id ) ) {
@@ -207,8 +229,9 @@ final class BookingEditPriceFloor {
 
 		$state     = PaymentState::forBooking( $post_id );
 		$mixed     = $state->isMixedCurrency();
+		$foreign   = self::paid_in_a_foreign_currency( $state );
 		$shared    = self::shares_an_order( $post_id, $state );
-		$collected = $mixed || $shared ? 0 : $state->paid();
+		$collected = $mixed || $foreign || $shared ? 0 : $state->paid();
 		$type      = (string) get_post_meta( $post_id, '_mhmrentiva_payment_type', true );
 
 		// The same mode recalculate_booking_costs() prices with, so an unchanged
@@ -235,6 +258,10 @@ final class BookingEditPriceFloor {
 
 		if ( $mixed ) {
 			return __( 'This booking was paid in more than one currency, so the amount collected cannot be compared with a new price. The vehicle, dates and add-ons were not changed.', 'mhm-rentiva' );
+		}
+
+		if ( $foreign ) {
+			return __( 'This booking was paid in a currency other than the store currency, so the amount collected cannot be compared with a new price. The vehicle, dates and add-ons were not changed.', 'mhm-rentiva' );
 		}
 
 		if ( $shared ) {

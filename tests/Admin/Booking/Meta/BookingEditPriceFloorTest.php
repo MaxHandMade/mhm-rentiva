@@ -348,6 +348,23 @@ final class BookingEditPriceFloorTest extends WP_UnitTestCase
 		$this->assertFalse(BookingEditPriceFloor::remaining_order_in_posts($this->booking), 'its plain order and another booking\'s remaining order do not count (Codex r10 2)');
 	}
 
+	public function test_a_single_order_in_a_foreign_currency_keeps_the_price_inputs(): void
+	{
+		$this->require_woocommerce();
+		update_option('woocommerce_currency', 'TRY');
+		$order = $this->create_paid_order_for_booking($this->booking, '100');
+		$order->set_currency('EUR');
+		$order->save();
+		$this->assertFalse(PaymentState::forBooking($this->booking)->isMixedCurrency(), 'PREMISE: one order is never "mixed"');
+
+		// 4 days at 1,000 TRY: 100 EUR must not read as 100 TRY collected.
+		$this->update(array( 'mhmrentiva_edit_dropoff_date' => '2099-05-08' ));
+
+		$this->assert_price_inputs_kept();
+		$this->assertSame('0', $this->meta('_mhmrentiva_remaining_amount'), 'no TRY debt built from EUR money (Codex bot P1, 030d58a9)');
+		$this->assertStringContainsString('other than the store currency', BookingEditNotice::peek($this->booking));
+	}
+
 	public function test_a_reversed_range_and_a_cheaper_vehicle_say_both(): void
 	{
 		$cheaper = $this->vehicle_at('500');
