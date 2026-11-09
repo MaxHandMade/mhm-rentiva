@@ -32,6 +32,7 @@ final class AccountPersonalData {
 		'mhmrentiva_phone',
 		'mhmrentiva_address',
 		'mhmrentiva_favorites',
+		'mhmrentiva_favorite_vehicles',
 		'mhmrentiva_compare',
 		'mhmrentiva_last_login',
 		'mhmrentiva_last_activity',
@@ -62,6 +63,7 @@ final class AccountPersonalData {
 			'mhmrentiva_phone'                 => __( 'Phone', 'mhm-rentiva' ),
 			'mhmrentiva_address'               => __( 'Address', 'mhm-rentiva' ),
 			'mhmrentiva_favorites'             => __( 'Favourite vehicles', 'mhm-rentiva' ),
+			'mhmrentiva_favorite_vehicles'     => __( 'Favourite vehicles', 'mhm-rentiva' ),
 			'mhmrentiva_compare'               => __( 'Vehicles to compare', 'mhm-rentiva' ),
 			'mhmrentiva_last_login'            => __( 'Last login', 'mhm-rentiva' ),
 			'mhmrentiva_last_activity'         => __( 'Last activity', 'mhm-rentiva' ),
@@ -162,7 +164,7 @@ final class AccountPersonalData {
 	 * @return string
 	 */
 	private static function display( string $key, $value ): string {
-		if ( in_array( $key, array( 'mhmrentiva_favorites', 'mhmrentiva_compare' ), true ) ) {
+		if ( in_array( $key, array( 'mhmrentiva_favorites', 'mhmrentiva_favorite_vehicles', 'mhmrentiva_compare' ), true ) ) {
 			$titles = array();
 			foreach ( (array) $value as $id ) {
 				$title = (int) $id > 0 ? get_the_title( (int) $id ) : '';

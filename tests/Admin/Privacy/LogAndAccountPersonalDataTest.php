@@ -147,6 +147,23 @@ final class LogAndAccountPersonalDataTest extends WP_UnitTestCase
 		$this->assertInstanceOf(\WP_User::class, get_userdata($user));
 	}
 
+	/**
+	 * The prefix sweep left an old favourites row under this key on some
+	 * sites; it is the same person's data (Pro audit M4, 2026-10-20).
+	 */
+	public function test_the_old_favourites_key_is_exported_and_erased(): void
+	{
+		$user    = (int) self::factory()->user->create(array('user_email' => 'guest@example.test'));
+		$vehicle = (int) self::factory()->post->create(array('post_type' => 'mhmrentiva_vehicle', 'post_title' => 'Egea 1.4'));
+		update_user_meta($user, 'mhmrentiva_favorite_vehicles', array($vehicle));
+
+		$values = implode("\n", array_column(AccountPersonalData::export('guest@example.test', 1)['data'][0]['data'], 'value'));
+		$this->assertStringContainsString('Egea 1.4', $values);
+
+		AccountPersonalData::erase('guest@example.test', 1);
+		$this->assertSame('', get_user_meta($user, 'mhmrentiva_favorite_vehicles', true));
+	}
+
 	public function test_no_account_returns_done_with_no_items(): void
 	{
 		$this->assertSame(array('data' => array(), 'done' => true), AccountPersonalData::export('nobody@example.test', 1));
