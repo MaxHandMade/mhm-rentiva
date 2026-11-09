@@ -23,6 +23,31 @@ use WP_UnitTestCase;
  */
 final class CancellationRecordsActorCapacityTest extends WP_UnitTestCase
 {
+	/** @var callable */
+	private $no_transactions;
+
+	public function setUp(): void
+	{
+		parent::setUp();
+
+		// cancel_booking() opens its own transaction; its START TRANSACTION
+		// would implicitly commit the framework's, and its COMMIT would make
+		// the cancellation stick past the test (Codex #182). Removed in
+		// tearDown() BEFORE the framework's ROLLBACK, which this filter would
+		// otherwise swallow too.
+		$this->no_transactions = static function ($query) {
+			return preg_match('/^\s*(START TRANSACTION|COMMIT|ROLLBACK)\b/i', (string) $query) ? 'SELECT 1' : $query;
+		};
+		add_filter('query', $this->no_transactions);
+	}
+
+	public function tearDown(): void
+	{
+		remove_filter('query', $this->no_transactions);
+		wp_set_current_user(0);
+		parent::tearDown();
+	}
+
 	private function booking(int $customer): int
 	{
 		return (int) self::factory()->post->create(array(
