@@ -70,6 +70,16 @@ final class RemainingPaymentHandler {
 	}
 
 	/**
+	 * The currency a booking's remaining amount is in: the store's own setting,
+	 * read unfiltered. A currency switcher filters get_woocommerce_currency()
+	 * per visitor; the booking's prices are never converted.
+	 */
+	public static function debt_currency(): string
+	{
+		return (string) get_option('woocommerce_currency', '');
+	}
+
+	/**
 	 * Create (or reuse an existing pending/on-hold) WC order for a booking's
 	 * remaining amount. Pure order logic — no AJAX/nonce/ownership concerns,
 	 * safe to call from both the customer-facing AJAX handler above and
@@ -194,7 +204,7 @@ final class RemainingPaymentHandler {
 			if ($existing_order && in_array($existing_order->get_status(), array( 'pending', 'on-hold' ), true)) {
 				$stamp = $existing_order->get_meta('_mhmrentiva_remaining_due_minor', true);
 				$asks  = is_numeric($stamp) ? (int) $stamp : \MHMRentiva\Admin\Payment\Core\Money::toMinor( (string) $existing_order->get_total());
-				if ($asks === $due_minor) {
+				if ($asks === $due_minor && (string) $existing_order->get_currency() === self::debt_currency()) {
 					return $existing_order;
 				}
 			}
@@ -232,6 +242,12 @@ final class RemainingPaymentHandler {
 		if (is_wp_error($order)) {
 			return new \WP_Error('mhmrentiva_order_create_failed', __('Failed to create payment order. Please try again.', 'mhm-rentiva'));
 		}
+
+		// The remaining amount is a number in the store's own currency.
+		// wc_create_order() takes the filterable get_woocommerce_currency(), which
+		// a per-visitor currency switcher answers with the visitor's currency, and
+		// nothing converts the number (Codex r10 1).
+		$order->set_currency(self::debt_currency());
 
 		// Add line item: use the booking product but override name & price
 		$item_name = sprintf(

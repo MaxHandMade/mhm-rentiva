@@ -151,6 +151,53 @@ final class RemainingOrderStaleGuardTest extends WP_UnitTestCase
 		$this->assertTrue($this->pay($order), 'compared with the gross amount it was built for, not its total');
 	}
 
+	public function test_the_order_is_built_in_the_stores_currency_whatever_the_visitor_sees(): void
+	{
+		update_option('woocommerce_currency', 'TRY');
+		// A per-visitor currency switcher answers the filtered currency.
+		$visitor = static function () {
+			return 'EUR';
+		};
+		add_filter('woocommerce_currency', $visitor);
+		try {
+			$order = $this->link();
+		} finally {
+			remove_filter('woocommerce_currency', $visitor);
+		}
+
+		$this->assertSame('TRY', $order->get_currency(), 'the number 1,000 is TRY; it was never converted');
+	}
+
+	public function test_an_order_in_another_currency_is_neither_reused_nor_paid(): void
+	{
+		update_option('woocommerce_currency', 'TRY');
+		$order = $this->link();
+		// Same number, other currency (Codex r10 1 probe).
+		$order->set_currency('EUR');
+		$order->save();
+
+		$this->assertFalse($this->pay($order), '1,000 EUR is not 1,000 TRY');
+		$this->assertNotSame($order->get_id(), $this->link()->get_id(), 'a fresh TRY order instead of the EUR one');
+	}
+
+	public function test_the_amount_owed_is_read_from_the_database_not_the_cache(): void
+	{
+		$old = $this->link();
+		// The admin's re-price is in the database; a stale value answers from
+		// the cache layer (another request refilled a persistent cache).
+		global $wpdb;
+		$wpdb->update($wpdb->postmeta, array( 'meta_value' => '1340' ), array( 'post_id' => $this->booking_id, 'meta_key' => '_mhmrentiva_remaining_amount' ));
+		$stale = function ($value, $object_id, $meta_key) {
+			return $object_id === $this->booking_id && '_mhmrentiva_remaining_amount' === $meta_key ? array( '1000' ) : $value;
+		};
+		add_filter('get_post_metadata', $stale, 10, 3);
+		try {
+			$this->assertFalse($this->pay($old), 'the 1,000 order is refused: the database says 1,340');
+		} finally {
+			remove_filter('get_post_metadata', $stale, 10);
+		}
+	}
+
 	public function test_an_order_from_before_the_stamp_is_compared_by_its_total(): void
 	{
 		$order = $this->link();

@@ -237,7 +237,7 @@ final class BookingEditPriceFloorTest extends WP_UnitTestCase
 		$order->save();
 		update_post_meta($this->booking, '_mhmrentiva_total_price', '1000');
 		$this->assertSame(Money::toMinor(2000), PaymentState::forBooking($this->booking)->paid(), 'PREMISE: paid() reads the whole order');
-		$this->assertTrue(BookingEditPriceFloor::shares_an_order(PaymentState::forBooking($this->booking)), 'PREMISE');
+		$this->assertTrue(BookingEditPriceFloor::shares_an_order($this->booking, PaymentState::forBooking($this->booking)), 'PREMISE');
 
 		// 4 days at 1,000: above this booking's 1,000 but below the order's 2,000.
 		$this->update(array( 'mhmrentiva_edit_dropoff_date' => '2099-05-08' ));
@@ -245,7 +245,7 @@ final class BookingEditPriceFloorTest extends WP_UnitTestCase
 		$this->assertSame('2099-05-07', $this->meta('_mhmrentiva_dropoff_date'), 'dates kept');
 		$this->assertSame('1000', $this->meta('_mhmrentiva_total_price'), 'price kept');
 		$this->assertSame('full', $this->meta('_mhmrentiva_payment_type'), 'not turned into a deposit of the whole order');
-		$this->assertStringContainsString('together with other bookings', BookingEditNotice::peek($this->booking));
+		$this->assertStringContainsString('also contains other bookings or products',BookingEditNotice::peek($this->booking));
 	}
 
 	public function test_an_order_of_this_booking_alone_is_not_shared(): void
@@ -256,7 +256,83 @@ final class BookingEditPriceFloorTest extends WP_UnitTestCase
 		$items[0]->update_meta_data('_mhmrentiva_booking_id', $this->booking);
 		$items[0]->save();
 
-		$this->assertFalse(BookingEditPriceFloor::shares_an_order(PaymentState::forBooking($this->booking)));
+		$this->assertFalse(BookingEditPriceFloor::shares_an_order($this->booking, PaymentState::forBooking($this->booking)));
+	}
+
+	public function test_another_product_in_the_order_makes_it_shared(): void
+	{
+		$this->require_woocommerce();
+		$order = $this->create_paid_order_for_booking($this->booking, '2550');
+		$items = array_values($order->get_items());
+		$items[0]->update_meta_data('_mhmrentiva_booking_id', $this->booking);
+		$items[0]->save();
+		$extra = new \WC_Order_Item_Product();
+		$extra->set_product($this->ensure_booking_product('99'));
+		$extra->set_quantity(1);
+		$extra->set_subtotal(99.0);
+		$extra->set_total(99.0);
+		$order->add_item($extra);
+		$order->calculate_totals();
+		$order->save();
+
+		$this->assertTrue(BookingEditPriceFloor::shares_an_order($this->booking, PaymentState::forBooking($this->booking)), 'paid() counts the other product too');
+	}
+
+	public function test_a_shared_order_with_an_unchanged_total_does_not_reopen_a_paid_debt(): void
+	{
+		$this->require_woocommerce();
+		// Codex r10 3: deposit booking 3,000 (deposit 500), everything paid, the
+		// original order shared with another booking.
+		$other = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
+		$order = $this->create_paid_order_for_booking($this->booking, '500');
+		$items = array_values($order->get_items());
+		$items[0]->update_meta_data('_mhmrentiva_booking_id', $this->booking);
+		$items[0]->save();
+		$second = new \WC_Order_Item_Product();
+		$second->set_product($this->ensure_booking_product('700'));
+		$second->set_quantity(1);
+		$second->set_subtotal(700.0);
+		$second->set_total(700.0);
+		$second->update_meta_data('_mhmrentiva_booking_id', $other);
+		$order->add_item($second);
+		$order->calculate_totals();
+		$order->save();
+		foreach (array(
+			'_mhmrentiva_payment_type'     => 'deposit',
+			'_mhmrentiva_total_price'      => '3000',
+			'_mhmrentiva_deposit_amount'   => '500',
+			'_mhmrentiva_remaining_amount' => '0',
+		) as $key => $value) {
+			update_post_meta($this->booking, $key, $value);
+		}
+		// 3 days x 1,000 = 3,000: a vehicle change with the same total.
+		$same_price = $this->vehicle_at('1000');
+
+		$this->update(array( 'mhmrentiva_edit_vehicle_id' => (string) $same_price ));
+
+		$this->assertSame((string) $same_price, $this->meta('_mhmrentiva_vehicle_id'), 'the vehicle change is saved');
+		$this->assertSame(3000.0, (float) $this->meta('_mhmrentiva_total_price'));
+		$this->assertSame(0.0, (float) $this->meta('_mhmrentiva_remaining_amount'), 'not 2,500 owed again');
+		$this->assertSame(500.0, (float) $this->meta('_mhmrentiva_deposit_amount'));
+	}
+
+	public function test_the_posts_store_finds_only_this_bookings_remaining_order(): void
+	{
+		$orders = array();
+		foreach (array( array( $this->booking, '1' ), array( $this->booking, '' ), array( $this->booking + 1000, '1' ) ) as $i => $case) {
+			$orders[ $i ] = (int) self::factory()->post->create(array(
+				'post_type'   => 'shop_order',
+				'post_status' => 'wc-pending',
+			));
+			update_post_meta($orders[ $i ], '_mhmrentiva_booking_id', (string) $case[0]);
+			if ('' !== $case[1]) {
+				update_post_meta($orders[ $i ], '_mhmrentiva_is_remaining_payment', $case[1]);
+			}
+		}
+		$this->assertTrue(BookingEditPriceFloor::remaining_order_in_posts($this->booking), 'its own remaining order');
+
+		wp_delete_post($orders[0], true);
+		$this->assertFalse(BookingEditPriceFloor::remaining_order_in_posts($this->booking), 'its plain order and another booking\'s remaining order do not count (Codex r10 2)');
 	}
 
 	public function test_a_reversed_range_and_a_cheaper_vehicle_say_both(): void

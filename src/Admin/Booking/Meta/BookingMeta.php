@@ -1118,10 +1118,13 @@ final class BookingMeta extends AbstractMetaBox {
 		// Read before anything is written: the offline channel derives what was
 		// paid from the total and the remaining amount this method rewrites.
 		$state     = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
-		// Mixed currencies and an order shared with other bookings leave this
-		// booking's own share unknown; BookingEditPriceFloor refuses a total
-		// change for both, so the pre-existing branches below see an equal total.
-		$collected = $state->isMixedCurrency() || BookingEditPriceFloor::shares_an_order($state) ? 0 : $state->paid();
+		// Mixed currencies and an order shared with other bookings or products
+		// leave this booking's own share unknown. BookingEditPriceFloor refuses a
+		// total change for both; the payment fields are left as they are below,
+		// since rebuilding them from a deposit would reopen money already paid
+		// (Codex r10 3).
+		$unknown   = $state->isMixedCurrency() || BookingEditPriceFloor::shares_an_order($booking_id, $state);
+		$collected = $unknown ? 0 : $state->paid();
 
 		// While money has been collected the total is computed in the
 		// calculator's full mode: its deposit mode rounds to two decimals, so a
@@ -1162,14 +1165,27 @@ final class BookingMeta extends AbstractMetaBox {
 			)
 		);
 
-		$total_price = $quote['total'];
+		$total_price  = $quote['total'];
+		$stored_total = (float) get_post_meta($booking_id, '_mhmrentiva_total_price', true);
 
 		update_post_meta($booking_id, '_mhmrentiva_rental_days', $days);
 		update_post_meta($booking_id, '_mhmrentiva_addon_total', $result['addon_total']);
 		update_post_meta($booking_id, '_mhmrentiva_total_price', $total_price);
 
 		$stored_deposit = (float) get_post_meta($booking_id, '_mhmrentiva_deposit_amount', true);
-		if ($collected > 0) {
+		if ($unknown) {
+			if (\MHMRentiva\Admin\Payment\Core\Money::toMinor($total_price) !== \MHMRentiva\Admin\Payment\Core\Money::toMinor($stored_total)) {
+				// Only a path that skipped BookingEditPriceFloor gets here.
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning(
+					'Booking re-priced while the amount collected for it is unknown; deposit and remaining amount left as they were.',
+					array(
+						'booking_id' => $booking_id,
+						'total'      => \MHMRentiva\Admin\Payment\Core\Money::toMinor($total_price),
+					),
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_PAYMENT
+				);
+			}
+		} elseif ($collected > 0) {
 			// What was collected stays collected; the rest of the new total is
 			// owed. Minor units at the store's precision (Money), not "/100".
 			$owed = \MHMRentiva\Admin\Payment\Core\Money::toMinor($total_price) - $collected;

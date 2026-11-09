@@ -97,6 +97,13 @@ final class BookingEditPriceFloor {
 			return false;
 		}
 
+		// The posts store drops a caller's meta_query (WC_Data_Store_WP::
+		// get_wp_query_args() skips the key), which would answer with any order
+		// at all (Codex r10 2). There the orders are posts and are asked directly.
+		if ( ! self::orders_in_custom_tables() ) {
+			return self::remaining_order_in_posts( $post_id );
+		}
+
 		$found = wc_get_orders(
 			array(
 				'limit'      => 1,
@@ -119,29 +126,70 @@ final class BookingEditPriceFloor {
 		return is_array( $found ) && array() !== $found;
 	}
 
+	/** Are orders kept in WooCommerce's own tables (HPOS) rather than as posts? */
+	private static function orders_in_custom_tables(): bool {
+		return class_exists( \Automattic\WooCommerce\Utilities\OrderUtil::class )
+			&& \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled();
+	}
+
 	/**
-	 * Does a paid order of this booking also carry another booking?
+	 * The posts-store half of has_remaining_order(): a shop_order post carrying
+	 * both meta, any status.
+	 */
+	public static function remaining_order_in_posts( int $post_id ): bool {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- a decision about money, read from the database; one booking, LIMIT 1.
+		$found = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT p.ID FROM {$wpdb->posts} p
+				INNER JOIN {$wpdb->postmeta} b ON b.post_id = p.ID AND b.meta_key = '_mhmrentiva_booking_id' AND b.meta_value = %s
+				INNER JOIN {$wpdb->postmeta} r ON r.post_id = p.ID AND r.meta_key = '_mhmrentiva_is_remaining_payment' AND r.meta_value = '1'
+				WHERE p.post_type = 'shop_order' LIMIT 1",
+				(string) $post_id
+			)
+		);
+
+		return null !== $found && (int) $found > 0;
+	}
+
+	/**
+	 * Does a paid order of this booking carry anything besides this booking?
 	 *
 	 * WooCommerceBridge books one order line per booking, so a cart with two
 	 * vehicles is one order with two bookings, and PaymentState::paid() reads
-	 * the whole order total for each of them. No per-booking share is recorded,
-	 * so the amount this booking collected is unknown: re-pricing treats it as
-	 * nothing collected and a total change is refused (Codex P1, PR #183).
+	 * the whole order total for each of them -- as it does for any other product
+	 * in the same cart. No per-booking share is recorded, so the amount this
+	 * booking collected is unknown: re-pricing keeps the payment fields as they
+	 * are and a total change is refused (Codex P1 on PR #183, r10 3).
+	 *
+	 * An order whose lines carry no booking id (the order-level id only, older
+	 * orders) counts as this booking's alone only when it has a single line.
 	 */
-	public static function shares_an_order( PaymentState $state ): bool {
+	public static function shares_an_order( int $booking_id, PaymentState $state ): bool {
 		foreach ( $state->orders() as $order_id ) {
 			$order = function_exists( 'wc_get_order' ) ? wc_get_order( $order_id ) : false;
 			if ( ! $order instanceof \WC_Order ) {
 				continue;
 			}
-			$ids = array();
+			$lines  = 0;
+			$linked = 0;
 			foreach ( $order->get_items() as $item ) {
+				++$lines;
 				$id = (int) $item->get_meta( '_mhmrentiva_booking_id', true );
 				if ( $id > 0 ) {
-					$ids[ $id ] = true;
+					++$linked;
+					if ( $id !== $booking_id ) {
+						return true;
+					}
 				}
 			}
-			if ( count( $ids ) > 1 ) {
+			if ( 0 === $linked ) {
+				if ( $lines > 1 || (int) $order->get_meta( '_mhmrentiva_booking_id', true ) !== $booking_id ) {
+					return true;
+				}
+			} elseif ( $linked < $lines ) {
+				// Another product shares the order.
 				return true;
 			}
 		}
@@ -157,7 +205,7 @@ final class BookingEditPriceFloor {
 
 		$state     = PaymentState::forBooking( $post_id );
 		$mixed     = $state->isMixedCurrency();
-		$shared    = self::shares_an_order( $state );
+		$shared    = self::shares_an_order( $post_id, $state );
 		$collected = $mixed || $shared ? 0 : $state->paid();
 		$type      = (string) get_post_meta( $post_id, '_mhmrentiva_payment_type', true );
 
@@ -188,7 +236,7 @@ final class BookingEditPriceFloor {
 		}
 
 		if ( $shared ) {
-			return __( 'This booking was paid in one order together with other bookings, so the amount collected for it alone cannot be known. The vehicle, dates and add-ons were not changed. To change the price, cancel the booking and create a new one.', 'mhm-rentiva' );
+			return __( 'This booking was paid in an order that also contains other bookings or products, so the amount collected for it alone cannot be known. The vehicle, dates and add-ons were not changed. To change the price, cancel the booking and create a new one.', 'mhm-rentiva' );
 		}
 
 		if ( self::has_remaining_order( $post_id ) ) {

@@ -1390,10 +1390,24 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * can differ through tax for the billing address. An order built before the
 	 * stamp existed is compared by its total.
 	 *
+	 * The booking's amount is read from the database, not the object cache. It
+	 * is not read under the booking lock: the admin save that moves it does not
+	 * take that lock, so holding it here would order nothing. An admin save
+	 * landing while the gateway is already charging stays open until PR-2 makes
+	 * that save take the lock (plan option A, user decision 2026-11-09).
+	 *
 	 * @param array<int, int|string> $booking_ids
 	 */
 	private static function stale_remaining_order_notice(\WC_Order $order, array $booking_ids): string
 	{
+		$stale = __('The amount on this payment link is no longer current. Please ask us for a new payment link.', 'mhm-rentiva');
+
+		// The remaining amount is a number in the store's own currency: an order
+		// in any other currency asks for a different sum (Codex r10 1).
+		if ( (string) $order->get_currency() !== RemainingPaymentHandler::debt_currency()) {
+			return $stale;
+		}
+
 		$stamp = $order->get_meta('_mhmrentiva_remaining_due_minor', true);
 		$asks  = is_numeric($stamp) ? (int) $stamp : Money::toMinor( (string) $order->get_total());
 
@@ -1402,11 +1416,15 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			if ($booking_id <= 0) {
 				continue;
 			}
-			// From the database: an admin may have re-priced it a moment ago.
-			wp_cache_delete($booking_id, 'post_meta');
-			$owed = Money::toMinor( (float) get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true));
+			// From the database, not the object cache another request may have
+			// refilled: an admin may have re-priced it a moment ago (Codex r10 4).
+			try {
+				$owed = Money::toMinor( (float) self::read_booking_meta($booking_id, '_mhmrentiva_remaining_amount'));
+			} catch (\RuntimeException $e) {
+				return $stale;
+			}
 			if ($owed <= 0 || $owed !== $asks) {
-				return __('The amount on this payment link is no longer current. Please ask us for a new payment link.', 'mhm-rentiva');
+				return $stale;
 			}
 		}
 

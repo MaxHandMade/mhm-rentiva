@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-09T05:50:01+00:00\n"
+"POT-Creation-Date: 2026-11-09T07:03:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -681,9 +681,9 @@ msgstr ""
 #: src/Admin/Addons/AddonScreen.php:474
 #: src/Admin/Addons/AddonScreen.php:512
 #: src/Admin/Booking/Actions/BookingActionGuard.php:76
-#: src/Admin/Booking/Meta/BookingMeta.php:1711
-#: src/Admin/Booking/Meta/BookingMeta.php:1769
-#: src/Admin/Booking/Meta/BookingMeta.php:1892
+#: src/Admin/Booking/Meta/BookingMeta.php:1727
+#: src/Admin/Booking/Meta/BookingMeta.php:1785
+#: src/Admin/Booking/Meta/BookingMeta.php:1908
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:125
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:771
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:879
@@ -1086,16 +1086,16 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountController.php:764
 #: src/Admin/Frontend/Account/AccountController.php:1076
 #: src/Admin/Frontend/Account/AccountController.php:1307
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4541
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4600
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4559
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4618
 msgid "Invalid booking ID."
 msgstr ""
 
 #: src/Admin/Booking/Actions/BookingActionGuard.php:88
 #: src/Admin/Booking/Actions/BookingApproveAjax.php:77
-#: src/Admin/Booking/Meta/BookingMeta.php:1733
-#: src/Admin/Booking/Meta/BookingMeta.php:1791
-#: src/Admin/Booking/Meta/BookingMeta.php:1914
+#: src/Admin/Booking/Meta/BookingMeta.php:1749
+#: src/Admin/Booking/Meta/BookingMeta.php:1807
+#: src/Admin/Booking/Meta/BookingMeta.php:1930
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:142
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:49
 #: src/Admin/Emails/Templates/EmailPreview.php:109
@@ -1260,7 +1260,7 @@ msgstr ""
 #: src/Admin/Booking/Core/Status.php:124
 #: src/Admin/Booking/ListTable/BookingColumns.php:1176
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:292
-#: src/Admin/Booking/Meta/BookingMeta.php:1598
+#: src/Admin/Booking/Meta/BookingMeta.php:1614
 #: src/Admin/Core/AssetManager.php:1225
 #: src/Admin/Emails/Core/EmailTemplates.php:508
 #: src/Admin/Emails/Notifications/BookingNotifications.php:220
@@ -1305,7 +1305,7 @@ msgstr ""
 #: src/Admin/Booking/Core/PaymentView.php:92
 #: src/Admin/Booking/Core/Status.php:128
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:302
-#: src/Admin/Booking/Meta/BookingMeta.php:1602
+#: src/Admin/Booking/Meta/BookingMeta.php:1618
 #: src/Admin/Core/AssetManager.php:1229
 #: src/Admin/Emails/Notifications/BookingNotifications.php:224
 #: src/Admin/Emails/Templates/EmailPreview.php:231
@@ -1350,7 +1350,7 @@ msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:125
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:293
-#: src/Admin/Booking/Meta/BookingMeta.php:1599
+#: src/Admin/Booking/Meta/BookingMeta.php:1615
 #: src/Admin/Core/AssetManager.php:1226
 #: src/Admin/Emails/Core/EmailTemplates.php:509
 #: src/Admin/Emails/Notifications/BookingNotifications.php:221
@@ -1365,7 +1365,7 @@ msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:126
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:294
-#: src/Admin/Booking/Meta/BookingMeta.php:1600
+#: src/Admin/Booking/Meta/BookingMeta.php:1616
 #: src/Admin/Core/AssetManager.php:1227
 #: src/Admin/Emails/Notifications/BookingNotifications.php:222
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:81
@@ -1377,7 +1377,7 @@ msgstr ""
 #: src/Admin/Booking/Core/Status.php:127
 #: src/Admin/Booking/ListTable/BookingColumns.php:1189
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:295
-#: src/Admin/Booking/Meta/BookingMeta.php:1601
+#: src/Admin/Booking/Meta/BookingMeta.php:1617
 #: src/Admin/Core/AssetManager.php:1228
 #: src/Admin/Emails/Notifications/BookingNotifications.php:223
 #: src/Admin/Frontend/Account/AccountRenderer.php:935
@@ -1692,7 +1692,7 @@ msgid "Sorry, no vehicle found for selected dates. Please try different dates."
 msgstr ""
 
 #: src/Admin/Booking/Helpers/Util.php:264
-#: src/Admin/Booking/Meta/BookingMeta.php:1687
+#: src/Admin/Booking/Meta/BookingMeta.php:1703
 msgid "This vehicle is not available for rental. Please select another vehicle."
 msgstr ""
 
@@ -1749,7 +1749,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:231
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:235
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:882
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:219
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:229
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:494
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:548
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:982
@@ -2131,7 +2131,7 @@ msgstr ""
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:527
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:598
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1002
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3560
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3578
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:240
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:276
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:381
@@ -2477,30 +2477,30 @@ msgstr ""
 #. translators: %s: vehicle title.
 #. translators: %s: vehicle title
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:640
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2797
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2815
 #, php-format
 msgid "Booking - %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditPriceFloor.php:187
+#: src/Admin/Booking/Meta/BookingEditPriceFloor.php:235
 msgid "This booking was paid in more than one currency, so the amount collected cannot be compared with a new price. The vehicle, dates and add-ons were not changed."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditPriceFloor.php:191
-msgid "This booking was paid in one order together with other bookings, so the amount collected for it alone cannot be known. The vehicle, dates and add-ons were not changed. To change the price, cancel the booking and create a new one."
+#: src/Admin/Booking/Meta/BookingEditPriceFloor.php:239
+msgid "This booking was paid in an order that also contains other bookings or products, so the amount collected for it alone cannot be known. The vehicle, dates and add-ons were not changed. To change the price, cancel the booking and create a new one."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditPriceFloor.php:195
+#: src/Admin/Booking/Meta/BookingEditPriceFloor.php:243
 msgid "A remaining-payment link has been created for this booking, so a change that alters the total is not saved for now. The vehicle, dates and add-ons were not changed. To change the price, cancel the booking and create a new one."
 msgstr ""
 
 #. translators: 1: the new total, 2: the amount collected.
-#: src/Admin/Booking/Meta/BookingEditPriceFloor.php:201
+#: src/Admin/Booking/Meta/BookingEditPriceFloor.php:249
 #, php-format
 msgid "The new amount (%1$s) is less than what was collected (%2$s), so the vehicle, dates and add-ons were not changed. To shorten the booking, cancel it, refund the payment and create a new booking."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditPriceFloor.php:209
+#: src/Admin/Booking/Meta/BookingEditPriceFloor.php:257
 msgid "This booking has been refunded, so a change that raises the total is not saved. The vehicle, dates and add-ons were not changed."
 msgstr ""
 
@@ -2551,7 +2551,7 @@ msgid "Sending..."
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:222
-#: src/Admin/Booking/Meta/BookingMeta.php:1855
+#: src/Admin/Booking/Meta/BookingMeta.php:1871
 msgid "Email sent successfully!"
 msgstr ""
 
@@ -2823,28 +2823,28 @@ msgid "Payment Update"
 msgstr ""
 
 #. translators: %s: list of the vehicle's closed days, joined by the site's list format ("1 June, 2 June and 3 June").
-#: src/Admin/Booking/Meta/BookingMeta.php:1510
+#: src/Admin/Booking/Meta/BookingMeta.php:1526
 #, php-format
 msgid "This vehicle has closed days in this period: %s. The booking was saved anyway."
 msgstr ""
 
 #. translators: 1: old status, 2: new status
-#: src/Admin/Booking/Meta/BookingMeta.php:1610
+#: src/Admin/Booking/Meta/BookingMeta.php:1626
 #, php-format
 msgid "Status changed from %1$s to %2$s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1684
+#: src/Admin/Booking/Meta/BookingMeta.php:1700
 msgid "The vehicle is already booked for these dates. The booking details were not saved."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1690
+#: src/Admin/Booking/Meta/BookingMeta.php:1706
 msgid "Vehicle availability could not be checked. The booking details were not saved. Please try again."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1723
-#: src/Admin/Booking/Meta/BookingMeta.php:1781
-#: src/Admin/Booking/Meta/BookingMeta.php:1904
+#: src/Admin/Booking/Meta/BookingMeta.php:1739
+#: src/Admin/Booking/Meta/BookingMeta.php:1797
+#: src/Admin/Booking/Meta/BookingMeta.php:1920
 #: src/Admin/Core/Utilities/UXHelper.php:138
 #: src/Admin/Emails/Core/EmailTemplates.php:176
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:29
@@ -2852,46 +2852,46 @@ msgstr ""
 msgid "You do not have permission to perform this action."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1739
-#: src/Admin/Booking/Meta/BookingMeta.php:1801
-#: src/Admin/Booking/Meta/BookingMeta.php:1923
-#: src/Admin/Booking/Meta/BookingMeta.php:1927
+#: src/Admin/Booking/Meta/BookingMeta.php:1755
+#: src/Admin/Booking/Meta/BookingMeta.php:1817
+#: src/Admin/Booking/Meta/BookingMeta.php:1939
+#: src/Admin/Booking/Meta/BookingMeta.php:1943
 msgid "Missing required fields."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1806
+#: src/Admin/Booking/Meta/BookingMeta.php:1822
 msgid "Please enter a subject and a message."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1830
+#: src/Admin/Booking/Meta/BookingMeta.php:1846
 msgid "Customer email not found."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1838
+#: src/Admin/Booking/Meta/BookingMeta.php:1854
 msgid "Failed to send email. Please check your WordPress email configuration."
 msgstr ""
 
 #. translators: %s: e-mail subject
-#: src/Admin/Booking/Meta/BookingMeta.php:1845
+#: src/Admin/Booking/Meta/BookingMeta.php:1861
 #, php-format
 msgid "E-mail sent to the customer: %s"
 msgstr ""
 
 #. translators: %s: the test address the e-mail went to instead.
-#: src/Admin/Booking/Meta/BookingMeta.php:1848
+#: src/Admin/Booking/Meta/BookingMeta.php:1864
 #, php-format
 msgid "(test mode: sent to %s)"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1851
+#: src/Admin/Booking/Meta/BookingMeta.php:1867
 msgid "(the customer turned off automatic notifications)"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1935
+#: src/Admin/Booking/Meta/BookingMeta.php:1951
 msgid "Note added successfully!"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1937
+#: src/Admin/Booking/Meta/BookingMeta.php:1953
 msgid "Failed to add note."
 msgstr ""
 
@@ -3093,7 +3093,7 @@ msgid "Vehicle Total"
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:239
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3968
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3986
 msgid "Add-ons"
 msgstr ""
 
@@ -10232,29 +10232,29 @@ msgstr ""
 msgid "Access denied."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:93
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:103
 msgid "This booking was already paid outside WooCommerce; collect the remaining balance the same way."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:112
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:233
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:122
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:243
 msgid "Failed to create payment order. Please try again."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:179
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:189
 msgid "No remaining amount due for this booking."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:206
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:216
 msgid "Booking product not found. Please contact support."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:211
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:221
 msgid "Booking product could not be loaded."
 msgstr ""
 
 #. translators: 1: vehicle name, 2: booking ID
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:239
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:255
 #, php-format
 msgid "Remaining Payment - %1$s #%2$d"
 msgstr ""
@@ -10349,7 +10349,7 @@ msgstr ""
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:527
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:598
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1001
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3540
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3558
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:275
 msgid "Deposit Payment"
 msgstr ""
@@ -10366,151 +10366,151 @@ msgstr ""
 
 #. translators: %s: why the booking was refused, as the customer read it.
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1222
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2364
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2382
 #, php-format
 msgid "Booking refused, no payment taken: %s"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1409
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1403
 msgid "The amount on this payment link is no longer current. Please ask us for a new payment link."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1595
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1613
 msgid "This booking was cancelled and can no longer be paid. Please make a new booking."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1604
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1622
 msgid "The availability of this booking could not be checked, so no payment was taken. Please try again in a moment."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1612
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1630
 msgid "The booking could not be updated, so nothing was changed. Please try again in a moment."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1994
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2012
 msgid "The dates were still free when the order was paid again; the booking holds them again."
 msgstr ""
 
 #. translators: %d: booking id.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2051
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2069
 #, php-format
 msgid "Booking #%d was revived for a payment that was then refused, and could not be put back; it stays pending until its payment deadline."
 msgstr ""
 
 #. translators: %d: booking id.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2188
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2206
 #, php-format
 msgid "Payment recorded on the order, but booking #%d could not be read back afterwards: its payment status and status are not known. Check the booking before anything else."
 msgstr ""
 
 #. translators: 1: booking id, 2: the booking's payment status as stored, 3: the booking status.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2195
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2213
 #, php-format
 msgid "Payment recorded on the order, but booking #%1$d is not marked paid: its payment status is \"%2$s\" and its status %3$s. Check the booking."
 msgstr ""
 
 #. translators: 1: booking id, 2: the booking status.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2204
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2222
 #, php-format
 msgid "Payment recorded and booking #%1$d is marked paid, but its status is %2$s, so it no longer holds its dates. Reconcile it: give the booking its dates back, or refund the payment."
 msgstr ""
 
 #. translators: 1: booking id, 2: the booking status it should have moved to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2212
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2230
 #, php-format
 msgid "Payment recorded and booking #%1$d marked paid, but it could not be moved to %2$s. Check the booking."
 msgstr ""
 
 #. translators: 1: booking id, 2: the booking status now, 3: the booking status it should have moved to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2220
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2238
 #, php-format
 msgid "Payment recorded and booking #%1$d marked paid, but it is %2$s instead of %3$s. Check the booking."
 msgstr ""
 
 #. translators: 1: booking id, 2: why, as the customer would have read it.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2392
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2410
 #, php-format
 msgid "Order on hold, but booking #%1$d was not confirmed: it no longer holds its dates (%2$s). Do not accept the payment for it, or move the booking first."
 msgstr ""
 
 #. translators: 1: booking id, 2: why, as the customer would have read it.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2398
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2416
 #, php-format
 msgid "Payment recorded, but booking #%1$d was not confirmed: it no longer holds its dates (%2$s). Refund the payment in WooCommerce, or move the booking."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2443
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2554
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2582
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2461
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2572
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2600
 msgid "Cash on delivery is not available for a booking. Please choose another payment method."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2445
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2463
 msgid "Payment method refused: cash on delivery is not available for a booking. No booking was made and no payment was taken."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2469
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2487
 msgid "Rentiva booking created from the block checkout. The customer could not change the payment type there."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2636
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2654
 msgid "Cash on delivery is not offered for rentals, and no other payment method is set up yet. Please contact us to complete your booking."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2684
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4125
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2702
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4143
 msgid "Invalid booking dates. Please try again."
 msgstr ""
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2701
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2719
 #, php-format
 msgid "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates (%2$s - %3$s). The vehicle may have been booked by another customer. Please select different dates or another vehicle."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2781
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2799
 msgid "Booking cancelled: Vehicle is not available for rental."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2954
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2972
 msgid "Booking created from WooCommerce order"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2985
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3003
 msgid "Booking cancelled: Vehicle already booked for selected dates."
 msgstr ""
 
 #. translators: 1: the WooCommerce order id that was cancelled/failed, 2: the booking id it belongs to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3181
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3199
 #, php-format
 msgid "Order #%1$d was cancelled/failed on booking #%2$d while a sibling order still holds paid money, but the notification e-mail could not be sent -- no one has been told a new payment link may be needed."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3304
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3322
 msgid "Booking completed — rental period ended."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3329
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3347
 msgid "Booking cancelled by customer."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3528
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3546
 msgid "Payment Options"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3542
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3560
 msgid "Pay deposit for booking, pay remaining amount at vehicle delivery"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3544
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3562
 msgid "Remaining:"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3561
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3579
 msgid "Pay full amount now"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3666
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3684
 #: src/Admin/Settings/APIKeysPage.php:81
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:29
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:52
@@ -10534,75 +10534,75 @@ msgstr ""
 msgid "Invalid security nonce."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3675
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3693
 msgid "Cart not available"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3771
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3789
 msgid "Booking not found in cart"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3787
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3805
 msgid "Payment type updated"
 msgstr ""
 
 #. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3975
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3993
 #, php-format
 msgid "Sorry, the vehicle \"%s\" is not available for rental. Please select another vehicle."
 msgstr ""
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4029
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4047
 #, php-format
 msgid "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates (%2$s - %3$s). Please select different dates or another vehicle."
 msgstr ""
 
 #. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4078
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4175
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4096
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4193
 #, php-format
 msgid "Sorry, booking for vehicle \"%s\" has been cancelled. Please select another vehicle."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4496
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4514
 #: src/Admin/Setup/SetupWizard.php:997
 msgid "WooCommerce"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4552
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4570
 msgid "Payment already processed by WooCommerce."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4570
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4588
 msgid "Redirecting to checkout..."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4577
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4595
 msgid "Failed to add booking to cart."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4593
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4611
 msgid "WooCommerce is not installed or activated."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4608
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4626
 msgid "Invalid payment amount."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4703
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4721
 msgid "City"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4704
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4722
 msgid "District / Neighborhood"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4841
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4859
 msgid "Return to Cart"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4874
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4892
 msgid "(incl. tax)"
 msgstr ""
 
