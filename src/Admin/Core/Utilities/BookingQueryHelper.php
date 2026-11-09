@@ -342,14 +342,7 @@ final class BookingQueryHelper {
 	 * @return int Order ID, or 0 when the booking has no linked order.
 	 */
 	public static function resolve_wc_order_id( int $booking_id ): int {
-		$keys = array(
-			'_mhmrentiva_woocommerce_order_id',
-			'_mhmrentiva_wc_order_id',
-			'_mhmrentiva_order_id',
-			'_mhmrentiva_booking_order_id',
-		);
-
-		foreach ( $keys as $key ) {
+		foreach ( self::wc_order_id_keys() as $key ) {
 			$order_id = (int) get_post_meta( $booking_id, $key, true );
 			if ( $order_id > 0 ) {
 				return $order_id;
@@ -357,6 +350,22 @@ final class BookingQueryHelper {
 		}
 
 		return 0;
+	}
+
+	/**
+	 * The four order-ID meta keys, in resolve order -- for callers that must
+	 * ask the same question in SQL (the privacy eraser's linked-order note)
+	 * and so cannot loop over resolve_wc_order_id().
+	 *
+	 * @return string[]
+	 */
+	public static function wc_order_id_keys(): array {
+		return array(
+			'_mhmrentiva_woocommerce_order_id',
+			'_mhmrentiva_wc_order_id',
+			'_mhmrentiva_order_id',
+			'_mhmrentiva_booking_order_id',
+		);
 	}
 
 	public static function getBookingCustomerInfo( int $booking_id ): array {

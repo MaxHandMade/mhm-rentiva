@@ -371,6 +371,18 @@ final class BookingAnonymizerTest extends WP_UnitTestCase
 		$this->assertSame($first, $second);
 	}
 
+	/**
+	 * Four meta keys have carried the order ID; the resolver knows them all and
+	 * the privacy notes must too (OrderIdMetaKeyResolutionTest).
+	 */
+	public function test_has_linked_order_reads_every_order_id_key(): void
+	{
+		$legacy = $this->closed_guest(array('_mhmrentiva_woocommerce_order_id' => 321));
+
+		$this->assertTrue(BookingAnonymizer::has_linked_order($legacy));
+		$this->assertTrue(\MHMRentiva\Admin\Privacy\BookingMatcher::any_linked_order('guest@example.test'));
+	}
+
 	public function test_has_linked_order_for_a_remaining_payment_link_without_snapshot(): void
 	{
 		$none   = $this->closed_guest();

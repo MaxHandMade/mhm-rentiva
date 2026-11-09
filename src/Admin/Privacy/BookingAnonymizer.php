@@ -188,7 +188,7 @@ final class BookingAnonymizer {
 	 * @return bool
 	 */
 	public static function has_linked_order( int $booking_id ): bool {
-		if ( (int) get_post_meta( $booking_id, '_mhmrentiva_wc_order_id', true ) > 0 ) {
+		if ( \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $booking_id ) > 0 ) {
 			return true;
 		}
 

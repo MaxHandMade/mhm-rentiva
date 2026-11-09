@@ -108,7 +108,9 @@ final class BookingMatcher {
 			? " OR EXISTS ( SELECT 1 FROM {$items} oi WHERE oi.meta_key = '_mhmrentiva_booking_id' AND oi.meta_value = CAST( p.ID AS CHAR ) )"
 			: '';
 
-		$sql = "SELECT 1 FROM {$wpdb->posts} p WHERE {$where} AND ( EXISTS ( SELECT 1 FROM {$wpdb->postmeta} mo WHERE mo.post_id = p.ID AND mo.meta_key = '_mhmrentiva_wc_order_id' AND CAST( mo.meta_value AS SIGNED ) > 0 ){$line} ) LIMIT 1";
+		// The order-ID keys come from the one resolver, not a private copy.
+		$keys = "'" . implode( "', '", array_map( 'esc_sql', \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::wc_order_id_keys() ) ) . "'";
+		$sql  = "SELECT 1 FROM {$wpdb->posts} p WHERE {$where} AND ( EXISTS ( SELECT 1 FROM {$wpdb->postmeta} mo WHERE mo.post_id = p.ID AND mo.meta_key IN ( {$keys} ) AND CAST( mo.meta_value AS SIGNED ) > 0 ){$line} ) LIMIT 1";
 
 		return '1' === (string) $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery -- $where is prepared in where(); the rest is constants.
 	}

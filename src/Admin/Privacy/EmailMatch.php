@@ -46,7 +46,7 @@ final class EmailMatch {
 	public static function subject_hash( string $email ): string {
 		$email = self::normalise( $email );
 
-		return '' === $email ? '' : wp_hash( 'mhmrentiva-privacy|' . $email );
+		return '' === $email ? '' : wp_hash( 'rentiva_privacy_subject|' . $email );
 	}
 
 	/**
