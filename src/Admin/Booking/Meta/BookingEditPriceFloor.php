@@ -108,7 +108,9 @@ final class BookingEditPriceFloor {
 			array(
 				'limit'      => 1,
 				'return'     => 'ids',
-				'status'     => 'any',
+				// 'all', not 'any': 'any' still leaves trashed orders out
+				// (OrdersTableQuery), and the posts half counts them (Codex r11 2).
+				'status'     => 'all',
 				'type'       => 'shop_order',
 				'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one booking's orders, limit 1.
 					array(

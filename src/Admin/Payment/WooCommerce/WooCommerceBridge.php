@@ -1409,7 +1409,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		}
 
 		$stamp = $order->get_meta('_mhmrentiva_remaining_due_minor', true);
-		$asks  = is_numeric($stamp) ? (int) $stamp : Money::toMinor( (string) $order->get_total());
+		$asks  = is_numeric($stamp) ? (int) $stamp : RemainingPaymentHandler::debt_minor( (string) $order->get_total());
 
 		foreach ($booking_ids as $booking_id) {
 			$booking_id = (int) $booking_id;
@@ -1419,7 +1419,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			// From the database, not the object cache another request may have
 			// refilled: an admin may have re-priced it a moment ago (Codex r10 4).
 			try {
-				$owed = Money::toMinor( (float) self::read_booking_meta($booking_id, '_mhmrentiva_remaining_amount'));
+				$owed = RemainingPaymentHandler::debt_minor(self::read_booking_meta($booking_id, '_mhmrentiva_remaining_amount'));
 			} catch (\RuntimeException $e) {
 				return $stale;
 			}

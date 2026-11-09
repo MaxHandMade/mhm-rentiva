@@ -178,6 +178,19 @@ final class BookingEditPriceFloorTest extends WP_UnitTestCase
 		$this->assertSame('', BookingEditNotice::peek($this->booking));
 	}
 
+	public function test_a_trashed_remaining_order_still_counts(): void
+	{
+		$this->require_woocommerce();
+		$order = wc_create_order(array( 'status' => 'pending' ));
+		$order->update_meta_data('_mhmrentiva_booking_id', $this->booking);
+		$order->update_meta_data('_mhmrentiva_is_remaining_payment', '1');
+		$order->save();
+		$order->delete(false);
+		$this->assertSame('trash', $order->get_status(), 'PREMISE: in the trash, not deleted');
+
+		$this->assertTrue(BookingEditPriceFloor::has_remaining_order($this->booking), 'any status, the trash included, as in the posts store (Codex r11 2)');
+	}
+
 	public function test_another_bookings_remaining_order_does_not_count(): void
 	{
 		$this->require_woocommerce();

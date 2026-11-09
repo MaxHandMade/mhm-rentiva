@@ -180,6 +180,33 @@ final class RemainingOrderStaleGuardTest extends WP_UnitTestCase
 		$this->assertNotSame($order->get_id(), $this->link()->get_id(), 'a fresh TRY order instead of the EUR one');
 	}
 
+	public function test_the_debt_is_measured_at_the_stores_precision_whatever_the_visitor_sees(): void
+	{
+		update_option('woocommerce_price_num_decimals', '2');
+		update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '1000.40');
+		// A per-visitor currency switcher answers the filtered precision.
+		$visitor = static function () {
+			return 0;
+		};
+		add_filter('wc_get_price_decimals', $visitor);
+		try {
+			$order = $this->link();
+		} finally {
+			remove_filter('wc_get_price_decimals', $visitor);
+		}
+
+		$this->assertSame('100040', (string) $order->get_meta('_mhmrentiva_remaining_due_minor', true), 'stamped at 2 decimals');
+		$this->assertEqualsWithDelta(1000.40, (float) wc_get_order($order->get_id())->get_total(), 0.001, 'the order asks for 1,000.40, not 1,000 (Codex r11 1)');
+
+		add_filter('wc_get_price_decimals', $visitor);
+		try {
+			$this->assertTrue($this->pay($order), 'a 0-decimal visitor pays the same current debt');
+		} finally {
+			remove_filter('wc_get_price_decimals', $visitor);
+		}
+		$this->assertTrue($this->pay($order), 'and so does a 2-decimal one');
+	}
+
 	public function test_the_amount_owed_is_read_from_the_database_not_the_cache(): void
 	{
 		$old = $this->link();
