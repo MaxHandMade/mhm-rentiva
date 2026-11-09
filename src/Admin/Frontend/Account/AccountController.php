@@ -279,7 +279,6 @@ final class AccountController {
 				array(
 					'ajaxUrl' => admin_url('admin-ajax.php'),
 					'nonce'   => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_gdpr_nonce'),
-					'homeUrl' => home_url(),
 					'i18n'    => array(
 						'confirmExport'       => __('Are you sure you want to export your data? This may take a few minutes.', 'mhm-rentiva'),
 						'exporting'           => __('Exporting...', 'mhm-rentiva'),
@@ -289,11 +288,7 @@ final class AccountController {
 						'processing'          => __('Processing...', 'mhm-rentiva'),
 						'withdrawSuccess'     => __('Consent withdrawn successfully!', 'mhm-rentiva'),
 						'withdrawError'       => __('An error occurred while withdrawing consent', 'mhm-rentiva'),
-						'confirmDeletePrompt' => __('This action cannot be undone. Type "DELETE" to confirm account deletion:', 'mhm-rentiva'),
-						'confirmDeleteFinal'  => __('Are you absolutely sure? This will permanently delete your account and all data.', 'mhm-rentiva'),
-						'deleting'            => __('Deleting...', 'mhm-rentiva'),
-						'deleteSuccess'       => __('Account deleted successfully. You will be redirected to the homepage.', 'mhm-rentiva'),
-						'deleteError'         => __('An error occurred while deleting account', 'mhm-rentiva'),
+						'confirmErasure'      => __('A request to erase your personal data will be created. We will send you a confirmation e-mail.', 'mhm-rentiva'),
 						'error'               => __('Error', 'mhm-rentiva'),
 						'unknownError'        => __('Unknown error', 'mhm-rentiva'),
 					),

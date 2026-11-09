@@ -118,26 +118,23 @@ jQuery(document).ready(
 			}
 		);
 
-		// Delete Account
+		// Request Data Erasure. The add-on answers with a WordPress privacy
+		// request (a confirmation e-mail; the site administrator processes it):
+		// nothing is deleted here, so one confirm is enough, the server's own
+		// message is shown and the visitor stays on the page.
 		$('#delete-account').on(
 			'click',
 			function (e) {
 				e.preventDefault();
 
-				var confirmation = prompt(mhmRentivaPrivacy.i18n.confirmDeletePrompt);
-
-				if (confirmation !== 'DELETE') {
-					return;
-				}
-
-				if (!confirm(mhmRentivaPrivacy.i18n.confirmDeleteFinal)) {
+				if (!confirm(mhmRentivaPrivacy.i18n.confirmErasure)) {
 					return;
 				}
 
 				var button = $(this);
 				var originalText = button.text();
 
-				button.prop('disabled', true).text(mhmRentivaPrivacy.i18n.deleting);
+				button.prop('disabled', true).text(mhmRentivaPrivacy.i18n.processing);
 
 				$.ajax(
 					{
@@ -148,20 +145,15 @@ jQuery(document).ready(
 							nonce: mhmRentivaPrivacy.nonce
 						},
 						success: function (response) {
-							if (response.success) {
-								showNotification(mhmRentivaPrivacy.i18n.deleteSuccess, 'success');
-								setTimeout(
-									function () {
-										window.location.href = mhmRentivaPrivacy.homeUrl;
-									},
-									1500
-								);
+							var message = (response && response.data && response.data.message) ? response.data.message : '';
+							if (response && response.success) {
+								showNotification(message, 'success');
 							} else {
-								showNotification(mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError), 'error');
+								showNotification(mhmRentivaPrivacy.i18n.error + ': ' + (message || mhmRentivaPrivacy.i18n.unknownError), 'error');
 							}
 						},
 						error: function (xhr, status, error) {
-							showNotification(mhmRentivaPrivacy.i18n.deleteError + ': ' + error, 'error');
+							showNotification(mhmRentivaPrivacy.i18n.error + ': ' + (error || mhmRentivaPrivacy.i18n.unknownError), 'error');
 						},
 						complete: function () {
 							button.prop('disabled', false).text(originalText);

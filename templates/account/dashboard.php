@@ -105,7 +105,7 @@ $root_class = 'rvs-account mhm-rentiva-account-page' . ( $is_integrated ? ' mhm-
 			<div class="rvs-account__actions">
 				<button type="button" id="export-data" class="rvs-btn rvs-btn--secondary"><?php esc_html_e('Export My Data', 'mhm-rentiva'); ?></button>
 				<button type="button" id="withdraw-consent" class="rvs-btn rvs-btn--secondary"><?php esc_html_e('Withdraw Consent', 'mhm-rentiva'); ?></button>
-				<button type="button" id="delete-account" class="rvs-btn rvs-btn--secondary rvs-account-privacy__danger"><?php esc_html_e('Delete Account', 'mhm-rentiva'); ?></button>
+				<button type="button" id="delete-account" class="rvs-btn rvs-btn--secondary rvs-account-privacy__danger"><?php esc_html_e('Request Data Erasure', 'mhm-rentiva'); ?></button>
 			</div>
 		</section>
 	<?php endif; ?>
