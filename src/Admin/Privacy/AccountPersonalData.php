@@ -43,6 +43,15 @@ final class AccountPersonalData {
 	);
 
 	/**
+	 * Notification choices whose '0' means "off" (Mailer::deliver()).
+	 */
+	private const OPT_OUT_KEYS = array(
+		'mhmrentiva_welcome_email',
+		'mhmrentiva_booking_notifications',
+		'mhmrentiva_marketing_emails',
+	);
+
+	/**
 	 * Core exporter callback.
 	 *
 	 * @param string $email Requested address.
@@ -127,6 +136,13 @@ final class AccountPersonalData {
 
 		foreach ( self::KEYS as $key ) {
 			if ( ! metadata_exists( 'user', $user->ID, $key ) ) {
+				continue;
+			}
+			// A stored '0' is the person's "do not e-mail me". Mailer treats a
+			// missing value as allowed, so erasing it would sign them back up --
+			// also for the active bookings the booking eraser keeps. Keep the
+			// opt-out; a '1' goes (the default says the same).
+			if ( in_array( $key, self::OPT_OUT_KEYS, true ) && '0' === (string) get_user_meta( $user->ID, $key, true ) ) {
 				continue;
 			}
 			delete_user_meta( $user->ID, $key );

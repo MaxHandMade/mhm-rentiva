@@ -164,6 +164,26 @@ final class LogAndAccountPersonalDataTest extends WP_UnitTestCase
 		$this->assertSame('', get_user_meta($user, 'mhmrentiva_favorite_vehicles', true));
 	}
 
+	/**
+	 * A stored '0' is the customer's "do not e-mail me"; Mailer treats a missing
+	 * value as allowed. Erasing the opt-out would sign the person back up --
+	 * for the active bookings the eraser keeps, too (Codex bot P2, Lite #186).
+	 */
+	public function test_notification_opt_outs_survive_the_erasure(): void
+	{
+		$user = (int) self::factory()->user->create(array('user_email' => 'guest@example.test'));
+		update_user_meta($user, 'mhmrentiva_booking_notifications', '0');
+		update_user_meta($user, 'mhmrentiva_marketing_emails', '0');
+		update_user_meta($user, 'mhmrentiva_welcome_email', '1');
+
+		AccountPersonalData::erase('guest@example.test', 1);
+
+		$this->assertSame('0', get_user_meta($user, 'mhmrentiva_booking_notifications', true));
+		$this->assertSame('0', get_user_meta($user, 'mhmrentiva_marketing_emails', true));
+		$this->assertSame('', get_user_meta($user, 'mhmrentiva_welcome_email', true));
+		$this->assertTrue(\MHMRentiva\Admin\Emails\Core\Mailer::customer_turned_off_notifications('guest@example.test'));
+	}
+
 	public function test_no_account_returns_done_with_no_items(): void
 	{
 		$this->assertSame(array('data' => array(), 'done' => true), AccountPersonalData::export('nobody@example.test', 1));
