@@ -140,6 +140,20 @@ final class BookingExporterTest extends WP_UnitTestCase
 		$this->assertStringContainsString('+90 1', $all);
 	}
 
+	/**
+	 * An old booking that only has the legacy status key shows its status,
+	 * as BookingState reads it (Codex r6, 5a).
+	 */
+	public function test_legacy_status_key_is_exported(): void
+	{
+		$id = $this->booking(array('_mhmrentiva_customer_email' => 'legacy@example.test', '_mhmrentiva_booking_status' => 'completed'));
+		delete_post_meta($id, '_mhmrentiva_status');
+
+		$all = implode("\n", $this->fields(BookingExporter::export('legacy@example.test', 1)['data'][0]));
+
+		$this->assertStringContainsString(\MHMRentiva\Admin\Booking\Core\Status::get_label('completed'), $all);
+	}
+
 	public function test_cancelled_by_roles_and_booking_logs_are_absent(): void
 	{
 		$this->full_booking();

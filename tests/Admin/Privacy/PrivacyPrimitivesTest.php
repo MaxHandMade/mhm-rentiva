@@ -6,6 +6,7 @@ namespace MHMRentiva\Tests\Admin\Privacy;
 use MHMRentiva\Admin\Privacy\BookingState;
 use MHMRentiva\Admin\Privacy\EmailMatch;
 use MHMRentiva\Admin\Privacy\ErasureMarker;
+use MHMRentiva\Admin\Privacy\PostQueue;
 use WP_UnitTestCase;
 
 /**
@@ -173,5 +174,54 @@ final class PrivacyPrimitivesTest extends WP_UnitTestCase
 		$this->assertSame('active', $this->state($this->booking(array())));
 		$this->assertSame('active', $this->state($this->booking(array('_mhmrentiva_status' => 'garbage'))));
 		$this->assertSame('active', $this->state($this->booking(array('_mhmrentiva_status' => 'draft'))));
+	}
+
+	private function post_meta_rows(int $post_id): int
+	{
+		global $wpdb;
+
+		return (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE post_id = %d", $post_id));
+	}
+
+	/**
+	 * wp_delete_post() can drop the post and leave meta rows behind -- a
+	 * filter or a failed DELETE in delete_metadata_by_mid(). Nothing would
+	 * reach them again (the queues read posts), so they are deleted here
+	 * (Codex r6 on 5a B4).
+	 */
+	public function test_meta_rows_left_by_wp_delete_post_are_deleted(): void
+	{
+		$id    = (int) self::factory()->post->create(array('meta_input' => array('_mhmrentiva_contact_email' => 'guest@example.test')));
+		$block = static fn() => false;
+		add_filter('delete_post_metadata_by_mid', $block);
+
+		$left = PostQueue::delete_post($id);
+
+		remove_filter('delete_post_metadata_by_mid', $block);
+		$this->assertNull($left);
+		$this->assertNull(get_post($id));
+		$this->assertSame(0, $this->post_meta_rows($id));
+	}
+
+	public function test_meta_rows_that_cannot_be_deleted_are_reported(): void
+	{
+		global $wpdb;
+
+		$id    = (int) self::factory()->post->create(array('meta_input' => array('_mhmrentiva_contact_email' => 'guest@example.test')));
+		$block = static fn() => false;
+		$fail  = static fn(string $sql): string => (0 === stripos($sql, 'DELETE FROM `' . $wpdb->postmeta . '`')) ? 'SELECT 1 FROM no_such_table' : $sql;
+		add_filter('delete_post_metadata_by_mid', $block);
+		add_filter('query', $fail);
+		$suppress = $wpdb->suppress_errors(true);
+		$before   = $this->post_meta_rows($id);
+
+		$left = PostQueue::delete_post($id);
+
+		$wpdb->suppress_errors($suppress);
+		remove_filter('query', $fail);
+		remove_filter('delete_post_metadata_by_mid', $block);
+		$this->assertSame('meta', $left);
+		$this->assertGreaterThan(0, $before);
+		$this->assertSame($before, $this->post_meta_rows($id));
 	}
 }

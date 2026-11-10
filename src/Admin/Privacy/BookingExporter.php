@@ -75,7 +75,6 @@ final class BookingExporter {
 		$cancellation = get_post_meta( $id, '_mhmrentiva_cancellation_data', true );
 		$cancellation = is_array( $cancellation ) ? $cancellation : array();
 		$receipt_id   = (int) $meta( '_mhmrentiva_receipt_attachment_id' );
-		$status       = (string) get_post_meta( $id, '_mhmrentiva_status', true );
 		$payment      = $meta( '_mhmrentiva_payment_status' );
 		// Current key first, then the legacy spellings the matcher also finds.
 		$first = static function ( array $keys ) use ( $meta ): string {
@@ -86,6 +85,8 @@ final class BookingExporter {
 			}
 			return '';
 		};
+		// BookingState reads the legacy status key when the current one is absent.
+		$status = $first( array( '_mhmrentiva_status', '_mhmrentiva_booking_status' ) );
 		$name  = $meta( '_mhmrentiva_customer_name' );
 		if ( '' === $name ) {
 			$name = trim( $meta( '_mhmrentiva_customer_first_name' ) . ' ' . $meta( '_mhmrentiva_customer_last_name' ) );

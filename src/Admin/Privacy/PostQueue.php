@@ -95,6 +95,13 @@ final class PostQueue {
 	/**
 	 * Delete a post for good and say what, if anything, stayed behind.
 	 *
+	 * wp_delete_post() deletes the meta rows one by one through
+	 * delete_metadata_by_mid() and then the post; a filter or a failed DELETE
+	 * there leaves rows of a post that no longer exists, and no queue reaches
+	 * them again (the queues read posts). Those rows are deleted here, straight
+	 * from the table, and counted (Codex r6 on 5a B4). The post's own delete
+	 * hooks still run with its meta in place -- Pro's thread summary reads it.
+	 *
 	 * @param int $post_id Post ID.
 	 * @return string|null Null when the post and all its meta rows are gone.
 	 */
@@ -108,9 +115,24 @@ final class PostQueue {
 			return 'post';
 		}
 
-		$rows = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE post_id = %d", $post_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- an existence check must not read a cache.
+		if ( self::meta_rows( $post_id ) > 0 ) {
+			$wpdb->delete( $wpdb->postmeta, array( 'post_id' => $post_id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- the post is gone; the meta API has no call for orphan rows.
+			wp_cache_delete( $post_id, 'post_meta' );
+		}
 
-		return $rows > 0 ? 'meta' : null;
+		return self::meta_rows( $post_id ) > 0 ? 'meta' : null;
+	}
+
+	/**
+	 * Number of postmeta rows of a post, read from the table.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return int
+	 */
+	private static function meta_rows( int $post_id ): int {
+		global $wpdb;
+
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE post_id = %d", $post_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- an existence check must not read a cache.
 	}
 
 	/**

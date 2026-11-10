@@ -456,12 +456,36 @@ final class BookingAnonymizerTest extends WP_UnitTestCase
 	 * Four meta keys have carried the order ID; the resolver knows them all and
 	 * the privacy notes must too (OrderIdMetaKeyResolutionTest).
 	 */
-	public function test_has_linked_order_reads_every_order_id_key(): void
+	/**
+	 * @return array<string, array{string}>
+	 */
+	public static function order_id_keys(): array
 	{
-		$legacy = $this->closed_guest(array('_mhmrentiva_woocommerce_order_id' => 321));
+		$keys = array();
+		foreach (\MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::wc_order_id_keys() as $key) {
+			$keys[ $key ] = array($key);
+		}
 
-		$this->assertTrue(BookingAnonymizer::has_linked_order($legacy));
-		$this->assertTrue(\MHMRentiva\Admin\Privacy\BookingMatcher::any_linked_order('guest@example.test'));
+		return $keys;
+	}
+
+	/**
+	 * Every order-ID spelling the resolver knows counts as a linked order, for
+	 * the booking and for the eraser's page-one note (Codex r6, 5a).
+	 *
+	 * @dataProvider order_id_keys
+	 */
+	public function test_has_linked_order_reads_every_order_id_key(string $key): void
+	{
+		$booking = $this->closed_guest(array($key => 321));
+
+		$this->assertTrue(BookingAnonymizer::has_linked_order($booking), $key);
+		$this->assertTrue(\MHMRentiva\Admin\Privacy\BookingMatcher::any_linked_order('guest@example.test'), $key);
+	}
+
+	public function test_the_resolver_knows_four_order_id_keys(): void
+	{
+		$this->assertCount(4, self::order_id_keys());
 	}
 
 	public function test_has_linked_order_for_a_remaining_payment_link_without_snapshot(): void
