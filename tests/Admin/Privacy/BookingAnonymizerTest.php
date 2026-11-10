@@ -284,6 +284,44 @@ final class BookingAnonymizerTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * The attachment post is gone but its postmeta stayed (a failed delete):
+	 * the next run deletes those rows and finishes the receipt.
+	 */
+	public function test_an_attachment_with_only_meta_left_is_finished(): void
+	{
+		global $wpdb;
+
+		$upload     = wp_upload_bits('receipt-' . wp_generate_password(6, false) . '.png', null, 'png-bytes');
+		$attachment = (int) self::factory()->attachment->create_object($upload['file'], 0, array('post_mime_type' => 'image/png'));
+		$id         = $this->closed_guest(array('_mhmrentiva_receipt_attachment_id' => $attachment));
+		$wpdb->delete($wpdb->posts, array('ID' => $attachment));
+		clean_post_cache($attachment);
+
+		$this->assertSame(array(), BookingAnonymizer::anonymize($id, 0));
+
+		$this->assertSame(0, (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE post_id = %d", $attachment)));
+		$this->assertFileDoesNotExist($upload['file']);
+		$this->assertFalse(metadata_exists('post', $id, '_mhmrentiva_receipt_attachment_id'));
+	}
+
+	/**
+	 * Writing by meta ID bypasses wc_update_order_item_meta(); the item's
+	 * WooCommerce object cache must still drop. It does through core's
+	 * updated_order_item_meta action (WC_Post_Data::flush_object_meta_cache).
+	 * This guards that path (Fable 5a-takip asked; measured, not assumed).
+	 */
+	public function test_the_order_items_object_cache_is_invalidated(): void
+	{
+		$a      = $this->closed_guest();
+		$items  = $this->order_with_lines(array($a => $this->snapshot('guest@example.test')));
+		$before = \WC_Cache_Helper::get_cache_prefix('object_' . $items[ $a ]);
+
+		BookingAnonymizer::anonymize($a, 0);
+
+		$this->assertNotSame($before, \WC_Cache_Helper::get_cache_prefix('object_' . $items[ $a ]));
+	}
+
+	/**
 	 * A second row of the same key holds the real name (Codex r5): every row
 	 * is anonymised and checked, not only the first.
 	 */

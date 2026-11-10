@@ -376,7 +376,10 @@ final class BookingAnonymizer {
 	 */
 	private static function write_receipt( int $booking_id ): void {
 		$attachment = (int) get_post_meta( $booking_id, '_mhmrentiva_receipt_attachment_id', true );
-		if ( $attachment > 0 && get_post( $attachment ) instanceof \WP_Post ) {
+		// An attachment whose post is gone but whose postmeta stayed still names
+		// its files: it goes through the same file check, then its rows are
+		// deleted, so a half-deleted receipt does not block the booking forever.
+		if ( $attachment > 0 && ( get_post( $attachment ) instanceof \WP_Post || self::attachment_meta_left( $attachment ) ) ) {
 			// The file first, and checked on disk: wp_delete_attachment() drops
 			// the post even when the file stays, and then nothing points at the
 			// file any more. Until the file is really gone, keep the post and
@@ -390,7 +393,12 @@ final class BookingAnonymizer {
 					return;
 				}
 			}
-			wp_delete_attachment( $attachment, true );
+			if ( get_post( $attachment ) instanceof \WP_Post ) {
+				wp_delete_attachment( $attachment, true );
+			}
+			if ( ! get_post( $attachment ) instanceof \WP_Post ) {
+				PostQueue::delete_post( $attachment ); // Deletes rows wp_delete_attachment() left.
+			}
 		}
 		if ( $attachment > 0 && ( get_post( $attachment ) instanceof \WP_Post || self::attachment_meta_left( $attachment ) ) ) {
 			return; // Keep the link so verify() reports the receipt as left.
