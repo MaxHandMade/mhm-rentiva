@@ -30,6 +30,7 @@
       "Düzeltildi: elle oluşturulan rezervasyonlarda ücretsiz iptal son tarihi yanlış teslim alma saatini kullanıyordu.",
       "Düzeltildi: rezervasyonun Ödeme yönetimi kutusundan yapılan iade, teslim alma ne kadar uzakta olursa olsun rezervasyondan bir gün sonra \"iptal politikası nedeniyle\" reddediliyordu. İptal son tarihi artık her yerde teslim almadan sayılıyor: kutu bu tarihi gösteriyor ve iptal edilmiş bir rezervasyonun iadesi iade edilebilir bakiyenin tamamını ödüyor. Kutu artık iptal edilmiş, tamamlanmış ya da iade edilmiş bir rezervasyonu \"iptal edilebilir\" diye göstermiyor.",
       "Kaldırıldı: yalnız elle oluşturulan rezervasyonlara o yanlış bir günlük değeri yazan mhmrentiva_cancellation_deadline_hours filtresi. Son tarih Ayarlar > Rezervasyon > İptal son tarihi (saat) alanından ayarlanır.",
+      "Değişti: Hesabım'daki gizlilik denetimlerinde \"Onayı geri çek\" yalnız müşteri onay verdikten sonra görünüyor.",
       "Değişti: müşterinin yüklediği havale belgesinin adı her yerde \"dekont\"; teşekkür sayfası \"dekont\", Hesabım, rezervasyon ekranı ve e-postalar \"makbuz\" diyordu.",
       "Düzeltildi: \"Tüm favorileri temizle\" çalışmadan önce hata mesajı göstermiyor.",
       "Güvenlik: REST nonce'u artık her sayfada basılmıyor. Hesabım sayfalarında, Rezervasyonlarım veya Ödeme geçmişi kısa kodunun bulunduğu sayfalarda ve arama formunun bulunduğu sayfalarda basılır.",

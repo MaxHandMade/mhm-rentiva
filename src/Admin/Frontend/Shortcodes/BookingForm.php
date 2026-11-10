@@ -736,10 +736,7 @@ final class BookingForm extends AbstractShortcode {
 
 		// Check data consent requirement for logged-in users
 		if (is_user_logged_in() && $data_consent_required === '1') {
-			$user_id       = get_current_user_id();
-			$consent_given = get_user_meta($user_id, 'mhmrentiva_data_consent_given', true);
-
-			if ($consent_given !== '1') {
+			if (! \MHMRentiva\Admin\Privacy\ConsentState::is_given(get_current_user_id())) {
 				return array(
 					'error' => __('You must provide consent for data processing before making a booking. Please update your account settings.', 'mhm-rentiva'),
 				);
