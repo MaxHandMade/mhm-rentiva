@@ -300,21 +300,24 @@ final class BookingAnonymizer {
 	private static function rows( string $type, int $object_id, string $key ): array {
 		global $wpdb;
 
+		// One literal statement per table: no table or column name is spliced in.
 		if ( 'order_item' === $type ) {
-			$table  = $wpdb->prefix . 'woocommerce_order_itemmeta';
-			$column = 'order_item_id';
+			$found = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- an erasure must not read a cache.
+				$wpdb->prepare(
+					"SELECT meta_id, meta_value FROM {$wpdb->prefix}woocommerce_order_itemmeta WHERE order_item_id = %d AND meta_key = %s ORDER BY meta_id ASC",
+					$object_id,
+					$key
+				)
+			);
 		} else {
-			$table  = $wpdb->postmeta;
-			$column = 'post_id';
+			$found = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- an erasure must not read a cache.
+				$wpdb->prepare(
+					"SELECT meta_id, meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s ORDER BY meta_id ASC",
+					$object_id,
+					$key
+				)
+			);
 		}
-
-		$found = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- an erasure must not read a cache.
-			$wpdb->prepare(
-				"SELECT meta_id, meta_value FROM {$table} WHERE {$column} = %d AND meta_key = %s ORDER BY meta_id ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- core table and column names.
-				$object_id,
-				$key
-			)
-		);
 
 		$rows = array();
 		foreach ( (array) $found as $row ) {
@@ -327,7 +330,7 @@ final class BookingAnonymizer {
 	/**
 	 * Rewrite each row of a meta key with its anonymous form, row by row.
 	 *
-	 * update_metadata_by_mid() writes one row and does not unslash, so a kept
+	 * One update_metadata_by_mid() call writes one row and does not unslash, so a kept
 	 * backslash stays as it was stored.
 	 *
 	 * @param string   $type      'post' or 'order_item'.

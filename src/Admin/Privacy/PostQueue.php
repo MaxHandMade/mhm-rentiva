@@ -95,7 +95,7 @@ final class PostQueue {
 	/**
 	 * Delete a post for good and say what, if anything, stayed behind.
 	 *
-	 * wp_delete_post() deletes the meta rows one by one through
+	 * Core's wp_delete_post() deletes the meta rows one by one through
 	 * delete_metadata_by_mid() and then the post; a filter or a failed DELETE
 	 * there leaves rows of a post that no longer exists, and no queue reaches
 	 * them again (the queues read posts). Those rows are deleted here, straight

@@ -87,7 +87,7 @@ final class BookingExporter {
 		};
 		// BookingState reads the legacy status key when the current one is absent.
 		$status = $first( array( '_mhmrentiva_status', '_mhmrentiva_booking_status' ) );
-		$name  = $meta( '_mhmrentiva_customer_name' );
+		$name   = $meta( '_mhmrentiva_customer_name' );
 		if ( '' === $name ) {
 			$name = trim( $meta( '_mhmrentiva_customer_first_name' ) . ' ' . $meta( '_mhmrentiva_customer_last_name' ) );
 		}
