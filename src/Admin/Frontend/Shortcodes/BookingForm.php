@@ -1379,34 +1379,33 @@ final class BookingForm extends AbstractShortcode {
 				// Prepare booking data to store in payment system
 				// ⭐ Customer information is optional - Payment gateway checkout will collect it
 				$booking_data_for_payment = array(
-					'vehicle_id'            => $vehicle_id,
-					'pickup_date'           => $pickup_date,
-					'dropoff_date'          => $dropoff_date,
-					'pickup_time'           => $pickup_time,
-					'dropoff_time'          => $dropoff_time,
-					'guests'                => $guests,
-					'customer_user_id'      => $user_id, // 0 for a guest; an account made at checkout fills it (WooCommerceBridge::with_order_contact())
-					'customer_name'         => $customer_name ? $customer_name : '', // Optional - Payment gateway will collect
-					'customer_first_name'   => $customer_first_name ? $customer_first_name : '', // Optional - Payment gateway will collect
-					'customer_last_name'    => $customer_last_name ? $customer_last_name : '', // Optional - Payment gateway will collect
-					'customer_email'        => $customer_email ? $customer_email : '', // Optional - Payment gateway will collect
-					'customer_phone'        => $customer_phone ? $customer_phone : '', // Optional - Payment gateway will collect
-					'payment_type'          => $payment_type,
-					'payment_method'        => $payment_gateway->get_gateway_name(),
-					'payment_gateway'       => $payment_gateway->get_gateway_name(),
-					'deposit_amount'        => $deposit_result['deposit_amount'],
-					'remaining_amount'      => $deposit_result['remaining_amount'],
-					'deposit_type'          => $deposit_result['deposit_type'],
-					'deposit_percentage'    => $deposit_result['deposit_percentage'] ?? 0,
-					'payment_display'       => $deposit_result['payment_display'],
-					'total_price'           => $deposit_result['total_amount'],
-					'rental_days'           => $days,
-					'selected_addons'       => $selected_addons,
-					'addon_quantities'      => $selection->quantities(),
-					'pickup_location_id'    => $pickup_location_id,
-					'cancellation_policy'   => '24_hours',
-					'cancellation_deadline' => gmdate('Y-m-d H:i:s', strtotime('+24 hours')),
-					'payment_deadline'      => self::get_payment_deadline($payment_gateway->get_gateway_name()),
+					'vehicle_id'          => $vehicle_id,
+					'pickup_date'         => $pickup_date,
+					'dropoff_date'        => $dropoff_date,
+					'pickup_time'         => $pickup_time,
+					'dropoff_time'        => $dropoff_time,
+					'guests'              => $guests,
+					'customer_user_id'    => $user_id, // 0 for a guest; an account made at checkout fills it (WooCommerceBridge::with_order_contact())
+					'customer_name'       => $customer_name ? $customer_name : '', // Optional - Payment gateway will collect
+					'customer_first_name' => $customer_first_name ? $customer_first_name : '', // Optional - Payment gateway will collect
+					'customer_last_name'  => $customer_last_name ? $customer_last_name : '', // Optional - Payment gateway will collect
+					'customer_email'      => $customer_email ? $customer_email : '', // Optional - Payment gateway will collect
+					'customer_phone'      => $customer_phone ? $customer_phone : '', // Optional - Payment gateway will collect
+					'payment_type'        => $payment_type,
+					'payment_method'      => $payment_gateway->get_gateway_name(),
+					'payment_gateway'     => $payment_gateway->get_gateway_name(),
+					'deposit_amount'      => $deposit_result['deposit_amount'],
+					'remaining_amount'    => $deposit_result['remaining_amount'],
+					'deposit_type'        => $deposit_result['deposit_type'],
+					'deposit_percentage'  => $deposit_result['deposit_percentage'] ?? 0,
+					'payment_display'     => $deposit_result['payment_display'],
+					'total_price'         => $deposit_result['total_amount'],
+					'rental_days'         => $days,
+					'selected_addons'     => $selected_addons,
+					'addon_quantities'    => $selection->quantities(),
+					'pickup_location_id'  => $pickup_location_id,
+					'cancellation_policy' => '24_hours',
+					'payment_deadline'    => self::get_payment_deadline($payment_gateway->get_gateway_name()),
 				);
 
 				try {

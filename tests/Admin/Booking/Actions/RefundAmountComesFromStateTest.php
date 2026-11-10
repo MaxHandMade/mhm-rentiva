@@ -183,14 +183,20 @@ final class RefundAmountComesFromStateTest extends WP_Ajax_UnitTestCase
     }
 
     /**
-     * Defect 3, first half. The cancellation-policy sentence is correct here
-     * and stays -- but the log must stop claiming a refund was processed.
-     * RED before the fix: the handler wrote `refund_processed` with
-     * refund_amount: 0.
+     * Customer-eye round #20 (2026-11-10, booking 10595 measured): every
+     * booking writer stored _mhmrentiva_cancellation_deadline as "booking
+     * time + 24 h", and this handler zeroed the refund once that moment had
+     * passed -- so 24 hours after booking, a cancelled booking whose pickup
+     * was weeks away was refunded nothing. The cancellation policy is
+     * enforced where it belongs, at the cancellation gate
+     * (CancellationHandler::check_cancellation_deadline(), counted from
+     * pickup); this handler pays what the cancellation owes and reads no
+     * deadline of its own. RED before the fix.
      */
-    public function test_a_policy_denied_refund_is_logged_as_skipped_not_processed(): void
+    public function test_a_stale_stored_deadline_no_longer_denies_the_refund(): void
     {
         $booking_id = $this->make_full_payment_booking('500');
+        update_post_meta($booking_id, '_mhmrentiva_pickup_date', gmdate('Y-m-d', strtotime('+30 days')));
         update_post_meta(
             $booking_id,
             '_mhmrentiva_cancellation_deadline',
@@ -199,30 +205,40 @@ final class RefundAmountComesFromStateTest extends WP_Ajax_UnitTestCase
 
         $response = $this->call_refund($booking_id);
 
-        $this->assertTrue(
-            (bool) ( $response['success'] ?? false ),
-            'A policy decision of "no refund due" is a normal outcome, not a failure. '
-                . 'Raw: ' . $this->_last_response
-        );
-        $this->assertStringContainsString(
-            'cancellation policy',
-            (string) ( $response['data']['message'] ?? '' ),
-            'The deadline exists and has passed, so the cancellation-policy sentence is the true one.'
-        );
-        $this->assertNotContains(
-            'refund_processed',
-            $this->log_actions($booking_id),
-            'Nothing was refunded; the audit trail must not say a refund was processed.'
-        );
-        $this->assertContains(
-            'refund_skipped',
-            $this->log_actions($booking_id),
-            'The skip is still an event worth recording -- under its own name, with its reason.'
-        );
+        $this->assertTrue((bool) ( $response['success'] ?? false ), 'Raw: ' . $this->_last_response);
+        $this->assertStringNotContainsString('cancellation policy', (string) ( $response['data']['message'] ?? '' ));
         $this->assertSame(
-            '',
-            (string) get_post_meta($booking_id, '_mhmrentiva_refunded_amount', true),
-            'A booking owed nothing back must not record a refunded amount.'
+            (int) Money::toMinor('500'),
+            (int) get_post_meta($booking_id, '_mhmrentiva_refunded_amount', true),
+            'Pickup is a month away; the whole refundable balance is owed back.'
+        );
+        $this->assertNotContains('refund_skipped', $this->log_actions($booking_id));
+    }
+
+    /**
+     * The same question one step later: an operator cancellation past the
+     * pickup-based deadline is forced through ($force = true), and the
+     * cancellation's own refund (settle_refund()) refunds the balance in
+     * full. The manual retry of that same refund must not answer
+     * differently from the automatic one. RED before the fix whenever the
+     * stored deadline had passed.
+     */
+    public function test_a_retry_after_a_late_operator_cancellation_refunds_like_the_cancellation_did(): void
+    {
+        $booking_id = $this->make_full_payment_booking('500');
+        update_post_meta($booking_id, '_mhmrentiva_pickup_date', gmdate('Y-m-d', strtotime('-1 day')));
+        update_post_meta(
+            $booking_id,
+            '_mhmrentiva_cancellation_deadline',
+            gmdate('Y-m-d H:i:s', strtotime('-3 days'))
+        );
+
+        $response = $this->call_refund($booking_id);
+
+        $this->assertTrue((bool) ( $response['success'] ?? false ), 'Raw: ' . $this->_last_response);
+        $this->assertSame(
+            (int) Money::toMinor('500'),
+            (int) get_post_meta($booking_id, '_mhmrentiva_refunded_amount', true)
         );
     }
 
