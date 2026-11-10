@@ -104,4 +104,35 @@ final class CancellationDeadlineHasOneSourceTest extends WP_UnitTestCase
 		$this->assertStringNotContainsString('This booking can be cancelled.', $cancelled_html);
 		$this->assertStringNotContainsString('Cancellation period expired.', $cancelled_html);
 	}
+
+	/**
+	 * The sibling sentence in the same box: an expired payment deadline on a
+	 * cancelled booking said "Payment period expired. Booking can be
+	 * cancelled." (measured on 10595, 2026-11-10). The deadline line stays;
+	 * the sentence appears only on an open booking.
+	 */
+	public function test_an_expired_payment_deadline_offers_cancellation_only_on_an_open_booking(): void
+	{
+		$booking_id = (int) self::factory()->post->create(array(
+			'post_type'   => 'mhmrentiva_booking',
+			'post_status' => 'publish',
+		));
+		update_post_meta($booking_id, '_mhmrentiva_payment_type', 'deposit');
+		update_post_meta($booking_id, '_mhmrentiva_payment_status', 'pending');
+		update_post_meta($booking_id, '_mhmrentiva_payment_deadline', gmdate('Y-m-d H:i:s', strtotime('-1 hour')));
+
+		$render = static function () use ($booking_id): string {
+			ob_start();
+			BookingDepositMetaBox::render_deposit_management(get_post($booking_id));
+			return (string) ob_get_clean();
+		};
+
+		update_post_meta($booking_id, '_mhmrentiva_status', 'pending');
+		$this->assertStringContainsString('Payment period expired. Booking can be cancelled.', $render());
+
+		update_post_meta($booking_id, '_mhmrentiva_status', 'cancelled');
+		$cancelled_html = $render();
+		$this->assertStringContainsString('payment-deadline-section', $cancelled_html);
+		$this->assertStringNotContainsString('Payment period expired. Booking can be cancelled.', $cancelled_html);
+	}
 }

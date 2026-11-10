@@ -287,18 +287,19 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		echo '</div>';
 		echo '</div>';
 
+		// Both deadline sections below end in a sentence that only an open
+		// booking can be asked ("can be cancelled", "period expired, can be
+		// cancelled"). A cancelled, completed or refunded booking keeps the
+		// deadline lines and drops the sentences: both were measured on a
+		// cancelled booking, 10595 (2026-11-10).
+		$is_open = ! in_array( Status::get( $post->ID ), array( Status::CANCELLED, Status::COMPLETED, Status::REFUNDED ), true );
+
 		// Cancellation policy
 		if ( null !== $cancellation_deadline ) {
 			echo '<div class="cancellation-policy-section">';
 			echo '<h4>' . esc_html__( 'Cancellation Policy', 'mhm-rentiva' ) . '</h4>';
 			echo '<p><strong>' . esc_html__( 'Cancellation Deadline:', 'mhm-rentiva' ) . '</strong> ' . esc_html( wp_date( 'd.m.Y H:i', $cancellation_deadline ) ) . '</p>';
 
-			// The sentence answers "can the customer still cancel?", which
-			// only an open booking can be asked. A cancelled, completed or
-			// refunded booking keeps the deadline line and drops the
-			// sentence: "This booking can be cancelled." on a cancelled
-			// booking was measured on 10595 (2026-11-10).
-			$is_open = ! in_array( Status::get( $post->ID ), array( Status::CANCELLED, Status::COMPLETED, Status::REFUNDED ), true );
 			if ( $is_open && $cancellation_info['can_cancel'] ) {
 				echo '<p class="cancellation-available">' . esc_html__( 'This booking can be cancelled.', 'mhm-rentiva' ) . '</p>';
 			} elseif ( $is_open ) {
@@ -315,7 +316,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 
 			$now      = time();
 			$deadline = strtotime( $payment_deadline . ' UTC' );
-			if ( $now > $deadline && $payment_status !== 'paid' ) {
+			if ( $is_open && $now > $deadline && $payment_status !== 'paid' ) {
 				echo '<p class="payment-expired">' . esc_html__( 'Payment period expired. Booking can be cancelled.', 'mhm-rentiva' ) . '</p>';
 			}
 			echo '</div>';
