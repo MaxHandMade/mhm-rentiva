@@ -453,6 +453,7 @@ src/Admin/Privacy/BookingEraser.php
 src/Admin/Privacy/BookingExporter.php
 src/Admin/Privacy/BookingMatcher.php
 src/Admin/Privacy/BookingState.php
+src/Admin/Privacy/ConsentState.php
 src/Admin/Privacy/ContactPersonalData.php
 src/Admin/Privacy/EmailLogPersonalData.php
 src/Admin/Privacy/EmailMatch.php

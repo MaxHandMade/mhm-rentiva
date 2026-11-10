@@ -217,6 +217,7 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 * Changed: payment history shows the car name, the amount actually paid, and the right status for a paid booking.
 * Fixed: the free-cancellation deadline used the wrong pickup time on bookings created by hand.
 * Fixed: Payment Management refunds no longer refused a day after booking.
+* Changed: in My Account's privacy controls, "Withdraw Consent" appears only once the customer has given consent.
 * Fixed: "Clear all favorites" no longer shows an error message before it runs.
 * Security: the REST nonce is no longer printed on every page. It is printed on My Account pages, on pages with the My bookings or Payment history shortcode and on pages with the search form.
 * Note for themes: a theme that overrides templates/account/*.php keeps its old markup and may look unstyled, because the old account stylesheets no longer load on these pages. A theme that overrides WooCommerce's myaccount/dashboard.php keeps its own.

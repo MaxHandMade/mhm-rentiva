@@ -104,7 +104,9 @@ $root_class = 'rvs-account mhm-rentiva-account-page' . ( $is_integrated ? ' mhm-
 			<p class="rvs-account__sub"><?php esc_html_e('Manage your personal data and privacy settings', 'mhm-rentiva'); ?></p>
 			<div class="rvs-account__actions">
 				<button type="button" id="export-data" class="rvs-btn rvs-btn--secondary"><?php esc_html_e('Request Data Export', 'mhm-rentiva'); ?></button>
-				<button type="button" id="withdraw-consent" class="rvs-btn rvs-btn--secondary"><?php esc_html_e('Withdraw Consent', 'mhm-rentiva'); ?></button>
+				<?php if (\MHMRentiva\Admin\Privacy\ConsentState::is_given(get_current_user_id())) : ?>
+					<button type="button" id="withdraw-consent" class="rvs-btn rvs-btn--secondary"><?php esc_html_e('Withdraw Consent', 'mhm-rentiva'); ?></button>
+				<?php endif; ?>
 				<button type="button" id="delete-account" class="rvs-btn rvs-btn--secondary rvs-account-privacy__danger"><?php esc_html_e('Request Data Erasure', 'mhm-rentiva'); ?></button>
 			</div>
 		</section>
