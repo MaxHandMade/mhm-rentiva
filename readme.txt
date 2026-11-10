@@ -224,10 +224,6 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 * Changed: My bookings is ordered within each section: Upcoming soonest pickup first, Past and Cancelled latest first. Saved blocks and widgets that used the old default order follow it too. The new "Automatic" order option is the default; an order chosen explicitly still applies.
 * Removed: three unregistered dashboard options no settings screen wrote are no longer read.
 
-= 6.3.1 =
-* Fixed: pages built with Elementor are found, so "Book now" buttons and other links no longer fall back to the home page and Shortcode Pages no longer lists them as missing. A page with the shortcode or block in its content still wins. On Elementor sites whose vehicle-details page is now found, vehicle pages move under that page, with a 301 from /vehicle/...
-* Fixed: translation tokens in notices are written {key}, which WordPress.org's translation checks accept; the Turkish catalogue uses translate.wordpress.org's plural formula.
-
 == Upgrade Notice ==
 
 = 6.4.0 =
