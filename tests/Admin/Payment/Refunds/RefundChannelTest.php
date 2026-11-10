@@ -101,13 +101,15 @@ final class RefundChannelTest extends WP_UnitTestCase
         );
 
         $this->assertIsString($source);
-        $this->assertStringNotContainsString(
-            "'_mhmrentiva_payment_gateway'       => '',",
+        // Whitespace-insensitive: array alignment moves whenever the longest
+        // key in that array changes (it did in #20, 2026-11-10).
+        $this->assertDoesNotMatchRegularExpression(
+            "/'_mhmrentiva_payment_gateway'\s*=>\s*'',/",
             $source,
             'ManualBookingMetaBox must not seed the gateway meta with an empty string.'
         );
-        $this->assertStringContainsString(
-            "'_mhmrentiva_payment_gateway'       => 'offline',",
+        $this->assertMatchesRegularExpression(
+            "/'_mhmrentiva_payment_gateway'\s*=>\s*'offline',/",
             $source
         );
     }

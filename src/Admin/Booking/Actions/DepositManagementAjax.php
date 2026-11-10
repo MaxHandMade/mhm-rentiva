@@ -382,37 +382,17 @@ final class DepositManagementAjax {
 		// one that now needs Money::toMajor().
 		$refund_amount = PaymentState::forBooking( $booking_id )->refundable();
 
-		// Cancellation policy check. Unchanged in intent: past the deadline
-		// nothing is owed back, otherwise the whole amount is. Only the meaning
-		// of "the whole amount" moved, from the deposit to the balance.
-		$cancellation_deadline = get_post_meta( $booking_id, '_mhmrentiva_cancellation_deadline', true );
-
-		if ( $cancellation_deadline && time() > strtotime( $cancellation_deadline . ' UTC' ) ) {
-			$refund_amount = 0;
-		}
-
-		// Policy says nothing is owed back: nothing to attempt, nothing to
-		// change. The gate above already proved refundable() > 0, so an expired
-		// deadline is the only way to reach this -- which is why the message
-		// can name the policy honestly. It could not before: a zero deposit
-		// arrived here too and got the same sentence on bookings that had no
-		// cancellation deadline at all.
-		if ( $refund_amount <= 0 ) {
-			self::add_booking_log(
-				$booking_id,
-				'refund_skipped',
-				array(
-					'reason'       => 'cancellation_policy',
-					'processed_by' => get_current_user_id(),
-				)
-			);
-
-			wp_send_json_success(
-				array(
-					'message' => __( 'Refund not processed due to cancellation policy.', 'mhm-rentiva' ),
-				)
-			);
-		}
+		// No deadline check here (customer-eye round #20, 2026-11-10). The
+		// cancellation policy is enforced at the cancellation gate --
+		// CancellationHandler::check_cancellation_deadline(), counted from
+		// pickup -- and this screen only refunds bookings that are already
+		// cancelled. The cancellation's own refund (settle_refund()) pays the
+		// whole refundable balance with no deadline of its own, so this
+		// button, which completes or retries that same refund, must not
+		// answer differently. It used to zero the refund once
+		// the stored cancellation-deadline meta had passed -- one every writer
+		// set to "booking time + 24 h", so a booking with pickup weeks away
+		// was refunded nothing a day after it was made.
 
 		// Hand the actual refund to the refund service.
 		//

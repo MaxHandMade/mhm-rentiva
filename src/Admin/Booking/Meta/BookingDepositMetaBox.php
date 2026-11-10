@@ -179,15 +179,18 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 
 	public static function render_deposit_management( \WP_Post $post ): void {
 		// Fetch deposit details
-		$payment_type          = get_post_meta( $post->ID, '_mhmrentiva_payment_type', true );
-		$payment_method        = get_post_meta( $post->ID, '_mhmrentiva_payment_method', true );
-		$deposit_amount        = floatval( get_post_meta( $post->ID, '_mhmrentiva_deposit_amount', true ) );
-		$total_amount          = floatval( get_post_meta( $post->ID, '_mhmrentiva_total_price', true ) );
-		$remaining_amount      = floatval( get_post_meta( $post->ID, '_mhmrentiva_remaining_amount', true ) );
-		$deposit_type          = get_post_meta( $post->ID, '_mhmrentiva_deposit_type', true );
-		$payment_display       = get_post_meta( $post->ID, '_mhmrentiva_payment_display', true );
-		$cancellation_policy   = get_post_meta( $post->ID, '_mhmrentiva_cancellation_policy', true );
-		$cancellation_deadline = get_post_meta( $post->ID, '_mhmrentiva_cancellation_deadline', true );
+		$payment_type     = get_post_meta( $post->ID, '_mhmrentiva_payment_type', true );
+		$payment_method   = get_post_meta( $post->ID, '_mhmrentiva_payment_method', true );
+		$deposit_amount   = floatval( get_post_meta( $post->ID, '_mhmrentiva_deposit_amount', true ) );
+		$total_amount     = floatval( get_post_meta( $post->ID, '_mhmrentiva_total_price', true ) );
+		$remaining_amount = floatval( get_post_meta( $post->ID, '_mhmrentiva_remaining_amount', true ) );
+		$deposit_type     = get_post_meta( $post->ID, '_mhmrentiva_deposit_type', true );
+		$payment_display  = get_post_meta( $post->ID, '_mhmrentiva_payment_display', true );
+		// The deadline the customer is shown and refused by, from pickup
+		// (CancellationHandler::deadline_moment()). The stored meta this read
+		// was "booking time + 24 h" and no longer exists (#20, 2026-11-10).
+		$cancellation_info     = \MHMRentiva\Admin\Booking\Helpers\CancellationHandler::get_cancellation_info( $post->ID );
+		$cancellation_deadline = $cancellation_info['deadline_ts'];
 		$payment_deadline      = get_post_meta( $post->ID, '_mhmrentiva_payment_deadline', true );
 
 		// Booking/payment status
@@ -284,17 +287,22 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		echo '</div>';
 		echo '</div>';
 
+		// Both deadline sections below end in a sentence that only an open
+		// booking can be asked ("can be cancelled", "period expired, can be
+		// cancelled"). A cancelled, completed or refunded booking keeps the
+		// deadline lines and drops the sentences: both were measured on a
+		// cancelled booking, 10595 (2026-11-10).
+		$is_open = ! in_array( Status::get( $post->ID ), array( Status::CANCELLED, Status::COMPLETED, Status::REFUNDED ), true );
+
 		// Cancellation policy
-		if ( $cancellation_policy && $cancellation_deadline ) {
+		if ( null !== $cancellation_deadline ) {
 			echo '<div class="cancellation-policy-section">';
 			echo '<h4>' . esc_html__( 'Cancellation Policy', 'mhm-rentiva' ) . '</h4>';
-			echo '<p><strong>' . esc_html__( 'Cancellation Deadline:', 'mhm-rentiva' ) . '</strong> ' . esc_html( get_date_from_gmt( $cancellation_deadline, 'd.m.Y H:i' ) ) . '</p>';
+			echo '<p><strong>' . esc_html__( 'Cancellation Deadline:', 'mhm-rentiva' ) . '</strong> ' . esc_html( wp_date( 'd.m.Y H:i', $cancellation_deadline ) ) . '</p>';
 
-			$now      = time();
-			$deadline = strtotime( $cancellation_deadline . ' UTC' );
-			if ( $now < $deadline ) {
+			if ( $is_open && $cancellation_info['can_cancel'] ) {
 				echo '<p class="cancellation-available">' . esc_html__( 'This booking can be cancelled.', 'mhm-rentiva' ) . '</p>';
-			} else {
+			} elseif ( $is_open ) {
 				echo '<p class="cancellation-expired">' . esc_html__( 'Cancellation period expired.', 'mhm-rentiva' ) . '</p>';
 			}
 			echo '</div>';
@@ -308,7 +316,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 
 			$now      = time();
 			$deadline = strtotime( $payment_deadline . ' UTC' );
-			if ( $now > $deadline && $payment_status !== 'paid' ) {
+			if ( $is_open && $now > $deadline && $payment_status !== 'paid' ) {
 				echo '<p class="payment-expired">' . esc_html__( 'Payment period expired. Booking can be cancelled.', 'mhm-rentiva' ) . '</p>';
 			}
 			echo '</div>';

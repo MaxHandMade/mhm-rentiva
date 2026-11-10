@@ -152,36 +152,8 @@ final class RefundGoesThroughGatewayTest extends WP_Ajax_UnitTestCase
 		);
 	}
 
-	/**
-	 * Negative control for the policy branch, which must keep working and must
-	 * not be turned into an error by the new failure path: past the cancellation
-	 * deadline the policy grants nothing, so there is no refund to attempt and
-	 * the handler still reports the (unchanged) outcome rather than failing.
-	 *
-	 * The offline balance below is not decoration. Before the surface round
-	 * this fixture had no money on record at all, so the policy branch was
-	 * never reached -- the handler refused it for having nothing to refund and
-	 * the test passed anyway, measuring the wrong branch. The policy can only
-	 * deny a refund that would otherwise happen.
-	 */
-	public function test_policy_denied_refund_still_reports_without_touching_state(): void
-	{
-		// 500 collected offline and still refundable, so the deadline below is
-		// genuinely what denies the refund.
-		update_post_meta($this->booking_id, '_mhmrentiva_total_price', '500');
-		update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
-		update_post_meta($this->booking_id, '_mhmrentiva_cancellation_deadline', gmdate('Y-m-d H:i:s', strtotime('-2 days')));
-
-		$response = $this->call_refund();
-
-		$this->assertTrue(
-			(bool) ( $response['success'] ?? false ),
-			'A policy decision of "no refund due" is a normal outcome, not a failure. Raw: ' . $this->_last_response
-		);
-		$this->assertSame(
-			'paid',
-			(string) get_post_meta($this->booking_id, '_mhmrentiva_payment_status', true),
-			'A booking owed nothing back must not be marked refunded.'
-		);
-	}
+	// The policy branch this file used to hold a negative control for is gone
+	// (customer-eye round #20, 2026-11-10): the deadline is enforced at the
+	// cancellation gate, not by this handler. RefundAmountComesFromStateTest
+	// now asserts the opposite -- a passed stored deadline refunds in full.
 }
