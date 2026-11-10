@@ -269,12 +269,100 @@ final class BookingAnonymizer {
 	 * @return void
 	 */
 	private static function write_cancellation( int $booking_id ): void {
-		$data = get_post_meta( $booking_id, '_mhmrentiva_cancellation_data', true );
+		self::rewrite_rows( 'post', $booking_id, '_mhmrentiva_cancellation_data', array( self::class, 'anonymous_cancellation' ) );
+	}
+
+	/**
+	 * The anonymous form of one cancellation record.
+	 *
+	 * @param mixed $data Stored value.
+	 * @return array<string, mixed>|null Null when the row needs no change.
+	 */
+	private static function anonymous_cancellation( $data ): ?array {
 		if ( ! is_array( $data ) || array() === array_intersect( self::CANCELLATION_DROP, array_keys( $data ) ) ) {
-			return;
+			return null;
 		}
 
-		update_post_meta( $booking_id, '_mhmrentiva_cancellation_data', array_diff_key( $data, array_flip( self::CANCELLATION_DROP ) ) );
+		return array_diff_key( $data, array_flip( self::CANCELLATION_DROP ) );
+	}
+
+	/**
+	 * Every row of a meta key, by meta ID, oldest first, read from the table.
+	 *
+	 * A key can be stored more than once; get_*_meta( ..., true ) sees only the
+	 * first row, so a second row would keep the person's data (Codex r6).
+	 *
+	 * @param string $type      'post' or 'order_item'.
+	 * @param int    $object_id Post or order item ID.
+	 * @param string $key       Meta key.
+	 * @return array<int, mixed> meta_id => unserialised value.
+	 */
+	private static function rows( string $type, int $object_id, string $key ): array {
+		global $wpdb;
+
+		if ( 'order_item' === $type ) {
+			$table  = $wpdb->prefix . 'woocommerce_order_itemmeta';
+			$column = 'order_item_id';
+		} else {
+			$table  = $wpdb->postmeta;
+			$column = 'post_id';
+		}
+
+		$found = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- an erasure must not read a cache.
+			$wpdb->prepare(
+				"SELECT meta_id, meta_value FROM {$table} WHERE {$column} = %d AND meta_key = %s ORDER BY meta_id ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- core table and column names.
+				$object_id,
+				$key
+			)
+		);
+
+		$rows = array();
+		foreach ( (array) $found as $row ) {
+			$rows[ (int) $row->meta_id ] = maybe_unserialize( $row->meta_value );
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Rewrite each row of a meta key with its anonymous form, row by row.
+	 *
+	 * update_metadata_by_mid() writes one row and does not unslash, so a kept
+	 * backslash stays as it was stored.
+	 *
+	 * @param string   $type      'post' or 'order_item'.
+	 * @param int      $object_id Post or order item ID.
+	 * @param string   $key       Meta key.
+	 * @param callable $clean     value => anonymous value, or null for "no change".
+	 * @return void
+	 */
+	private static function rewrite_rows( string $type, int $object_id, string $key, callable $clean ): void {
+		foreach ( self::rows( $type, $object_id, $key ) as $meta_id => $value ) {
+			$new = $clean( $value );
+			if ( null !== $new && $new !== $value ) {
+				update_metadata_by_mid( $type, $meta_id, $new );
+			}
+		}
+	}
+
+	/**
+	 * Whether some row of a meta key still differs from its anonymous form.
+	 *
+	 * @param string   $type      'post' or 'order_item'.
+	 * @param int      $object_id Post or order item ID.
+	 * @param string   $key       Meta key.
+	 * @param callable $clean     value => anonymous value, or null for "no change".
+	 * @return bool
+	 */
+	private static function some_row_left( string $type, int $object_id, string $key, callable $clean ): bool {
+		foreach ( self::rows( $type, $object_id, $key ) as $value ) {
+			$new = $clean( $value );
+			if ( null !== $new && $new !== $value ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -301,7 +389,7 @@ final class BookingAnonymizer {
 			}
 			wp_delete_attachment( $attachment, true );
 		}
-		if ( $attachment > 0 && get_post( $attachment ) instanceof \WP_Post ) {
+		if ( $attachment > 0 && ( get_post( $attachment ) instanceof \WP_Post || self::attachment_meta_left( $attachment ) ) ) {
 			return; // Keep the link so verify() reports the receipt as left.
 		}
 
@@ -311,8 +399,22 @@ final class BookingAnonymizer {
 	}
 
 	/**
+	 * Whether rows of the attachment's postmeta outlived its post: they name
+	 * the file, so the booking keeps its link until they are gone.
+	 *
+	 * @param int $attachment Attachment ID.
+	 * @return bool
+	 */
+	private static function attachment_meta_left( int $attachment ): bool {
+		global $wpdb;
+
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE post_id = %d", $attachment ) ) > 0; // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- an erasure must not read a cache.
+	}
+
+	/**
 	 * Every file an attachment owns: the attached file, the pre-scaling
-	 * original and each generated size, read before anything is deleted.
+	 * original, each generated size and the pre-edit backups, read before
+	 * anything is deleted.
 	 *
 	 * @param int $attachment Attachment ID.
 	 * @return string[] Absolute paths.
@@ -330,6 +432,15 @@ final class BookingAnonymizer {
 				$files[] = $dir . '/' . wp_basename( $original );
 			}
 			foreach ( (array) ( $meta['sizes'] ?? array() ) as $size ) {
+				if ( is_array( $size ) && ! empty( $size['file'] ) ) {
+					$files[] = $dir . '/' . wp_basename( (string) $size['file'] );
+				}
+			}
+		}
+		if ( '' !== $main ) {
+			// An edited image keeps its pre-edit files here (core image editor).
+			$dir = dirname( $main );
+			foreach ( (array) get_post_meta( $attachment, '_wp_attachment_backup_sizes', true ) as $size ) {
 				if ( is_array( $size ) && ! empty( $size['file'] ) ) {
 					$files[] = $dir . '/' . wp_basename( (string) $size['file'] );
 				}
@@ -375,11 +486,7 @@ final class BookingAnonymizer {
 	 * @return void
 	 */
 	private static function write_history( int $booking_id ): void {
-		$history = get_post_meta( $booking_id, '_mhmrentiva_booking_history', true );
-		$clean   = self::anonymous_history( $history );
-		if ( null !== $clean && $clean !== $history ) {
-			update_post_meta( $booking_id, '_mhmrentiva_booking_history', $clean );
-		}
+		self::rewrite_rows( 'post', $booking_id, '_mhmrentiva_booking_history', array( self::class, 'anonymous_history' ) );
 	}
 
 	/**
@@ -418,11 +525,7 @@ final class BookingAnonymizer {
 	 * @return void
 	 */
 	private static function write_logs( int $booking_id ): void {
-		$logs  = get_post_meta( $booking_id, '_mhmrentiva_booking_logs', true );
-		$clean = self::anonymous_logs( $logs );
-		if ( null !== $clean && $clean !== $logs ) {
-			update_post_meta( $booking_id, '_mhmrentiva_booking_logs', $clean );
-		}
+		self::rewrite_rows( 'post', $booking_id, '_mhmrentiva_booking_logs', array( self::class, 'anonymous_logs' ) );
 	}
 
 	/**
@@ -453,22 +556,45 @@ final class BookingAnonymizer {
 
 		$with_snapshot = array();
 		foreach ( self::linked_item_ids( $booking_id ) as $item_id ) {
-			$raw = wc_get_order_item_meta( $item_id, self::SNAPSHOT_KEY, true );
-			if ( '' === $raw || null === $raw || false === $raw ) {
+			$rows = array_filter( self::rows( 'order_item', $item_id, self::SNAPSHOT_KEY ), array( self::class, 'is_stored' ) );
+			if ( array() === $rows ) {
 				continue;
 			}
 			$with_snapshot[] = $item_id;
-			$snapshot        = self::decode_snapshot( $raw );
-			if ( null === $snapshot ) {
-				continue; // verify() reports it.
-			}
-			$clean = self::anonymous_snapshot( $snapshot );
-			if ( $clean !== $snapshot || ! is_array( $raw ) ) {
-				wc_update_order_item_meta( $item_id, self::SNAPSHOT_KEY, $clean );
-			}
+			self::rewrite_rows( 'order_item', $item_id, self::SNAPSHOT_KEY, array( self::class, 'snapshot_row' ) );
 		}
 
 		return $with_snapshot;
+	}
+
+	/**
+	 * Whether a stored row holds anything (an empty snapshot row is no copy).
+	 *
+	 * @param mixed $raw Stored value.
+	 * @return bool
+	 */
+	private static function is_stored( $raw ): bool {
+		return '' !== $raw && null !== $raw && false !== $raw;
+	}
+
+	/**
+	 * The anonymous form of one stored snapshot row.
+	 *
+	 * An older serialised-string row is written back as an array even when its
+	 * fields are already anonymous; an empty or undecodable row is left for
+	 * verify() to judge.
+	 *
+	 * @param mixed $raw Stored value.
+	 * @return array<string, mixed>|null
+	 */
+	private static function snapshot_row( $raw ): ?array {
+		$snapshot = self::decode_snapshot( $raw );
+		if ( null === $snapshot ) {
+			return null;
+		}
+		$clean = self::anonymous_snapshot( $snapshot );
+
+		return ( $clean !== $snapshot || ! is_array( $raw ) ) ? $clean : null;
 	}
 
 	/**
@@ -537,8 +663,7 @@ final class BookingAnonymizer {
 			$left[] = 'post_author';
 		}
 
-		$cancellation = get_post_meta( $booking_id, '_mhmrentiva_cancellation_data', true );
-		if ( is_array( $cancellation ) && array() !== array_intersect( self::CANCELLATION_DROP, array_keys( $cancellation ) ) ) {
+		if ( self::some_row_left( 'post', $booking_id, '_mhmrentiva_cancellation_data', array( self::class, 'anonymous_cancellation' ) ) ) {
 			$left[] = 'cancellation';
 		}
 
@@ -549,12 +674,10 @@ final class BookingAnonymizer {
 			}
 		}
 
-		$history = get_post_meta( $booking_id, '_mhmrentiva_booking_history', true );
-		if ( is_array( $history ) && self::anonymous_history( $history ) !== $history ) {
+		if ( self::some_row_left( 'post', $booking_id, '_mhmrentiva_booking_history', array( self::class, 'anonymous_history' ) ) ) {
 			$left[] = 'history';
 		}
-		$logs = get_post_meta( $booking_id, '_mhmrentiva_booking_logs', true );
-		if ( is_array( $logs ) && self::anonymous_logs( $logs ) !== $logs ) {
+		if ( self::some_row_left( 'post', $booking_id, '_mhmrentiva_booking_logs', array( self::class, 'anonymous_logs' ) ) ) {
 			$left[] = 'logs';
 		}
 
@@ -563,9 +686,12 @@ final class BookingAnonymizer {
 				$left[] = 'order_snapshot:' . $item_id . ' (WooCommerce inactive)';
 				continue;
 			}
-			$snapshot = self::decode_snapshot( wc_get_order_item_meta( $item_id, self::SNAPSHOT_KEY, true ) );
-			if ( null === $snapshot || self::anonymous_snapshot( $snapshot ) !== $snapshot ) {
-				$left[] = 'order_snapshot:' . $item_id;
+			foreach ( array_filter( self::rows( 'order_item', $item_id, self::SNAPSHOT_KEY ), array( self::class, 'is_stored' ) ) as $raw ) {
+				$snapshot = self::decode_snapshot( $raw );
+				if ( null === $snapshot || self::anonymous_snapshot( $snapshot ) !== $snapshot ) {
+					$left[] = 'order_snapshot:' . $item_id;
+					break;
+				}
 			}
 		}
 

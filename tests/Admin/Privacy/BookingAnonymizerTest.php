@@ -345,6 +345,87 @@ final class BookingAnonymizerTest extends WP_UnitTestCase
 		wp_delete_file($upload['file']);
 	}
 
+	/**
+	 * A second meta row of the same key can hold the person's data while the
+	 * first is clean (Codex r6): every row is rewritten and checked.
+	 */
+	public function test_every_row_of_history_cancellation_and_logs_is_cleaned(): void
+	{
+		$id = $this->closed_guest();
+		add_post_meta($id, '_mhmrentiva_booking_history', array('1-a' => array('type' => 'status_change', 'note' => 'ok', 'status_to' => 'completed', 'user_id' => 0, 'timestamp' => 1)));
+		add_post_meta($id, '_mhmrentiva_booking_history', array('2-b' => array('type' => 'note', 'note' => 'Called Ahmet', 'user_id' => 3, 'timestamp' => 2)));
+		add_post_meta($id, '_mhmrentiva_cancellation_data', array('cancelled_via' => 'admin'));
+		add_post_meta($id, '_mhmrentiva_cancellation_data', array('cancelled_via' => 'admin', 'cancellation_reason' => 'Ahmet asked'));
+		add_post_meta($id, '_mhmrentiva_booking_logs', array(array('action' => 'x', 'timestamp' => 't')));
+		add_post_meta($id, '_mhmrentiva_booking_logs', array(array('action' => 'y', 'timestamp' => 't', 'data' => array('reason' => 'Ahmet'))));
+
+		$this->assertSame(array(), BookingAnonymizer::anonymize($id, 0));
+
+		$all = (string) wp_json_encode(array(
+			get_post_meta($id, '_mhmrentiva_booking_history', false),
+			get_post_meta($id, '_mhmrentiva_cancellation_data', false),
+			get_post_meta($id, '_mhmrentiva_booking_logs', false),
+		));
+		$this->assertStringNotContainsString('Ahmet', $all);
+	}
+
+	/**
+	 * The meta API unslashes what it stores: a status note kept through the
+	 * rewrite keeps its backslash (the Pro "Fiat \ Egea" lesson).
+	 */
+	public function test_a_kept_history_note_keeps_its_backslash(): void
+	{
+		$id  = $this->closed_guest();
+		$row = array('1-a' => array('type' => 'status_change', 'note' => 'Status changed for Fiat \ Egea', 'status_to' => 'completed', 'user_id' => 3, 'timestamp' => 1));
+		update_post_meta($id, '_mhmrentiva_booking_history', wp_slash($row));
+		$this->assertSame($row, get_post_meta($id, '_mhmrentiva_booking_history', true), 'the fixture keeps the backslash');
+
+		$this->assertSame(array(), BookingAnonymizer::anonymize($id, 0));
+
+		$history = get_post_meta($id, '_mhmrentiva_booking_history', true);
+		$this->assertSame(0, $history['1-a']['user_id']);
+		$this->assertSame('Status changed for Fiat \ Egea', $history['1-a']['note']);
+	}
+
+	/**
+	 * An edited image keeps its pre-edit files under _wp_attachment_backup_sizes;
+	 * they are the person's receipt too (Codex r6).
+	 */
+	public function test_a_receipt_edit_backup_left_on_disk_keeps_the_link(): void
+	{
+		$upload     = wp_upload_bits('receipt-' . wp_generate_password(6, false) . '.png', null, 'png-bytes');
+		$attachment = (int) self::factory()->attachment->create_object($upload['file'], 0, array('post_mime_type' => 'image/png'));
+		$backup     = dirname($upload['file']) . '/' . pathinfo($upload['file'], PATHINFO_FILENAME) . '-e1700000000.png';
+		file_put_contents($backup, 'png-original');
+		update_post_meta($attachment, '_wp_attachment_backup_sizes', array('full-orig' => array('file' => basename($backup), 'width' => 10, 'height' => 10)));
+		$id   = $this->closed_guest(array('_mhmrentiva_receipt_attachment_id' => $attachment));
+		$keep = static fn($file) => (basename($file) === basename($backup)) ? '' : $file;
+		add_filter('wp_delete_file', $keep);
+
+		$left = BookingAnonymizer::anonymize($id, 0);
+
+		remove_filter('wp_delete_file', $keep);
+		$this->assertContains('receipt', $left);
+		$this->assertFileExists($backup);
+		$this->assertSame((string) $attachment, (string) get_post_meta($id, '_mhmrentiva_receipt_attachment_id', true));
+		wp_delete_file($backup);
+		wp_delete_file($upload['file']);
+	}
+
+	public function test_every_row_of_an_order_line_snapshot_is_cleaned(): void
+	{
+		$a     = $this->closed_guest();
+		$items = $this->order_with_lines(array($a => $this->snapshot('guest@example.test')));
+		wc_add_order_item_meta($items[ $a ], '_mhmrentiva_booking_data', array_merge($this->snapshot('guest@example.test'), array('total_price' => '999.00')));
+
+		$this->assertSame(array(), BookingAnonymizer::anonymize($a, 0));
+
+		$rows = (array) wc_get_order_item_meta($items[ $a ], '_mhmrentiva_booking_data', false);
+		$this->assertCount(2, $rows);
+		$this->assertStringNotContainsString('guest@example.test', (string) wp_json_encode($rows));
+		$this->assertSame(array('300.00', '999.00'), array_column($rows, 'total_price'), 'each row keeps its own amounts');
+	}
+
 	public function test_first_erased_timestamp_is_kept(): void
 	{
 		$id = $this->closed_guest();
