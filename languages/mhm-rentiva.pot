@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-09T22:45:55+00:00\n"
+"POT-Creation-Date: 2026-11-10T23:53:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -247,7 +247,7 @@ msgstr ""
 
 #: src/Admin/About/Tabs/GeneralTab.php:267
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:95
-#: src/Admin/Privacy/BookingExporter.php:103
+#: src/Admin/Privacy/BookingExporter.php:104
 #: src/Admin/Privacy/ContactPersonalData.php:188
 #: templates/admin/partials/booking-popup.php:56
 #: assets/blocks/my-favorites/index.js:49
@@ -701,9 +701,9 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountController.php:1123
 #: src/Admin/Frontend/Account/AccountController.php:1241
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:125
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1090
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1465
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1817
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1087
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1461
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1813
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:457
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:734
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:53
@@ -720,9 +720,9 @@ msgstr ""
 #: src/Admin/Booking/Actions/BookingActionGuard.php:93
 #: src/Admin/Booking/Actions/BookingApproveAjax.php:61
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:87
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:558
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:690
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:810
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:538
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:670
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:790
 msgid "You do not have permission for this action."
 msgstr ""
 
@@ -1089,8 +1089,8 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountController.php:757
 #: src/Admin/Frontend/Account/AccountController.php:1069
 #: src/Admin/Frontend/Account/AccountController.php:1300
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4560
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4619
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4559
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4618
 msgid "Invalid booking ID."
 msgstr ""
 
@@ -1154,7 +1154,7 @@ msgid "This booking cannot be cancelled."
 msgstr ""
 
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:336
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:752
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:732
 #: src/Admin/Booking/Meta/BookingEditCancellation.php:170
 msgid "Booking cancelled, but the refund could not be completed. See the refund status on this screen."
 msgstr ""
@@ -1171,33 +1171,29 @@ msgstr ""
 msgid "This booking has no refundable balance left."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:412
-msgid "Refund not processed due to cancellation policy."
-msgstr ""
-
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:437
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:417
 msgid "Refund issued from the deposit management screen."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:462
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:442
 msgid "Refund failed."
 msgstr ""
 
 #. translators: %s: refund amount.
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:491
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:471
 #, php-format
 msgid "A refund record was opened for %s. Close it with \"Confirm hand transfer\" once the money has been handed over."
 msgstr ""
 
 #. translators: %s placeholder.
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:499
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:479
 #, php-format
 msgid "Refund completed successfully. Refund amount: %s"
 msgstr ""
 
 #. translators: %d: minutes until an orphaned refund lock clears on its own.
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:582
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:848
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:562
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:828
 #: src/Admin/Payment/Refunds/Service.php:223
 #, php-format
 msgid "This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within %d minute."
@@ -1206,52 +1202,52 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: operator-supplied payment reference
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:623
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:641
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:603
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:621
 #, php-format
 msgid "Hand transfer of the refund confirmed. Reference: %s"
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:642
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:622
 msgid "Hand transfer of the refund confirmed."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:652
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:632
 msgid "This refund is not awaiting a hand transfer."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:655
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:635
 msgid "Hand transfer recorded."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:694
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:909
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:674
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:889
 msgid "This booking is not awaiting review."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:756
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:736
 msgid "Booking cancelled. No refund was found to process, so the review is still open."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:759
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:739
 msgid "Booking cancelled and the refund started."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:825
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:805
 msgid "Say why no refund is due. This closes a money obligation and the reason is the record of it."
 msgstr ""
 
 #. translators: %s: the operator's reason
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:898
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:878
 #, php-format
 msgid "Recorded that no refund is due. Reason: %s"
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:920
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:900
 msgid "Could not record this decision. Please refresh the page and try again."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:923
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:903
 msgid "Recorded: no refund is due."
 msgstr ""
 
@@ -1721,7 +1717,7 @@ msgstr ""
 #: src/Admin/Booking/Helpers/Util.php:370
 #: src/Admin/Booking/Helpers/Util.php:415
 #: src/Admin/Booking/Helpers/Util.php:427
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1334
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1331
 msgid "This vehicle is already booked for the selected dates. Please choose different dates or select another vehicle."
 msgstr ""
 
@@ -1756,7 +1752,7 @@ msgstr ""
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:494
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:548
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:982
-#: src/Admin/Privacy/BookingExporter.php:100
+#: src/Admin/Privacy/BookingExporter.php:101
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:211
 #: src/Admin/Vehicle/PostType/Vehicle.php:26
 #: templates/account/booking-summary.php:64
@@ -1773,7 +1769,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:279
 #: src/Admin/Booking/ListTable/BookingColumns.php:387
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:297
-#: src/Admin/Privacy/BookingExporter.php:109
+#: src/Admin/Privacy/BookingExporter.php:110
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:712
 #: templates/partials/rvs/breakdown.php:47
 #: src-react/admin/contact-messages/components/ContactStats.jsx:11
@@ -1783,13 +1779,13 @@ msgid "Total"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:280
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:246
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:249
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:340
 msgid "Deposit Amount"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:281
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:252
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:255
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:341
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:539
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:610
@@ -1807,7 +1803,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:290
 #: src/Admin/Booking/Meta/BookingMeta.php:382
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:723
-#: src/Admin/Privacy/BookingExporter.php:99
+#: src/Admin/Privacy/BookingExporter.php:100
 #: src/Admin/Setup/SetupWizard.php:235
 #: src/Admin/Setup/SetupWizard.php:277
 #: src/Admin/Setup/SetupWizard.php:546
@@ -1934,7 +1930,7 @@ msgid "All payment methods"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1085
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:232
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:235
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:108
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:715
 msgid "Offline"
@@ -2103,11 +2099,11 @@ msgstr ""
 msgid "Link copied to clipboard!"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:202
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:205
 msgid "This booking was created with the old system. Deposit system information is not available."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:215
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:218
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:705
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:530
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:601
@@ -2115,7 +2111,7 @@ msgstr ""
 msgid "Payment Type"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:218
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:221
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:241
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:708
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:626
@@ -2131,189 +2127,189 @@ msgstr ""
 msgid "Deposit"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:220
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:539
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:223
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:547
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:707
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:527
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:598
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1002
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3579
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3578
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:240
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:276
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:417
 msgid "Full Payment"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:227
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:230
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:713
 #: src/Admin/Utilities/ListTable/LogColumns.php:74
 #: templates/account/payment-history.php:70
 msgid "Payment Method"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:230
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:233
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:222
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:716
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:159
 msgid "Online"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:239
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:242
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:339
 msgid "Total Amount"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:261
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:264
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:236
 msgid "Rental Days"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:262
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:265
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:237
 #: templates/emails/booking-created-admin.html.php:50
 #: templates/emails/booking-created-customer.html.php:37
 msgid "days"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:269
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:272
 msgid "Deposit Type"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:278
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:281
 msgid "Payment Status"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:290
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:300
 msgid "Cancellation Policy"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:291
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:301
 msgid "Cancellation Deadline:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:296
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:304
 msgid "This booking can be cancelled."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:298
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:306
 msgid "Cancellation period expired."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:306
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:314
 msgid "Payment Deadline"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:307
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:315
 msgid "Deadline:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:312
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:320
 msgid "Payment period expired. Booking can be cancelled."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:331
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:339
 #: src/Admin/Frontend/Widgets/Elementor/PaymentHistoryWidget.php:35
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:57
 msgid "Payment History"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:339
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:347
 msgid "Booking Created"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:340
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:348
 msgid "Booking successfully created and deposit information saved."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:351
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:359
 msgid "Payment Received"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:352
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:360
 msgid "Deposit payment successfully received."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:359
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:367
 #: templates/emails/booking-created-admin.html.php:64
 msgid "Payment Pending"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:360
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:368
 msgid "Deposit payment not yet received."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:370
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:378
 msgid "Remaining Amount Payment"
 msgstr ""
 
 #. translators: %s: formatted price
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:372
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:380
 #, php-format
 msgid "Remaining amount: %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:378
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:386
 msgid "All Payments Completed"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:379
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:387
 msgid "Deposit and remaining amount payments completed."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:397
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:405
 msgid "Mark Payment Received"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:405
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:413
 msgid "Process Remaining Amount"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:411
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:419
 msgid "Send Payment Link"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:414
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:422
 msgid "The deposit was paid outside WooCommerce, so no payment link can be sent for the remaining balance; use \"Process Remaining Amount\" instead to record it as settled."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:446
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:454
 #: src/Admin/Settings/Groups/FrontendSettings.php:323
 msgid "Cancel Booking"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:450
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:458
 msgid "Cancelling starts the refund of the amount paid and sends the customer a notification."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:450
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:458
 msgid "Choosing Cancelled in the status list and pressing Update does the same."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:474
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:482
 msgid "Process Refund"
 msgstr ""
 
 #. translators: 1: deposit type label ("Percentage"), 2: the deposit rate, e.g. 10 or 12.5 -- place the percent sign as your language does.
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:531
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:539
 #, php-format
 msgctxt "deposit type with its rate"
 msgid "%1$s · %2$s%%"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:540
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:548
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:186
 msgid "Percentage"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:541
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:549
 msgid "Fixed Amount"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:542
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:550
 msgid "Both"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:543
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:551
 msgid "None"
 msgstr ""
 
@@ -2800,7 +2796,7 @@ msgid "Rentiva writes the status, payment and system rows itself."
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:910
-#: src/Admin/Privacy/BookingExporter.php:118
+#: src/Admin/Privacy/BookingExporter.php:119
 msgid "History"
 msgstr ""
 
@@ -3043,7 +3039,7 @@ msgid "Create Manual Booking"
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:219
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1252
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1251
 msgid "Booking created"
 msgstr ""
 
@@ -3107,7 +3103,7 @@ msgid "Vehicle Total"
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:239
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3987
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3986
 msgid "Add-ons"
 msgstr ""
 
@@ -3212,8 +3208,8 @@ msgstr ""
 #: src/Admin/Customers/CustomersPage.php:569
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:880
 #: src/Admin/Frontend/Shortcodes/ContactFormView.php:214
-#: src/Admin/Privacy/AccountPersonalData.php:63
-#: src/Admin/Privacy/BookingExporter.php:105
+#: src/Admin/Privacy/AccountPersonalData.php:72
+#: src/Admin/Privacy/BookingExporter.php:106
 #: src/Admin/Privacy/ContactPersonalData.php:190
 #: src/Admin/Settings/Groups/FrontendSettings.php:365
 #: templates/admin/partials/booking-popup.php:64
@@ -3254,8 +3250,8 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:824
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1123
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1360
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1569
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1357
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1565
 msgid "Price could not be calculated."
 msgstr ""
 
@@ -3295,19 +3291,19 @@ msgstr ""
 msgid "Manual Booking - %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1224
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1223
 msgid "This vehicle has just been booked for the selected dates."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1228
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1227
 msgid "Booking could not be created."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1273
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1272
 msgid "Booking created successfully."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1281
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1280
 msgid "Booking created successfully. The customer was sent an e-mail to set their password."
 msgstr ""
 
@@ -3499,7 +3495,7 @@ msgid "Removed from favorites."
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:663
-#: templates/partials/rvs-vehicle-card.php:160
+#: templates/partials/rvs-vehicle-card.php:163
 #: templates/partials/vehicle-card.php:111
 #: templates/partials/vehicle-card.php:112
 #: templates/partials/vehicle-card.php:124
@@ -4371,7 +4367,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1651
 #: src/Admin/Core/Assets/DatepickerAssets.php:422
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1946
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1942
 #: src/Blocks/BlockRegistry.php:254
 #: templates/admin/partials/booking-popup.php:40
 #: templates/partials/vehicle-details/booking-card.php:170
@@ -4413,7 +4409,7 @@ msgid "Submit"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1656
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1948
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1944
 #: templates/shortcodes/search-results.php:175
 #: templates/shortcodes/search-results.php:232
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:82
@@ -4468,133 +4464,133 @@ msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:391
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:540
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1950
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1946
 #: src/Blocks/BlockRegistry.php:256
 msgid "January"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:392
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:541
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1951
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1947
 #: src/Blocks/BlockRegistry.php:256
 msgid "February"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:393
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:542
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1952
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1948
 #: src/Blocks/BlockRegistry.php:256
 msgid "March"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:394
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:543
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1953
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1949
 #: src/Blocks/BlockRegistry.php:256
 msgid "April"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:395
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:544
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1954
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1968
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1950
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1964
 #: src/Blocks/BlockRegistry.php:256
 msgid "May"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:396
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:545
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1955
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1951
 #: src/Blocks/BlockRegistry.php:256
 msgid "June"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:397
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:546
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1956
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1952
 #: src/Blocks/BlockRegistry.php:256
 msgid "July"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:398
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:547
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1957
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1953
 #: src/Blocks/BlockRegistry.php:256
 msgid "August"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:399
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:548
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1958
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1954
 #: src/Blocks/BlockRegistry.php:256
 msgid "September"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:400
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:549
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1959
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1955
 #: src/Blocks/BlockRegistry.php:256
 msgid "October"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:401
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:550
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1960
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1956
 #: src/Blocks/BlockRegistry.php:256
 msgid "November"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:402
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:551
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1961
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1957
 #: src/Blocks/BlockRegistry.php:256
 msgid "December"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:423
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1947
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1943
 #: src/Blocks/BlockRegistry.php:255
 msgid "Today"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:425
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1996
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1992
 #: src/Blocks/BlockRegistry.php:257
 msgid "Su"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:426
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1997
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1993
 #: src/Blocks/BlockRegistry.php:257
 msgid "Mo"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:427
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1998
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1994
 #: src/Blocks/BlockRegistry.php:257
 msgid "Tu"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:428
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1999
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1995
 #: src/Blocks/BlockRegistry.php:257
 msgid "We"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:429
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:2000
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1996
 #: src/Blocks/BlockRegistry.php:257
 msgid "Th"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:430
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:2001
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1997
 #: src/Blocks/BlockRegistry.php:257
 msgid "Fr"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:431
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:2002
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1998
 #: src/Blocks/BlockRegistry.php:257
 msgid "Sa"
 msgstr ""
@@ -5074,7 +5070,7 @@ msgstr ""
 
 #: src/Admin/Core/SecurityHelper.php:372
 #: src/Admin/Core/SecurityHelper.php:405
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1245
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1242
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:329
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:416
 msgid "Invalid vehicle ID."
@@ -5849,7 +5845,7 @@ msgstr ""
 #: src/Admin/Customers/AddCustomerPage.php:170
 #: src/Admin/Customers/CustomersPage.php:374
 #: src/Admin/Customers/CustomersPage.php:574
-#: src/Admin/Privacy/AccountPersonalData.php:64
+#: src/Admin/Privacy/AccountPersonalData.php:73
 #: templates/account/account-details.php:123
 #: src-react/admin/customers/components/CustomerPanel.jsx:94
 msgid "Address"
@@ -6765,7 +6761,7 @@ msgid "No vehicles found"
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:506
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:464
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:500
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:297
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:208
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:433
@@ -7094,7 +7090,7 @@ msgid "Hide summary"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:303
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1418
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1414
 msgid "Redirecting to payment page..."
 msgstr ""
 
@@ -7223,169 +7219,169 @@ msgstr ""
 msgid "up to %d"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:744
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:741
 msgid "You must provide consent for data processing before making a booking. Please update your account settings."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:759
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:763
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:756
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:760
 msgid "I accept the terms of use and privacy policy."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1101
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1098
 msgid "Too many booking requests. Please wait 5 minutes."
 msgstr ""
 
 #. translators: %s: vehicle status
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1132
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1129
 #, php-format
 msgid "Selected vehicle is not available (Status: %s)."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1148
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1145
 msgid "Pickup time is required."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1224
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1561
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1221
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1557
 msgid "Invalid payment type."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1249
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1246
 msgid "Please select dates."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1260
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1257
 msgid "Please fill in contact information."
 msgstr ""
 
 #. translators: %s: error message
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1442
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1438
 #, php-format
 msgid "Payment gateway error: %s"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1448
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1444
 msgid "No payment gateway is available. Please contact the site administrator."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1483
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1479
 msgid "Too many price calculation requests. Please wait."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1835
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1831
 msgid "Too many availability checks. Please wait."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1864
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1860
 msgid "Invalid data."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1964
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1960
 msgid "Jan"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1965
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1961
 msgid "Feb"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1966
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1962
 msgid "Mar"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1967
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1963
 msgid "Apr"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1969
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1965
 msgid "Jun"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1970
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1966
 msgid "Jul"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1971
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1967
 msgid "Aug"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1972
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1968
 msgid "Sep"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1973
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1969
 msgid "Oct"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1974
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1970
 msgid "Nov"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1975
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1971
 msgid "Dec"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1978
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1974
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:334
 #: assets/blocks/availability-calendar/index.js:58
 msgid "Sunday"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1979
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1975
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:335
 #: assets/blocks/availability-calendar/index.js:57
 msgid "Monday"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1980
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1976
 msgid "Tuesday"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1981
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1977
 msgid "Wednesday"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1982
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1978
 msgid "Thursday"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1983
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1979
 msgid "Friday"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1984
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1980
 msgid "Saturday"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1987
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1983
 msgid "Sun"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1988
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1984
 msgid "Mon"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1989
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1985
 msgid "Tue"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1990
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1986
 msgid "Wed"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1991
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1987
 msgid "Thu"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1992
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1988
 msgid "Fri"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1993
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1989
 msgid "Sat"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:2004
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2000
 msgid "Wk"
 msgstr ""
 
@@ -7399,7 +7395,7 @@ msgid "Price on request"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/CalendarView.php:377
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:399
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:402
 msgid "per day"
 msgstr ""
 
@@ -7457,10 +7453,18 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of days, 2: formatted daily price.
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:389
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:391
 #, php-format
 msgid "%1$d day total · %2$s/day"
 msgid_plural "%1$d days total · %2$s/day"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: comma-separated service names, 2: formatted amount they add to the total.
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:476
+#, php-format
+msgid "Required service included: %1$s %2$s"
+msgid_plural "Required services included: %1$s %2$s"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -10287,7 +10291,7 @@ msgstr ""
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:527
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:598
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1001
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3559
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3558
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:275
 msgid "Deposit Payment"
 msgstr ""
@@ -10396,7 +10400,7 @@ msgid "Cash on delivery is not offered for rentals, and no other payment method 
 msgstr ""
 
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2703
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4144
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4143
 msgid "Invalid booking dates. Please try again."
 msgstr ""
 
@@ -10410,45 +10414,45 @@ msgstr ""
 msgid "Booking cancelled: Vehicle is not available for rental."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2973
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2972
 msgid "Booking created from WooCommerce order"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3004
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3003
 msgid "Booking cancelled: Vehicle already booked for selected dates."
 msgstr ""
 
 #. translators: 1: the WooCommerce order id that was cancelled/failed, 2: the booking id it belongs to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3200
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3199
 #, php-format
 msgid "Order #%1$d was cancelled/failed on booking #%2$d while a sibling order still holds paid money, but the notification e-mail could not be sent -- no one has been told a new payment link may be needed."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3323
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3322
 msgid "Booking completed — rental period ended."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3348
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3347
 msgid "Booking cancelled by customer."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3547
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3546
 msgid "Payment Options"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3561
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3560
 msgid "Pay deposit for booking, pay remaining amount at vehicle delivery"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3563
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3562
 msgid "Remaining:"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3580
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3579
 msgid "Pay full amount now"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3685
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3684
 #: src/Admin/Settings/APIKeysPage.php:81
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:29
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:52
@@ -10472,75 +10476,75 @@ msgstr ""
 msgid "Invalid security nonce."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3694
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3693
 msgid "Cart not available"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3790
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3789
 msgid "Booking not found in cart"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3806
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3805
 msgid "Payment type updated"
 msgstr ""
 
 #. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3994
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3993
 #, php-format
 msgid "Sorry, the vehicle \"%s\" is not available for rental. Please select another vehicle."
 msgstr ""
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4048
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4047
 #, php-format
 msgid "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates (%2$s - %3$s). Please select different dates or another vehicle."
 msgstr ""
 
 #. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4097
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4194
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4096
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4193
 #, php-format
 msgid "Sorry, booking for vehicle \"%s\" has been cancelled. Please select another vehicle."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4515
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4514
 #: src/Admin/Setup/SetupWizard.php:997
 msgid "WooCommerce"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4571
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4570
 msgid "Payment already processed by WooCommerce."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4589
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4588
 msgid "Redirecting to checkout..."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4596
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4595
 msgid "Failed to add booking to cart."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4612
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4611
 msgid "WooCommerce is not installed or activated."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4627
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4626
 msgid "Invalid payment amount."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4722
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4721
 msgid "City"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4723
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4722
 msgid "District / Neighborhood"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4860
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4859
 msgid "Return to Cart"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4893
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4892
 msgid "(incl. tax)"
 msgstr ""
 
@@ -10705,45 +10709,45 @@ msgstr ""
 msgid "Auto-complete skipped a booking: %s"
 msgstr ""
 
-#: src/Admin/Privacy/AccountPersonalData.php:65
-#: src/Admin/Privacy/AccountPersonalData.php:66
+#: src/Admin/Privacy/AccountPersonalData.php:74
+#: src/Admin/Privacy/AccountPersonalData.php:75
 msgid "Favourite vehicles"
 msgstr ""
 
-#: src/Admin/Privacy/AccountPersonalData.php:67
+#: src/Admin/Privacy/AccountPersonalData.php:76
 msgid "Vehicles to compare"
 msgstr ""
 
-#: src/Admin/Privacy/AccountPersonalData.php:68
+#: src/Admin/Privacy/AccountPersonalData.php:77
 msgid "Last login"
 msgstr ""
 
-#: src/Admin/Privacy/AccountPersonalData.php:69
+#: src/Admin/Privacy/AccountPersonalData.php:78
 msgid "Last activity"
 msgstr ""
 
-#: src/Admin/Privacy/AccountPersonalData.php:70
+#: src/Admin/Privacy/AccountPersonalData.php:79
 msgid "Welcome e-mail"
 msgstr ""
 
-#: src/Admin/Privacy/AccountPersonalData.php:71
+#: src/Admin/Privacy/AccountPersonalData.php:80
 msgid "Booking notifications"
 msgstr ""
 
-#: src/Admin/Privacy/AccountPersonalData.php:72
+#: src/Admin/Privacy/AccountPersonalData.php:81
 msgid "Marketing e-mails"
 msgstr ""
 
-#: src/Admin/Privacy/AccountPersonalData.php:73
+#: src/Admin/Privacy/AccountPersonalData.php:82
 msgid "Welcome e-mail sent"
 msgstr ""
 
-#: src/Admin/Privacy/AccountPersonalData.php:98
+#: src/Admin/Privacy/AccountPersonalData.php:107
 msgid "Rental account"
 msgstr ""
 
 #. translators: %s: internal meta key.
-#: src/Admin/Privacy/AccountPersonalData.php:136
+#: src/Admin/Privacy/AccountPersonalData.php:152
 #, php-format
 msgid "Account detail %s could not be erased."
 msgstr ""
@@ -10792,65 +10796,65 @@ msgstr ""
 msgid "The user account was not deleted; delete it from the Users screen if needed."
 msgstr ""
 
-#: src/Admin/Privacy/BookingExporter.php:98
+#: src/Admin/Privacy/BookingExporter.php:99
 msgid "Booking number"
 msgstr ""
 
-#: src/Admin/Privacy/BookingExporter.php:101
+#: src/Admin/Privacy/BookingExporter.php:102
 msgid "Pick-up date"
 msgstr ""
 
-#: src/Admin/Privacy/BookingExporter.php:102
+#: src/Admin/Privacy/BookingExporter.php:103
 msgid "Return date"
 msgstr ""
 
-#: src/Admin/Privacy/BookingExporter.php:104
+#: src/Admin/Privacy/BookingExporter.php:105
 #: src/Admin/Privacy/ContactPersonalData.php:189
 #: src-react/admin/contact-messages/components/SenderWidget.jsx:58
 msgid "E-mail"
 msgstr ""
 
-#: src/Admin/Privacy/BookingExporter.php:106
+#: src/Admin/Privacy/BookingExporter.php:107
 msgid "Guests"
 msgstr ""
 
-#: src/Admin/Privacy/BookingExporter.php:107
+#: src/Admin/Privacy/BookingExporter.php:108
 msgid "Special notes"
 msgstr ""
 
-#: src/Admin/Privacy/BookingExporter.php:108
+#: src/Admin/Privacy/BookingExporter.php:109
 msgid "Booking note"
 msgstr ""
 
-#: src/Admin/Privacy/BookingExporter.php:110
+#: src/Admin/Privacy/BookingExporter.php:111
 msgid "Payment status"
 msgstr ""
 
-#: src/Admin/Privacy/BookingExporter.php:111
+#: src/Admin/Privacy/BookingExporter.php:112
 msgid "Cancellation reason"
 msgstr ""
 
-#: src/Admin/Privacy/BookingExporter.php:112
+#: src/Admin/Privacy/BookingExporter.php:113
 msgid "Cancelled via"
 msgstr ""
 
-#: src/Admin/Privacy/BookingExporter.php:113
+#: src/Admin/Privacy/BookingExporter.php:114
 msgid "Refund reason"
 msgstr ""
 
-#: src/Admin/Privacy/BookingExporter.php:114
+#: src/Admin/Privacy/BookingExporter.php:115
 msgid "Refund reference"
 msgstr ""
 
-#: src/Admin/Privacy/BookingExporter.php:115
+#: src/Admin/Privacy/BookingExporter.php:116
 msgid "Refund review reason"
 msgstr ""
 
-#: src/Admin/Privacy/BookingExporter.php:116
+#: src/Admin/Privacy/BookingExporter.php:117
 msgid "Payment receipt"
 msgstr ""
 
-#: src/Admin/Privacy/BookingExporter.php:117
+#: src/Admin/Privacy/BookingExporter.php:118
 msgid "Payment receipt note"
 msgstr ""
 
@@ -15171,11 +15175,11 @@ msgstr ""
 msgid "Request Data Export"
 msgstr ""
 
-#: templates/account/dashboard.php:107
+#: templates/account/dashboard.php:108
 msgid "Withdraw Consent"
 msgstr ""
 
-#: templates/account/dashboard.php:108
+#: templates/account/dashboard.php:110
 msgid "Request Data Erasure"
 msgstr ""
 

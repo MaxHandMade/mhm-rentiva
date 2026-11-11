@@ -11,6 +11,7 @@
       "New: the results page has a filter column with a Category filter, removable chips for active filters, a line with the number of vehicles, the dates and the number of days, sorting by total price when dates are set, a grid/list switch and page buttons. Changing a filter, the sort or the page keeps the dates and every filter.",
       "New: on phones the results page shows a summary card with a \"Change\" link and opens the filters in a full-screen drawer that works with the keyboard.",
       "New: a comparison bar shows how many vehicles are picked (up to 3), their names and a link to the comparison page.",
+      "Changed: a vehicle card with search dates names the required services its total includes and what they add (\"Required service included: Full insurance $25.00\"), so the total adds up.",
       "New: empty results explain why: no dates chosen yet, no cars free for the dates, the filters left nothing, or no vehicles listed.",
       "New: the vehicle card is redesigned on vehicle grids, lists, featured vehicles, search results and My Account > Favorites. With search dates it shows the total for the rental, required add-ons included, and the price per day; it lists seats, transmission and fuel, the deposit and the free-cancellation window. Elementor vehicle-card style settings keep working.",
       "New: the front end uses the visitor's system font, so it loads no font file.",

@@ -357,7 +357,7 @@ final class RvsCardView {
 	 * for a vehicle without a price.
 	 *
 	 * @param array<string, string> $dates
-	 * @return array{has_price: bool, is_total: bool, primary_html: string, suffix: string, secondary: string, days: int}
+	 * @return array{has_price: bool, is_total: bool, primary_html: string, suffix: string, secondary: string, required_note: string, days: int}
 	 */
 	private static function price(int $vehicle_id, array $dates): array
 	{
@@ -369,6 +369,7 @@ final class RvsCardView {
 				'primary_html' => esc_html__('Price on request', 'mhm-rentiva'),
 				'suffix'       => '',
 				'secondary'    => '',
+				'required_note' => '',
 				'days'         => 0,
 			);
 		}
@@ -377,8 +378,9 @@ final class RvsCardView {
 
 		$window = self::window($dates);
 		if (null !== $window) {
-			$quote = RentalPricing::quote($vehicle_id, $window[0], $window[1], self::required_addon_ids());
-			$total = PriceDisplay::for_shop($quote->full_amount);
+			$required = self::required_addons();
+			$quote    = RentalPricing::quote($vehicle_id, $window[0], $window[1], array_keys($required));
+			$total    = PriceDisplay::for_shop($quote->full_amount);
 
 			return array(
 				'has_price'    => true,
@@ -387,6 +389,7 @@ final class RvsCardView {
 				'suffix'       => $total['suffix'],
 				/* translators: 1: number of days, 2: formatted daily price. */
 				'secondary'    => sprintf(_n('%1$d day total · %2$s/day', '%1$d days total · %2$s/day', $quote->days, 'mhm-rentiva'), $quote->days, wp_strip_all_tags($daily['html'])),
+				'required_note' => self::required_note($required, $quote->addon_total),
 				'days'         => $quote->days,
 			);
 		}
@@ -397,6 +400,7 @@ final class RvsCardView {
 			'primary_html' => $daily['html'],
 			'suffix'       => $daily['suffix'],
 			'secondary'    => __('per day', 'mhm-rentiva'),
+			'required_note' => '',
 			'days'         => 0,
 		);
 	}
@@ -433,14 +437,46 @@ final class RvsCardView {
 	 */
 	public static function required_addon_ids(): array
 	{
-		$ids = array();
+		return array_keys(self::required_addons());
+	}
+
+	/**
+	 * The required services, id => title.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function required_addons(): array
+	{
+		$addons = array();
 		foreach (AddonManager::get_available_addons() as $addon) {
 			if (! empty($addon['required'])) {
-				$ids[] = (int) $addon['id'];
+				$addons[ (int) $addon['id'] ] = (string) $addon['title'];
 			}
 		}
 
-		return $ids;
+		return $addons;
+	}
+
+	/**
+	 * The line under a dated total that names the required services it
+	 * includes and what they add (customer-eye round 2026-11-10, #14): without
+	 * it 950 x 3 read 2.875 and looked like a pricing error. Empty when the
+	 * operator marked nothing required or the services add nothing.
+	 *
+	 * @param array<int, string> $required id => title.
+	 */
+	private static function required_note(array $required, float $addon_total): string
+	{
+		if (array() === $required || $addon_total <= 0) {
+			return '';
+		}
+
+		return sprintf(
+			/* translators: 1: comma-separated service names, 2: formatted amount they add to the total. */
+			_n('Required service included: %1$s %2$s', 'Required services included: %1$s %2$s', count($required), 'mhm-rentiva'),
+			implode(', ', $required),
+			wp_strip_all_tags(PriceDisplay::for_shop($addon_total)['html'])
+		);
 	}
 
 	/**
