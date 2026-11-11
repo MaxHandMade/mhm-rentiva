@@ -506,6 +506,21 @@ final class AutoCancel {
 	 *
 	 * @return array<int|string, string|array<string, string|array<int, string>>>
 	 */
+	private static function not_parked_for_review(): array {
+		return array(
+			'relation' => 'OR',
+			array(
+				'key'     => RefundStatus::META_KEY,
+				'compare' => 'NOT EXISTS',
+			),
+			array(
+				'key'     => RefundStatus::META_KEY,
+				'value'   => self::parked_refund_statuses(),
+				'compare' => 'NOT IN',
+			),
+		);
+	}
+
 	private static function not_a_hand_entered_offline_booking(): array {
 		// A booking the operator entered by hand, to be paid outside the
 		// site (cash or card at pickup, a transfer they check themselves),
@@ -528,21 +543,6 @@ final class AutoCancel {
 				'key'     => '_mhmrentiva_payment_method',
 				'value'   => 'offline',
 				'compare' => '!=',
-			),
-		);
-	}
-
-	private static function not_parked_for_review(): array {
-		return array(
-			'relation' => 'OR',
-			array(
-				'key'     => RefundStatus::META_KEY,
-				'compare' => 'NOT EXISTS',
-			),
-			array(
-				'key'     => RefundStatus::META_KEY,
-				'value'   => self::parked_refund_statuses(),
-				'compare' => 'NOT IN',
 			),
 		);
 	}

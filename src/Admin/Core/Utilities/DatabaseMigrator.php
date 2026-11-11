@@ -34,6 +34,13 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 *
+	 * 4.10.0 (2026-11-11): release_offline_manual_deadlines_4100() deletes the
+	 * payment deadline on bookings entered by hand and paid outside the site.
+	 * Before 6.4.0 every such booking got a 30-minute deadline; AutoCancel no
+	 * longer sweeps them, but BookingConflicts still reads a pending booking
+	 * past its deadline as holding nothing, so the vehicle could be booked
+	 * twice. Without the deadline the booking holds its vehicle again.
+	 *
 	 * 4.9.0 (2026-10-26): clear_elementor_css_490() queues the Elementor page CSS
 	 * rebuild again (ElementorStyleIdMigration, idempotent): the booking form
 	 * moved to the front-end standard (rvs-booking classes and --rvs-booking-*
@@ -92,7 +99,7 @@ final class DatabaseMigrator {
 	 * ran 4.0.0. Every earlier step is idempotent (re-verified for the 3.15.0
 	 * bump), so the extra replay costs a run, not correctness.
 	 */
-	private const CURRENT_VERSION = '4.9.0';
+	private const CURRENT_VERSION = '4.10.0';
 
 	/**
 	 * Set to '1' once normalise_booking_timestamps_480() has gone through
@@ -557,6 +564,7 @@ final class DatabaseMigrator {
 			self::rebuild_elementor_plain_text_460();
 			self::clear_elementor_css_470();
 			self::clear_elementor_css_490();
+			self::release_offline_manual_deadlines_4100();
 			// A body run is a new version gate: the retry lane's budget starts over.
 			delete_option(self::BOOKING_TS_ATTEMPTS_OPTION);
 			self::normalise_booking_timestamps_480();
@@ -1557,6 +1565,51 @@ final class DatabaseMigrator {
 	private static function clear_elementor_css_490(): void
 	{
 		ElementorStyleIdMigration::mark_pending();
+	}
+
+	/**
+	 * 4.10.0: a booking entered by hand and paid outside the site keeps no
+	 * payment deadline (see the version note above). Idempotent: a second run
+	 * finds no such meta row.
+	 *
+	 * @return int How many bookings lost a deadline.
+	 */
+	private static function release_offline_manual_deadlines_4100(): int
+	{
+		$ids = get_posts(
+			array(
+				'post_type'      => 'mhmrentiva_booking',
+				'post_status'    => 'any',
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+				'posts_per_page' => -1,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one-time migration step.
+				'meta_query'     => array(
+					'relation' => 'AND',
+					array(
+						'key'   => '_mhmrentiva_created_via',
+						'value' => 'admin_manual',
+					),
+					array(
+						'key'   => '_mhmrentiva_payment_method',
+						'value' => 'offline',
+					),
+					array(
+						'key'     => '_mhmrentiva_payment_deadline',
+						'compare' => 'EXISTS',
+					),
+				),
+			)
+		);
+
+		$released = 0;
+		foreach (array_map('intval', $ids) as $id) {
+			if (delete_post_meta($id, '_mhmrentiva_payment_deadline')) {
+				++$released;
+			}
+		}
+
+		return $released;
 	}
 
 	/**
