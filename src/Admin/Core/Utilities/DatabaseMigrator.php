@@ -1604,9 +1604,51 @@ final class DatabaseMigrator {
 
 		$released = 0;
 		foreach (array_map('intval', $ids) as $id) {
-			if (delete_post_meta($id, '_mhmrentiva_payment_deadline')) {
-				++$released;
+			// While the old deadline ran out the dates were free, and another
+			// customer may have booked them since: restoring the hold then would
+			// leave two active bookings on one vehicle (PR #196 review). Checked
+			// under the vehicle's lock, as WooCommerceBridge::claim_booking() does
+			// before it restores a lost hold; a conflict, or a booking that cannot
+			// be checked, is left as it is and handed to a human.
+			$vehicle_id = (int) get_post_meta($id, '_mhmrentiva_vehicle_id', true);
+			$start_ts   = (int) get_post_meta($id, '_mhmrentiva_start_ts', true);
+			$end_ts     = (int) get_post_meta($id, '_mhmrentiva_end_ts', true);
+			$outcome    = null;
+			if ($vehicle_id > 0 && $start_ts > 0 && $end_ts > $start_ts) {
+				$outcome = \MHMRentiva\Admin\Booking\Helpers\Locker::withLock(
+					$vehicle_id,
+					static function () use ($id, $vehicle_id, $start_ts, $end_ts): ?bool {
+						$overlaps = \MHMRentiva\Admin\Booking\Helpers\BookingConflicts::count_booking_overlaps_locked($vehicle_id, $start_ts, $end_ts, $id);
+						if (null === $overlaps) {
+							return null;
+						}
+						if ($overlaps > 0) {
+							return false;
+						}
+
+						return delete_post_meta($id, '_mhmrentiva_payment_deadline');
+					}
+				);
 			}
+
+			if (true === $outcome) {
+				++$released;
+				continue;
+			}
+
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
+				sprintf(
+					/* translators: %d: the booking id. */
+					__('Booking #%d was entered by hand to be paid outside the site, but its dates were released when an old payment deadline ran out and may have been booked again since. It no longer holds the vehicle: check its dates, then confirm, move or cancel it.', 'mhm-rentiva'),
+					$id
+				),
+				$id,
+				array(
+					'surface' => 'migration_4100',
+					'reason'  => false === $outcome ? 'dates_taken' : 'not_checkable',
+				),
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
+			);
 		}
 
 		return $released;

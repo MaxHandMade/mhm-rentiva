@@ -21,10 +21,26 @@ final class OfflineManualDeadlineRelease4100Test extends WP_UnitTestCase
 {
 	private int $vehicle_id;
 
+	/** @var callable */
+	private $no_transactions;
+
 	public function setUp(): void
 	{
 		parent::setUp();
+		// The 4.10.0 step checks each booking under Locker::withLock(), whose
+		// START TRANSACTION would commit PHPUnit's own and leak this test's
+		// rows into the next one (same guard as the other Locker tests).
+		$this->no_transactions = static function ($query) {
+			return preg_match('/^\s*(START TRANSACTION|COMMIT|ROLLBACK)\b/i', (string) $query) ? 'SELECT 1' : $query;
+		};
+		add_filter('query', $this->no_transactions);
 		$this->vehicle_id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish' ));
+	}
+
+	public function tearDown(): void
+	{
+		remove_filter('query', $this->no_transactions);
+		parent::tearDown();
 	}
 
 	private function booking(?string $created_via, string $payment_method, int $start_ts): int
@@ -71,5 +87,33 @@ final class OfflineManualDeadlineRelease4100Test extends WP_UnitTestCase
 		$this->assertNotSame('', $this->deadline($manual_online), 'Paid online: the deadline stays.');
 		$this->assertNotSame('', $this->deadline($from_the_site), 'Made on the site: the deadline stays.');
 		$this->assertSame(1, (int) BookingConflicts::count_booking_overlaps_locked($this->vehicle_id, $start, $start + DAY_IN_SECONDS), 'The hand-entered booking holds its vehicle again.');
+	}
+
+	public function test_4100_does_not_restore_a_hold_someone_else_has_taken_since(): void
+	{
+		// PR #196 review (P1): while the old deadline ran out the dates were
+		// free, and another customer may have booked them. Restoring the hold
+		// then would leave two active bookings on one vehicle.
+		$start          = time() + 10 * DAY_IN_SECONDS;
+		$manual_offline = $this->booking('admin_manual', 'offline', $start);
+		$taken_since    = $this->booking('woocommerce_checkout', 'woocommerce', $start);
+		update_post_meta($taken_since, '_mhmrentiva_status', 'confirmed');
+		update_post_meta($taken_since, '_mhmrentiva_payment_status', 'paid');
+		$this->assertSame(1, (int) BookingConflicts::count_booking_overlaps_locked($this->vehicle_id, $start, $start + DAY_IN_SECONDS), 'Premise: only the new booking holds the dates.');
+		update_option('mhmrentiva_db_version', '4.9.0');
+		$linked  = 0;
+		$capture = static function ($meta_id, $object_id, $meta_key, $meta_value) use (&$linked, $manual_offline) {
+			if ('_mhmrentiva_log_booking_id' === $meta_key && $manual_offline === (int) $meta_value) {
+				++$linked;
+			}
+		};
+		add_action('added_post_meta', $capture, 10, 4);
+
+		DatabaseMigrator::run_migrations();
+		remove_action('added_post_meta', $capture, 10);
+
+		$this->assertNotSame('', $this->deadline($manual_offline), 'Left as it was: a human decides.');
+		$this->assertSame(1, (int) BookingConflicts::count_booking_overlaps_locked($this->vehicle_id, $start, $start + DAY_IN_SECONDS), 'Never two holds on one vehicle.');
+		$this->assertGreaterThan(0, $linked, 'The operator is told, on a log entry linked to the booking.');
 	}
 }
