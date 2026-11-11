@@ -321,6 +321,33 @@ final class RemainingOrderSafetyTest extends WP_UnitTestCase
 		$this->assertNotSame('', (string) wc_get_order($order->get_id())->get_meta('_mhmrentiva_remaining_applied', true));
 	}
 
+	public function test_a_cleared_balance_stored_as_another_zero_is_applied_and_ends_the_retry(): void
+	{
+		// Codex code r4: after a first read failure (retry mark), a clear that
+		// a sanitize filter stores as '0.00' must count as held -- otherwise
+		// the next transition took the paid order for an unjudged one and
+		// flagged a false mismatch.
+		$booking_id = $this->booking();
+		$order      = $this->link($booking_id);
+		add_post_meta($booking_id, '_mhmrentiva_remaining_amount', '999'); // first read fails
+		$this->move($order, 'processing');
+		delete_post_meta($booking_id, '_mhmrentiva_remaining_amount', '999');
+		$this->assertSame('1', (string) wc_get_order($order->get_id())->get_meta('_mhmrentiva_remaining_retry', true));
+
+		$two_places = static fn($value) => '0' === (string) $value ? '0.00' : $value;
+		add_filter('sanitize_post_meta__mhmrentiva_remaining_amount', $two_places);
+		$this->move($order, 'completed');
+		remove_filter('sanitize_post_meta__mhmrentiva_remaining_amount', $two_places);
+
+		$fresh = wc_get_order($order->get_id());
+		$this->assertNotSame('', (string) $fresh->get_meta('_mhmrentiva_remaining_applied', true));
+		$this->assertSame('', (string) $fresh->get_meta('_mhmrentiva_remaining_retry', true));
+
+		$this->move($order, 'processing'); // stepped back; no new money
+		$this->assertSame('', $this->mismatch($booking_id));
+		$this->assertEquals(0.0, (float) $this->remaining($booking_id));
+	}
+
 	public function test_a_payment_against_an_old_amount_does_not_zero_the_new_debt(): void
 	{
 		$booking_id = $this->booking();

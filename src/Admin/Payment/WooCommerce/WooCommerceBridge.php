@@ -3439,7 +3439,22 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			} catch (\RuntimeException $e) {
 				$held = false;
 			}
+			// The helper compares strings; a balance is a number. A zero a
+			// sanitize filter stored as '0.00', or a write whose read-back
+			// failed, is still a cleared balance (Codex code r4).
 			if (! $held) {
+				try {
+					$held = 0 === RemainingPaymentHandler::debt_minor(self::read_booking_meta($booking_id, '_mhmrentiva_remaining_amount'));
+				} catch (\RuntimeException $e) {
+					$held = false;
+				}
+			}
+			// Judged now, on the link: the retry mark has done its job. A
+			// write that did not hold leaves a positive balance, which the
+			// next transition settles without it.
+			$order->delete_meta_data('_mhmrentiva_remaining_retry');
+			if (! $held) {
+				$order->save_meta_data();
 				AdvancedLogger::error_linked(
 					/* translators: %d: the WooCommerce order id. */
 					sprintf(__('The remaining amount of a booking could not be cleared when its payment (order #%d) arrived; it will be retried on the next status change.', 'mhm-rentiva'), (int) $order->get_id()),
