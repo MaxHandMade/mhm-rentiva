@@ -9,6 +9,7 @@ writer WooCommerceBridge::apply_order_status_to_booking
 writer WooCommerceBridge::confirm_paid_booking
 writer WooCommerceBridge::mark_paid_unlocked
 writer WooCommerceBridge::save_checkout_payment_type
+writer WooCommerceBridge::settle_remaining_from_order
 create ManualBookingMetaBox::ajax_create_booking
 create WooCommerceBridge::create_booking_from_data
 generic AbstractMetaBox::save_field

@@ -33,6 +33,76 @@ final class BookingEditNotice {
 
 	public static function register(): void {
 		add_action( 'admin_notices', array( self::class, 'render' ) );
+		add_action( 'admin_notices', array( self::class, 'render_payment_mismatch' ) );
+		add_action( 'admin_post_' . self::DISMISS_MISMATCH_ACTION, array( self::class, 'handle_dismiss_payment_mismatch' ) );
+	}
+
+	/** The admin-post action that clears a booking's payment-mismatch flag. */
+	public const DISMISS_MISMATCH_ACTION = 'mhmrentiva_dismiss_payment_mismatch';
+
+	/**
+	 * A payment that arrived for an amount that was no longer current (PR-2 A3,
+	 * WooCommerceBridge::settle_remaining_from_order()). Unlike the one-shot
+	 * notice above it stays on the booking's edit screen until someone has
+	 * looked at it: the balance was deliberately left unchanged, and only a
+	 * human can decide what it should be.
+	 */
+	public static function render_payment_mismatch(): void {
+		global $post;
+		if ( ! $post instanceof \WP_Post || 'mhmrentiva_booking' !== $post->post_type || ! current_user_can( 'edit_post', (int) $post->ID ) ) {
+			return;
+		}
+
+		$flag = get_post_meta( (int) $post->ID, '_mhmrentiva_payment_mismatch', true );
+		if ( ! is_array( $flag ) || empty( $flag['order_id'] ) ) {
+			return;
+		}
+
+		$order_id  = (int) $flag['order_id'];
+		$order     = function_exists( 'wc_get_order' ) ? wc_get_order( $order_id ) : false;
+		$decimals  = \MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::debt_decimals();
+		$currency  = \MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::debt_currency();
+		$collected = $order instanceof \WC_Order ? wp_strip_all_tags( wc_price( (float) $order->get_total(), array( 'currency' => $order->get_currency() ) ) ) : '?';
+		$due       = wp_strip_all_tags( wc_price( (int) ( $flag['due_minor'] ?? 0 ) / ( 10 ** $decimals ), array( 'currency' => $currency ) ) );
+
+		$dismiss = wp_nonce_url(
+			add_query_arg(
+				array(
+					'action'     => self::DISMISS_MISMATCH_ACTION,
+					'booking_id' => (int) $post->ID,
+				),
+				admin_url( 'admin-post.php' )
+			),
+			self::DISMISS_MISMATCH_ACTION . '_' . (int) $post->ID
+		);
+
+		printf(
+			'<div class="notice notice-warning"><p>%1$s</p><p><a class="button" href="%2$s">%3$s</a></p></div>',
+			esc_html(
+				sprintf(
+					/* translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount. */
+					__( 'A payment arrived on this booking for an amount that is no longer current (order #%1$d collected %2$s; the remaining amount is %3$s). The remaining amount was left unchanged: check it and correct it by hand.', 'mhm-rentiva' ),
+					$order_id,
+					$collected,
+					$due
+				)
+			),
+			esc_url( $dismiss ),
+			esc_html__( 'I have checked it', 'mhm-rentiva' )
+		);
+	}
+
+	public static function handle_dismiss_payment_mismatch(): void {
+		$booking_id = isset( $_GET['booking_id'] ) ? absint( wp_unslash( $_GET['booking_id'] ) ) : 0;
+		check_admin_referer( self::DISMISS_MISMATCH_ACTION . '_' . $booking_id );
+		if ( $booking_id <= 0 || 'mhmrentiva_booking' !== get_post_type( $booking_id ) || ! current_user_can( 'edit_post', $booking_id ) ) {
+			wp_die( esc_html__( 'You do not have permission to do that.', 'mhm-rentiva' ), '', array( 'response' => 403 ) );
+		}
+
+		delete_post_meta( $booking_id, '_mhmrentiva_payment_mismatch' );
+
+		wp_safe_redirect( (string) get_edit_post_link( $booking_id, 'url' ) );
+		exit;
 	}
 
 	public static function queue( int $booking_id, string $message, string $type = 'error' ): void {

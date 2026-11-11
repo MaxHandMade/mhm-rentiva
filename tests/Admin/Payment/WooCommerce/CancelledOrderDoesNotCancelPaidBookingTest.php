@@ -72,9 +72,17 @@ final class CancelledOrderDoesNotCancelPaidBookingTest extends WP_UnitTestCase
             'The remaining balance must not be touched by cancelling the collection instrument.'
         );
 
-        $this->assertFalse(
-            metadata_exists( 'post', $booking_id, '_mhmrentiva_remaining_order_id' ),
-            'The dead order id must be cleared so the operator can issue a new payment link.'
+        // PR-2 A1 (Codex r4 B1): this fixture's remaining order was PAID
+        // (create_paid_order_for_booking() moves it to processing) before it
+        // was cancelled. Cancelled is not a refund and WooCommerce keeps its
+        // date_paid, so the pointer is how PaymentState::orders() and the
+        // refund service still find that money. Until PR-2 it was cleared.
+        // An unpaid cancelled link is still cleared:
+        // RemainingOrderSafetyTest::test_a_cancelled_unpaid_remaining_order_does_not_cancel_the_booking_and_clears_the_link().
+        $this->assertSame(
+            $remaining->get_id(),
+            (int) get_post_meta( $booking_id, '_mhmrentiva_remaining_order_id', true ),
+            'A paid remaining order keeps its reference after it is cancelled.'
         );
     }
 
@@ -103,11 +111,17 @@ final class CancelledOrderDoesNotCancelPaidBookingTest extends WP_UnitTestCase
     }
 
     /**
-     * Positive control for the predicate's discriminating path: a sibling
-     * order exists (this IS a deposit/remaining pair) but NEITHER order was
-     * ever paid -- the production shape of a stale reservation that WC's own
-     * `woocommerce_cancel_unpaid_orders` cron cancels for non-payment.
-     * Cancelling here must NOT be blocked, because there is no paid sibling
+     * PR-2 A1 changed this case. A sibling order exists (this IS a
+     * deposit/remaining pair) and NEITHER order was ever paid -- the
+     * production shape of a stale reservation that WC's own
+     * `woocommerce_cancel_unpaid_orders` cron cancels for non-payment. That
+     * cron cancels the unpaid DEPOSIT order too, and the deposit order's own
+     * transition still cancels the booking (it is not a remaining order, and
+     * it has no paid sibling), so the stale reservation is still released. The
+     * remaining order's failure alone no longer does it.
+     *
+     * Original rationale, still true for the primary order:
+     * cancelling must NOT be blocked when there is no paid sibling
      * to protect. Without this case, a predicate regressed to "any sibling
      * at all blocks cancellation" leaves both other tests in this file green
      * while a fully unpaid booking silently keeps holding vehicle
@@ -131,10 +145,16 @@ final class CancelledOrderDoesNotCancelPaidBookingTest extends WP_UnitTestCase
 
         $remaining->update_status( 'failed' );
 
+        // PR-2 A1: until PR-2 this cancelled the booking. A remaining-payment
+        // order is the collection instrument for the balance, never the
+        // booking: one declined card on it must not take the booking's dates.
+        // The booking's own lifecycle (its primary order, the auto-cancel
+        // sweep) still decides; test_cancelling_the_only_order_still_cancels_the_booking()
+        // keeps the primary-order side of this rule.
         $this->assertSame(
-            Status::CANCELLED,
+            Status::PENDING,
             Status::get( $booking_id ),
-            'Neither order in this pair was ever paid -- a sibling existing is not enough to block cancellation.'
+            'A failed remaining-payment order must not cancel the booking.'
         );
     }
 
