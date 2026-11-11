@@ -3431,7 +3431,28 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// claim_before_pay() (Fable code r1 Ş2).
 		$is_link = $link === (int) $order->get_id();
 		if ($is_link && RemainingPaymentHandler::VERDICT_MATCH === RemainingPaymentHandler::amount_verdict($order, $owed)) {
-			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', 0);
+			// The applied mark ends every later attempt, so it follows only a
+			// write that held. One that did not stays retryable: the next
+			// transition settles it (PR #195 review).
+			try {
+				$held = self::meta_holds(self::write_booking_meta_alone($booking_id, '_mhmrentiva_remaining_amount', '0', $owed_major));
+			} catch (\RuntimeException $e) {
+				$held = false;
+			}
+			if (! $held) {
+				AdvancedLogger::error_linked(
+					/* translators: %d: the WooCommerce order id. */
+					sprintf(__('The remaining amount of a booking could not be cleared when its payment (order #%d) arrived; it will be retried on the next status change.', 'mhm-rentiva'), (int) $order->get_id()),
+					$booking_id,
+					array(
+						'order_id' => (int) $order->get_id(),
+						'surface'  => 'wc_status_change',
+						'reason'   => 'remaining_write_failed',
+					),
+					AdvancedLogger::CATEGORY_SYSTEM
+				);
+				return;
+			}
 			$order->update_meta_data('_mhmrentiva_remaining_applied', (string) $owed);
 			$order->save_meta_data();
 			return;

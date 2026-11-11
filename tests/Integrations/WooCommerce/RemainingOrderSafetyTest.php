@@ -298,6 +298,29 @@ final class RemainingOrderSafetyTest extends WP_UnitTestCase
 		$this->assertSame('', $this->mismatch($booking_id));
 	}
 
+	public function test_a_balance_write_that_did_not_hold_is_not_marked_applied(): void
+	{
+		// PR #195 review (P2): the applied mark ends every later attempt, so it
+		// may only follow a write that held. A write that failed stays
+		// retryable on the next transition.
+		$booking_id = $this->booking();
+		$order      = $this->link($booking_id);
+		$refuse     = static function ($check, $object_id, $meta_key) use ($booking_id) {
+			return ( (int) $object_id === $booking_id && '_mhmrentiva_remaining_amount' === $meta_key ) ? false : $check;
+		};
+		add_filter('update_post_metadata', $refuse, 10, 3);
+		$this->move($order, 'processing');
+		remove_filter('update_post_metadata', $refuse, 10);
+
+		$this->assertEquals(1000.0, (float) $this->remaining($booking_id));
+		$this->assertSame('', (string) wc_get_order($order->get_id())->get_meta('_mhmrentiva_remaining_applied', true));
+
+		$this->move($order, 'completed');
+
+		$this->assertEquals(0.0, (float) $this->remaining($booking_id), 'the next transition settles it');
+		$this->assertNotSame('', (string) wc_get_order($order->get_id())->get_meta('_mhmrentiva_remaining_applied', true));
+	}
+
 	public function test_a_payment_against_an_old_amount_does_not_zero_the_new_debt(): void
 	{
 		$booking_id = $this->booking();
