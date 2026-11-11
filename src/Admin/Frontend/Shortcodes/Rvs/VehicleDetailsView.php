@@ -177,7 +177,8 @@ final class VehicleDetailsView {
 		}
 		$first  = $first->modify('first day of this month');
 		$second = $first->modify('+1 month');
-		$booked = VehicleDetails::booked_dates($vehicle_id, $first->format('Y-m-d'), $second->format('Y-m-t'));
+		// Ç6: per-day states, so a return day reads "free from 11:00" here too.
+		$booked = \MHMRentiva\Admin\Booking\Helpers\BookingConflicts::calendar_day_states($vehicle_id, $first->format('Y-m-d'), $second->format('Y-m-t'));
 		$today  = wp_date('Y-m-d');
 		$range  = array( (string) ( $window['pickup_date'] ?? '' ), (string) ( $window['return_date'] ?? '' ) );
 		$range  = array_values(array_filter($range));

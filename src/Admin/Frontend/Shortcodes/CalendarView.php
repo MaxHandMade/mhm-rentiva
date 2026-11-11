@@ -223,7 +223,8 @@ final class CalendarView {
 		$count = max( 1, min( $count, self::MAX_MONTH_SPAN ) );
 		$last  = $start->modify( '+' . ( $count - 1 ) . ' months' );
 
-		$booked = BookingConflicts::calendar_days( $vehicle_id, $start->format( 'Y-m-d' ), $last->format( 'Y-m-t' ) );
+		// Ç6: per-day states (partial from/until, closed), not only "taken".
+		$booked = BookingConflicts::calendar_day_states( $vehicle_id, $start->format( 'Y-m-d' ), $last->format( 'Y-m-t' ) );
 		$today  = SiteTime::today( $now );
 
 		$months = array();
@@ -248,7 +249,7 @@ final class CalendarView {
 	 * The selection panel's answer, from the vehicle page's booking card (the
 	 * same total, rules and link). A window that cannot be booked has no total.
 	 *
-	 * @return array{priced: bool, days: int, total_html: string, available: bool, message: string, continue_url: string, range_label: string, time_hint: string}
+	 * @return array{priced: bool, days: int, total_html: string, available: bool, message: string, continue_url: string, range_label: string, time_hint: string, partial_note: string}
 	 */
 	public static function quote( int $vehicle_id, string $start, string $end ): array {
 		if ( ! self::is_date( $start ) || ! self::is_date( $end ) ) {
@@ -261,15 +262,37 @@ final class CalendarView {
 				'return_date' => $end,
 			)
 		);
-		$range  = sprintf(
+
+		// Ç6: a start day a booking returns on is free from return + buffer --
+		// the pickup moves there (never earlier than the default time).
+		$states = BookingConflicts::calendar_day_states( $vehicle_id, $window['pickup_date'], $window['return_date'] );
+		$first  = $states[ $window['pickup_date'] ] ?? null;
+		$note   = '';
+		if ( null !== $first && isset( $first['from'] ) && $first['from'] > (string) $window['pickup_time'] ) {
+			$window = VehicleDetailsView::window(
+				array(
+					'pickup_date' => $window['pickup_date'],
+					'return_date' => $window['return_date'],
+					'pickup_time' => $first['from'],
+				)
+			);
+			$note   = sprintf(
+				/* translators: 1: pickup date, 2: time of day the vehicle is free from. */
+				__( 'On %1$s the vehicle is free from %2$s; the time was set to it.', 'mhm-rentiva' ),
+				self::date_text( $window['pickup_date'] ),
+				self::clock_text( $first['from'] )
+			);
+		}
+		$range = sprintf(
 			/* translators: 1: pickup date, 2: return date. */
 			__( '%1$s – %2$s', 'mhm-rentiva' ),
 			self::date_text( $window['pickup_date'] ),
 			self::date_text( $window['return_date'] )
 		);
 
-		if ( array() !== BookingConflicts::calendar_days( $vehicle_id, $window['pickup_date'], $window['return_date'] ) ) {
-			return self::refusal( $range, __( 'The dates you selected include a booked day.', 'mhm-rentiva' ) );
+		$taken = self::taken_day( $states, $window['pickup_date'], $window['return_date'], (string) $window['pickup_time'] );
+		if ( '' !== $taken ) {
+			return self::refusal( $range, $taken );
 		}
 
 		$booking = VehicleDetailsView::booking( $vehicle_id, array(), $window );
@@ -290,7 +313,44 @@ final class CalendarView {
 			/* translators: %d: number of rental days. */
 			'range_label'  => $range . ' · ' . sprintf( _n( '%d day', '%d days', $days, 'mhm-rentiva' ), $days ),
 			'time_hint'    => self::time_hint( $window['pickup_time'] ),
+			'partial_note' => $note,
 		);
+	}
+
+	/**
+	 * Why the window cannot be booked by the day states alone, or ''.
+	 *
+	 * A `from` day (a booking has just returned) can only start a rental; an
+	 * `until` day (a booking starts later that day) can only end one, and only
+	 * when the return time -- the pickup time -- is not later. Every other
+	 * taken day in the window answers "includes a booked day". The exact
+	 * check still follows in booking().
+	 *
+	 * @param array<string, array{state: string, from?: string, until?: string}> $states
+	 */
+	private static function taken_day( array $states, string $pickup, string $return, string $time ): string {
+		foreach ( $states as $date => $info ) {
+			if ( $date < $pickup || $date > $return ) {
+				continue;
+			}
+			if ( $date === $pickup && isset( $info['from'] ) ) {
+				continue;
+			}
+			if ( $date === $return && isset( $info['until'] ) ) {
+				if ( $time <= $info['until'] ) {
+					continue;
+				}
+				return sprintf(
+					/* translators: 1: return date, 2: time of day the vehicle is free until. */
+					__( 'On %1$s the vehicle is free until %2$s. Pick an earlier return day.', 'mhm-rentiva' ),
+					self::date_text( $date ),
+					self::clock_text( $info['until'] )
+				);
+			}
+			return __( 'The dates you selected include a booked day.', 'mhm-rentiva' );
+		}
+
+		return '';
 	}
 
 	/**
@@ -378,7 +438,7 @@ final class CalendarView {
 	}
 
 	/**
-	 * @return array{priced: bool, days: int, total_html: string, available: bool, message: string, continue_url: string, range_label: string, time_hint: string}
+	 * @return array{priced: bool, days: int, total_html: string, available: bool, message: string, continue_url: string, range_label: string, time_hint: string, partial_note: string}
 	 */
 	private static function refusal( string $range, string $message ): array {
 		return array(
@@ -390,6 +450,7 @@ final class CalendarView {
 			'continue_url' => '',
 			'range_label'  => $range,
 			'time_hint'    => '',
+			'partial_note' => '',
 		);
 	}
 
@@ -404,6 +465,11 @@ final class CalendarView {
 	private static function date_text( string $date ): string {
 		$utc = new \DateTimeZone( 'UTC' );
 		return (string) wp_date( (string) get_option( 'date_format' ), ( new \DateTimeImmutable( $date . ' 12:00:00', $utc ) )->getTimestamp(), $utc );
+	}
+
+	private static function clock_text( string $time ): string {
+		$utc = new \DateTimeZone( 'UTC' );
+		return (string) wp_date( (string) get_option( 'time_format' ), ( new \DateTimeImmutable( '2000-01-01 ' . $time . ':00', $utc ) )->getTimestamp(), $utc );
 	}
 
 	private static function time_hint( string $time ): string {

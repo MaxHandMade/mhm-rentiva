@@ -32,6 +32,7 @@ describe( 'availability calendar: selection, panel and months', () => {
 			<div data-rvs-cal-panel hidden>
 				<p data-rvs-cal-range></p>
 				<p data-rvs-cal-time></p>
+				<p data-rvs-cal-note hidden></p>
 				${ '1' === pricing ? '<p data-rvs-cal-total></p>' : '' }
 				<p data-rvs-cal-message role="status" aria-live="polite"></p>
 				${ '1' === booking ? '<a data-rvs-cal-book href="#" hidden>Make reservation</a>' : '' }
@@ -793,5 +794,51 @@ describe( 'availability calendar: selection, panel and months', () => {
 		[ 'toLocaleDateString', 'new URL', 'searchParams', 'new Date', '1400', 'mhmrentiva_availability_unified', 'bookingPageUrl', 'MHMRentivaToast' ].forEach( ( banned ) => {
 			expect( source ).not.toContain( banned );
 		} );
+	} );
+
+	/* Ç6 (approved 2026-11-11): partly free days ---------------------------- */
+
+	const partial = ( date, side ) => `<td class="rvs-cal__day is-partial is-partial-${ side }" data-date="${ date }"><button type="button" class="rvs-cal__btn" data-date="${ date }" aria-label="${ date }, Available ${ side } 11:00"><span class="rvs-cal__num">x</span><span class="rvs-cal__time" aria-hidden="true">11:00 →</span></button></td>`;
+	const bootWith = ( html ) => {
+		document.body.innerHTML = page();
+		calls.length = 0;
+		window.mhmRentivaAvailabilityCalendar.init();
+		ok( calls[ 0 ], { html, prev_allowed: false, start_month: '2026-11' } );
+		calls.length = 0;
+	};
+
+	test( 'a_partly_free_day_is_selectable_and_returns_to_partial_when_released', () => {
+		bootWith( month( '2026-11', partial( '2026-11-10', 'from' ) + day( '2026-11-11' ) + day( '2026-11-12' ) ) );
+
+		pick( '2026-11-10' );
+		expect( cell( '2026-11-10' ).classList.contains( 'is-selected' ) ).toBe( true );
+		expect( q( '.rvs-cal__btn[data-date="2026-11-10"]' ).getAttribute( 'aria-pressed' ) ).toBe( 'true' );
+
+		// Complete the range, then a click after it starts over and releases the day.
+		pick( '2026-11-12' );
+		ok( sent( 'mhmrentiva_calendar_quote' )[ 0 ], QUOTE );
+		pick( '2026-11-11' );
+
+		expect( cell( '2026-11-10' ).classList.contains( 'is-selected' ) ).toBe( false );
+		expect( cell( '2026-11-10' ).classList.contains( 'is-partial' ) ).toBe( true );
+		expect( cell( '2026-11-10' ).classList.contains( 'is-available' ) ).toBe( false );
+		expect( cell( '2026-11-10' ).classList.contains( 'is-partial-from' ) ).toBe( true );
+	} );
+
+	test( 'the_partial_note_shows_only_with_an_available_quote', () => {
+		bootWith( month( '2026-11', partial( '2026-11-10', 'from' ) + day( '2026-11-11' ) ) );
+		const note = () => q( '[data-rvs-cal-note]' );
+
+		pick( '2026-11-10' );
+		pick( '2026-11-11' );
+		ok( sent( 'mhmrentiva_calendar_quote' )[ 0 ], Object.assign( {}, QUOTE, { time_hint: 'Pickup and return at 11:00', partial_note: 'On 10/11/2026 the vehicle is free from 11:00; the time was set to it.' } ) );
+
+		expect( note().hidden ).toBe( false );
+		expect( note().textContent ).toContain( '11:00' );
+		expect( q( '[data-rvs-cal-time]' ).textContent ).toBe( 'Pickup and return at 11:00' );
+
+		pick( '2026-11-10' );
+		expect( note().hidden ).toBe( true );
+		expect( note().textContent ).toBe( '' );
 	} );
 } );

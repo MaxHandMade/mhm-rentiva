@@ -27,6 +27,7 @@ $mhmrentiva_panel = isset($view) && is_array($view) ? $view : array();
 <div class="rvs-availability__panel" data-rvs-cal-panel hidden>
 	<p class="rvs-availability__range" data-rvs-cal-range></p>
 	<p class="rvs-availability__time" data-rvs-cal-time></p>
+	<p class="rvs-availability__note" data-rvs-cal-note hidden></p>
 	<?php if (! empty($mhmrentiva_panel['show_pricing'])) : ?>
 		<p class="rvs-availability__total" data-rvs-cal-total></p>
 	<?php endif; ?>

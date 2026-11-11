@@ -17,6 +17,7 @@ final class RvsCalendarTest extends WP_UnitTestCase
 	public function tearDown(): void
 	{
 		delete_option('start_of_week');
+		delete_option('time_format');
 		parent::tearDown();
 	}
 
@@ -203,6 +204,96 @@ final class RvsCalendarTest extends WP_UnitTestCase
 		$this->assertSame(substr_count($raw, '<button'), substr_count($filtered, '<button'));
 		$this->assertSame(substr_count($raw, 'aria-label='), substr_count($filtered, 'aria-label='));
 		$this->assertSame(substr_count($raw, 'data-date='), substr_count($filtered, 'data-date='));
+	}
+
+	/**
+	 * Ç6 (approved 2026-11-11): the day-state map of
+	 * BookingConflicts::calendar_day_states() -- partial days carry their time,
+	 * closed days their own state; the old list of booked dates still works.
+	 *
+	 * @return array<string, array{state: string, from?: string, until?: string}>
+	 */
+	private static function states(): array
+	{
+		update_option('time_format', 'H:i');
+
+		return array(
+			'2027-07-19' => array( 'state' => 'partial', 'until' => '09:00' ),
+			'2027-07-20' => array( 'state' => 'booked' ),
+			'2027-07-21' => array( 'state' => 'partial', 'from' => '11:30' ),
+			'2027-07-27' => array( 'state' => 'closed' ),
+		);
+	}
+
+	public function test_state_map_gives_partial_and_closed_days(): void
+	{
+		$days = self::days(RvsCalendar::month(2027, 7, self::states(), '2027-07-15'));
+
+		$this->assertSame('partial', $days[19]['state']);
+		$this->assertSame('', $days[19]['partial_from']);
+		$this->assertSame('09:00', $days[19]['partial_until']);
+		$this->assertSame('booked', $days[20]['state']);
+		$this->assertSame('partial', $days[21]['state']);
+		$this->assertSame('11:30', $days[21]['partial_from']);
+		$this->assertSame('closed', $days[27]['state']);
+		$this->assertSame('available', $days[22]['state']);
+		$this->assertStringEndsWith(', Available from 11:30', $days[21]['label']);
+		$this->assertStringEndsWith(', Available until 09:00', $days[19]['label']);
+		$this->assertStringEndsWith(', Closed', $days[27]['label']);
+	}
+
+	public function test_partial_days_are_buttons_closed_days_are_not(): void
+	{
+		$cal  = RvsCalendar::month(2027, 7, self::states(), '2027-07-15', array(), array( 'interactive' => true ));
+		$html = (string) Templates::render('partials/rvs/calendar-month', array( 'calendar' => $cal ), true);
+
+		$this->assertMatchesRegularExpression('/class="rvs-cal__day is-partial is-partial-from" data-date="2027-07-21"[^>]*><button type="button" class="rvs-cal__btn" data-date="2027-07-21" aria-label="[^"]*Available from 11:30"/', $html);
+		$this->assertMatchesRegularExpression('/class="rvs-cal__day is-partial is-partial-until" data-date="2027-07-19"[^>]*><button/', $html);
+		$this->assertMatchesRegularExpression('/class="rvs-cal__day is-closed" data-date="2027-07-27"><span class="rvs-cal__num">27<\/span><span class="rvs-cal__time" aria-hidden="true">/', $html);
+		$this->assertStringNotContainsString('data-date="2027-07-27" aria-label', $html);
+		// 15..31 = 17 days, minus booked 20 and closed 27.
+		$this->assertSame(15, substr_count($html, '<button type="button"'));
+	}
+
+	public function test_partial_time_is_printed_full_and_short(): void
+	{
+		$cal  = RvsCalendar::month(2027, 7, self::states(), '2027-07-15');
+		$html = (string) Templates::render('partials/rvs/calendar-month', array( 'calendar' => $cal ), true);
+
+		$this->assertStringContainsString('<span class="rvs-cal__time" aria-hidden="true">11:30 →</span><span class="rvs-cal__time-short" aria-hidden="true">11:30 →</span>', $html);
+		$this->assertStringContainsString('<span class="rvs-cal__time" aria-hidden="true">→ 09:00</span><span class="rvs-cal__time-short" aria-hidden="true">→ 09</span>', $html);
+		$this->assertMatchesRegularExpression('/data-date="2027-07-19"[^>]*>.*?<span class="rvs-sr-only">, Available until 09:00<\/span>/s', $html);
+	}
+
+	public function test_a_selected_partial_day_keeps_its_time(): void
+	{
+		$cal  = RvsCalendar::month(2027, 7, self::states(), '2027-07-15', array( '2027-07-21', '2027-07-24' ), array( 'interactive' => true ));
+		$days = self::days($cal);
+		$html = (string) Templates::render('partials/rvs/calendar-month', array( 'calendar' => $cal ), true);
+
+		$this->assertSame('selected', $days[21]['state']);
+		$this->assertSame('11:30', $days[21]['partial_from']);
+		$this->assertMatchesRegularExpression('/class="rvs-cal__day is-selected is-partial-from is-range-start" data-date="2027-07-21"/', $html);
+	}
+
+	public function test_a_twelve_hour_site_keeps_the_full_time_in_the_short_label(): void
+	{
+		self::states();
+		update_option('time_format', 'g:i a');
+		$cal  = RvsCalendar::month(2027, 7, array( '2027-07-19' => array( 'state' => 'partial', 'until' => '09:00' ) ), '2027-07-15');
+		$html = (string) Templates::render('partials/rvs/calendar-month', array( 'calendar' => $cal ), true);
+
+		$this->assertStringContainsString('<span class="rvs-cal__time-short" aria-hidden="true">→ 9:00 am</span>', $html);
+	}
+
+	public function test_partial_markup_survives_allowed_markup(): void
+	{
+		$cal      = RvsCalendar::month(2027, 7, self::states(), '2027-07-15', array(), array( 'interactive' => true ));
+		$raw      = (string) Templates::render('partials/rvs/calendar-month', array( 'calendar' => $cal ), true);
+		$filtered = wp_kses($raw, Html::allowed_markup());
+
+		$this->assertSame(substr_count($raw, 'rvs-cal__time'), substr_count($filtered, 'rvs-cal__time'));
+		$this->assertSame(substr_count($raw, 'aria-hidden="true"'), substr_count($filtered, 'aria-hidden="true"'));
 	}
 
 	public function test_week_start_is_normalised_into_0_to_6(): void

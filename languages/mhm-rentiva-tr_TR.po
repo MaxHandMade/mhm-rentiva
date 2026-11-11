@@ -18760,6 +18760,42 @@ msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste yerleşiminde görüntüleyin."
 
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php:157
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php:182
+#: templates/shortcodes/availability-calendar.php:77
+#: templates/shortcodes/vehicle-details.php:203
+msgid "Closed"
+msgstr "Kapalı"
+
+#: templates/shortcodes/availability-calendar.php:75
+#: templates/shortcodes/vehicle-details.php:201
+msgid "Partly available"
+msgstr "Kısmen müsait"
+
+#. translators: %s: a time of day, e.g. 11:00 -- the vehicle is free from then on that day.
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php:165
+#, php-format
+msgid "Available from %s"
+msgstr "Müsait, saat %s ve sonrası"
+
+#. translators: %s: a time of day, e.g. 09:00 -- the vehicle is free until then on that day.
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php:168
+#, php-format
+msgid "Available until %s"
+msgstr "Müsait, saat %s ve öncesi"
+
+#. translators: 1: pickup date, 2: time of day the vehicle is free from.
+#: src/Admin/Frontend/Shortcodes/CalendarView.php:281
+#, php-format
+msgid "On %1$s the vehicle is free from %2$s; the time was set to it."
+msgstr "%1$s günü araç saat %2$s ve sonrasında müsait; saat buna göre ayarlandı."
+
+#. translators: 1: return date, 2: time of day the vehicle is free until.
+#: src/Admin/Frontend/Shortcodes/CalendarView.php:345
+#, php-format
+msgid "On %1$s the vehicle is free until %2$s. Pick an earlier return day."
+msgstr "%1$s günü araç yalnız saat %2$s ve öncesinde müsait. Daha erken bir dönüş günü seçin."
+
 #~ msgid ""
 #~ "Are you sure you want to export your data? This may take a few minutes."
 #~ msgstr ""
