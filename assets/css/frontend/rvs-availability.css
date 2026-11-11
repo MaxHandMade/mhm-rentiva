@@ -238,7 +238,7 @@
 	padding: 8px 12px;
 	border-radius: var(--rvs-r);
 	background: var(--rvs-accent-100);
-	color: var(--rvs-accent-deep);
+	color: var(--rvs-accent-text-hover);
 	font-size: 14px;
 }
 

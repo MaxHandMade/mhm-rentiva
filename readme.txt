@@ -206,6 +206,7 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 * New: a redesigned vehicle card on grids, lists, featured vehicles, search results and My Account > Favorites. With search dates it shows the total for the whole rental, required add-ons included, and the price per day; it lists the deposit and the free-cancellation window.
 * New: a comparison bar on the results page shows the vehicles picked for comparison.
 * Changed: the availability calendars show partly free days (the return day of a booking from its return time plus the buffer) and a separate "Closed" state for days closed by hand.
+* Changed: a vehicle card with search dates names the required services its total includes and what they add.
 * Fixed: the booking form quotes exactly what is charged. Seasonal pricing, when enabled, now applies to the payment and the stored booking total, not only to the quote on screen.
 * Changed: booking-form prices follow WooCommerce's tax display. Rentiva's own tax settings (Vehicle settings > Tax Inclusive Pricing, Tax Rate (%)) are removed; taxes are set in WooCommerce > Settings > Tax. The tax charged does not change.
 * Changed: the search strip has no tabs, and its "Show Rental Tab" option is gone from the block and the Elementor widget. Elementor's generated CSS is rebuilt once on update, so saved vehicle-card styles reach the new card.

@@ -168,6 +168,70 @@ final class RvsCardViewTest extends WP_UnitTestCase
 		$this->assertSame(PriceDisplay::for_shop(3925.0)['html'], $view['price']['primary_html']);
 	}
 
+	/**
+	 * Customer-eye round 2026-11-10, finding #14 (Ç6, approved 11-11): the
+	 * total silently carried a required service, so 950 x 3 read 2.875 and
+	 * looked wrong. The card names what is included and what it costs.
+	 */
+	private function required_addon(string $title, string $price): int
+	{
+		$addon = self::factory()->post->create(array( 'post_type' => 'mhmrentiva_addon', 'post_status' => 'publish', 'post_title' => $title ));
+		update_post_meta($addon, 'mhmrentiva_addon_price', $price);
+		update_post_meta($addon, 'mhmrentiva_addon_enabled', '1');
+		update_post_meta($addon, 'mhmrentiva_addon_required', '1');
+
+		return $addon;
+	}
+
+	public function test_a_dated_card_names_the_required_service_it_includes(): void
+	{
+		$this->required_addon('Full insurance', '25');
+
+		$view = RvsCardView::from_vehicle($this->vehicle(), array(), array( 'pickup_date' => '2027-07-12', 'return_date' => '2027-07-15' ));
+
+		$this->assertSame(
+			'Required service included: Full insurance ' . wp_strip_all_tags(PriceDisplay::for_shop(25.0)['html']),
+			$view['price']['required_note']
+		);
+	}
+
+	public function test_several_required_services_share_one_line_and_one_amount(): void
+	{
+		$this->required_addon('Full insurance', '25');
+		$this->required_addon('Cleaning', '50');
+
+		$view = RvsCardView::from_vehicle($this->vehicle(), array(), array( 'pickup_date' => '2027-07-12', 'return_date' => '2027-07-15' ));
+
+		$this->assertStringStartsWith('Required services included: ', $view['price']['required_note']);
+		$this->assertStringContainsString('Full insurance', $view['price']['required_note']);
+		$this->assertStringContainsString('Cleaning', $view['price']['required_note']);
+		$this->assertStringEndsWith(wp_strip_all_tags(PriceDisplay::for_shop(75.0)['html']), $view['price']['required_note']);
+	}
+
+	public function test_no_note_without_dates_or_without_a_required_service(): void
+	{
+		$plain = RvsCardView::from_vehicle($this->vehicle(), array(), array( 'pickup_date' => '2027-07-12', 'return_date' => '2027-07-15' ));
+		$this->assertSame('', $plain['price']['required_note'], 'No required service, no note.');
+
+		$this->required_addon('Full insurance', '25');
+		$undated = RvsCardView::from_vehicle($this->vehicle(), array(), array( 'pickup_location' => '7' ));
+		$this->assertSame('', $undated['price']['required_note'], 'A daily price includes no service.');
+	}
+
+	public function test_the_card_prints_the_note_under_the_total(): void
+	{
+		$this->required_addon('Full insurance', '25');
+		$vehicle = $this->vehicle();
+		$atts    = array();
+		$dates   = array( 'pickup_date' => '2027-07-12', 'return_date' => '2027-07-15' );
+
+		ob_start();
+		include dirname(__DIR__, 3) . '/templates/partials/rvs-vehicle-card.php';
+		$html = (string) ob_get_clean();
+
+		$this->assertMatchesRegularExpression('#class="rvs-card__per"[^<]*</div>\s*<div class="rvs-card__required">Required service included: Full insurance #', $html);
+	}
+
 	public function test_daily_price_without_dates(): void
 	{
 		$view = RvsCardView::from_vehicle($this->vehicle(), array(), array( 'pickup_location' => '7' ));

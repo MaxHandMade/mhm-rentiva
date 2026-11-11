@@ -334,6 +334,13 @@
 	font-size: 13px;
 }
 
+/* Ç6: the required services a dated total includes (body color, not muted). */
+.rvs-shell .rvs-card__required {
+	margin-top: 2px;
+	color: var(--rvs-text);
+	font-size: 13px;
+}
+
 .rvs-shell .rvs-card__select {
 	flex: none;
 	border-radius: var(--rvs-card-btn-radius);

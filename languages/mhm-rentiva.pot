@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-11T00:46:44+00:00\n"
+"POT-Creation-Date: 2026-11-11T01:09:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -3495,7 +3495,7 @@ msgid "Removed from favorites."
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:663
-#: templates/partials/rvs-vehicle-card.php:160
+#: templates/partials/rvs-vehicle-card.php:163
 #: templates/partials/vehicle-card.php:111
 #: templates/partials/vehicle-card.php:112
 #: templates/partials/vehicle-card.php:124
@@ -6761,7 +6761,7 @@ msgid "No vehicles found"
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:506
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:464
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:500
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:297
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:208
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:433
@@ -7407,7 +7407,7 @@ msgid "Price on request"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/CalendarView.php:437
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:399
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:402
 msgid "per day"
 msgstr ""
 
@@ -7465,10 +7465,18 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of days, 2: formatted daily price.
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:389
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:391
 #, php-format
 msgid "%1$d day total · %2$s/day"
 msgid_plural "%1$d days total · %2$s/day"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: comma-separated service names, 2: formatted amount they add to the total.
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:476
+#, php-format
+msgid "Required service included: %1$s %2$s"
+msgid_plural "Required services included: %1$s %2$s"
 msgstr[0] ""
 msgstr[1] ""
 
