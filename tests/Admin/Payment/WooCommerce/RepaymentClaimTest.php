@@ -457,12 +457,19 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertGreaterThan(current_time('mysql', true), (string) get_post_meta($booking, '_mhmrentiva_payment_deadline', true), 'A holds its dates when the payment arrives.');
 
 		global $wpdb;
-		$vehicle = $this->vehicle_id;
 		$fired   = false;
 		$other   = 0;
-		$race    = function ($query) use (&$fired, &$other, $vehicle, $booking, $wpdb) {
+		$race    = function ($query) use (&$fired, &$other, $booking, $wpdb) {
 			$sql      = (string) $query;
-			$locks    = (bool) preg_match('/FOR UPDATE/i', $sql) && str_contains($sql, 'post_id = ' . $vehicle);
+			// "Before A takes the vehicle's lock" is the moment Locker::withLock()
+			// opens its transaction. B cannot run any later than that here: a
+			// real B is another connection and waits on A's row lock, while this
+			// in-process B would open its own transaction inside A's -- MySQL
+			// commits A's implicitly, the very thing Locker refuses (PR-2 A5).
+			// Until PR-2 the race fired on A's FOR UPDATE and leaned on that
+			// implicit commit.
+			$locks    = (bool) preg_match('/^\s*START TRANSACTION/i', $sql)
+				&& in_array(\MHMRentiva\Admin\Booking\Helpers\Locker::class . '::withLock', array_map(static fn($f) => ( $f['class'] ?? '' ) . '::' . $f['function'], debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)), true);
 			$confirms = (bool) preg_match('/^\s*(UPDATE|INSERT)/i', $sql) && str_contains($sql, $wpdb->postmeta) && str_contains($sql, '_mhmrentiva_status') && str_contains($sql, (string) $booking);
 			if ($fired || ( ! $locks && ! $confirms )) {
 				return $query;
@@ -482,12 +489,13 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 
 			return $query;
 		};
-		add_filter('query', $race);
+		// Priority 1: set_up() turns START TRANSACTION into SELECT 1 at 10.
+		add_filter('query', $race, 1);
 
 		$a->set_status($arm);
 		$a->save();
 		WooCommerceBridge::handle_order_status_change($a->get_id(), 'pending', $arm, wc_get_order($a->get_id()));
-		remove_filter('query', $race);
+		remove_filter('query', $race, 1);
 
 		$this->assertTrue($fired, 'The race ran.');
 		wp_cache_delete($booking, 'post_meta');

@@ -41,7 +41,8 @@
       "Changed: My bookings is ordered within each section: Upcoming soonest pickup first, Past and Cancelled latest first. Saved blocks and widgets that used the old default order follow it too. The new \"Automatic\" order option is the default; an order chosen explicitly still applies.",
       "Removed: the dashboard no longer reads the unregistered options mhmrentiva_customer_dashboard_welcome, mhmrentiva_customer_favorites and mhmrentiva_customer_booking_history. No settings screen wrote them; a value set by hand has no effect any more.",
       "Changed: the new front-end pages use the Plus Jakarta Sans typeface, served from your own site (the same font file the admin screens already used). The unused Source Serif 4 font files are no longer shipped.",
-      "Changed: the Customers and Contact Messages tables are named for screen readers and show a partly selected page on the select-all box; the Customers table sorts through a real button that announces the sorted column. mhm/ui-core is 0.20.1."
+      "Changed: the Customers and Contact Messages tables are named for screen readers and show a partly selected page on the select-all box; the Customers table sorts through a real button that announces the sorted column. mhm/ui-core is 0.20.1.",
+      "Fixed: a failed or cancelled remaining-balance payment no longer cancels the booking. A remaining payment that no longer matches the booking's balance does not clear it silently: the balance is kept and the booking is flagged for staff, with an order note. Only the booking's current payment link can take the remaining payment."
     ]
   },
   {
