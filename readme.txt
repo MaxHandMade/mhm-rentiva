@@ -218,6 +218,7 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 * Changed: the customer's file upload is now called "Upload bank receipt". It appears, and the server accepts or removes a file, only while a booking awaits payment or confirmation and no money has been received. Staff can still remove a file.
 * Changed: payment history shows the car name, the amount actually paid, and the right status for a paid booking.
 * Fixed: the free-cancellation deadline used the wrong pickup time on bookings created by hand.
+* Fixed: a remaining-balance payment no longer cancels a paid booking or settles a changed balance; a mismatch is flagged for staff.
 * Fixed: Payment Management refunds no longer refused a day after booking.
 * Changed: in My Account's privacy controls, "Withdraw Consent" appears only once the customer has given consent.
 * Fixed: "Clear all favorites" no longer shows an error message before it runs.

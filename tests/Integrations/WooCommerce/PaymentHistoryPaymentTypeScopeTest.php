@@ -77,9 +77,30 @@ final class PaymentHistoryPaymentTypeScopeTest extends WP_Ajax_UnitTestCase {
 		return $out;
 	}
 
-	public function test_switching_an_existing_booking_to_full_writes_one_row(): void {
+	/**
+	 * PR-2 A4 changed this case. The fixture's booking already holds money
+	 * (payment status paid), and the checkout's type switch no longer rewrites
+	 * such a booking: it used to set its remaining amount from total - deposit,
+	 * which reopened a settled balance. Until PR-2 this asserted the one
+	 * partially_paid -> paid row that rewrite produced. Nothing is written now.
+	 * (The branch is legacy: add_booking_to_cart() has no production caller,
+	 * BookingQueryHelper.php:335.)
+	 */
+	public function test_switching_a_booking_that_holds_money_writes_nothing(): void {
 		$this->dispatch( 'full' );
-		$this->assertSame( array( array( 'partially_paid', 'paid' ) ), $this->rows() );
+		$this->assertSame( array(), $this->rows() );
+		$this->assertSame( 'deposit', (string) get_post_meta( $this->booking_id, '_mhmrentiva_payment_type', true ) );
+		$this->assertEquals( 800, (float) get_post_meta( $this->booking_id, '_mhmrentiva_remaining_amount', true ) );
+	}
+
+	public function test_switching_a_booking_still_waiting_for_payment_rewrites_it(): void {
+		update_post_meta( $this->booking_id, '_mhmrentiva_payment_status', 'pending' );
+
+		$this->dispatch( 'full' );
+
+		$this->assertSame( 'full', (string) get_post_meta( $this->booking_id, '_mhmrentiva_payment_type', true ) );
+		$this->assertEquals( 0, (float) get_post_meta( $this->booking_id, '_mhmrentiva_remaining_amount', true ) );
+		$this->assertLessThanOrEqual( 1, count( $this->rows() ), 'still one payment-history scope' );
 	}
 
 	public function test_the_same_choice_again_writes_nothing(): void {

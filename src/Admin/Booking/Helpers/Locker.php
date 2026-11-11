@@ -31,10 +31,15 @@ final class Locker {
 
 		$locked = false;
 
+		if ( ! self::may_open() ) {
+			return null;
+		}
+
 		// Start transaction
 		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
 			return null;
 		}
+		self::$open = true;
 
 		try {
 			// prefix-rename:ignore-start
@@ -100,7 +105,34 @@ final class Locker {
 			// a transaction that would never be committed.
 			$wpdb->query( 'ROLLBACK' );
 			throw $e;
+		} finally {
+			self::$open = false;
 		}
+	}
+
+	/**
+	 * Is a transaction this class opened still open on this request?
+	 *
+	 * MySQL has no nested transactions: a START TRANSACTION while one is open
+	 * commits the open one implicitly and drops its row locks, with no error
+	 * (WooCommerceBridge.php:1822-1827 relies on knowing this). Both lock
+	 * methods therefore refuse to open a second one, in either order (PR-2 A5).
+	 * A transaction opened by other code is not seen here.
+	 */
+	private static bool $open = false;
+
+	private static function may_open(): bool {
+		if ( ! self::$open ) {
+			return true;
+		}
+
+		_doing_it_wrong(
+			__METHOD__,
+			esc_html__( 'A booking or vehicle lock was requested while another one is held on this request. MySQL would commit the held lock implicitly, so the request is refused.', 'mhm-rentiva' ),
+			'6.4.0'
+		);
+
+		return false;
 	}
 
 	/**
@@ -120,7 +152,19 @@ final class Locker {
 	public static function withBookingLock( int $booking_id, callable $callback ) {
 		global $wpdb;
 
-		$wpdb->query( 'START TRANSACTION' );
+		// Same contract as withLock() (PR-2 A5): a transaction that could not be
+		// opened, a lock read that failed, or a booking row that is not there is
+		// not a lock. Until PR-2 none of the three was checked and the callback
+		// ran unlocked; its one caller already reads null as "could not create
+		// the order" (RemainingPaymentHandler::get_or_create_remaining_order()).
+		if ( ! self::may_open() ) {
+			return null;
+		}
+
+		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
+			return null;
+		}
+		self::$open = true;
 
 		try {
 			// prefix-rename:ignore-start
@@ -138,24 +182,39 @@ final class Locker {
 				)
 			);
 			// prefix-rename:ignore-end
+			if ( self::last_query_failed() ) {
+				$wpdb->query( 'ROLLBACK' );
+				return null;
+			}
 
 			// Same reason as withLock(): a booking with no matching meta rows would
 			// otherwise be "locked" by a gap lock that excludes nobody.
-			$wpdb->get_results(
+			$row = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT ID FROM {$wpdb->posts} WHERE ID = %d FOR UPDATE",
 					$booking_id
 				)
 			);
+			if ( self::last_query_failed() || ! is_array( $row ) || array() === $row ) {
+				$wpdb->query( 'ROLLBACK' );
+				return null;
+			}
 
 			$result = $callback();
-			$wpdb->query( 'COMMIT' );
+
+			// A commit that fails kept nothing the callback wrote.
+			if ( false === $wpdb->query( 'COMMIT' ) ) {
+				$wpdb->query( 'ROLLBACK' );
+				return null;
+			}
 
 			return $result;
 		} catch ( \Throwable $e ) {
 			// See withLock(): \Exception alone let \Error escape without rollback.
 			$wpdb->query( 'ROLLBACK' );
 			throw $e;
+		} finally {
+			self::$open = false;
 		}
 	}
 

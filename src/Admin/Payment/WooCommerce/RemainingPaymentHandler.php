@@ -97,6 +97,45 @@ final class RemainingPaymentHandler {
 		return (int) round( (float) $major * ( 10 ** self::debt_decimals() ));
 	}
 
+	/** An amount_verdict() answer: the order asks for exactly what the booking owes. */
+	public const VERDICT_MATCH = 'match';
+
+	/** An amount_verdict() answer: the order asks for anything else, or the booking owes nothing. */
+	public const VERDICT_MISMATCH = 'mismatch';
+
+	/**
+	 * Does this remaining-payment order ask for what the booking owes?
+	 *
+	 * The one rule, used where an order is reused, where it is about to take
+	 * money and where its payment lands (PR-2 r5): it had two copies that had
+	 * already drifted apart, and a third would have drifted too. The order
+	 * carries the gross amount it was built for (`_mhmrentiva_remaining_due_minor`,
+	 * stamped at build time); its own total can differ through tax for the
+	 * billing address, so the total is the fallback only for an order built
+	 * before the stamp existed. The amount is a number in the store's own
+	 * currency: an order in any other currency asks for a different sum. A
+	 * booking that owes nothing is never matched.
+	 *
+	 * @param int $owed_minor What the booking owes, at the debt's precision (debt_minor()).
+	 */
+	public static function amount_verdict(\WC_Order $order, int $owed_minor): string
+	{
+		if ( (string) $order->get_currency() !== self::debt_currency() || $owed_minor <= 0) {
+			return self::VERDICT_MISMATCH;
+		}
+
+		$stamp = $order->get_meta('_mhmrentiva_remaining_due_minor', true);
+		$asks  = is_numeric($stamp) ? (int) $stamp : self::debt_minor( (string) $order->get_total());
+
+		return $asks === $owed_minor ? self::VERDICT_MATCH : self::VERDICT_MISMATCH;
+	}
+
+	/** Was the order stamped with the amount it was built for (PR-1 onwards)? */
+	public static function is_stamped(\WC_Order $order): bool
+	{
+		return is_numeric($order->get_meta('_mhmrentiva_remaining_due_minor', true));
+	}
+
 	/**
 	 * Create (or reuse an existing pending/on-hold) WC order for a booking's
 	 * remaining amount. Pure order logic — no AJAX/nonce/ownership concerns,
@@ -215,16 +254,20 @@ final class RemainingPaymentHandler {
 		// on it could still complete. It simply cannot take money any more:
 		// WooCommerceBridge::stale_remaining_order_notice() refuses it before the
 		// gateway.
+		//
+		// A failed order is reused too (PR-2 A2): the customer retries a declined
+		// card on the same order, and building a new one beside it would turn
+		// the order they are retrying into one that is no longer the link.
 		$due_minor                   = self::debt_minor($remaining_amount);
 		$existing_remaining_order_id = (int) get_post_meta($booking_id, '_mhmrentiva_remaining_order_id', true);
 		if ($existing_remaining_order_id) {
 			$existing_order = wc_get_order($existing_remaining_order_id);
-			if ($existing_order && in_array($existing_order->get_status(), array( 'pending', 'on-hold' ), true)) {
-				$stamp = $existing_order->get_meta('_mhmrentiva_remaining_due_minor', true);
-				$asks  = is_numeric($stamp) ? (int) $stamp : self::debt_minor( (string) $existing_order->get_total());
-				if ($asks === $due_minor && (string) $existing_order->get_currency() === self::debt_currency()) {
-					return $existing_order;
-				}
+			if (
+				$existing_order
+				&& in_array($existing_order->get_status(), array( 'pending', 'on-hold', 'failed' ), true)
+				&& self::VERDICT_MATCH === self::amount_verdict($existing_order, $due_minor)
+			) {
+				return $existing_order;
 			}
 		}
 
