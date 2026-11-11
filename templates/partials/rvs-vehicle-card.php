@@ -139,6 +139,9 @@ $mhmrentiva_fav_label   = $mhmrentiva_card['favorite']['active'] ? __('Remove fr
 						<?php if ('' !== $mhmrentiva_card['price']['secondary']) : ?>
 							<div class="rvs-card__per"><?php echo esc_html($mhmrentiva_card['price']['secondary']); ?></div>
 						<?php endif; ?>
+						<?php if ('' !== ( $mhmrentiva_card['price']['required_note'] ?? '' )) : ?>
+							<div class="rvs-card__required"><?php echo esc_html($mhmrentiva_card['price']['required_note']); ?></div>
+						<?php endif; ?>
 					</div>
 				<?php endif; ?>
 				<?php if ($mhmrentiva_card['booking']['show']) : ?>

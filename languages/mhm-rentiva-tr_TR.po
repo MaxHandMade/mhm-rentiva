@@ -7603,6 +7603,14 @@ msgstr "Rezervasyonu tamamla"
 msgid "Required · included in the rental"
 msgstr "Zorunlu · kiralamaya dahil"
 
+#. translators: 1: comma-separated service names, 2: formatted amount they add to the total.
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:476
+#, php-format
+msgid "Required service included: %1$s %2$s"
+msgid_plural "Required services included: %1$s %2$s"
+msgstr[0] "Zorunlu hizmet dahil: %1$s %2$s"
+msgstr[1] "Zorunlu hizmetler dahil: %1$s %2$s"
+
 #. translators: %d: the most of this add-on one booking can take.
 #. translators: %d: the most vehicles that can be compared.
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:607
