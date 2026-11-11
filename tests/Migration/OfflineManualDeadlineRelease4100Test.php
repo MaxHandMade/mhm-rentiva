@@ -89,6 +89,37 @@ final class OfflineManualDeadlineRelease4100Test extends WP_UnitTestCase
 		$this->assertSame(1, (int) BookingConflicts::count_booking_overlaps_locked($this->vehicle_id, $start, $start + DAY_IN_SECONDS), 'The hand-entered booking holds its vehicle again.');
 	}
 
+	public function test_4100_judges_on_timestamps_the_480_rebuild_has_already_corrected(): void
+	{
+		// Fable #196 r3: a real upgrade from 6.3.1 (DB 4.6.0) runs the 4.8.0
+		// timestamp rebuild and this step in one body. Before the rebuild a
+		// checkout booking's stored instants can be off by the site's UTC
+		// offset, so the conflict check must run after it. Here the dates
+		// overlap but the checkout booking's stored instants are far off:
+		// judged before the rebuild the dates look free and the hold comes
+		// back twice.
+		$pickup         = gmdate('Y-m-d', time() + 10 * DAY_IN_SECONDS);
+		$dropoff        = gmdate('Y-m-d', time() + 12 * DAY_IN_SECONDS);
+		$far            = time() + 200 * DAY_IN_SECONDS;
+		$manual_offline = $this->booking('admin_manual', 'offline', $far);
+		$taken_since    = $this->booking('woocommerce_checkout', 'woocommerce', $far + 30 * DAY_IN_SECONDS);
+		update_post_meta($taken_since, '_mhmrentiva_status', 'confirmed');
+		update_post_meta($taken_since, '_mhmrentiva_payment_status', 'paid');
+		foreach (array( $manual_offline, $taken_since ) as $id) {
+			update_post_meta($id, '_mhmrentiva_pickup_date', $pickup);
+			update_post_meta($id, '_mhmrentiva_pickup_time', '10:00');
+			update_post_meta($id, '_mhmrentiva_dropoff_date', $dropoff);
+			update_post_meta($id, '_mhmrentiva_dropoff_time', '10:00');
+		}
+		delete_option(DatabaseMigrator::BOOKING_TS_DONE_OPTION);
+		update_option('mhmrentiva_db_version', '4.7.0');
+
+		DatabaseMigrator::run_migrations();
+
+		$this->assertSame('1', get_option(DatabaseMigrator::BOOKING_TS_DONE_OPTION), 'Premise: the rebuild ran.');
+		$this->assertNotSame('', $this->deadline($manual_offline), 'Judged on corrected instants: the dates are taken.');
+	}
+
 	public function test_4100_does_not_restore_a_hold_someone_else_has_taken_since(): void
 	{
 		// PR #196 review (P1): while the old deadline ran out the dates were

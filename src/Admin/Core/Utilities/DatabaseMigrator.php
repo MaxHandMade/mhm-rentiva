@@ -564,10 +564,16 @@ final class DatabaseMigrator {
 			self::rebuild_elementor_plain_text_460();
 			self::clear_elementor_css_470();
 			self::clear_elementor_css_490();
-			self::release_offline_manual_deadlines_4100();
 			// A body run is a new version gate: the retry lane's budget starts over.
 			delete_option(self::BOOKING_TS_ATTEMPTS_OPTION);
 			self::normalise_booking_timestamps_480();
+			// 4.10.0 judges each booking on its stored instants, so it runs only
+			// once the 4.8.0 rebuild has corrected them (an upgrade from 6.3.1
+			// runs both in this body). Unfinished: the retry lane runs it when
+			// the rebuild completes (retry_booking_timestamps_480()).
+			if (self::booking_ts_done()) {
+				self::release_offline_manual_deadlines_4100();
+			}
 
 			// Retire the core-table index surface. RetiredIndexes is the single
 			// source of truth: uninstall.php calls the same method, against the
@@ -749,6 +755,10 @@ final class DatabaseMigrator {
 			update_option(self::BOOKING_TS_ATTEMPTS_OPTION, $attempts, false);
 
 			$counts = self::normalise_booking_timestamps_480();
+			if (self::booking_ts_done()) {
+				// Deferred from the body run: see run_migrations_locked().
+				self::release_offline_manual_deadlines_4100();
+			}
 
 			if (! self::booking_ts_done()
 				&& $attempts >= self::BOOKING_TS_MAX_ATTEMPTS
@@ -1617,7 +1627,7 @@ final class DatabaseMigrator {
 			if ($vehicle_id > 0 && $start_ts > 0 && $end_ts > $start_ts) {
 				$outcome = \MHMRentiva\Admin\Booking\Helpers\Locker::withLock(
 					$vehicle_id,
-					static function () use ($id, $vehicle_id, $start_ts, $end_ts): ?bool {
+					static function () use ($id, $vehicle_id, $start_ts, $end_ts): bool|string|null {
 						$overlaps = \MHMRentiva\Admin\Booking\Helpers\BookingConflicts::count_booking_overlaps_locked($vehicle_id, $start_ts, $end_ts, $id);
 						if (null === $overlaps) {
 							return null;
@@ -1626,7 +1636,7 @@ final class DatabaseMigrator {
 							return false;
 						}
 
-						return delete_post_meta($id, '_mhmrentiva_payment_deadline');
+						return delete_post_meta($id, '_mhmrentiva_payment_deadline') ? true : 'delete_failed';
 					}
 				);
 			}
@@ -1645,7 +1655,7 @@ final class DatabaseMigrator {
 				$id,
 				array(
 					'surface' => 'migration_4100',
-					'reason'  => false === $outcome ? 'dates_taken' : 'not_checkable',
+					'reason'  => false === $outcome ? 'dates_taken' : ( 'delete_failed' === $outcome ? 'delete_failed' : 'not_checkable' ),
 				),
 				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 			);
