@@ -79,9 +79,13 @@
 			if ( label ) {
 				this.setAttribute( 'aria-label', chosen && selected ? label + ', ' + selected : label );
 			}
-			$( this ).closest( '.rvs-cal__day' )
+			// Ç6: a partly free day (is-partial-from/until stays on the cell) goes
+			// back to "partial" when released, not to "available".
+			const $day = $( this ).closest( '.rvs-cal__day' );
+			const base = $day.is( '.is-partial-from, .is-partial-until' ) ? 'is-partial' : 'is-available';
+			$day
 				.toggleClass( 'is-selected', chosen )
-				.toggleClass( 'is-available', ! chosen )
+				.toggleClass( base, ! chosen )
 				.toggleClass( 'is-range-start', date === state.start )
 				.toggleClass( 'is-range-end', date === last );
 		} );
@@ -128,6 +132,9 @@
 			.toggleClass( 'rvs-sr-only', ! filled && !! note );
 		$root.find( '[data-rvs-cal-range]' ).text( range );
 		$root.find( '[data-rvs-cal-time]' ).text( time );
+		// Ç6: a start day that is free only from a later time moved the pickup.
+		const partialNote = quote && quote.available ? quote.partial_note || '' : '';
+		$root.find( '[data-rvs-cal-note]' ).text( partialNote ).prop( 'hidden', ! partialNote );
 		// Server HTML (PriceDisplay), like the months.
 		const $total = $root.find( '[data-rvs-cal-total]' ).html( total );
 

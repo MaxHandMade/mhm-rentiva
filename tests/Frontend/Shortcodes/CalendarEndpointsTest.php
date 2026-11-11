@@ -377,11 +377,12 @@ final class CalendarEndpointsTest extends WP_Ajax_UnitTestCase
 			'months_to_show' => '1',
 		);
 
-		$this->assertStringNotContainsString('is-booked', $this->call('mhmrentiva_calendar_months', $post)['data']['html']);
+		$this->assertStringNotContainsString('is-closed', $this->call('mhmrentiva_calendar_months', $post)['data']['html']);
 
 		update_post_meta($this->vehicle_id, '_mhmrentiva_blocked_dates', array( '2099-03-15' ));
 
-		$this->assertStringContainsString('is-booked', $this->call('mhmrentiva_calendar_months', $post)['data']['html']);
+		// Ç6: a day blocked by hand is "Closed", no longer painted as booked.
+		$this->assertStringContainsString('is-closed', $this->call('mhmrentiva_calendar_months', $post)['data']['html']);
 	}
 
 	public function test_old_endpoint_and_data_paths_are_gone(): void

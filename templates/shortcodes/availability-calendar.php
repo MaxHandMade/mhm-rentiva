@@ -72,7 +72,9 @@ $mhmrentiva_cal_classes = trim('rvs-availability rv-theme-' . sanitize_html_clas
 	<?php if ($mhmrentiva_view['show_legend']) : ?>
 		<ul class="rvs-availability__legend">
 			<li><span class="rvs-availability__swatch rvs-availability__swatch--available" aria-hidden="true"></span><?php esc_html_e('Available', 'mhm-rentiva'); ?></li>
+			<li><span class="rvs-availability__swatch rvs-availability__swatch--partial" aria-hidden="true"></span><?php esc_html_e('Partly available', 'mhm-rentiva'); ?></li>
 			<li><span class="rvs-availability__swatch rvs-availability__swatch--booked" aria-hidden="true"></span><?php esc_html_e('Booked', 'mhm-rentiva'); ?></li>
+			<li><span class="rvs-availability__swatch rvs-availability__swatch--closed" aria-hidden="true"></span><?php esc_html_e('Closed', 'mhm-rentiva'); ?></li>
 			<li><span class="rvs-availability__swatch rvs-availability__swatch--past" aria-hidden="true"></span><?php esc_html_e('Past', 'mhm-rentiva'); ?></li>
 		</ul>
 	<?php endif; ?>

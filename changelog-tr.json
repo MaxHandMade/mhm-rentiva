@@ -11,6 +11,7 @@
       "Yeni: sonuç sayfasında filtre sütunu ve Kategori filtresi, etkin filtreler için kaldırılabilir çipler, araç sayısı · tarihler · gün sayısı satırı, tarih varken toplam fiyata göre sıralama, ızgara/liste anahtarı ve sayfa düğmeleri var. Filtre, sıralama ya da sayfa değişince tarihler ve bütün filtreler korunur.",
       "Yeni: telefonda sonuç sayfası \"Değiştir\" bağlantılı bir özet kartı gösterir; filtreler klavyeyle de kullanılan tam ekran bir çekmecede açılır.",
       "Yeni: karşılaştırma bandı seçilen araç sayısını (en çok 3), adlarını ve karşılaştırma sayfası bağlantısını gösterir.",
+      "Değişti: müsaitlik takvimleri kısmen müsait günü gösteriyor: bir rezervasyonun dönüş günü dönüş saati + ara süreden sonra, sonrakinin alış günü alış saati − ara süreden önce müsait (yarım boyalı, saatiyle). Yöneticinin elle kapattığı gün \"Rezerve\" değil \"Kapalı\" görünüyor. Dönüş günü başlangıç seçilirse alış saati oraya kayar ve takvim bunu söyler.",
       "Yeni: boş sonuç nedenini söyler: henüz tarih seçilmedi, bu tarihlerde müsait araç yok, filtreler hiçbir şey bırakmadı ya da listelenmiş araç yok.",
       "Yeni: araç kartı araç ızgarası, liste, öne çıkanlar, arama sonuçları ve Hesabım > Favoriler'de yenilendi. Arama tarihleri varken kiralamanın toplamını (zorunlu ek hizmetler dahil) ve günlük fiyatı gösterir; kişi, vites ve yakıt, kapora ve ücretsiz iptal süresini yazar. Elementor araç kartı stil ayarları çalışmaya devam eder.",
       "Yeni: ön yüz ziyaretçinin sistem yazı tipini kullanır, yazı tipi dosyası yüklemez.",

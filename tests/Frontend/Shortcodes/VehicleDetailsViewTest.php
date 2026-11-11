@@ -186,7 +186,10 @@ final class VehicleDetailsViewTest extends WP_UnitTestCase
 			}
 		}
 		$this->assertSame('selected', $days['2027-07-13']);
-		$this->assertSame('booked', $days['2027-07-20']);
+		// Ç6: the booking's pickup day is free until pickup - buffer, its
+		// return day free from return + buffer -- both partly free now.
+		$this->assertSame('partial', $days['2027-07-20']);
+		$this->assertSame('partial', $days['2027-07-21']);
 	}
 
 	public function test_booking_continue_url_carries_window(): void

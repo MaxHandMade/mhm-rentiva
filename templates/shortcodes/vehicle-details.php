@@ -198,7 +198,9 @@ $rating        = $view['rating'];
 					</div>
 					<ul class="rvs-vd__legend">
 						<li><span class="rvs-vd__swatch rvs-vd__swatch--selected" aria-hidden="true"></span><?php esc_html_e('Selected', 'mhm-rentiva'); ?></li>
+						<li><span class="rvs-vd__swatch rvs-vd__swatch--partial" aria-hidden="true"></span><?php esc_html_e('Partly available', 'mhm-rentiva'); ?></li>
 						<li><span class="rvs-vd__swatch rvs-vd__swatch--booked" aria-hidden="true"></span><?php esc_html_e('Booked', 'mhm-rentiva'); ?></li>
+						<li><span class="rvs-vd__swatch rvs-vd__swatch--closed" aria-hidden="true"></span><?php esc_html_e('Closed', 'mhm-rentiva'); ?></li>
 					</ul>
 				</section>
 			<?php endif; ?>

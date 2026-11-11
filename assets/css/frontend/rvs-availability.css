@@ -182,6 +182,17 @@
 	background: transparent;
 }
 
+/* Ç6: partly available (split cell) and closed (hatched), as in the grid. */
+.rvs-shell .rvs-availability__swatch--partial {
+	border-color: var(--rvs-line);
+	background: linear-gradient(135deg, var(--rvs-n-300) 50%, var(--rvs-raised) 50%);
+}
+
+.rvs-shell .rvs-availability__swatch--closed {
+	border-color: var(--rvs-line-strong);
+	background: repeating-linear-gradient(45deg, var(--rvs-n-200) 0 3px, var(--rvs-n-300) 3px 5px);
+}
+
 /* Selection panel ---------------------------------------------------------- */
 
 .rvs-shell .rvs-availability__panel {
@@ -219,6 +230,20 @@
 .rvs-shell .rvs-availability__time {
 	color: var(--rvs-muted);
 	font-size: 14px;
+}
+
+/* Ç6: the pickup moved to a partly free day's first free time. */
+.rvs-shell .rvs-availability__note {
+	margin: 0;
+	padding: 8px 12px;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-accent-100);
+	color: var(--rvs-accent-deep);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-availability__note[hidden] {
+	display: none;
 }
 
 .rvs-shell .rvs-availability__total {

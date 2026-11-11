@@ -407,6 +407,125 @@ final class BookingConflicts {
 	}
 
 	/**
+	 * Per day, WHEN the vehicle is taken, inside [$from, $to] (inclusive,
+	 * site-local dates): `booked` (the whole day, or two pieces of it),
+	 * `closed` (blocked by hand; outranks a booking), or `partial` with
+	 * `until` (free until then, the next hold starts) or `from` (free from
+	 * then, a hold has ended). Free days are absent.
+	 *
+	 * Same inputs as calendar_days() -- booking_intervals() and the blocked
+	 * days -- and the conflict rule's hold: the booking widened by the
+	 * buffer on both sides (start - buffer < window end, end + buffer >
+	 * window start). Times are local `H:i` on the half-hour grid the quote
+	 * accepts (VehicleDetailsView::window()): `from` rounds up, `until`
+	 * rounds down, so the calendar never offers a slot the server refuses.
+	 * A hold that leaves free time on both sides of one day marks it
+	 * booked: a day grid has no room for two times (Ç6, 2026-11-11).
+	 *
+	 * @return array<string, array{state: string, from?: string, until?: string}>
+	 */
+	public static function calendar_day_states(int $vehicle_id, string $from, string $to): array
+	{
+		$start = SiteTime::instant($from);
+		$last  = SiteTime::instant($to);
+		if (null === $start || null === $last || $to < $from || $vehicle_id <= 0) {
+			return array();
+		}
+		$after = ( new \DateTimeImmutable('@' . $last) )->setTimezone(wp_timezone())->setTime(12, 0)->modify('+1 day')->format('Y-m-d');
+		$end   = SiteTime::instant($after);
+		if (null === $end) {
+			return array();
+		}
+
+		$buffer = self::buffer_seconds();
+		$states = array();
+		foreach (self::booking_intervals(array( $vehicle_id ), $start - 1, $end)[ $vehicle_id ] ?? array() as $interval) {
+			self::paint_hold($states, $interval[0] - $buffer, $interval[1] + $buffer, $from, $to);
+		}
+		foreach (self::blocked_days_in($vehicle_id, $start, $end) as $day) {
+			if ($day >= $from && $day <= $to) {
+				$states[ $day ] = array( 'state' => 'closed' );
+			}
+		}
+		ksort($states);
+
+		return $states;
+	}
+
+	/**
+	 * Paint one hold [$hold_start, $hold_end) onto the day states.
+	 *
+	 * @param array<string, array{state: string, from?: string, until?: string}> $states
+	 */
+	private static function paint_hold(array &$states, int $hold_start, int $hold_end, string $from, string $to): void
+	{
+		if ($hold_end <= $hold_start) {
+			return;
+		}
+		$tz  = wp_timezone();
+		$day = ( new \DateTimeImmutable('@' . $hold_start) )->setTimezone($tz)->setTime(12, 0);
+		if (SiteTime::local_date($hold_start) < $from) {
+			$day = ( new \DateTimeImmutable($from . ' 12:00:00', $tz) );
+		}
+		$stop = min(SiteTime::local_date($hold_end), $to);
+
+		for ($date = $day->format('Y-m-d'); $date <= $stop; $date = $day->format('Y-m-d')) {
+			$day       = $day->modify('+1 day');
+			$day_start = (int) SiteTime::instant($date);
+			$day_end   = (int) SiteTime::instant($day->format('Y-m-d'));
+			$busy_from = max($hold_start, $day_start);
+			$busy_to   = min($hold_end, $day_end);
+			if ($busy_to <= $busy_from) {
+				continue;
+			}
+
+			$state      = array( 'state' => 'booked' );
+			$free_early = $busy_from > $day_start;
+			$free_late  = $busy_to < $day_end;
+			if ($free_early && ! $free_late) {
+				$until = self::grid_minutes($busy_from, false);
+				if ($until > 0) {
+					$state = array(
+						'state' => 'partial',
+						'until' => self::hhmm($until),
+					);
+				}
+			} elseif ($free_late && ! $free_early) {
+				$from_min = self::grid_minutes($busy_to, true);
+				if ($from_min < 1440) {
+					$state = array(
+						'state' => 'partial',
+						'from'  => self::hhmm($from_min),
+					);
+				}
+			}
+
+			$states[ $date ] = isset($states[ $date ]) ? array( 'state' => 'booked' ) : $state;
+		}
+	}
+
+	/**
+	 * Local minutes since midnight of $ts on the half-hour grid.
+	 */
+	private static function grid_minutes(int $ts, bool $round_up): int
+	{
+		$local   = ( new \DateTimeImmutable('@' . $ts) )->setTimezone(wp_timezone());
+		$minutes = (int) $local->format('G') * 60 + (int) $local->format('i');
+		if ($round_up) {
+			$minutes += (int) $local->format('s') > 0 ? 1 : 0;
+
+			return (int) ( ceil($minutes / 30) * 30 );
+		}
+
+		return (int) ( floor($minutes / 30) * 30 );
+	}
+
+	private static function hhmm(int $minutes): string
+	{
+		return sprintf('%02d:%02d', intdiv($minutes, 60), $minutes % 60);
+	}
+
+	/**
 	 * The gap kept free on both sides of a booking, in seconds.
 	 */
 	public static function buffer_seconds(): int

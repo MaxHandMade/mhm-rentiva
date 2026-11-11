@@ -41,6 +41,26 @@ $mhmrentiva_cal_title       = (string) $mhmrentiva_cal['id'] . '-title';
 							<?php
 							$mhmrentiva_state   = (string) $mhmrentiva_cell['state'];
 							$mhmrentiva_classes = 'rvs-cal__day is-' . $mhmrentiva_state . ( ! empty($mhmrentiva_cell['today']) ? ' is-today' : '' );
+							// Ç6: a partly taken day says which half is free, also while selected,
+							// and prints its time (full; short for a narrow screen) under the number.
+							if ('' !== (string) ( $mhmrentiva_cell['partial_from'] ?? '' )) {
+								$mhmrentiva_classes .= ' is-partial-from';
+							} elseif ('' !== (string) ( $mhmrentiva_cell['partial_until'] ?? '' )) {
+								$mhmrentiva_classes .= ' is-partial-until';
+							}
+							$mhmrentiva_time = '';
+							if ('' !== (string) ( $mhmrentiva_cell['time'] ?? '' )) {
+								$mhmrentiva_time .= '<span class="rvs-cal__time" aria-hidden="true">' . esc_html( (string) $mhmrentiva_cell['time']) . '</span>';
+							}
+							if ('' !== (string) ( $mhmrentiva_cell['time_short'] ?? '' )) {
+								$mhmrentiva_time .= '<span class="rvs-cal__time-short" aria-hidden="true">' . esc_html( (string) $mhmrentiva_cell['time_short']) . '</span>';
+							}
+							$mhmrentiva_time_kses = array(
+								'span' => array(
+									'class'       => true,
+									'aria-hidden' => true,
+								),
+							);
 							if ($mhmrentiva_cal_interactive) {
 								$mhmrentiva_range = (string) ( $mhmrentiva_cell['range'] ?? '' );
 								if ('start' === $mhmrentiva_range || 'single' === $mhmrentiva_range) {
@@ -50,12 +70,12 @@ $mhmrentiva_cal_title       = (string) $mhmrentiva_cal['id'] . '-title';
 									$mhmrentiva_classes .= ' is-range-end';
 								}
 							}
-							$mhmrentiva_is_button = $mhmrentiva_cal_interactive && in_array($mhmrentiva_state, array( 'available', 'selected' ), true);
+							$mhmrentiva_is_button = $mhmrentiva_cal_interactive && in_array($mhmrentiva_state, array( 'available', 'selected', 'partial' ), true);
 							?>
 							<?php if ($mhmrentiva_is_button) : ?>
-							<td class="<?php echo esc_attr($mhmrentiva_classes); ?>" data-date="<?php echo esc_attr( (string) $mhmrentiva_cell['date']); ?>"<?php echo ! empty($mhmrentiva_cell['today']) ? ' aria-current="date"' : ''; ?>><button type="button" class="rvs-cal__btn" data-date="<?php echo esc_attr( (string) $mhmrentiva_cell['date']); ?>" aria-label="<?php echo esc_attr( (string) $mhmrentiva_cell['label']); ?>"><span class="rvs-cal__num"><?php echo esc_html( (string) $mhmrentiva_cell['day']); ?></span></button></td>
+							<td class="<?php echo esc_attr($mhmrentiva_classes); ?>" data-date="<?php echo esc_attr( (string) $mhmrentiva_cell['date']); ?>"<?php echo ! empty($mhmrentiva_cell['today']) ? ' aria-current="date"' : ''; ?>><button type="button" class="rvs-cal__btn" data-date="<?php echo esc_attr( (string) $mhmrentiva_cell['date']); ?>" aria-label="<?php echo esc_attr( (string) $mhmrentiva_cell['label']); ?>"><span class="rvs-cal__num"><?php echo esc_html( (string) $mhmrentiva_cell['day']); ?></span><?php echo wp_kses($mhmrentiva_time, $mhmrentiva_time_kses); ?></button></td>
 							<?php else : ?>
-							<td class="<?php echo esc_attr($mhmrentiva_classes); ?>" data-date="<?php echo esc_attr( (string) $mhmrentiva_cell['date']); ?>"<?php echo ! empty($mhmrentiva_cell['today']) ? ' aria-current="date"' : ''; ?>><span class="rvs-cal__num"><?php echo esc_html( (string) $mhmrentiva_cell['day']); ?></span><span class="rvs-sr-only">, <?php echo esc_html( (string) $mhmrentiva_cell['status']); ?></span></td>
+							<td class="<?php echo esc_attr($mhmrentiva_classes); ?>" data-date="<?php echo esc_attr( (string) $mhmrentiva_cell['date']); ?>"<?php echo ! empty($mhmrentiva_cell['today']) ? ' aria-current="date"' : ''; ?>><span class="rvs-cal__num"><?php echo esc_html( (string) $mhmrentiva_cell['day']); ?></span><?php echo wp_kses($mhmrentiva_time, $mhmrentiva_time_kses); ?><span class="rvs-sr-only">, <?php echo esc_html( (string) $mhmrentiva_cell['status']); ?></span></td>
 							<?php endif; ?>
 						<?php endif; ?>
 					<?php endforeach; ?>

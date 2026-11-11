@@ -130,8 +130,90 @@
 	border-radius: 0 var(--rvs-r) var(--rvs-r) 0;
 }
 
+/* Ç6: a partly taken day is split on the diagonal -- the taken half shaded,
+   the time it turns free (or stops being free) printed under the number.
+   A closed day (blocked by hand) is hatched and says "Closed". Both read by
+   more than colour: the time / the word, and the cell's label. */
+.rvs-shell .rvs-cal__day.is-partial-from:not(.is-selected) {
+	background: linear-gradient(135deg, var(--rvs-n-300) 50%, var(--rvs-raised) 50%);
+	box-shadow: inset 0 0 0 1px var(--rvs-line);
+}
+
+.rvs-shell .rvs-cal__day.is-partial-until:not(.is-selected) {
+	background: linear-gradient(135deg, var(--rvs-raised) 50%, var(--rvs-n-300) 50%);
+	box-shadow: inset 0 0 0 1px var(--rvs-line);
+}
+
+.rvs-shell .rvs-cal__day.is-closed {
+	background: repeating-linear-gradient(45deg, var(--rvs-n-200) 0 4px, var(--rvs-n-300) 4px 7px);
+	box-shadow: inset 0 0 0 1px var(--rvs-line-strong);
+	color: var(--rvs-text);
+}
+
+.rvs-shell .rvs-cal__day.is-partial-from,
+.rvs-shell .rvs-cal__day.is-partial-until,
+.rvs-shell .rvs-cal__day.is-closed {
+	height: 52px;
+}
+
+.rvs-shell .rvs-cal__btn:has(.rvs-cal__time) {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 1px;
+	line-height: 1.1;
+}
+
+.rvs-shell .rvs-cal__day:not(:has(.rvs-cal__btn)) .rvs-cal__time {
+	display: block;
+}
+
+.rvs-shell .rvs-cal__time,
+.rvs-shell .rvs-cal__time-short {
+	color: var(--rvs-text);
+	font-size: 11px;
+	font-weight: 500;
+	line-height: 1.1;
+}
+
+.rvs-shell .rvs-cal__day.is-selected .rvs-cal__time,
+.rvs-shell .rvs-cal__day.is-selected .rvs-cal__time-short {
+	color: var(--rvs-on-accent);
+}
+
+.rvs-shell .rvs-cal__day.is-closed .rvs-cal__time {
+	font-weight: 600;
+}
+
+.rvs-shell .rvs-cal__time-short {
+	display: none;
+}
+
 @media (max-width: 768px) {
 	.rvs-shell .rvs-cal__day {
 		height: 44px;
+	}
+
+	.rvs-shell .rvs-cal__day.is-partial-from,
+	.rvs-shell .rvs-cal__day.is-partial-until,
+	.rvs-shell .rvs-cal__day.is-closed {
+		height: 48px;
+	}
+}
+
+@media (max-width: 480px) {
+	.rvs-shell .rvs-cal__time {
+		display: none;
+	}
+
+	.rvs-shell .rvs-cal__day:not(:has(.rvs-cal__btn)) .rvs-cal__time {
+		display: none;
+	}
+
+	.rvs-shell .rvs-cal__time-short {
+		display: block;
+		font-size: 10px;
+		font-weight: 600;
 	}
 }
