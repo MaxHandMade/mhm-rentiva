@@ -458,8 +458,9 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 
 		global $wpdb;
 		$fired   = false;
+		$via     = '';
 		$other   = 0;
-		$race    = function ($query) use (&$fired, &$other, $booking, $wpdb) {
+		$race    = function ($query) use (&$fired, &$via, &$other, $booking, $wpdb) {
 			$sql      = (string) $query;
 			// "Before A takes the vehicle's lock" is the moment Locker::withLock()
 			// opens its transaction. B cannot run any later than that here: a
@@ -475,6 +476,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 				return $query;
 			}
 			$fired = true;
+			$via   = $locks ? 'lock' : 'confirm';
 
 			// The deadline runs out, and B books meanwhile.
 			update_post_meta($booking, '_mhmrentiva_payment_deadline', gmdate('Y-m-d H:i:s', time() - 1));
@@ -498,6 +500,11 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		remove_filter('query', $race, 1);
 
 		$this->assertTrue($fired, 'The race ran.');
+		// Both arms confirm under the vehicle's lock: a race that fired on the
+		// fallback would have run B inside A's lock, where Locker refuses it
+		// and the test passes without testing anything (Fable code r1).
+		$this->assertSame('lock', $via, 'The race fired before A took the lock.');
+		$this->assertGreaterThan(0, $other, 'B booked the dates while A had not locked yet.');
 		wp_cache_delete($booking, 'post_meta');
 		$a_holds = in_array(get_post_meta($booking, '_mhmrentiva_status', true), array( 'confirmed', 'completed' ), true);
 		$b_holds = $other > 0 && 'pending' === get_post_meta($other, '_mhmrentiva_status', true);

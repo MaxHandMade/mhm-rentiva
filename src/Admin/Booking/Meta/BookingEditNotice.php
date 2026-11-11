@@ -58,12 +58,17 @@ final class BookingEditNotice {
 			return;
 		}
 
-		$order_id  = (int) $flag['order_id'];
-		$order     = function_exists( 'wc_get_order' ) ? wc_get_order( $order_id ) : false;
+		// The flag outlives WooCommerce: written while it ran, it is still on
+		// the booking if WooCommerce is deactivated later. The notice must not
+		// fatal the edit screen then (Fable code r1 Ş3), and it still says
+		// that the balance needs a look.
+		$has_wc    = function_exists( 'wc_get_order' ) && function_exists( 'wc_price' );
+		$order     = $has_wc ? wc_get_order( (int) $flag['order_id'] ) : false;
 		$decimals  = \MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::debt_decimals();
 		$currency  = \MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::debt_currency();
+		$due_major = (int) ( $flag['due_minor'] ?? 0 ) / ( 10 ** $decimals );
 		$collected = $order instanceof \WC_Order ? wp_strip_all_tags( wc_price( (float) $order->get_total(), array( 'currency' => $order->get_currency() ) ) ) : '?';
-		$due       = wp_strip_all_tags( wc_price( (int) ( $flag['due_minor'] ?? 0 ) / ( 10 ** $decimals ), array( 'currency' => $currency ) ) );
+		$due       = $has_wc ? wp_strip_all_tags( wc_price( $due_major, array( 'currency' => $currency ) ) ) : number_format_i18n( $due_major, $decimals ) . ' ' . $currency;
 
 		$dismiss = wp_nonce_url(
 			add_query_arg(
@@ -78,15 +83,7 @@ final class BookingEditNotice {
 
 		printf(
 			'<div class="notice notice-warning"><p>%1$s</p><p><a class="button" href="%2$s">%3$s</a></p></div>',
-			esc_html(
-				sprintf(
-					/* translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount. */
-					__( 'A payment arrived on this booking for an amount that is no longer current (order #%1$d collected %2$s; the remaining amount is %3$s). The remaining amount was left unchanged: check it and correct it by hand.', 'mhm-rentiva' ),
-					$order_id,
-					$collected,
-					$due
-				)
-			),
+			esc_html( \MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge::payment_mismatch_message( $flag, $collected, $due ) ),
 			esc_url( $dismiss ),
 			esc_html__( 'I have checked it', 'mhm-rentiva' )
 		);

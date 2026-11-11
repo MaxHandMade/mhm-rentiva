@@ -3163,7 +3163,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				// link was sent before anything was collected lost its dates to
 				// one declined card. It takes the sibling branch below instead:
 				// the booking stays, a human is told.
-				if ( $is_remaining || self::has_paid_sibling_order( $booking_id, (int) $order_id ) ) {
+				$has_paid_sibling = self::has_paid_sibling_order( $booking_id, (int) $order_id );
+				if ( $is_remaining || $has_paid_sibling ) {
 					// A sibling order still holds paid money. Cancelling
 					// the collection instrument is not cancelling the
 					// debt: the balance stays, the dead order id is
@@ -3209,6 +3210,15 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 							),
 							AdvancedLogger::CATEGORY_SYSTEM
 						);
+					}
+
+					// The e-mail and its failure log say "a sibling order still
+					// holds paid money". A remaining order with no such sibling
+					// (nothing collected yet) says what did happen, on the order
+					// itself, instead (Codex code r1).
+					if ( ! $has_paid_sibling ) {
+						$order->add_order_note( __( 'The booking was kept: a remaining-payment order that fails or is cancelled does not cancel its booking. Send the customer a new payment link if one is needed.', 'mhm-rentiva' ) );
+						break;
 					}
 
 					// The bool is load-bearing, same reasons as
@@ -3340,13 +3350,19 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 *    the balance is cleared. Kept apart from the shared rule on purpose:
 	 *    comparing such an order by its total would turn a tax difference into
 	 *    a false alarm (Fable r5 Ş2).
+	 *  - Found not to fit already (`_mhmrentiva_remaining_mismatch`): decided
+	 *    once, by a human; a later transition neither clears a balance they
+	 *    corrected nor flags it again (Fable/Codex code r1).
 	 *  - A previous paid status and nothing left to pay, without the applied
 	 *    mark: an order the old code already applied (processing before this
-	 *    release, completed after it). Nothing to do.
-	 *  - Otherwise the shared rule: the order asks for exactly what is owed now
-	 *    → cleared and marked applied. Anything else → the balance is left as
-	 *    it is, and the booking is flagged for a human, with an order note and a
-	 *    linked log entry.
+	 *    release, completed after it). Nothing to do -- unless the order's own
+	 *    first settle could not read the balance (`_mhmrentiva_remaining_retry`):
+	 *    then it was never judged, and is judged now (Codex code r1).
+	 *  - Otherwise the shared rule, for the booking's link only: the order asks
+	 *    for exactly what is owed now → cleared and marked applied. Any other
+	 *    order, or any other amount → the balance is left as it is, the order is
+	 *    marked, and the booking is flagged for a human, with an order note and
+	 *    a linked log entry.
 	 *
 	 * The booking's amount is read from the database, not the object cache.
 	 */
@@ -3355,10 +3371,22 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		if ('' !== (string) $order->get_meta('_mhmrentiva_remaining_applied', true)) {
 			return;
 		}
+		// A payment already found not to fit is decided once, by a human: a
+		// later transition (processing -> completed) must not clear a balance
+		// the operator has corrected since, nor flag it again (Fable code r1 Ş1).
+		if ('' !== (string) $order->get_meta('_mhmrentiva_remaining_mismatch', true)) {
+			return;
+		}
 
 		try {
 			$owed_major = self::read_booking_meta($booking_id, '_mhmrentiva_remaining_amount');
+			$link       = (int) self::read_booking_meta($booking_id, '_mhmrentiva_remaining_order_id');
 		} catch (\RuntimeException $e) {
+			// Remember that this payment was never judged, so the
+			// pre-upgrade exception below cannot take it for one the old
+			// code applied (Codex code r1).
+			$order->update_meta_data('_mhmrentiva_remaining_retry', '1');
+			$order->save_meta_data();
 			AdvancedLogger::error_linked(
 				/* translators: %d: the WooCommerce order id. */
 				sprintf(__('The remaining amount of a booking could not be read when its payment (order #%d) arrived; the balance was left unchanged and will be settled on the next status change.', 'mhm-rentiva'), (int) $order->get_id()),
@@ -3381,38 +3409,47 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
-		if ($owed <= 0 && in_array($old_status, wc_get_is_paid_statuses(), true)) {
+		// The pre-upgrade exception: a stamped order the old code already
+		// applied on processing (no applied mark then) reaches completed with
+		// nothing owed. An order whose own first settle failed to read is not
+		// that order, and is judged.
+		if ($owed <= 0
+			&& in_array($old_status, wc_get_is_paid_statuses(), true)
+			&& '' === (string) $order->get_meta('_mhmrentiva_remaining_retry', true)
+		) {
 			return;
 		}
 
-		if (RemainingPaymentHandler::VERDICT_MATCH === RemainingPaymentHandler::amount_verdict($order, $owed)) {
+		// Only the booking's link settles it: PaymentState reads the link, so a
+		// balance cleared by any other order would hide where the money is. A
+		// late gateway return or a status set by hand does not pass
+		// claim_before_pay() (Fable code r1 Ş2).
+		$is_link = $link === (int) $order->get_id();
+		if ($is_link && RemainingPaymentHandler::VERDICT_MATCH === RemainingPaymentHandler::amount_verdict($order, $owed)) {
 			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', 0);
 			$order->update_meta_data('_mhmrentiva_remaining_applied', (string) $owed);
 			$order->save_meta_data();
 			return;
 		}
 
-		$stamped = (int) $order->get_meta('_mhmrentiva_remaining_due_minor', true);
-		update_post_meta(
-			$booking_id,
-			'_mhmrentiva_payment_mismatch',
-			array(
-				'order_id'      => (int) $order->get_id(),
-				'due_minor'     => $owed,
-				'stamped_minor' => $stamped,
-				'at'            => time(),
-			)
+		$flag = array(
+			'order_id'      => (int) $order->get_id(),
+			'due_minor'     => $owed,
+			'stamped_minor' => (int) $order->get_meta('_mhmrentiva_remaining_due_minor', true),
+			'reason'        => $is_link ? 'amount' : 'not_link',
+			'at'            => time(),
 		);
+		update_post_meta($booking_id, '_mhmrentiva_payment_mismatch', $flag);
+		$order->update_meta_data('_mhmrentiva_remaining_mismatch', (string) $owed);
+		$order->save_meta_data();
 
 		$decimals = RemainingPaymentHandler::debt_decimals();
-		$message  = sprintf(
-			/* translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount. */
-			__('A payment arrived on this booking for an amount that is no longer current (order #%1$d collected %2$s; the remaining amount is %3$s). The remaining amount was left unchanged: check it and correct it by hand.', 'mhm-rentiva'),
-			(int) $order->get_id(),
+		$message  = self::payment_mismatch_message(
+			$flag,
 			// What the order collected is its own total; the stamp is what it was
 			// built for and can differ by tax (RemainingPaymentHandler).
-			wc_price( (float) $order->get_total(), array( 'currency' => $order->get_currency() )),
-			wc_price($owed / ( 10 ** $decimals ), array( 'currency' => RemainingPaymentHandler::debt_currency() ))
+			wp_strip_all_tags(wc_price( (float) $order->get_total(), array( 'currency' => $order->get_currency() ))),
+			wp_strip_all_tags(wc_price($owed / ( 10 ** $decimals ), array( 'currency' => RemainingPaymentHandler::debt_currency() )))
 		);
 		$order->add_order_note(wp_strip_all_tags($message));
 		AdvancedLogger::error_linked(
@@ -3424,6 +3461,35 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				'reason'   => 'remaining_payment_mismatch',
 			),
 			AdvancedLogger::CATEGORY_SYSTEM
+		);
+	}
+
+	/**
+	 * The words for a booking's `_mhmrentiva_payment_mismatch` flag: one place
+	 * for the order note, the log entry and the edit-screen notice.
+	 *
+	 * @param array<string, mixed> $flag      The flag settle_remaining_from_order() wrote.
+	 * @param string               $collected What the order collected, as plain text.
+	 * @param string               $due       The booking's remaining amount then, as plain text.
+	 */
+	public static function payment_mismatch_message(array $flag, string $collected, string $due): string
+	{
+		if ('not_link' === ( $flag['reason'] ?? '' )) {
+			return sprintf(
+				/* translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount. */
+				__('A payment arrived on this booking through order #%1$d, which is no longer its payment link (it collected %2$s; the remaining amount is %3$s). The remaining amount was left unchanged: check it and correct it by hand.', 'mhm-rentiva'),
+				(int) ( $flag['order_id'] ?? 0 ),
+				$collected,
+				$due
+			);
+		}
+
+		return sprintf(
+			/* translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount. */
+			__('A payment arrived on this booking for an amount that is no longer current (order #%1$d collected %2$s; the remaining amount is %3$s). The remaining amount was left unchanged: check it and correct it by hand.', 'mhm-rentiva'),
+			(int) ( $flag['order_id'] ?? 0 ),
+			$collected,
+			$due
 		);
 	}
 

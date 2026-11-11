@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-11T14:23:25+00:00\n"
+"POT-Creation-Date: 2026-11-11T14:42:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -1089,8 +1089,8 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountController.php:757
 #: src/Admin/Frontend/Account/AccountController.php:1069
 #: src/Admin/Frontend/Account/AccountController.php:1300
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4737
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4796
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4803
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4862
 msgid "Invalid booking ID."
 msgstr ""
 
@@ -2137,7 +2137,7 @@ msgstr ""
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:527
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:598
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1002
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3746
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3812
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:240
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:276
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:417
@@ -2489,18 +2489,11 @@ msgstr ""
 msgid "Booking - %s"
 msgstr ""
 
-#. translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount.
-#: src/Admin/Booking/Meta/BookingEditNotice.php:84
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3410
-#, php-format
-msgid "A payment arrived on this booking for an amount that is no longer current (order #%1$d collected %2$s; the remaining amount is %3$s). The remaining amount was left unchanged: check it and correct it by hand."
-msgstr ""
-
-#: src/Admin/Booking/Meta/BookingEditNotice.php:91
+#: src/Admin/Booking/Meta/BookingEditNotice.php:88
 msgid "I have checked it"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditNotice.php:99
+#: src/Admin/Booking/Meta/BookingEditNotice.php:96
 msgid "You do not have permission to do that."
 msgstr ""
 
@@ -3122,7 +3115,7 @@ msgid "Vehicle Total"
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:239
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4164
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4230
 msgid "Add-ons"
 msgstr ""
 
@@ -5181,209 +5174,209 @@ msgstr ""
 msgid "Select a city..."
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1046
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1048
 msgid "Cleanup cancelled: the backup table could not be created or filled. Nothing was deleted."
 msgstr ""
 
 #. translators: 1: current table-prefix length in characters. 2: maximum supported length in characters.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1229
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1231
 #, php-format
 msgid "This site's table prefix (%1$d characters) is too long for the invalid-meta cleanup to name a backup table within MySQL's 64-character identifier limit (maximum supported: %2$d characters). The cleanup was not run."
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1748
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1750
 msgid "Database Cleanup Report"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1753
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1755
 #: templates/shortcodes/search-results.php:189
 msgid "Category"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1754
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1756
 msgid "Count"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1755
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1757
 msgid "Size"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1756
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1758
 #: src/Admin/Utilities/ListTable/LogColumns.php:75
 #: templates/partials/rvs/account-bookings.php:59
 msgid "Action"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1761
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1763
 msgid "Orphaned Post Meta"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1767
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1782
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1812
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1839
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1769
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1784
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1814
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1841
 msgid "Cleanup Recommended"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1770
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1785
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1815
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1842
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1772
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1787
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1817
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1844
 msgid "Clean"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1776
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1778
 msgid "Expired Transients"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1791
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1793
 msgid "Autoload Options"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1797
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1799
 msgid "Optimization Recommended"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1800
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1802
 msgid "Optimized"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1806
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1808
 msgid "Invalid Meta Keys"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1819
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1821
 msgid "All Valid"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1825
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1827
 msgid "Log Records (>30 days)"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1849
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1851
 msgid "Custom Tables"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1853
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1855
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:82
 msgid "Table"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1854
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1856
 msgid "Exists"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1855
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1857
 msgid "Rows"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1856
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1858
 msgid "Size (MB)"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1869
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1871
 msgid "Repair/Create"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1897
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1899
 msgid "Analyze Database"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1902
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1904
 msgid "Clean Orphaned Meta"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1907
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1909
 msgid "Clean Expired Transients"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1912
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1914
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:125
 msgid "Optimize Autoload"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1917
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1919
 msgid "Optimize Tables"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1922
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1924
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:134
 msgid "Purge Old Logs"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2085
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2087
 msgid "Backup table not found"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2103
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2105
 msgid "This backup holds discarded meta from two different tables and cannot be restored in place. Export it and reapply the rows you need."
 msgstr ""
 
 #. translators: 1: %d; 2: %s.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2149
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2151
 #, php-format
 msgid "Restored %1$d records to %2$s"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2167
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2169
 msgid "Not a backup table"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2176
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2589
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2178
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2591
 msgid "Backup deleted successfully"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2176
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2178
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:450
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:597
 msgid "Failed to delete backup"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2193
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2195
 msgid "Failed to initialize filesystem."
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2234
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2236
 msgid "No tables found to backup"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2284
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2286
 msgid "Failed to write backup file"
 msgstr ""
 
 #. translators: 1: %d; 2: %d.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2335
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2337
 #, php-format
 msgid "Full backup created successfully: %1$d tables, %2$d rows"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2559
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2561
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:531
 msgid "Invalid backup file path"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2590
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2592
 msgid "Backup deletion completed with some warnings"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2644
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2646
 msgid "Filesystem initialization failed"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2654
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2656
 msgid "Backup directory does not exist"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2661
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2663
 msgid ".htaccess file missing - directory is not protected from web access"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2665
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2667
 msgid ".htaccess file exists but does not deny access properly"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2672
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2674
 msgid "index.php file missing - directory listing is possible"
 msgstr ""
 
@@ -10341,7 +10334,7 @@ msgstr ""
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:527
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:598
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1001
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3726
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3792
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:275
 msgid "Deposit Payment"
 msgstr ""
@@ -10450,7 +10443,7 @@ msgid "Cash on delivery is not offered for rentals, and no other payment method 
 msgstr ""
 
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2713
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4321
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4387
 msgid "Invalid booking dates. Please try again."
 msgstr ""
 
@@ -10473,48 +10466,64 @@ msgid "Booking cancelled: Vehicle already booked for selected dates."
 msgstr ""
 
 #. translators: 1: the WooCommerce order id that was cancelled, 2: the booking id it belongs to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3200
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3201
 #, php-format
 msgid "Remaining-payment order #%1$d was cancelled on booking #%2$d after it had been paid. The money is still on that order: refund it, or restore the order."
 msgstr ""
 
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3220
+msgid "The booking was kept: a remaining-payment order that fails or is cancelled does not cancel its booking. Send the customer a new payment link if one is needed."
+msgstr ""
+
 #. translators: 1: the WooCommerce order id that was cancelled/failed, 2: the booking id it belongs to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3247
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3257
 #, php-format
 msgid "Order #%1$d was cancelled/failed on booking #%2$d while a sibling order still holds paid money, but the notification e-mail could not be sent -- no one has been told a new payment link may be needed."
 msgstr ""
 
 #. translators: %d: the WooCommerce order id.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3364
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3392
 #, php-format
 msgid "The remaining amount of a booking could not be read when its payment (order #%d) arrived; the balance was left unchanged and will be settled on the next status change."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3490
+#. translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount.
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3480
+#, php-format
+msgid "A payment arrived on this booking through order #%1$d, which is no longer its payment link (it collected %2$s; the remaining amount is %3$s). The remaining amount was left unchanged: check it and correct it by hand."
+msgstr ""
+
+#. translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount.
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3489
+#, php-format
+msgid "A payment arrived on this booking for an amount that is no longer current (order #%1$d collected %2$s; the remaining amount is %3$s). The remaining amount was left unchanged: check it and correct it by hand."
+msgstr ""
+
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3556
 msgid "Booking completed — rental period ended."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3515
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3581
 msgid "Booking cancelled by customer."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3714
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3780
 msgid "Payment Options"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3728
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3794
 msgid "Pay deposit for booking, pay remaining amount at vehicle delivery"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3730
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3796
 msgid "Remaining:"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3747
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3813
 msgid "Pay full amount now"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3852
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3918
 #: src/Admin/Settings/APIKeysPage.php:81
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:29
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:52
@@ -10538,75 +10547,75 @@ msgstr ""
 msgid "Invalid security nonce."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3861
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3927
 msgid "Cart not available"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3967
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4033
 msgid "Booking not found in cart"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3983
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4049
 msgid "Payment type updated"
 msgstr ""
 
 #. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4171
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4237
 #, php-format
 msgid "Sorry, the vehicle \"%s\" is not available for rental. Please select another vehicle."
 msgstr ""
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4225
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4291
 #, php-format
 msgid "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates (%2$s - %3$s). Please select different dates or another vehicle."
 msgstr ""
 
 #. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4274
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4371
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4340
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4437
 #, php-format
 msgid "Sorry, booking for vehicle \"%s\" has been cancelled. Please select another vehicle."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4692
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4758
 #: src/Admin/Setup/SetupWizard.php:997
 msgid "WooCommerce"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4748
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4814
 msgid "Payment already processed by WooCommerce."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4766
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4832
 msgid "Redirecting to checkout..."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4773
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4839
 msgid "Failed to add booking to cart."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4789
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4855
 msgid "WooCommerce is not installed or activated."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4804
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4870
 msgid "Invalid payment amount."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4899
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4965
 msgid "City"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4900
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4966
 msgid "District / Neighborhood"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5037
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5103
 msgid "Return to Cart"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5070
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5136
 msgid "(incl. tax)"
 msgstr ""
 

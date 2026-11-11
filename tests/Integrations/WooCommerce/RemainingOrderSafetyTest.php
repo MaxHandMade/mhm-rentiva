@@ -142,6 +142,27 @@ final class RemainingOrderSafetyTest extends WP_UnitTestCase
 		$this->assertSame('confirmed', (string) get_post_meta($booking_id, '_mhmrentiva_status', true));
 	}
 
+	public function test_a_failed_remaining_order_with_no_paid_sibling_says_so_and_sends_no_sibling_mail(): void
+	{
+		// Codex code r1: the sibling e-mail says "another order on the same
+		// booking is still paid" -- false when nothing was ever collected.
+		$booking_id = $this->booking('1000', false);
+		$order      = $this->link($booking_id);
+		$subjects   = array();
+		$capture    = static function ($short, $atts) use (&$subjects) {
+			$subjects[] = (string) ( $atts['subject'] ?? '' );
+			return true;
+		};
+		add_filter('pre_wp_mail', $capture, 10, 2);
+
+		$this->move($order, 'failed');
+		remove_filter('pre_wp_mail', $capture, 10);
+
+		$this->assertSame(array(), array_filter($subjects, static fn($s) => str_contains($s, 'still paid')));
+		$notes = array_map(static fn($n) => $n->content, wc_get_order_notes(array( 'order_id' => $order->get_id() )));
+		$this->assertNotEmpty(array_filter($notes, static fn($n) => str_contains($n, 'The booking was kept')));
+	}
+
 	public function test_a_cancelled_unpaid_remaining_order_does_not_cancel_the_booking_and_clears_the_link(): void
 	{
 		$booking_id = $this->booking('1000', false);
@@ -314,6 +335,66 @@ final class RemainingOrderSafetyTest extends WP_UnitTestCase
 		$this->move($order, 'processing');
 
 		$this->assertIsArray($this->mismatch($booking_id), 'the customer has now paid twice: someone must be told');
+	}
+
+	public function test_a_mismatch_is_decided_once_on_the_order(): void
+	{
+		// Fable code r1 Ş1: the next paid transition must not re-decide it. The
+		// operator corrects the balance by hand and dismisses the notice; the
+		// corrected figure happens to equal what the order was built for.
+		$booking_id = $this->booking();
+		$order      = $this->link($booking_id);
+		update_post_meta($booking_id, '_mhmrentiva_remaining_amount', '1340');
+		$this->move($order, 'processing');
+		$this->assertIsArray($this->mismatch($booking_id));
+		delete_post_meta($booking_id, '_mhmrentiva_payment_mismatch');
+		update_post_meta($booking_id, '_mhmrentiva_remaining_amount', '1000');
+
+		$this->move($order, 'completed');
+
+		$this->assertEquals(1000.0, (float) $this->remaining($booking_id), 'a balance a human set is not cleared by the same payment again');
+		$this->assertSame('', $this->mismatch($booking_id), 'nor flagged again');
+	}
+
+	public function test_a_payment_whose_first_read_failed_is_still_judged_on_the_next_transition(): void
+	{
+		// Codex code r1: "paid before, nothing owed now" is the pre-upgrade
+		// exception, not proof. An order whose own first settle could not read
+		// the balance was never judged, so it is judged now: the operator has
+		// settled the balance by hand meanwhile, and the customer paid twice.
+		$booking_id = $this->booking();
+		$order      = $this->link($booking_id);
+		add_post_meta($booking_id, '_mhmrentiva_remaining_amount', '999'); // two rows that disagree: unreadable
+		$this->move($order, 'processing');
+		$this->assertSame('', $this->mismatch($booking_id), 'nothing decided on an unreadable balance');
+
+		delete_post_meta($booking_id, '_mhmrentiva_remaining_amount');
+		update_post_meta($booking_id, '_mhmrentiva_remaining_amount', '0');
+		$this->move($order, 'completed');
+
+		$this->assertIsArray($this->mismatch($booking_id));
+	}
+
+	public function test_a_late_payment_on_an_order_that_is_no_longer_the_link_does_not_settle(): void
+	{
+		// Fable code r1 Ş2: the amount matches, but the money lands on an order
+		// PaymentState no longer reads (it reads the link), so clearing the
+		// balance would hide it. A human decides.
+		$booking_id = $this->booking();
+		$old        = $this->link($booking_id);
+		update_post_meta($booking_id, '_mhmrentiva_remaining_amount', '1340');
+		$this->link($booking_id);
+		update_post_meta($booking_id, '_mhmrentiva_remaining_amount', '1000');
+
+		// A late gateway return, or "paid" set by hand: it does not pass
+		// claim_before_pay().
+		$this->move($old, 'processing');
+
+		$this->assertEquals(1000.0, (float) $this->remaining($booking_id));
+		$flag = $this->mismatch($booking_id);
+		$this->assertIsArray($flag);
+		$this->assertSame($old->get_id(), (int) $flag['order_id']);
+		$this->assertSame('not_link', (string) ( $flag['reason'] ?? '' ));
 	}
 
 	public function test_an_order_from_before_the_stamp_keeps_todays_behaviour(): void
