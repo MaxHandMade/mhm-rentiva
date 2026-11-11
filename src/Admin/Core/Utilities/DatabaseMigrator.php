@@ -34,6 +34,13 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 *
+	 * 4.10.0 (2026-11-11): release_offline_manual_deadlines_4100() deletes the
+	 * payment deadline on bookings entered by hand and paid outside the site.
+	 * Before 6.4.0 every such booking got a 30-minute deadline; AutoCancel no
+	 * longer sweeps them, but BookingConflicts still reads a pending booking
+	 * past its deadline as holding nothing, so the vehicle could be booked
+	 * twice. Without the deadline the booking holds its vehicle again.
+	 *
 	 * 4.9.0 (2026-10-26): clear_elementor_css_490() queues the Elementor page CSS
 	 * rebuild again (ElementorStyleIdMigration, idempotent): the booking form
 	 * moved to the front-end standard (rvs-booking classes and --rvs-booking-*
@@ -92,7 +99,7 @@ final class DatabaseMigrator {
 	 * ran 4.0.0. Every earlier step is idempotent (re-verified for the 3.15.0
 	 * bump), so the extra replay costs a run, not correctness.
 	 */
-	private const CURRENT_VERSION = '4.9.0';
+	private const CURRENT_VERSION = '4.10.0';
 
 	/**
 	 * Set to '1' once normalise_booking_timestamps_480() has gone through
@@ -560,6 +567,13 @@ final class DatabaseMigrator {
 			// A body run is a new version gate: the retry lane's budget starts over.
 			delete_option(self::BOOKING_TS_ATTEMPTS_OPTION);
 			self::normalise_booking_timestamps_480();
+			// 4.10.0 judges each booking on its stored instants, so it runs only
+			// once the 4.8.0 rebuild has corrected them (an upgrade from 6.3.1
+			// runs both in this body). Unfinished: the retry lane runs it when
+			// the rebuild completes (retry_booking_timestamps_480()).
+			if (self::booking_ts_done()) {
+				self::release_offline_manual_deadlines_4100();
+			}
 
 			// Retire the core-table index surface. RetiredIndexes is the single
 			// source of truth: uninstall.php calls the same method, against the
@@ -741,6 +755,10 @@ final class DatabaseMigrator {
 			update_option(self::BOOKING_TS_ATTEMPTS_OPTION, $attempts, false);
 
 			$counts = self::normalise_booking_timestamps_480();
+			if (self::booking_ts_done()) {
+				// Deferred from the body run: see run_migrations_locked().
+				self::release_offline_manual_deadlines_4100();
+			}
 
 			if (! self::booking_ts_done()
 				&& $attempts >= self::BOOKING_TS_MAX_ATTEMPTS
@@ -1557,6 +1575,93 @@ final class DatabaseMigrator {
 	private static function clear_elementor_css_490(): void
 	{
 		ElementorStyleIdMigration::mark_pending();
+	}
+
+	/**
+	 * 4.10.0: a booking entered by hand and paid outside the site keeps no
+	 * payment deadline (see the version note above). Idempotent: a second run
+	 * finds no such meta row.
+	 *
+	 * @return int How many bookings lost a deadline.
+	 */
+	private static function release_offline_manual_deadlines_4100(): int
+	{
+		$ids = get_posts(
+			array(
+				'post_type'      => 'mhmrentiva_booking',
+				'post_status'    => 'any',
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+				'posts_per_page' => -1,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one-time migration step.
+				'meta_query'     => array(
+					'relation' => 'AND',
+					array(
+						'key'   => '_mhmrentiva_created_via',
+						'value' => 'admin_manual',
+					),
+					array(
+						'key'   => '_mhmrentiva_payment_method',
+						'value' => 'offline',
+					),
+					array(
+						'key'     => '_mhmrentiva_payment_deadline',
+						'compare' => 'EXISTS',
+					),
+				),
+			)
+		);
+
+		$released = 0;
+		foreach (array_map('intval', $ids) as $id) {
+			// While the old deadline ran out the dates were free, and another
+			// customer may have booked them since: restoring the hold then would
+			// leave two active bookings on one vehicle (PR #196 review). Checked
+			// under the vehicle's lock, as WooCommerceBridge::claim_booking() does
+			// before it restores a lost hold; a conflict, or a booking that cannot
+			// be checked, is left as it is and handed to a human.
+			$vehicle_id = (int) get_post_meta($id, '_mhmrentiva_vehicle_id', true);
+			$start_ts   = (int) get_post_meta($id, '_mhmrentiva_start_ts', true);
+			$end_ts     = (int) get_post_meta($id, '_mhmrentiva_end_ts', true);
+			$outcome    = null;
+			if ($vehicle_id > 0 && $start_ts > 0 && $end_ts > $start_ts) {
+				$outcome = \MHMRentiva\Admin\Booking\Helpers\Locker::withLock(
+					$vehicle_id,
+					static function () use ($id, $vehicle_id, $start_ts, $end_ts): bool|string|null {
+						$overlaps = \MHMRentiva\Admin\Booking\Helpers\BookingConflicts::count_booking_overlaps_locked($vehicle_id, $start_ts, $end_ts, $id);
+						if (null === $overlaps) {
+							return null;
+						}
+						if ($overlaps > 0) {
+							return false;
+						}
+
+						return delete_post_meta($id, '_mhmrentiva_payment_deadline') ? true : 'delete_failed';
+					}
+				);
+			}
+
+			if (true === $outcome) {
+				++$released;
+				continue;
+			}
+
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
+				sprintf(
+					/* translators: %d: the booking id. */
+					__('Booking #%d was entered by hand to be paid outside the site, but its dates were released when an old payment deadline ran out and may have been booked again since. It no longer holds the vehicle: check its dates, then confirm, move or cancel it.', 'mhm-rentiva'),
+					$id
+				),
+				$id,
+				array(
+					'surface' => 'migration_4100',
+					'reason'  => false === $outcome ? 'dates_taken' : ( 'delete_failed' === $outcome ? 'delete_failed' : 'not_checkable' ),
+				),
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
+			);
+		}
+
+		return $released;
 	}
 
 	/**

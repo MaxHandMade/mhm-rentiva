@@ -1167,9 +1167,13 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 				'_mhmrentiva_selected_addons'     => $selected_addons,
 				'_mhmrentiva_cancellation_policy' => '24_hours',
 				'_mhmrentiva_payment_status'      => 'pending', // ⭐ WooCommerce handles payment status
-				'_mhmrentiva_payment_deadline'    => gmdate('Y-m-d H:i:s', strtotime('+' . apply_filters('mhmrentiva_payment_deadline_minutes', '30') . ' minutes')),
 			),
 		);
+		// A booking paid outside the site has no payment window: no deadline,
+		// and the sweeps leave it alone (AutoCancel, admin lens tour #8).
+		if ('offline' !== $payment_method) {
+			$booking_data['meta_input']['_mhmrentiva_payment_deadline'] = gmdate('Y-m-d H:i:s', strtotime('+' . apply_filters('mhmrentiva_payment_deadline_minutes', '30') . ' minutes'));
+		}
 
 		// ⭐ The conflict check and the INSERT are one atomic critical section,
 		// exactly as on the WooCommerce checkout path (WooCommerceBridge::

@@ -42,7 +42,8 @@
       "Kaldırıldı: pano artık kayıtlı olmayan mhmrentiva_customer_dashboard_welcome, mhmrentiva_customer_favorites ve mhmrentiva_customer_booking_history seçeneklerini okumuyor. Bunları yazan bir ayar ekranı yoktu; elle girilmiş değerin artık etkisi yok.",
       "Değişti: yeni ön yüz sayfaları Plus Jakarta Sans yazı tipini kullanır; yazı tipi kendi sitenizden sunulur (yönetim ekranlarının zaten kullandığı dosya). Kullanılmayan Source Serif 4 yazı tipi dosyaları artık pakete girmez.",
       "Değişti: Müşteriler ve İletişim Mesajları tabloları ekran okuyucuya adıyla tanıtılıyor ve sayfanın bir kısmı seçiliyken tümünü seç kutusu bunu gösteriyor; Müşteriler tablosu gerçek bir düğmeyle sıralanıyor ve sıralanan sütun duyuruluyor. mhm/ui-core 0.20.1.",
-      "Düzeltildi: başarısız olan ya da iptal edilen kalan tutar ödemesi artık rezervasyonu iptal etmiyor. Rezervasyonun bakiyesiyle artık eşleşmeyen bir kalan ödeme bakiyeyi sessizce sıfırlamıyor: bakiye korunuyor, rezervasyon sipariş notuyla personele işaretleniyor. Kalan ödemeyi yalnız rezervasyonun güncel ödeme bağlantısı alabilir."
+      "Düzeltildi: başarısız olan ya da iptal edilen kalan tutar ödemesi artık rezervasyonu iptal etmiyor. Rezervasyonun bakiyesiyle artık eşleşmeyen bir kalan ödeme bakiyeyi sessizce sıfırlamıyor: bakiye korunuyor, rezervasyon sipariş notuyla personele işaretleniyor. Kalan ödemeyi yalnız rezervasyonun güncel ödeme bağlantısı alabilir.",
+      "Düzeltildi: elle girilen ve site dışında ödenen rezervasyon (teslimde nakit ya da kart) artık ödeme süresi dolunca ya da teslim günü geçince kendiliğinden iptal edilmiyor; müşteriye de ödeme süresinin dolduğu yazılmıyor. Çevrimiçi ödenecek elle girilmiş rezervasyonun süresi aynen işliyor."
     ]
   },
   {

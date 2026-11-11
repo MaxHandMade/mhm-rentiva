@@ -246,6 +246,7 @@ final class AutoCancel {
 						'compare' => 'IN',
 					),
 					self::not_parked_for_review(),
+					self::not_a_hand_entered_offline_booking(),
 				),
 			)
 		);
@@ -313,6 +314,7 @@ final class AutoCancel {
 					'compare' => 'IN',
 				),
 				self::not_parked_for_review(),
+				self::not_a_hand_entered_offline_booking(),
 			),
 		));
 
@@ -515,6 +517,32 @@ final class AutoCancel {
 				'key'     => RefundStatus::META_KEY,
 				'value'   => self::parked_refund_statuses(),
 				'compare' => 'NOT IN',
+			),
+		);
+	}
+
+	private static function not_a_hand_entered_offline_booking(): array {
+		// A booking the operator entered by hand, to be paid outside the
+		// site (cash or card at pickup, a transfer they check themselves),
+		// has no payment the site waits for: no unattended sweep may cancel
+		// it. Until 6.4.0 both did, and the customer was told the payment
+		// window had expired (admin lens tour 2026-11-11, #8). A hand-entered
+		// booking paid online keeps its deadline.
+		return array(
+			'relation' => 'OR',
+			array(
+				'key'     => '_mhmrentiva_created_via',
+				'compare' => 'NOT EXISTS',
+			),
+			array(
+				'key'     => '_mhmrentiva_created_via',
+				'value'   => 'admin_manual',
+				'compare' => '!=',
+			),
+			array(
+				'key'     => '_mhmrentiva_payment_method',
+				'value'   => 'offline',
+				'compare' => '!=',
 			),
 		);
 	}
