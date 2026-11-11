@@ -3384,9 +3384,14 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		} catch (\RuntimeException $e) {
 			// Remember that this payment was never judged, so the
 			// pre-upgrade exception below cannot take it for one the old
-			// code applied (Codex code r1).
-			$order->update_meta_data('_mhmrentiva_remaining_retry', '1');
-			$order->save_meta_data();
+			// code applied (Codex code r1). Only on its first paid
+			// transition: from a paid status it was judged already, by the
+			// old code or by an earlier run of this one, and a read failing
+			// now must not take that exception away (Codex code r2).
+			if (! in_array($old_status, wc_get_is_paid_statuses(), true)) {
+				$order->update_meta_data('_mhmrentiva_remaining_retry', '1');
+				$order->save_meta_data();
+			}
 			AdvancedLogger::error_linked(
 				/* translators: %d: the WooCommerce order id. */
 				sprintf(__('The remaining amount of a booking could not be read when its payment (order #%d) arrived; the balance was left unchanged and will be settled on the next status change.', 'mhm-rentiva'), (int) $order->get_id()),

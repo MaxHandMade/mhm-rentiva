@@ -375,6 +375,28 @@ final class RemainingOrderSafetyTest extends WP_UnitTestCase
 		$this->assertIsArray($this->mismatch($booking_id));
 	}
 
+	public function test_a_read_failure_after_the_first_judgement_does_not_reopen_an_applied_order(): void
+	{
+		// Codex code r2: an order the old code applied before the upgrade (no
+		// applied mark) whose later transition fails to read was judged already;
+		// the retry mark must not take away its pre-upgrade exception.
+		$booking_id = $this->booking();
+		$order      = $this->link($booking_id);
+		$this->move($order, 'processing');
+		$fresh = wc_get_order($order->get_id());
+		$fresh->delete_meta_data('_mhmrentiva_remaining_applied'); // applied by the pre-upgrade code
+		$fresh->save();
+		add_post_meta($booking_id, '_mhmrentiva_remaining_order_id', '999999'); // the link read fails once
+		$this->move($order, 'completed');
+		delete_post_meta($booking_id, '_mhmrentiva_remaining_order_id', '999999');
+
+		$this->move($order, 'processing'); // an operator steps it back; no new money
+
+		$this->assertSame('', (string) wc_get_order($order->get_id())->get_meta('_mhmrentiva_remaining_retry', true));
+		$this->assertSame('', $this->mismatch($booking_id));
+		$this->assertEquals(0.0, (float) $this->remaining($booking_id));
+	}
+
 	public function test_a_late_payment_on_an_order_that_is_no_longer_the_link_does_not_settle(): void
 	{
 		// Fable code r1 Ş2: the amount matches, but the money lands on an order
