@@ -3296,7 +3296,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				// under a new name -- and a wrong one, during the not-fully-
 				// refunded case, is live for however long that gap is.
 				if (PaymentState::forBooking($booking_id)->isFullyRefunded()) {
-					Status::update_status($booking_id, 'refunded', get_current_user_id());
+					self::settle_fully_refunded_rental($booking_id);
 				}
 				break;
 		}
@@ -4486,6 +4486,43 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
+	 * The rental state of a booking whose money came back in full.
+	 *
+	 * The booking status describes the rental, `_mhmrentiva_payment_status` the
+	 * money (see CancellationInitiatesRefundTest). A completed rental refunded in
+	 * full is 'refunded', as before. A rental that has not started -- confirmed,
+	 * pending, awaiting payment -- will not happen: it is cancelled, which
+	 * releases its dates. Asking for 'refunded' there failed silently
+	 * (Status::can_transition() allows it only from 'completed') and the
+	 * paid-back booking went on holding the car.
+	 *
+	 * A rental in progress is left as it is: the car is with the customer, so
+	 * its dates must stay held -- releasing them would let the same car be sold
+	 * again for days it is out. The operator closes it. Anything already closed
+	 * is left alone too.
+	 */
+	private static function settle_fully_refunded_rental(int $booking_id): void
+	{
+		$current = Status::get($booking_id);
+
+		if (Status::COMPLETED === $current) {
+			Status::update_status($booking_id, Status::REFUNDED, get_current_user_id());
+			return;
+		}
+
+		$not_started = array( Status::PENDING_PAYMENT, Status::PENDING, Status::CONFIRMED );
+		if (in_array($current, $not_started, true) && Status::can_transition($current, Status::CANCELLED)) {
+			// The refund mail (RefundNotifications, sent for this same refund) is
+			// the customer's notice: no second "booking cancelled" on top of it.
+			// Admin notices are untouched.
+			\MHMRentiva\Admin\Emails\Notifications\BookingNotifications::with_customer_cancel_notice_owned(
+				$booking_id,
+				static fn() => Status::update_status($booking_id, Status::CANCELLED, get_current_user_id())
+			);
+		}
+	}
+
+	/**
 	 * ⭐ Handle WooCommerce order refund (when refund is actually created)
 	 * This hook is triggered when a refund is created in WooCommerce
 	 *
@@ -4639,7 +4676,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 		if ($fully_refunded) {
 			update_post_meta($booking_id, '_mhmrentiva_payment_status', 'refunded');
-			Status::update_status($booking_id, 'refunded', get_current_user_id());
+			self::settle_fully_refunded_rental($booking_id);
 		} else {
 			update_post_meta($booking_id, '_mhmrentiva_payment_status', 'partially_refunded');
 		}
