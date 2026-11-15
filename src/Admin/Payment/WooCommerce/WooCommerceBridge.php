@@ -4490,11 +4490,16 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 *
 	 * The booking status describes the rental, `_mhmrentiva_payment_status` the
 	 * money (see CancellationInitiatesRefundTest). A completed rental refunded in
-	 * full is 'refunded', as before. A rental that has not ended -- confirmed,
-	 * pending, in progress -- will not happen: it is cancelled, which releases its
-	 * dates. Asking for 'refunded' there failed silently (Status::can_transition()
-	 * allows it only from 'completed') and the paid-back booking went on holding
-	 * the car. Anything already closed is left alone.
+	 * full is 'refunded', as before. A rental that has not started -- confirmed,
+	 * pending, awaiting payment -- will not happen: it is cancelled, which
+	 * releases its dates. Asking for 'refunded' there failed silently
+	 * (Status::can_transition() allows it only from 'completed') and the
+	 * paid-back booking went on holding the car.
+	 *
+	 * A rental in progress is left as it is: the car is with the customer, so
+	 * its dates must stay held -- releasing them would let the same car be sold
+	 * again for days it is out. The operator closes it. Anything already closed
+	 * is left alone too.
 	 */
 	private static function settle_fully_refunded_rental(int $booking_id): void
 	{
@@ -4505,7 +4510,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
-		if (Status::can_transition($current, Status::CANCELLED)) {
+		$not_started = array( Status::PENDING_PAYMENT, Status::PENDING, Status::CONFIRMED );
+		if (in_array($current, $not_started, true) && Status::can_transition($current, Status::CANCELLED)) {
 			// The refund mail (RefundNotifications, sent for this same refund) is
 			// the customer's notice: no second "booking cancelled" on top of it.
 			// Admin notices are untouched.

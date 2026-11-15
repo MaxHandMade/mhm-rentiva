@@ -70,19 +70,19 @@ final class FullRefundReleasesBookingTest extends WP_UnitTestCase
 	}
 
 	/** @return array<string, array{0: string}> */
-	public static function rentals_not_yet_over(): array
+	public static function rentals_not_started(): array
 	{
 		return array(
-			'confirmed'   => array( Status::CONFIRMED ),
-			'pending'     => array( Status::PENDING ),
-			'in progress' => array( Status::IN_PROGRESS ),
+			'confirmed'        => array( Status::CONFIRMED ),
+			'pending'          => array( Status::PENDING ),
+			'pending payment'  => array( Status::PENDING_PAYMENT ),
 		);
 	}
 
 	/**
-	 * @dataProvider rentals_not_yet_over
+	 * @dataProvider rentals_not_started
 	 */
-	public function test_a_full_refund_cancels_a_rental_that_is_not_over_and_frees_the_car(string $status): void
+	public function test_a_full_refund_cancels_a_rental_that_has_not_started_and_frees_the_car(string $status): void
 	{
 		$order = $this->paid_order('300', $status);
 
@@ -124,6 +124,47 @@ final class FullRefundReleasesBookingTest extends WP_UnitTestCase
 
 		$this->assertSame(Status::CANCELLED, Status::get($this->booking_id), 'Guard: the refund cancelled the rental.');
 		$this->assertCount(1, $subjects, 'One customer mail for one event; got: ' . implode(' | ', $subjects));
+	}
+
+	/**
+	 * The car is with the customer: its dates stay held, or the same car could be
+	 * sold again for days it is out. The money state still says refunded.
+	 */
+	public function test_a_rental_in_progress_refunded_in_full_keeps_its_dates(): void
+	{
+		$order = $this->paid_order('300', Status::IN_PROGRESS);
+
+		$this->refund($order, '300');
+
+		$this->assertSame(Status::IN_PROGRESS, Status::get($this->booking_id));
+		$this->assertSame('refunded', (string) get_post_meta($this->booking_id, '_mhmrentiva_payment_status', true));
+		$this->assertTrue(BookingConflicts::is_booked($this->vehicle_id, $this->start, $this->end));
+	}
+
+	/**
+	 * Deposit + remaining: draining the deposit order alone is not a full refund
+	 * of the booking, so the rental stays; refunding both legs cancels it.
+	 */
+	public function test_a_two_order_booking_is_cancelled_only_when_both_orders_are_refunded(): void
+	{
+		$deposit   = $this->paid_order('30', Status::CONFIRMED);
+		$remaining = $this->create_paid_order_for_booking($this->booking_id, '70');
+		update_post_meta($this->booking_id, '_mhmrentiva_remaining_order_id', $remaining->get_id());
+		foreach ($remaining->get_items() as $item) {
+			$item->add_meta_data('_mhmrentiva_booking_id', $this->booking_id, true);
+			$item->save();
+		}
+		update_post_meta($this->booking_id, '_mhmrentiva_status', Status::CONFIRMED);
+
+		$this->refund($deposit, '30');
+
+		$this->assertSame(Status::CONFIRMED, Status::get($this->booking_id), 'One drained leg is not the whole booking.');
+		$this->assertTrue(BookingConflicts::is_booked($this->vehicle_id, $this->start, $this->end));
+
+		$this->refund($remaining, '70');
+
+		$this->assertSame(Status::CANCELLED, Status::get($this->booking_id), 'Both legs refunded: the rental will not happen.');
+		$this->assertFalse(BookingConflicts::is_booked($this->vehicle_id, $this->start, $this->end));
 	}
 
 	public function test_a_completed_rental_refunded_in_full_is_still_marked_refunded(): void
