@@ -118,8 +118,8 @@ final class BookingFormSeasonalMasterSwitchTest extends WP_Ajax_UnitTestCase
             // Wholly inside summer (June-August), Monday->Thursday: 3 rental
             // days, no weekend multiplier interference even though it is
             // also pinned to 1.0 above.
-            'pickup_date'  => '2027-07-12',
-            'dropoff_date' => '2027-07-15',
+            'pickup_date'  => self::july_monday(),
+            'dropoff_date' => self::july_monday(3),
             'pickup_time'  => '10:00',
             'dropoff_time' => '10:00',
             'addons'       => array(),
@@ -213,5 +213,17 @@ final class BookingFormSeasonalMasterSwitchTest extends WP_Ajax_UnitTestCase
         // Same 3 days * 1000 base, now scaled by the 2.75 summer multiplier.
         $this->assertEqualsWithDelta(8250.0, (float) $data['total_price'], 0.01, 'total_price');
         $this->assertEqualsWithDelta(8250.0, (float) $data['vehicle_total'], 0.01, 'vehicle_total');
+    }
+
+    /**
+     * The first Monday of July next year: always in the future (a passed pickup is
+     * refused), wholly in summer, and Monday->Thursday keeps the weekend out --
+     * a fixed date here went stale once and broke the suite.
+     */
+    private static function july_monday(int $plus_days = 0): string
+    {
+        $monday = new \DateTimeImmutable('first monday of july ' . ( (int) gmdate('Y') + 1 ), new \DateTimeZone('UTC'));
+
+        return $monday->modify('+' . $plus_days . ' days')->format('Y-m-d');
     }
 }
