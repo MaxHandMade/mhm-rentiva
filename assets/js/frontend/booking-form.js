@@ -1101,11 +1101,12 @@
                     }
 
                     // Block submit only when the server said the vehicle is
-                    // taken. A refusal without one of these codes is a check
-                    // that could not run (rate limit, nonce, bad input): show
-                    // it, but do not lock a sale for dates that may be free --
-                    // checkout re-checks under a lock anyway.
-                    const takenCodes = ['unavailable', 'unavailable_with_alternatives', 'vehicle_unavailable', 'vehicle_not_found', 'service_unavailable'];
+                    // taken or the dates themselves cannot be booked (return
+                    // before pickup, pickup already passed). A refusal without
+                    // one of these codes is a check that could not run (rate
+                    // limit, nonce): show it, but do not lock a sale for dates
+                    // that may be free -- checkout re-checks under a lock anyway.
+                    const takenCodes = ['unavailable', 'unavailable_with_alternatives', 'vehicle_unavailable', 'vehicle_not_found', 'service_unavailable', 'invalid_dates', 'past_pickup'];
                     this.availabilityBlocked = takenCodes.includes(response.data?.code);
                     this.updateButtonState();
                 },

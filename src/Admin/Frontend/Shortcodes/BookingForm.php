@@ -1536,6 +1536,12 @@ final class BookingForm extends AbstractShortcode {
 			$start_ts = $datetime_result['start_ts'];
 			$end_ts   = $datetime_result['end_ts'];
 
+			// A price for a pickup that has passed is a price for a booking the
+			// submit refuses (check_availability_with_alternatives()).
+			if (\MHMRentiva\Admin\Booking\Helpers\Util::pickup_has_passed( (int) $start_ts)) {
+				return self::failed(\MHMRentiva\Admin\Booking\Helpers\Util::past_pickup_message());
+			}
+
 			// 3. Validate Duration (Min/Max Days)
 			$duration_valid = \MHMRentiva\Admin\Booking\Helpers\Util::validate_rental_duration($start_ts, $end_ts);
 			if (is_wp_error($duration_valid)) {
@@ -1863,7 +1869,14 @@ final class BookingForm extends AbstractShortcode {
 			// ⭐ 1. Parse timestamps for duration validation
 			$datetime_result = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 			if (is_wp_error($datetime_result)) {
-				return self::failed($datetime_result->get_error_message());
+				// With its code: the form locks "Book" on it (booking-form.js) --
+				// the dates themselves are wrong, no checkout can fix them.
+				return self::refused(
+					array(
+						'code'    => 'invalid_dates',
+						'message' => $datetime_result->get_error_message(),
+					)
+				);
 			}
 
 			// ⭐ 2. Validate Duration Constraints (Min/Max Days)

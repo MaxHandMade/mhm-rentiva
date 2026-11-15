@@ -55,16 +55,39 @@ final class Util {
 
 			// Date validation
 			if ($end_ts <= $start_ts) {
-				throw new \InvalidArgumentException(__('End date must be after start date.', 'mhm-rentiva'));
+				throw new \InvalidArgumentException(__('Return date must be after pickup date.', 'mhm-rentiva'));
 			}
 
 			return array(
 				'start_ts' => $start_ts,
 				'end_ts'   => $end_ts,
 			);
+		} catch (\InvalidArgumentException $e) {
+			// Thrown above with a translated, user-facing reason: keep it. A
+			// return before the pickup used to come back as "Invalid date/time
+			// format." -- the visitor saw a format error for a correct format.
+			return new \WP_Error('invalid_datetime', $e->getMessage());
 		} catch (\Exception $e) {
 			return new \WP_Error('invalid_datetime', __('Invalid date/time format.', 'mhm-rentiva'));
 		}
+	}
+
+	/**
+	 * Whether a pickup moment is already behind us.
+	 *
+	 * Customer surfaces only (booking form, price, availability, search): an
+	 * operator records rentals after the fact through the operator check, which
+	 * deliberately does not ask this.
+	 */
+	public static function pickup_has_passed(int $start_ts): bool
+	{
+		return $start_ts < time();
+	}
+
+	/** The customer-facing refusal for a pickup that has passed. */
+	public static function past_pickup_message(): string
+	{
+		return __('The pickup time has already passed. Please choose a later date or time.', 'mhm-rentiva');
 	}
 
 	/**
@@ -230,9 +253,27 @@ final class Util {
 		// 1. Check Primary Vehicle Availability
 		$primary_result = self::check_availability($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 
-		// A vehicle that is not offered for rental at all is not a date problem: keep that
-		// refusal as it is instead of turning it into "not available, try these".
-		if ($primary_result['ok'] || 'service_unavailable' === ( $primary_result['code'] ?? '' )) {
+		// A vehicle that is not offered for rental at all is not a date problem, and
+		// dates that do not form a window have no alternatives: keep those refusals as
+		// they are instead of turning them into "not available, try these".
+		$code = (string) ( $primary_result['code'] ?? '' );
+		if (! $primary_result['ok'] && in_array($code, array( 'service_unavailable', 'invalid_dates' ), true)) {
+			return $primary_result;
+		}
+
+		// Customer surfaces only (this method's callers: booking form, vehicle
+		// details, public REST): a pickup that has passed cannot be booked. The
+		// operator's own check does not ask -- rentals are recorded after the fact.
+		$window = self::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
+		if (! is_wp_error($window) && self::pickup_has_passed( (int) $window['start_ts'])) {
+			return array(
+				'ok'      => false,
+				'code'    => 'past_pickup',
+				'message' => self::past_pickup_message(),
+			);
+		}
+
+		if ($primary_result['ok']) {
 			return $primary_result;
 		}
 
@@ -309,10 +350,13 @@ final class Util {
 		$datetime_result = self::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 
 		if (is_wp_error($datetime_result)) {
+			// The parser's own reason ("Return date must be after pickup date."),
+			// not a generic "check your dates": the visitor and the operator both
+			// need to know WHICH rule the dates broke.
 			return array(
 				'ok'      => false,
-				'code'    => 'invalid_input',
-				'message' => __('Invalid date selection. Please check your pickup and return dates.', 'mhm-rentiva'),
+				'code'    => 'invalid_dates',
+				'message' => $datetime_result->get_error_message(),
 			);
 		}
 

@@ -96,6 +96,21 @@ describe( 'booking form keeps submit blocked while the vehicle is unavailable', 
 		expect( form.submitBtn.prop( 'disabled' ) ).toBe( true );
 	} );
 
+	// PR-A: dates that cannot be booked lock "Book" with their reason on screen.
+	test.each( [
+		[ 'invalid_dates', 'Return date must be after pickup date.' ],
+		[ 'past_pickup', 'The pickup time has already passed. Please choose a later date or time.' ],
+	] )( 'dates the server refuses as %s keep submit locked and say why', ( code, message ) => {
+		const form = setup();
+
+		respondWith( { success: false, data: { code, message } } );
+		form.checkAvailability();
+		form.updateButtonState();
+
+		expect( form.submitBtn.prop( 'disabled' ) ).toBe( true );
+		expect( form.form.find( '[data-rvs-availability]' ).text() ).toContain( message );
+	} );
+
 	test( 'a request that never got an answer does not lock the sale', () => {
 		// The server re-checks under a lock at checkout, so an unknown answer must
 		// not leave a visitor unable to book dates that may well be free.

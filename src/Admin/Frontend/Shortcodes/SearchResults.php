@@ -24,6 +24,7 @@ use MHMRentiva\Admin\Core\LocationContext;
 use MHMRentiva\Admin\Booking\Helpers\BookingConflicts;
 use MHMRentiva\Admin\Booking\Helpers\NextFreeWindow;
 use MHMRentiva\Admin\Booking\Helpers\SiteTime;
+use MHMRentiva\Admin\Booking\Helpers\Util;
 use MHMRentiva\Frontend\RenderContext;
 
 
@@ -81,7 +82,7 @@ final class SearchResults extends AbstractShortcode {
 	 * Empty states that speak in the notice region (above the sections)
 	 * instead of the grid.
 	 */
-	public const NOTICE_STATES = array( 'none_here', 'none_yet' );
+	public const NOTICE_STATES = array( 'none_here', 'none_yet', 'bad_dates' );
 
 	/**
 	 * Public GET filter params for this shortcode's shareable/bookmarkable
@@ -1472,6 +1473,13 @@ final class SearchResults extends AbstractShortcode {
 	 */
 	public static function empty_state(array $params, int $total, array $extras = array()): ?string
 	{
+		// Dates that cannot be booked (return before pickup, pickup passed) are
+		// the answer whatever the list holds: "no cars are free" or "choose
+		// dates" would send the visitor looking for the wrong problem.
+		if ('' !== self::date_problem($params)) {
+			return 'bad_dates';
+		}
+
 		if ($total <= 0) {
 			$elsewhere = (int) ( $extras['nearby'] ?? 0 ) + (int) ( $extras['booked'] ?? 0 );
 			if (0 === $elsewhere && self::has_active_filters($params)) {
@@ -1507,6 +1515,42 @@ final class SearchResults extends AbstractShortcode {
 	 */
 	private static function window(array $params): ?array
 	{
+		$raw = self::raw_window($params);
+
+		// A window that cannot be booked is no window: the list must not call a
+		// car "free" for a pickup that has passed (empty_state() names it).
+		return null === $raw || '' !== self::date_problem($params) ? null : $raw;
+	}
+
+	/**
+	 * Why the searched dates cannot be booked: 'order' (return at or before the
+	 * pickup), 'past' (the pickup has passed) or '' (fine, or not both given --
+	 * a missing or unreadable date is "not searched", not a problem to name).
+	 *
+	 * @param array<string, mixed> $params Search params (logical keys).
+	 */
+	public static function date_problem(array $params): string
+	{
+		$raw = self::raw_window($params, true);
+		if (null === $raw) {
+			return '';
+		}
+		if ($raw[1] <= $raw[0]) {
+			return 'order';
+		}
+
+		return Util::pickup_has_passed($raw[0]) ? 'past' : '';
+	}
+
+	/**
+	 * Both instants of the searched dates, readable or null. $any_order keeps a
+	 * return at or before the pickup (date_problem() names it).
+	 *
+	 * @param array<string, mixed> $params Search params (logical keys).
+	 * @return array{0: int, 1: int}|null
+	 */
+	private static function raw_window(array $params, bool $any_order = false): ?array
+	{
 		$pickup = is_scalar($params['pickup_date'] ?? null) ? (string) $params['pickup_date'] : '';
 		$return = is_scalar($params['return_date'] ?? null) ? (string) $params['return_date'] : '';
 		if ('' === $pickup || '' === $return) {
@@ -1524,7 +1568,11 @@ final class SearchResults extends AbstractShortcode {
 		$start = SiteTime::instant($pickup, $time);
 		$end   = SiteTime::instant($return, $time);
 
-		return null === $start || null === $end || $end <= $start ? null : array( $start, $end );
+		if (null === $start || null === $end || ( ! $any_order && $end <= $start )) {
+			return null;
+		}
+
+		return array( $start, $end );
 	}
 
 	/**
@@ -1736,6 +1784,15 @@ final class SearchResults extends AbstractShortcode {
 			return Templates::render('partials/search/rvs-empty', array(
 				'kind'       => 'not_searched',
 				'change_url' => $change_url,
+			), true);
+		}
+		if ('bad_dates' === $empty_state) {
+			return Templates::render('partials/search/rvs-empty', array(
+				'kind'       => 'bad_dates',
+				'change_url' => $change_url,
+				'title'      => 'past' === self::date_problem($params)
+					? Util::past_pickup_message()
+					: __('Return date must be after pickup date.', 'mhm-rentiva'),
 			), true);
 		}
 		if (! in_array($empty_state, self::NOTICE_STATES, true)) {

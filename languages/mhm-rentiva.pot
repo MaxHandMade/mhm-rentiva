@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-11T21:45:35+00:00\n"
+"POT-Creation-Date: 2026-11-15T19:00:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -143,7 +143,7 @@ msgstr ""
 #: src/Admin/About/SystemInfo.php:223
 #: src/Admin/Core/AssetManager.php:1635
 #: src/Admin/Frontend/Account/AccountController.php:290
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:596
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:597
 #: src/Admin/Settings/Groups/FrontendSettings.php:345
 msgid "Error"
 msgstr ""
@@ -703,7 +703,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:125
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1087
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1461
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1813
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1819
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:457
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:734
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:53
@@ -1657,17 +1657,23 @@ msgstr ""
 
 #: src/Admin/Booking/Helpers/Util.php:45
 #: src/Admin/Booking/Helpers/Util.php:53
-#: src/Admin/Booking/Helpers/Util.php:66
+#: src/Admin/Booking/Helpers/Util.php:71
 msgid "Invalid date/time format."
 msgstr ""
 
 #: src/Admin/Booking/Helpers/Util.php:58
-msgid "End date must be after start date."
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:321
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1795
+msgid "Return date must be after pickup date."
+msgstr ""
+
+#: src/Admin/Booking/Helpers/Util.php:90
+msgid "The pickup time has already passed. Please choose a later date or time."
 msgstr ""
 
 #. translators: %d: number of days
 #. translators: %d: minimum days
-#: src/Admin/Booking/Helpers/Util.php:96
+#: src/Admin/Booking/Helpers/Util.php:119
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:359
 #, php-format
 msgid "Minimum rental period is %d day."
@@ -1677,7 +1683,7 @@ msgstr[1] ""
 
 #. translators: %d: number of days
 #. translators: %d: maximum days
-#: src/Admin/Booking/Helpers/Util.php:104
+#: src/Admin/Booking/Helpers/Util.php:127
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:366
 #, php-format
 msgid "Maximum rental period is %d day."
@@ -1685,42 +1691,36 @@ msgid_plural "Maximum rental period is %d days."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Booking/Helpers/Util.php:246
+#: src/Admin/Booking/Helpers/Util.php:287
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:294
 msgid "Selected vehicle is not available, but we can suggest similar vehicles:"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:255
+#: src/Admin/Booking/Helpers/Util.php:296
 msgid "Sorry, no vehicle found for selected dates. Please try different dates."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:264
+#: src/Admin/Booking/Helpers/Util.php:305
 #: src/Admin/Booking/Meta/BookingMeta.php:1713
 msgid "This vehicle is not available for rental. Please select another vehicle."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:282
+#: src/Admin/Booking/Helpers/Util.php:323
 #: src/Admin/REST/Availability.php:190
 msgid "Selected vehicle not found. Please select a valid vehicle."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:304
+#: src/Admin/Booking/Helpers/Util.php:345
 msgid "This vehicle is currently not available for rental. Please select another vehicle."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:315
-#: src/Admin/Frontend/Shortcodes/CalendarView.php:256
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:352
-msgid "Invalid date selection. Please check your pickup and return dates."
-msgstr ""
-
-#: src/Admin/Booking/Helpers/Util.php:337
+#: src/Admin/Booking/Helpers/Util.php:381
 msgid "✅ Great! This vehicle is available for your selected dates."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:370
-#: src/Admin/Booking/Helpers/Util.php:415
-#: src/Admin/Booking/Helpers/Util.php:427
+#: src/Admin/Booking/Helpers/Util.php:414
+#: src/Admin/Booking/Helpers/Util.php:459
+#: src/Admin/Booking/Helpers/Util.php:471
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1331
 msgid "This vehicle is already booked for the selected dates. Please choose different dates or select another vehicle."
 msgstr ""
@@ -3263,7 +3263,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:824
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1123
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1357
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1565
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1571
 msgid "Price could not be calculated."
 msgstr ""
 
@@ -3619,7 +3619,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:102
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:614
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php:170
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:2114
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2171
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:454
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:592
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:221
@@ -3735,7 +3735,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:94
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:344
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:644
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:578
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:579
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:147
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:294
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:430
@@ -4379,7 +4379,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1651
 #: src/Admin/Core/Assets/DatepickerAssets.php:422
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1942
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1955
 #: src/Blocks/BlockRegistry.php:254
 #: templates/admin/partials/booking-popup.php:40
 #: templates/partials/vehicle-details/booking-card.php:170
@@ -4400,7 +4400,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1653
 #: src/Admin/Customers/CustomersPage.php:442
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:595
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:596
 #: templates/account/payment-history.php:209
 #: templates/partials/rvs/account-bookings.php:147
 #: src-react/admin/contact-messages/ContactMessagesList.jsx:264
@@ -4409,7 +4409,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1654
 #: src/Admin/Customers/CustomersPage.php:437
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:594
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:595
 #: templates/account/payment-history.php:200
 #: templates/partials/rvs/account-bookings.php:138
 #: src-react/admin/contact-messages/ContactMessagesList.jsx:261
@@ -4421,7 +4421,7 @@ msgid "Submit"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1656
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1944
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1957
 #: templates/shortcodes/search-results.php:175
 #: templates/shortcodes/search-results.php:232
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:82
@@ -4476,133 +4476,133 @@ msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:391
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:540
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1946
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1959
 #: src/Blocks/BlockRegistry.php:256
 msgid "January"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:392
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:541
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1947
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1960
 #: src/Blocks/BlockRegistry.php:256
 msgid "February"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:393
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:542
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1948
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1961
 #: src/Blocks/BlockRegistry.php:256
 msgid "March"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:394
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:543
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1949
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1962
 #: src/Blocks/BlockRegistry.php:256
 msgid "April"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:395
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:544
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1950
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1964
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1963
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1977
 #: src/Blocks/BlockRegistry.php:256
 msgid "May"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:396
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:545
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1951
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1964
 #: src/Blocks/BlockRegistry.php:256
 msgid "June"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:397
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:546
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1952
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1965
 #: src/Blocks/BlockRegistry.php:256
 msgid "July"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:398
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:547
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1953
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1966
 #: src/Blocks/BlockRegistry.php:256
 msgid "August"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:399
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:548
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1954
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1967
 #: src/Blocks/BlockRegistry.php:256
 msgid "September"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:400
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:549
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1955
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1968
 #: src/Blocks/BlockRegistry.php:256
 msgid "October"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:401
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:550
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1956
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1969
 #: src/Blocks/BlockRegistry.php:256
 msgid "November"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:402
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:551
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1957
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1970
 #: src/Blocks/BlockRegistry.php:256
 msgid "December"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:423
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1943
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1956
 #: src/Blocks/BlockRegistry.php:255
 msgid "Today"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:425
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1992
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2005
 #: src/Blocks/BlockRegistry.php:257
 msgid "Su"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:426
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1993
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2006
 #: src/Blocks/BlockRegistry.php:257
 msgid "Mo"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:427
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1994
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2007
 #: src/Blocks/BlockRegistry.php:257
 msgid "Tu"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:428
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1995
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2008
 #: src/Blocks/BlockRegistry.php:257
 msgid "We"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:429
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1996
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2009
 #: src/Blocks/BlockRegistry.php:257
 msgid "Th"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:430
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1997
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2010
 #: src/Blocks/BlockRegistry.php:257
 msgid "Fr"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:431
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1998
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2011
 #: src/Blocks/BlockRegistry.php:257
 msgid "Sa"
 msgstr ""
@@ -5387,7 +5387,7 @@ msgid "MHM Rentiva has paused its database update: MHM Rentiva Pro %1$s is insta
 msgstr ""
 
 #. translators: %d: the booking id.
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:1642
+#: src/Admin/Core/Utilities/DatabaseMigrator.php:1652
 #, php-format
 msgid "Booking #%d was entered by hand to be paid outside the site, but its dates were released when an old payment deadline ran out and may have been booked again since. It no longer holds the vehicle: check its dates, then confirm, move or cancel it."
 msgstr ""
@@ -5821,7 +5821,7 @@ msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:367
 #: src/Admin/Core/Utilities/UXHelper.php:382
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:597
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:598
 msgid "Try Again"
 msgstr ""
 
@@ -6491,7 +6491,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/CalendarView.php:288
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:515
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:297
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1553
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1601
 #, php-format
 msgid "%1$s – %2$s"
 msgstr ""
@@ -6773,7 +6773,7 @@ msgid "Awaiting payment"
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:504
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:579
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:580
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:431
 msgid "No vehicles found"
 msgstr ""
@@ -6794,7 +6794,7 @@ msgid "Book Now"
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:507
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:593
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:594
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:209
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:434
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:680
@@ -6805,7 +6805,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:508
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:312
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:587
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:588
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:210
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:435
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:681
@@ -6816,7 +6816,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:509
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:313
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:588
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:589
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:211
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:436
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:682
@@ -7166,10 +7166,6 @@ msgstr ""
 msgid "Your booking has been successfully created! Booking No:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:321
-msgid "Return date must be after pickup date."
-msgstr ""
-
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:324
 msgid "Please select a vehicle"
 msgstr ""
@@ -7196,7 +7192,7 @@ msgid "Alternative Vehicles"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:334
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:589
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:590
 #: templates/partials/vehicle-card.php:280
 #: templates/partials/vehicle-details/alternatives.php:59
 #: templates/partials/vehicle-details/booking-card.php:87
@@ -7261,7 +7257,7 @@ msgid "Pickup time is required."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1221
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1557
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1563
 msgid "Invalid payment type."
 msgstr ""
 
@@ -7287,120 +7283,125 @@ msgstr ""
 msgid "Too many price calculation requests. Please wait."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1831
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1837
 msgid "Too many availability checks. Please wait."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1860
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1866
 msgid "Invalid data."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1960
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1973
 msgid "Jan"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1961
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1974
 msgid "Feb"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1962
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1975
 msgid "Mar"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1963
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1976
 msgid "Apr"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1965
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1978
 msgid "Jun"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1966
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1979
 msgid "Jul"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1967
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1980
 msgid "Aug"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1968
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1981
 msgid "Sep"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1969
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1982
 msgid "Oct"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1970
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1983
 msgid "Nov"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1971
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1984
 msgid "Dec"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1974
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1987
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:334
 #: assets/blocks/availability-calendar/index.js:58
 msgid "Sunday"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1975
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1988
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:335
 #: assets/blocks/availability-calendar/index.js:57
 msgid "Monday"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1976
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1989
 msgid "Tuesday"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1977
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1990
 msgid "Wednesday"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1978
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1991
 msgid "Thursday"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1979
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1992
 msgid "Friday"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1980
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1993
 msgid "Saturday"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1983
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1996
 msgid "Sun"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1984
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1997
 msgid "Mon"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1985
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1998
 msgid "Tue"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1986
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1999
 msgid "Wed"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1987
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2000
 msgid "Thu"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1988
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2001
 msgid "Fri"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1989
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2002
 msgid "Sat"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:2000
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2013
 msgid "Wk"
+msgstr ""
+
+#: src/Admin/Frontend/Shortcodes/CalendarView.php:256
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:352
+msgid "Invalid date selection. Please check your pickup and return dates."
 msgstr ""
 
 #. translators: 1: pickup date, 2: time of day the vehicle is free from.
@@ -7442,7 +7443,7 @@ msgid "★ %s"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:102
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:2114
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2171
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:454
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:592
 msgid "Out of Order"
@@ -8279,15 +8280,15 @@ msgstr ""
 msgid "Fuel policy"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:580
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:581
 msgid "Filter applied"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:581
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:582
 msgid "Clear all filters"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:582
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:583
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:77
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:359
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:400
@@ -8295,45 +8296,45 @@ msgid "Clear All"
 msgstr ""
 
 #. translators: %d: count of filters.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:584
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:585
 #, php-format
 msgid "Clear All (%d)"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:585
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:586
 msgid "Try adjusting your search criteria or filters."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:586
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:587
 msgid "Back to Search"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:590
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:591
 msgid "seats"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:591
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:592
 msgid "review"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:592
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:593
 msgid "reviews"
 msgstr ""
 
 #. translators: %d: number of vehicles.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:599
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:600
 #, php-format
 msgid "%d vehicle found"
 msgstr ""
 
 #. translators: %d: number of vehicles.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:601
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:602
 #, php-format
 msgid "%d vehicles found"
 msgstr ""
 
 #. translators: 1: number of vehicles picked for comparison, 2: the most that can be compared.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:603
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:604
 #: templates/shortcodes/search-results.php:318
 #, php-format
 msgid "%1$s vehicle selected · up to %2$s"
@@ -8342,30 +8343,30 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of vehicles picked for comparison, 2: the most that can be compared.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:605
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:606
 #, php-format
 msgid "%1$s vehicles selected · up to %2$s"
 msgstr ""
 
 #. translators: %s: number of vehicles.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1540
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1913
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1588
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1970
 #, php-format
 msgid "%s vehicle"
 msgid_plural "%s vehicles"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1602
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1650
 msgid "No dates selected"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1616
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1664
 msgid "Show results"
 msgstr ""
 
 #. translators: %s: number of vehicles the filters leave.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1622
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1670
 #, php-format
 msgid "Show %s vehicle"
 msgid_plural "Show %s vehicles"
@@ -8373,92 +8374,92 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of seats.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1676
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1724
 #: templates/shortcodes/search-results.php:208
 #, php-format
 msgid "%s seats"
 msgstr ""
 
 #. translators: %s: formatted minimum daily price.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1686
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1734
 #, php-format
 msgid "From %s/day"
 msgstr ""
 
 #. translators: %s: formatted maximum daily price.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1688
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1736
 #, php-format
 msgid "Up to %s/day"
 msgstr ""
 
 #. translators: %s: model year.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1690
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1738
 #, php-format
 msgid "From %s"
 msgstr ""
 
 #. translators: %s: model year.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1692
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1740
 #, php-format
 msgid "Up to %s"
 msgstr ""
 
 #. translators: %s: mileage in km.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1694
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1742
 #, php-format
 msgid "Up to %s km"
 msgstr ""
 
 #. translators: 1: pickup point name, 2: the searched dates, e.g. "7 Dec – 10 Dec".
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1752
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1809
 #, php-format
 msgid "No cars are free at the %1$s pickup point for %2$s."
 msgstr ""
 
 #. translators: %s: the searched dates, e.g. "7 Dec – 10 Dec".
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1754
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1811
 #, php-format
 msgid "No cars are free at the selected pickup points for %s."
 msgstr ""
 
 #. translators: %s: pickup point name.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1758
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1815
 #, php-format
 msgid "There are no cars at the %s pickup point yet."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1759
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1816
 msgid "There are no cars at the selected pickup points yet."
 msgstr ""
 
 #. translators: 1: city (several are joined into one), 2: the section's result summary, e.g. "2 vehicles · 7 Dec – 10 Dec · 3 days".
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1801
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1858
 #, php-format
 msgid "%1$s · %2$s"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1837
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1894
 msgid "Matches your search, but not free on your dates"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1845
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1902
 msgid "Other pickup points in the same city"
 msgstr ""
 
 #. translators: %s: pickup point name.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1859
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1916
 #, php-format
 msgid "Booked for these dates at the %s pickup point"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1862
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1919
 #: templates/partials/rvs-vehicle-card.php:119
 #: templates/partials/rvs/compare-vehicle.php:53
 msgid "Booked for these dates"
 msgstr ""
 
 #. translators: %s: number of rental days.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1878
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1935
 #: templates/partials/search/rvs-summary.php:23
 #, php-format
 msgid "%s day"
@@ -8467,83 +8468,83 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: joins two items of one line, e.g. two city names or the parts of a results summary ("2 vehicles · 7 Dec – 10 Dec"). 1: the line so far, 2: the next item.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1895
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1952
 #, php-format
 msgctxt "joined items of one line"
 msgid "%1$s · %2$s"
 msgstr ""
 
 #. translators: 1: a results section's heading, e.g. "Booked for these dates"; 2: number of vehicles in it, e.g. "1 vehicle".
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1915
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1972
 #, php-format
 msgid "%1$s: %2$s"
 msgstr ""
 
 #. translators: 1: number of vehicles in the results, e.g. "2 vehicles"; 2: the extra sections with their counts, e.g. "Booked for these dates: 1 vehicle".
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1933
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1990
 #, php-format
 msgid "%1$s. %2$s."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1950
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2007
 #: assets/blocks/search-results/index.js:51
 msgid "Most Relevant"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1951
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2008
 msgid "Total price: low to high"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1951
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2008
 #: src/Admin/Settings/Groups/FrontendSettings.php:286
 #: assets/blocks/search-results/index.js:52
 msgid "Price: Low to High"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1952
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2009
 msgid "Total price: high to low"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1952
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2009
 #: src/Admin/Settings/Groups/FrontendSettings.php:287
 #: assets/blocks/search-results/index.js:53
 msgid "Price: High to Low"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1953
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2010
 #: src/Admin/Settings/Groups/FrontendSettings.php:288
 #: assets/blocks/search-results/index.js:54
 msgid "Name: A to Z"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1954
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2011
 #: src/Admin/Settings/Groups/FrontendSettings.php:289
 #: assets/blocks/search-results/index.js:55
 msgid "Name: Z to A"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1955
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2012
 #: assets/blocks/search-results/index.js:56
 msgid "Newest First"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:2134
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2191
 msgid "No cars match your search"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:2135
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2192
 msgid "Try other dates, another pickup location, or fewer filters."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:2136
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2193
 msgid "See all cars"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:2267
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2324
 msgid "Previous page"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:2282
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2339
 msgid "Next page"
 msgstr ""
 
@@ -15965,48 +15966,49 @@ msgstr ""
 msgid "Remove filter"
 msgstr ""
 
-#: templates/partials/search/rvs-empty.php:31
+#: templates/partials/search/rvs-empty.php:33
 msgid "Choose your dates to see the total price and only the cars that are free."
 msgstr ""
 
-#: templates/partials/search/rvs-empty.php:32
+#: templates/partials/search/rvs-empty.php:34
 msgid "Choose dates"
 msgstr ""
 
-#: templates/partials/search/rvs-empty.php:38
-msgid "No cars match your filters"
-msgstr ""
-
-#: templates/partials/search/rvs-empty.php:39
-msgid "Remove a filter or clear them all."
-msgstr ""
-
-#: templates/partials/search/rvs-empty.php:40
-msgid "Clear filters"
-msgstr ""
-
-#: templates/partials/search/rvs-empty.php:48
-msgid "Other pickup points in the same city have cars. The car you looked for is below, with the earliest time it is free."
-msgstr ""
-
-#: templates/partials/search/rvs-empty.php:51
-#: templates/partials/search/rvs-empty.php:67
+#: templates/partials/search/rvs-empty.php:41
+#: templates/partials/search/rvs-empty.php:60
+#: templates/partials/search/rvs-empty.php:76
 msgid "Change dates"
 msgstr ""
 
-#: templates/partials/search/rvs-empty.php:58
+#: templates/partials/search/rvs-empty.php:47
+msgid "No cars match your filters"
+msgstr ""
+
+#: templates/partials/search/rvs-empty.php:48
+msgid "Remove a filter or clear them all."
+msgstr ""
+
+#: templates/partials/search/rvs-empty.php:49
+msgid "Clear filters"
+msgstr ""
+
+#: templates/partials/search/rvs-empty.php:57
+msgid "Other pickup points in the same city have cars. The car you looked for is below, with the earliest time it is free."
+msgstr ""
+
+#: templates/partials/search/rvs-empty.php:67
 msgid "No vehicles are listed yet"
 msgstr ""
 
-#: templates/partials/search/rvs-empty.php:59
+#: templates/partials/search/rvs-empty.php:68
 msgid "Please check back soon."
 msgstr ""
 
-#: templates/partials/search/rvs-empty.php:65
+#: templates/partials/search/rvs-empty.php:74
 msgid "No cars are free for these dates"
 msgstr ""
 
-#: templates/partials/search/rvs-empty.php:66
+#: templates/partials/search/rvs-empty.php:75
 msgid "Try other dates or another pickup location."
 msgstr ""
 

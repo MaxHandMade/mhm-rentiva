@@ -118,8 +118,8 @@ final class BookingFormSeasonalMasterSwitchTest extends WP_Ajax_UnitTestCase
             // Wholly inside summer (June-August), Monday->Thursday: 3 rental
             // days, no weekend multiplier interference even though it is
             // also pinned to 1.0 above.
-            'pickup_date'  => '2026-07-13',
-            'dropoff_date' => '2026-07-16',
+            'pickup_date'  => '2027-07-12',
+            'dropoff_date' => '2027-07-15',
             'pickup_time'  => '10:00',
             'dropoff_time' => '10:00',
             'addons'       => array(),
