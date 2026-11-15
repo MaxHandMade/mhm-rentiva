@@ -906,15 +906,23 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		$this->assertSame(1, $data['meta']['active_filters']);
 	}
 
-	public function test_no_results_empty_state_offers_new_dates(): void
+	/**
+	 * A same-day return used to answer "No cars are free for these dates"
+	 * (customer lens r2 #7): the dates were the problem, not the cars. PR-A names
+	 * it in the notice region and still offers new dates.
+	 */
+	public function test_a_same_day_return_names_the_date_problem_and_offers_new_dates(): void
 	{
 		$data = $this->filter(array(
 			'mhmrentiva_pickup_date' => '2027-07-12',
 			'mhmrentiva_return_date' => '2027-07-12',
 		));
 
-		$this->assertStringContainsString('data-rvs-empty="no_results"', (string) $data['html']);
-		$this->assertStringContainsString('data-rvs-change', (string) $data['html']);
+		$this->assertSame('bad_dates', $data['meta']['empty_state']);
+		$this->assertStringNotContainsString('data-rvs-empty="no_results"', (string) $data['html']);
+		$this->assertStringContainsString('data-rvs-empty="bad_dates"', (string) $data['notice_html']);
+		$this->assertStringContainsString('Return date must be after pickup date.', (string) $data['notice_html']);
+		$this->assertStringContainsString('data-rvs-change', (string) $data['notice_html']);
 	}
 
 	public function test_ajax_payload_carries_the_same_summary_and_chips_as_the_page(): void

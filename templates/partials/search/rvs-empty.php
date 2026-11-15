@@ -8,10 +8,12 @@
  * none_here    -- nothing free at the picked pickup point (a notice above the
  *                 sections that offer the city's other points and the booked car),
  * none_yet     -- no dates, and the picked pickup point has no car at all.
+ * bad_dates    -- dates that cannot be booked (return before pickup, pickup
+ *                 passed): the reason above the catalogue, and "Change dates".
  *
  * @var string $kind       SearchResults::empty_state() value.
  * @var string $change_url Where "Change dates" sends the visitor.
- * @var string $title      none_here / none_yet: the headline (SearchResults::notice_html()).
+ * @var string $title      none_here / none_yet / bad_dates: the headline (SearchResults::notice_html()).
  * @var bool   $has_both   none_here: both sections follow -- the line pointing at them.
  * @var bool   $has_more   none_here: a section follows; without one, "Change dates".
  */
@@ -30,6 +32,13 @@ if ('not_searched' === $mhmrentiva_kind) :
 	<div class="rvs-results__notice-box" data-rvs-empty="not_searched">
 		<p><?php esc_html_e('Choose your dates to see the total price and only the cars that are free.', 'mhm-rentiva'); ?></p>
 		<a class="rvs-btn rvs-btn--secondary" href="<?php echo esc_url($mhmrentiva_url); ?>" data-rvs-change><?php esc_html_e('Choose dates', 'mhm-rentiva'); ?></a>
+	</div>
+	<?php
+elseif ('bad_dates' === $mhmrentiva_kind) :
+	?>
+	<div class="rvs-results__notice-box" data-rvs-empty="bad_dates">
+		<p><strong><?php echo esc_html( (string) ( $title ?? '' )); ?></strong></p>
+		<a class="rvs-btn rvs-btn--secondary" href="<?php echo esc_url($mhmrentiva_url); ?>" data-rvs-change><?php esc_html_e('Change dates', 'mhm-rentiva'); ?></a>
 	</div>
 	<?php
 elseif ('filtered_out' === $mhmrentiva_kind) :

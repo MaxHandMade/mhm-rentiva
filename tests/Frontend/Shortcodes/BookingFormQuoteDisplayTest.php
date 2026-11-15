@@ -95,8 +95,8 @@ final class BookingFormQuoteDisplayTest extends WP_Ajax_UnitTestCase
 				'action'       => 'mhmrentiva_calculate_price',
 				'nonce'        => wp_create_nonce('mhmrentiva_booking_form_nonce'),
 				'vehicle_id'   => $this->vehicle_id,
-				'pickup_date'  => '2026-07-13',
-				'dropoff_date' => '2026-07-16',
+				'pickup_date'  => self::july_monday(),
+				'dropoff_date' => self::july_monday(3),
 				'pickup_time'  => '10:00',
 				'dropoff_time' => '10:00',
 				'addons'       => array(),
@@ -132,7 +132,7 @@ final class BookingFormQuoteDisplayTest extends WP_Ajax_UnitTestCase
 	public function test_quote_total_equals_deposit_calculator_total(): void
 	{
 		$this->ensure_booking_product('1');
-		$charge = DepositCalculator::calculate_booking_deposit($this->vehicle_id, 3, 'full', array(), (int) strtotime('2026-07-13 07:00:00 UTC'));
+		$charge = DepositCalculator::calculate_booking_deposit($this->vehicle_id, 3, 'full', array(), (int) strtotime(self::july_monday() . ' 07:00:00 UTC'));
 
 		$data = $this->calculate_price();
 
@@ -249,8 +249,8 @@ final class BookingFormQuoteDisplayTest extends WP_Ajax_UnitTestCase
 			'action'       => 'mhmrentiva_calculate_price',
 			'nonce'        => wp_create_nonce('mhmrentiva_booking_form_nonce'),
 			'vehicle_id'   => $this->vehicle_id,
-			'pickup_date'  => '2026-07-13',
-			'dropoff_date' => '2026-07-16',
+			'pickup_date'  => self::july_monday(),
+			'dropoff_date' => self::july_monday(3),
 			'pickup_time'  => '10:00',
 			'addons'       => array(),
 			'payment_type' => 'full',
@@ -273,5 +273,17 @@ final class BookingFormQuoteDisplayTest extends WP_Ajax_UnitTestCase
 		$response = json_decode(false !== $cut ? substr($raw, 0, $cut) : $raw, true);
 
 		$this->assertFalse($response['success'] ?? true, 'A vehicle the submit path cannot price must not be quoted: ' . $raw);
+	}
+
+	/**
+	 * The first Monday of July next year: always in the future (a passed pickup is
+	 * refused), wholly in summer, and Monday->Thursday keeps the weekend out --
+	 * a fixed date here went stale once and broke the suite.
+	 */
+	private static function july_monday(int $plus_days = 0): string
+	{
+		$monday = new \DateTimeImmutable('first monday of july ' . ( (int) gmdate('Y') + 1 ), new \DateTimeZone('UTC'));
+
+		return $monday->modify('+' . $plus_days . ' days')->format('Y-m-d');
 	}
 }

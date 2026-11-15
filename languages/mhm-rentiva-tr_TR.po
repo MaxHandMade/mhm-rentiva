@@ -18894,6 +18894,10 @@ msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste yerleşiminde görüntüleyin."
 
+#: src/Admin/Booking/Helpers/Util.php:90
+msgid "The pickup time has already passed. Please choose a later date or time."
+msgstr "Teslim alma zamanı geçti. Lütfen daha ileri bir tarih veya saat seçin."
+
 #~ msgid "Refund not processed due to cancellation policy."
 #~ msgstr "İptal politikası nedeniyle iade işleme alınmadı."
 
