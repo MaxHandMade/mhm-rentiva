@@ -276,6 +276,7 @@ src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php
 src/Admin/Vehicle/Helpers/VerifiedReviewHelper.php
 src/Admin/Vehicle/Hooks/ReviewEnforcer.php
 src/Admin/Vehicle/Hooks/ReviewNormalization.php
+src/Admin/Vehicle/Hooks/VehicleTrashWarning.php
 src/Admin/Vehicle/ListTable/VehicleColumns.php
 src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php
 src/Admin/Vehicle/Meta/VehicleEditLayout.php

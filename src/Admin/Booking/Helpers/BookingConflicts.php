@@ -218,6 +218,32 @@ final class BookingConflicts {
 	}
 
 	/**
+	 * Bookings that hold the vehicle from now on: the booking rule asked of
+	 * every window from this moment forward. A booking already returned, a
+	 * cancelled one, or a pending payment past its deadline is not among them.
+	 *
+	 * @return list<int> Booking IDs, oldest first.
+	 */
+	public static function upcoming_booking_ids(int $vehicle_id): array
+	{
+		global $wpdb;
+
+		if ($vehicle_id <= 0) {
+			return array();
+		}
+
+		// OVERLAP_SQL widens the window start by the buffer; adding it back
+		// keeps "from now on" meaning bookings whose return is still ahead.
+		$from = time() + self::buffer_seconds();
+		$to   = $from + 100 * YEAR_IN_SECONDS;
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- FROM_SQL and RULE_SQL are private class constants of this file whose placeholders rule_args() binds in order (the sniff cannot read a constant); every value goes through prepare().
+		$ids = $wpdb->get_col($wpdb->prepare('SELECT DISTINCT p.ID ' . self::FROM_SQL . ' WHERE ' . self::RULE_SQL . ' AND pm_vid.meta_value = %d ORDER BY p.ID ASC', array_merge(self::rule_args($from, $to), array( $vehicle_id ))));
+
+		return array_values(array_map('intval', (array) $ids));
+	}
+
+	/**
 	 * The locked count of bookings overlapping the window, or null when the
 	 * query did not produce one. Bookings only.
 	 *
