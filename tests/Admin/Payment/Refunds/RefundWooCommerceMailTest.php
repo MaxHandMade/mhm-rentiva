@@ -170,6 +170,25 @@ final class RefundWooCommerceMailTest extends WP_UnitTestCase
 		$this->assertSame(array( 'customer_refunded_order' ), $this->wc_refunded_mails(), 'The customer must hear about the refund from someone.');
 	}
 
+	public function test_a_booking_without_an_address_keeps_the_woocommerce_mail(): void
+	{
+		// Rentiva finds the customer on the booking, then on its main order's
+		// billing address; here neither has one. Only the remaining order
+		// carries an address, and WooCommerce writes to that one.
+		delete_post_meta($this->booking_id, '_mhmrentiva_contact_email');
+		$deposit = $this->order('30');
+		$deposit->set_billing_email('');
+		$deposit->save();
+		$remaining = $this->order('70');
+		update_post_meta($this->booking_id, '_mhmrentiva_remaining_order_id', $remaining->get_id());
+
+		$result = Service::processFullRefund($this->booking_id, 'cancelled', $this->admin_id);
+		$this->assertSame('1', $result['mhmrentiva_refund'], $result['mhmrentiva_refund_msg']);
+
+		$this->assertNotContains('refund_customer', $this->rentiva_sent, 'Rentiva has nobody to write to.');
+		$this->assertCount(1, $this->wc_refunded_mails(), 'WooCommerce writes to the remaining order\'s billing address.');
+	}
+
 	public function test_an_order_without_a_rental_follows_woocommerce(): void
 	{
 		$order = wc_create_order(array( 'status' => 'processing' ));

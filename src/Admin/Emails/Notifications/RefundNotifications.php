@@ -28,6 +28,22 @@ final class RefundNotifications {
 	}
 
 	/**
+	 * Whether this booking's refund e-mail can reach its customer: the refund
+	 * template and outgoing mail are on, and the booking has a valid address
+	 * (the one compose_and_send() resolves). The same gates Mailer::send()
+	 * applies to 'refund_customer'.
+	 */
+	public static function reaches_customer( int $booking_id ): bool {
+		if ( ! Mailer::is_template_enabled( 'refund_customer' ) || ! \MHMRentiva\Admin\Settings\Groups\EmailSettings::is_send_enabled() ) {
+			return false;
+		}
+
+		$customer = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo( $booking_id );
+
+		return (bool) is_email( (string) ( $customer['email'] ?? '' ) );
+	}
+
+	/**
 	 * Tell the customer a refund paid back by hand has been transferred.
 	 *
 	 * The refund mail at cancellation said the amount "will be transferred
@@ -43,12 +59,27 @@ final class RefundNotifications {
 		$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id );
 
 		$currency = $state->currency() ?: \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_code();
+		$amount   = self::hand_refunded_kurus( $state );
+
+		// "0.00 has been transferred to you" would be false; nothing to say.
+		if ( $amount <= 0 ) {
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
+				array(
+					'gateway'    => 'refund',
+					'action'     => 'refund_notification',
+					'status'     => 'error',
+					'booking_id' => $booking_id,
+					'message'    => __( 'Transfer notice not sent: no hand refund amount found on this booking.', 'mhm-rentiva' ),
+				)
+			);
+			return;
+		}
 
 		SiteLocaleString::in_site_locale(
-			static function () use ( $booking_id, $state, $currency, $reference ): void {
+			static function () use ( $booking_id, $state, $currency, $reference, $amount ): void {
 				self::compose_and_send(
 					$booking_id,
-					self::hand_refunded_kurus( $state ),
+					$amount,
 					$currency,
 					$state->isFullyRefunded() ? 'refunded' : 'partially_refunded',
 					'',

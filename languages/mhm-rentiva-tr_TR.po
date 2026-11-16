@@ -18920,6 +18920,10 @@ msgstr "%1$s tutarındaki iadeniz size aktarıldı. Aktarım referansı: %2$s"
 msgid "%s has been transferred to you."
 msgstr "%s tutarındaki iadeniz size aktarıldı."
 
+#: src/Admin/Emails/Notifications/RefundNotifications.php
+msgid "Transfer notice not sent: no hand refund amount found on this booking."
+msgstr "Aktarım bildirimi gönderilmedi: bu rezervasyonda elden iade tutarı bulunamadı."
+
 #~ msgid "Refund not processed due to cancellation policy."
 #~ msgstr "İptal politikası nedeniyle iade işleme alınmadı."
 

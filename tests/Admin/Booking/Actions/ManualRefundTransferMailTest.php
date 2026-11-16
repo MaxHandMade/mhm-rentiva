@@ -138,6 +138,19 @@ final class ManualRefundTransferMailTest extends WP_Ajax_UnitTestCase
 		$this->assertStringNotContainsString('Reference', (string) $this->sent[0]['context']['mode_text']);
 	}
 
+	public function test_no_hand_refund_amount_sends_no_transfer_mail(): void
+	{
+		// A booking marked as waiting for a hand transfer with no refund
+		// behind it: "0.00 has been transferred" would be false.
+		update_post_meta($this->booking_id, RefundStatus::META_KEY, RefundStatus::MANUAL_PENDING);
+		add_action('mhmrentiva_email_sent', array( $this, 'record' ), 10, 5);
+
+		$response = $this->confirm('EFT-1');
+
+		$this->assertTrue((bool) ( $response['success'] ?? false ), 'The transfer is still recorded. Raw: ' . $this->_last_response);
+		$this->assertSame(array(), $this->keys());
+	}
+
 	public function test_a_second_click_sends_nothing(): void
 	{
 		$this->refund_waiting_for_the_transfer();

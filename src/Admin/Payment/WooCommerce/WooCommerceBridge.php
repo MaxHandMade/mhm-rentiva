@@ -310,9 +310,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * refund) still has to be transferred, so "has been refunded" is not true
 	 * yet. Rentiva's own refund e-mail goes out on both paths and says the
 	 * amount will be transferred; when the transfer is confirmed it says so
-	 * again. A shop that turned Rentiva's refund e-mail off keeps
-	 * WooCommerce's, so the customer still hears about the refund. Orders
-	 * without a rental follow WooCommerce.
+	 * again. When Rentiva's e-mail cannot reach the customer (its refund
+	 * template or outgoing mail switched off, no address on the booking),
+	 * WooCommerce's stays, so the customer still hears about the refund.
+	 * Orders without a rental follow WooCommerce.
 	 *
 	 * Reads the refund object (WC_Order_Refund::get_refunded_payment(), set
 	 * only after the gateway accepted the refund), not the running request,
@@ -337,11 +338,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return true;
 		}
 
-		if (null === self::get_booking_id_from_order($order)) {
+		$booking_id = self::get_booking_id_from_order($order);
+		if (null === $booking_id) {
 			return true;
 		}
 
-		return ! \MHMRentiva\Admin\Emails\Core\Mailer::is_template_enabled('refund_customer');
+		return ! \MHMRentiva\Admin\Emails\Notifications\RefundNotifications::reaches_customer($booking_id);
 	}
 
 	/**
