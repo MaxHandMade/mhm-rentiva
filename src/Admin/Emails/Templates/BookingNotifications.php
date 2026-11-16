@@ -34,7 +34,8 @@ final class BookingNotifications {
 		// default on this screen while the sender used it (PR 3b-3).
 		$get_val = function ( string $key, callable $default_callback ): string {
 			$val = (string) get_option( $key, '' );
-			if ( trim( $val ) === '' ) {
+			// An old shipped default counts as not saved, as the sender reads it.
+			if ( trim( $val ) === '' || EmailSettings::is_legacy_default_value( $key, $val ) ) {
 				return (string) $default_callback();
 			}
 			return $val;

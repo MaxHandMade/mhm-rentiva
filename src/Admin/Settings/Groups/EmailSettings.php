@@ -426,15 +426,40 @@ final class EmailSettings {
 		return SettingsCore::get( 'mhmrentiva_email_auto_send', '1' ) === '1';
 	}
 	/**
+	 * Values this plugin once shipped as a field's default, word for word.
+	 * Saving the e-mail settings screen writes every field as shown, so a site
+	 * that saved it holds the old default as if an administrator had typed
+	 * it; read as not saved, the current default reaches both the screen and
+	 * the e-mail. Anything else is the administrator's own text and is kept.
+	 */
+	private const LEGACY_DEFAULTS = array(
+		'mhmrentiva_booking_created_subject' => array(
+			'Booking Confirmed: #{booking_id}',      // until 6.3.1
+			'Rezervasyon onaylandı: #{booking_id}', // the tr_TR it shipped with
+		),
+	);
+
+	/**
+	 * Whether a stored option value is one of the defaults this plugin once
+	 * shipped for it (LEGACY_DEFAULTS), so it reads as not saved.
+	 */
+	public static function is_legacy_default_value( string $option, string $value ): bool {
+		return in_array( trim( $value ), self::LEGACY_DEFAULTS[ $option ] ?? array(), true );
+	}
+
+	/**
 	 * The subject a template goes out with when the operator saved none --
 	 * the one the Settings screen shows, so the screen and the sent e-mail
-	 * agree (PR 3b-3, Codex #178). Null for a template the screen has no
-	 * subject field for (the registry's subject applies).
+	 * agree (PR 3b-3). Null for a template the screen has no subject field
+	 * for (the registry's subject applies).
 	 */
 	public static function default_subject( string $key ): ?string {
 		switch ( $key ) {
 			case 'booking_created_customer':
-				return __( 'Booking Confirmed: #{booking_id}', 'mhm-rentiva' );
+				// Received, not confirmed: this e-mail goes out when the booking is
+				// made, often before its payment. The status e-mail of the change
+				// to "confirmed" says so when the payment lands.
+				return __( 'Booking Received: #{booking_id}', 'mhm-rentiva' );
 			case 'booking_status_changed_customer':
 				return __( 'Booking #{booking_id} status updated', 'mhm-rentiva' );
 			case 'booking_created_admin':

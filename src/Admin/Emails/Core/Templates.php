@@ -40,7 +40,7 @@ final class Templates {
 		$registry = array(
 			// Booking notifications
 			'booking_created_customer'        => array(
-				'subject' => __( 'Booking #{{booking.order_id}} Confirmed - {{site.name}}', 'mhm-rentiva' ),
+				'subject' => __( 'Booking #{{booking.order_id}} Received - {{site.name}}', 'mhm-rentiva' ),
 				'file'    => 'booking-created-customer',
 			),
 			'booking_created_admin'           => array(
@@ -606,7 +606,7 @@ final class Templates {
 		}
 		$raw = get_option( $opt, '' );
 		$raw = is_string( $raw ) ? trim( $raw ) : '';
-		if ( $raw === '' ) {
+		if ( $raw === '' || EmailSettings::is_legacy_default_value( $opt, $raw ) ) {
 			return null;
 		}
 		// $raw is an admin-entered value stored in a WP option (a custom subject
