@@ -260,6 +260,96 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
+	 * A rental line's span as instants, or null when its dates do not parse.
+	 *
+	 * @param array<string, mixed> $booking_data
+	 * @return array{0: int, 1: int}|null
+	 */
+	private static function rental_span(array $booking_data): ?array
+	{
+		$start = self::parse_datetime_to_timestamp( (string) ( $booking_data['pickup_date'] ?? '' ), (string) ( $booking_data['pickup_time'] ?? '00:00' ));
+		$end   = self::parse_datetime_to_timestamp( (string) ( $booking_data['dropoff_date'] ?? '' ), (string) ( $booking_data['dropoff_time'] ?? '23:59' ));
+
+		return ( $start && $end ) ? array( $start, $end ) : null;
+	}
+
+	/**
+	 * Removes the cart's rental lines of the same vehicle whose dates overlap
+	 * this rental, and tells the customer once. Back-to-back rentals (one
+	 * returned when the next is picked up) do not overlap and stay.
+	 *
+	 * @param array<string, mixed> $booking_data
+	 */
+	private static function replace_rental_lines_of(array $booking_data): void
+	{
+		$vehicle_id = (int) ( $booking_data['vehicle_id'] ?? 0 );
+		$span       = self::rental_span($booking_data);
+		if (! $vehicle_id || null === $span || ! isset(\WC()->cart)) {
+			return;
+		}
+
+		$replaced = false;
+		foreach (\WC()->cart->get_cart() as $key => $item) {
+			if (empty($item['mhmrentiva_booking_pending']) || ! isset($item['mhmrentiva_booking_data'])) {
+				continue;
+			}
+			$other = $item['mhmrentiva_booking_data'];
+			if ( (int) ( $other['vehicle_id'] ?? 0 ) !== $vehicle_id) {
+				continue;
+			}
+			$other_span = self::rental_span($other);
+			if (null !== $other_span && $span[0] < $other_span[1] && $other_span[0] < $span[1]) {
+				\WC()->cart->remove_cart_item($key);
+				$replaced = true;
+			}
+		}
+
+		if ($replaced && function_exists('wc_add_notice')) {
+			\wc_add_notice(
+				sprintf(
+					/* translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date */
+					__('Your cart already held "%1$s" for overlapping dates. It now holds your latest choice (%2$s - %3$s).', 'mhm-rentiva'),
+					get_the_title($vehicle_id),
+					wp_date(get_option('date_format'), $span[0]),
+					wp_date(get_option('date_format'), $span[1])
+				),
+				'notice'
+			);
+		}
+	}
+
+	/**
+	 * Whether this rental line overlaps an EARLIER rental line of the same
+	 * vehicle in the same cart. $seen carries the spans already walked, per
+	 * vehicle, so a pair is reported once (on its second line).
+	 *
+	 * @param array<int, array<int, array{0: int, 1: int}>> $seen
+	 */
+	private static function overlaps_own_cart_line(array &$seen, int $vehicle_id, int $start_ts, int $end_ts): bool
+	{
+		$clash = false;
+		foreach ($seen[ $vehicle_id ] ?? array() as $span) {
+			if ($start_ts < $span[1] && $span[0] < $end_ts) {
+				$clash = true;
+				break;
+			}
+		}
+		$seen[ $vehicle_id ][] = array( $start_ts, $end_ts );
+
+		return $clash;
+	}
+
+	/** The cart clashes with itself, not with another customer. */
+	private static function own_cart_clash_notice(int $vehicle_id): string
+	{
+		return sprintf(
+			/* translators: %s: Vehicle title */
+			__('Your cart holds "%s" more than once for overlapping dates. Remove the extra line to continue.', 'mhm-rentiva'),
+			get_the_title($vehicle_id)
+		);
+	}
+
+	/**
 	 * Add booking data to WooCommerce cart (without creating booking yet)
 	 * Booking will be created when order is processed
 	 *
@@ -278,8 +368,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return false;
 		}
 
-		// Empty cart first (optional, depending on business logic)
-		// WC()->cart->empty_cart();
+		// The same vehicle for overlapping dates is the same rental chosen again
+		// (browser Back, then "Book now"): the newer choice replaces the line.
+		// Left in, WooCommerce merged an identical one into quantity 2 -- double
+		// total and deposit -- and a changed one became a second line the
+		// checkout then refused as "booked by another customer" (PR-B).
+		self::replace_rental_lines_of($booking_data);
 
 		// The add-on rows as priced now, beside the charge fixed now: an add-on
 		// re-priced, renamed or deleted before checkout keeps its row.
@@ -2691,6 +2785,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
+		$seen = array();
 		foreach ($cart->get_cart() as $cart_item) {
 			if (empty($cart_item['mhmrentiva_booking_pending']) || ! isset($cart_item['mhmrentiva_booking_data'])) {
 				continue;
@@ -2711,6 +2806,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			$end_ts   = self::parse_datetime_to_timestamp( (string) ( $booking_data['dropoff_date'] ?? '' ), (string) ( $booking_data['dropoff_time'] ?? '23:59' ));
 			if (! $start_ts || ! $end_ts) {
 				$errors->add('mhmrentiva_booking_refused', __('Invalid booking dates. Please try again.', 'mhm-rentiva'));
+				continue;
+			}
+
+			if (self::overlaps_own_cart_line($seen, $vehicle_id, $start_ts, $end_ts)) {
+				$errors->add('mhmrentiva_booking_refused', self::own_cart_clash_notice($vehicle_id));
 				continue;
 			}
 
@@ -4286,12 +4386,24 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 */
 	public static function validate_cart_availability()
 	{
+		// On the checkout request WooCommerce runs woocommerce_checkout_process
+		// (validate_checkout_availability(), which already refused the line and
+		// stops the order) and then check_cart_items(). Checking again here
+		// printed a second sentence for the same refusal and emptied the cart
+		// behind the page without a word (customer lens r2 #3). The cart page,
+		// a later request, removes the line and says why.
+		if (did_action('woocommerce_checkout_process') > 0) {
+			return;
+		}
+
 		/** @var mixed $cart */
 		$cart = ( function_exists('WC') && isset(\WC()->cart) ) ? \WC()->cart : null;
 
 		if (! $cart) {
 			return;
 		}
+
+		$seen = array();
 
 		foreach ($cart->get_cart() as $cart_item) {
 			// Check pending booking (from cart data)
@@ -4314,6 +4426,14 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				$end_ts   = self::parse_datetime_to_timestamp($booking_data['dropoff_date'], $booking_data['dropoff_time'] ?? '23:59');
 
 				if (! $start_ts || ! $end_ts) {
+					continue;
+				}
+
+				// A second line of the same vehicle for overlapping dates (a cart
+				// saved before PR-B): the later line goes, and the customer is told.
+				if (self::overlaps_own_cart_line($seen, $vehicle_id, $start_ts, $end_ts)) {
+					\wc_add_notice(self::own_cart_clash_notice($vehicle_id), 'error');
+					$cart->remove_cart_item($cart_item['key']);
 					continue;
 				}
 
@@ -4402,6 +4522,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
+		$seen = array();
 		foreach ($cart->get_cart() as $cart_item) {
 			// Check pending booking (from cart data) - MOST IMPORTANT CHECK
 			if (isset($cart_item['mhmrentiva_booking_data']) && isset($cart_item['mhmrentiva_booking_pending']) && $cart_item['mhmrentiva_booking_pending']) {
@@ -4428,6 +4549,13 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 						__('Invalid booking dates. Please try again.', 'mhm-rentiva'),
 						'error'
 					);
+					continue;
+				}
+
+				// The cart clashing with itself (a cart saved before PR-B): say
+				// so, instead of blaming another customer.
+				if (self::overlaps_own_cart_line($seen, $vehicle_id, $start_ts, $end_ts)) {
+					\wc_add_notice(self::own_cart_clash_notice($vehicle_id), 'error');
 					continue;
 				}
 
