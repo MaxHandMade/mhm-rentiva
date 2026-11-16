@@ -138,6 +138,38 @@ final class CartRepeatedBookingTest extends WP_UnitTestCase
 		$this->assertSame(1, wc_notice_count('error'));
 	}
 
+	public function test_a_refused_add_keeps_the_line_it_would_have_replaced(): void
+	{
+		WooCommerceBridge::add_booking_data_to_cart($this->rental('2027-03-02', '2027-03-04'), 200.0);
+
+		// WooCommerce refuses the new line (add_to_cart() answers false).
+		add_filter('woocommerce_is_purchasable', '__return_false');
+		$added = WooCommerceBridge::add_booking_data_to_cart($this->rental('2027-03-03', '2027-03-06'), 300.0);
+		remove_filter('woocommerce_is_purchasable', '__return_false');
+
+		$this->assertFalse($added, 'A refused add is reported as one, not sent to an empty checkout.');
+		$lines = $this->rental_lines();
+		$this->assertCount(1, $lines, 'The earlier choice is not lost to a refused one.');
+		$this->assertSame('2027-03-02', $lines[0]['mhmrentiva_booking_data']['pickup_date']);
+		$this->assertSame(0, wc_notice_count('notice'), 'Nothing was replaced, so nothing is announced.');
+	}
+
+	public function test_a_line_removed_for_another_customer_does_not_take_its_neighbour(): void
+	{
+		// A saved cart: two overlapping lines of one vehicle; the first one's
+		// dates were then taken by another customer, the second one's were not.
+		// (A day apart from the other booking, clear of any turnaround buffer.)
+		$this->force_line($this->rental('2027-03-01', '2027-03-04'));
+		$this->force_line($this->rental('2027-03-03', '2027-03-06'));
+		$this->confirmed_booking('2027-02-26', '2027-03-02');
+
+		WooCommerceBridge::validate_cart_availability();
+
+		$lines = $this->rental_lines();
+		$this->assertCount(1, $lines, 'Only the refused line goes.');
+		$this->assertSame('2027-03-03', $lines[0]['mhmrentiva_booking_data']['pickup_date']);
+	}
+
 	private function vehicle( string $title ): int
 	{
 		$id = (int) self::factory()->post->create(array(
