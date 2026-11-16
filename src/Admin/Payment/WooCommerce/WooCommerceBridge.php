@@ -285,7 +285,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	{
 		$vehicle_id = (int) ( $booking_data['vehicle_id'] ?? 0 );
 		$span       = self::rental_span($booking_data);
-		if (! $vehicle_id || null === $span || ! isset(\WC()->cart)) {
+		// The cart is there: the only caller ran ensure_wc_session() first.
+		if (! $vehicle_id || null === $span) {
 			return array();
 		}
 
