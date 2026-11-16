@@ -111,6 +111,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// A guest paying for a rental is offered an account (product decision 2026-11-11).
 		add_filter('woocommerce_checkout_registration_enabled', array( self::class, 'offer_account_for_rentals' ));
 
+		// "Your order has been refunded" only when the money went back through the gateway.
+		add_filter('woocommerce_email_enabled_customer_refunded_order', array( self::class, 'refunded_mail_only_when_money_moved' ), 10, 3);
+		add_filter('woocommerce_email_enabled_customer_partially_refunded_order', array( self::class, 'refunded_mail_only_when_money_moved' ), 10, 3);
+
 		// AJAX handlers for payment type change
 		add_action('wp_ajax_mhmrentiva_update_booking_payment_type', array( self::class, 'ajax_update_payment_type' ));
 		add_action('wp_ajax_nopriv_mhmrentiva_update_booking_payment_type', array( self::class, 'ajax_update_payment_type' ));
@@ -294,6 +298,50 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		}
 
 		return false;
+	}
+
+	/**
+	 * WooCommerce's "your order has been refunded" customer e-mail, on a
+	 * rental order, only for a refund whose money went back through the
+	 * gateway.
+	 *
+	 * A refund paid back by hand (bank transfer, cash; the order screen's
+	 * "Refund manually", or a Rentiva refund on an order whose gateway cannot
+	 * refund) still has to be transferred, so "has been refunded" is not true
+	 * yet. Rentiva's own refund e-mail goes out on both paths and says the
+	 * amount will be transferred; when the transfer is confirmed it says so
+	 * again. A shop that turned Rentiva's refund e-mail off keeps
+	 * WooCommerce's, so the customer still hears about the refund. Orders
+	 * without a rental follow WooCommerce.
+	 *
+	 * Reads the refund object (WC_Order_Refund::get_refunded_payment(), set
+	 * only after the gateway accepted the refund), not the running request,
+	 * so a shop that defers its transactional e-mails gets the same answer.
+	 *
+	 * @param mixed $enabled What the e-mail's setting (or an earlier filter) decided.
+	 * @param mixed $order   The order the e-mail is about.
+	 * @param mixed $email   The e-mail.
+	 */
+	public static function refunded_mail_only_when_money_moved($enabled, $order = null, $email = null): bool
+	{
+		if (! $enabled) {
+			return false;
+		}
+
+		if (! $email instanceof \WC_Email_Customer_Refunded_Order || ! $order instanceof \WC_Order) {
+			return true;
+		}
+
+		$refund = $email->refund;
+		if (! $refund instanceof \WC_Order_Refund || $refund->get_refunded_payment()) {
+			return true;
+		}
+
+		if (null === self::get_booking_id_from_order($order)) {
+			return true;
+		}
+
+		return ! \MHMRentiva\Admin\Emails\Core\Mailer::is_template_enabled('refund_customer');
 	}
 
 	/**

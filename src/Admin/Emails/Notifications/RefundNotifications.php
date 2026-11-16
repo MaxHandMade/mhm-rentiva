@@ -17,9 +17,82 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class RefundNotifications {
 
+	/**
+	 * The refund mail's mode once the operator confirmed the hand transfer:
+	 * the money has been sent, not "will be".
+	 */
+	public const MODE_TRANSFERRED = 'transferred';
 
 	public static function register(): void {
 		// nothing to hook right now; kept for consistency
+	}
+
+	/**
+	 * Tell the customer a refund paid back by hand has been transferred.
+	 *
+	 * The refund mail at cancellation said the amount "will be transferred
+	 * to you manually"; DepositManagementAjax::close_manual_refund() calls
+	 * this once the operator confirmed the transfer, so the customer learns
+	 * the money left. The amount is what was refunded without the gateway
+	 * (hand_refunded_kurus()). The customer only: the operator is the one who
+	 * confirmed it.
+	 *
+	 * @param string $reference The transfer reference the operator typed, or ''.
+	 */
+	public static function notify_transferred( int $booking_id, string $reference ): void {
+		$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id );
+
+		$currency = $state->currency() ?: \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_code();
+
+		SiteLocaleString::in_site_locale(
+			static function () use ( $booking_id, $state, $currency, $reference ): void {
+				self::compose_and_send(
+					$booking_id,
+					self::hand_refunded_kurus( $state ),
+					$currency,
+					$state->isFullyRefunded() ? 'refunded' : 'partially_refunded',
+					'',
+					self::MODE_TRANSFERRED,
+					0,
+					0,
+					$reference
+				);
+			}
+		);
+	}
+
+	/**
+	 * What was refunded on this booking without the gateway, in minor units.
+	 *
+	 * A WooCommerce refund the gateway accepted is marked on the refund
+	 * itself (WC_Order_Refund::get_refunded_payment()); every other refund on
+	 * the booking's orders was money to hand over. A booking with no order
+	 * (offline channel) has nothing but hand refunds.
+	 */
+	private static function hand_refunded_kurus( \MHMRentiva\Admin\Payment\Core\PaymentState $state ): int {
+		$orders = $state->orders();
+
+		if ( array() === $orders ) {
+			return $state->refunded();
+		}
+
+		$total = 0;
+
+		foreach ( $orders as $order_id ) {
+			$order = function_exists( 'wc_get_order' ) ? wc_get_order( $order_id ) : null;
+
+			if ( ! $order instanceof \WC_Order ) {
+				continue;
+			}
+
+			foreach ( $order->get_refunds() as $refund ) {
+				if ( ! $refund->get_refunded_payment() ) {
+					$total += \MHMRentiva\Admin\Payment\Core\Money::toMinor( (float) $refund->get_amount() );
+				}
+			}
+		}
+
+		return $total;
 	}
 
 	/**
@@ -56,7 +129,7 @@ final class RefundNotifications {
 		// locale, not to the operator who pressed "refund".
 		SiteLocaleString::in_site_locale(
 			static function () use ( $booking_id, $amount_kurus, $currency, $newPayStatus, $reason, $mode, $auto_refunded_kurus, $manual_refunded_kurus ): void {
-				self::compose_and_send( $booking_id, $amount_kurus, $currency, $newPayStatus, $reason, $mode, $auto_refunded_kurus, $manual_refunded_kurus );
+				self::compose_and_send( $booking_id, $amount_kurus, $currency, $newPayStatus, $reason, $mode, $auto_refunded_kurus, $manual_refunded_kurus, '' );
 			}
 		);
 	}
@@ -72,7 +145,8 @@ final class RefundNotifications {
 		string $reason,
 		string $mode,
 		int $auto_refunded_kurus,
-		int $manual_refunded_kurus
+		int $manual_refunded_kurus,
+		string $reference
 	): void {
 		// The address every OTHER consumer resolves through: customer_email ->
 		// booking_customer_email -> contact_email. Reading contact_email alone
@@ -109,7 +183,10 @@ final class RefundNotifications {
 		 * an integrator can override the classification for a gateway we cannot
 		 * interrogate -- and so the slice-3 tests can observe it.
 		 */
-		$mode = (string) apply_filters( 'mhmrentiva_refund_notification_mode', $mode, $booking_id );
+		// A confirmed transfer is not a classification: it is what happened.
+		if ( self::MODE_TRANSFERRED !== $mode ) {
+			$mode = (string) apply_filters( 'mhmrentiva_refund_notification_mode', $mode, $booking_id );
+		}
 
 		// A mixed operation needs both legs named; either subtotal being 0
 		// means this was a pure-mode operation (or a caller that never passed
@@ -117,7 +194,23 @@ final class RefundNotifications {
 		// what they always were -- no translator sees a diff for those.
 		$isMixedMode = $auto_refunded_kurus > 0 && $manual_refunded_kurus > 0;
 
-		if ( $isMixedMode ) {
+		if ( self::MODE_TRANSFERRED === $mode ) {
+			$modeText = '' !== $reference
+				? sprintf(
+					/* translators: 1: the refunded amount, 2: the bank transfer or receipt reference */
+					__( '%1$s has been transferred to you. Transfer reference: %2$s', 'mhm-rentiva' ),
+					$amountHuman,
+					$reference
+				)
+				: sprintf(
+					/* translators: %s: the refunded amount */
+					__( '%s has been transferred to you.', 'mhm-rentiva' ),
+					$amountHuman
+				);
+
+			// No admin mail goes out for this mode (below).
+			$adminModeText = '';
+		} elseif ( $isMixedMode ) {
 			$autoHuman   = \MHMRentiva\Admin\Core\CurrencyHelper::format_price(
 				(float) \MHMRentiva\Admin\Payment\Core\Money::toMajor( $auto_refunded_kurus ),
 				\MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals(),
@@ -205,7 +298,7 @@ final class RefundNotifications {
 				)
 			);
 		}
-		if ( $admin ) {
+		if ( $admin && self::MODE_TRANSFERRED !== $mode ) {
 			Mailer::send( 'refund_admin', $admin, $context );
 		}
 	}

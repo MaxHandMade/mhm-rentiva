@@ -18910,6 +18910,16 @@ msgstr "Rezervasyon #{{booking.order_id}} alındı - {{site.name}}"
 msgid "Booking Received: #{booking_id}"
 msgstr "Rezervasyon alındı: #{booking_id}"
 
+#: src/Admin/Emails/Notifications/RefundNotifications.php
+#, php-format
+msgid "%1$s has been transferred to you. Transfer reference: %2$s"
+msgstr "%1$s tutarındaki iadeniz size aktarıldı. Aktarım referansı: %2$s"
+
+#: src/Admin/Emails/Notifications/RefundNotifications.php
+#, php-format
+msgid "%s has been transferred to you."
+msgstr "%s tutarındaki iadeniz size aktarıldı."
+
 #~ msgid "Refund not processed due to cancellation policy."
 #~ msgstr "İptal politikası nedeniyle iade işleme alınmadı."
 
