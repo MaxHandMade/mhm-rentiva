@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-16T12:46:17+00:00\n"
+"POT-Creation-Date: 2026-11-16T20:38:57+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -772,7 +772,7 @@ msgstr ""
 #: src/Admin/Addons/AddonMenu.php:87
 #: src/Admin/Addons/AddonPostType.php:59
 #: src/Admin/Addons/AddonScreen.php:601
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:310
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:334
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:657
 #: src/Admin/Utilities/Menu/Menu.php:105
 #: src/Admin/Utilities/Menu/Menu.php:106
@@ -1263,7 +1263,7 @@ msgstr ""
 #: src/Admin/Booking/Core/PaymentView.php:86
 #: src/Admin/Booking/Core/Status.php:124
 #: src/Admin/Booking/ListTable/BookingColumns.php:1176
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:292
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:316
 #: src/Admin/Booking/Meta/BookingMeta.php:1624
 #: src/Admin/Core/AssetManager.php:1222
 #: src/Admin/Emails/Core/EmailTemplates.php:508
@@ -1308,7 +1308,7 @@ msgstr ""
 
 #: src/Admin/Booking/Core/PaymentView.php:92
 #: src/Admin/Booking/Core/Status.php:128
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:302
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:326
 #: src/Admin/Booking/Meta/BookingMeta.php:1628
 #: src/Admin/Core/AssetManager.php:1226
 #: src/Admin/Emails/Notifications/BookingNotifications.php:224
@@ -1353,7 +1353,7 @@ msgid "Pending Payment"
 msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:125
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:293
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:317
 #: src/Admin/Booking/Meta/BookingMeta.php:1625
 #: src/Admin/Core/AssetManager.php:1223
 #: src/Admin/Emails/Core/EmailTemplates.php:509
@@ -1368,7 +1368,7 @@ msgid "Confirmed"
 msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:126
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:294
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:318
 #: src/Admin/Booking/Meta/BookingMeta.php:1626
 #: src/Admin/Core/AssetManager.php:1224
 #: src/Admin/Emails/Notifications/BookingNotifications.php:222
@@ -1380,7 +1380,7 @@ msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:127
 #: src/Admin/Booking/ListTable/BookingColumns.php:1189
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:295
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:319
 #: src/Admin/Booking/Meta/BookingMeta.php:1627
 #: src/Admin/Core/AssetManager.php:1225
 #: src/Admin/Emails/Notifications/BookingNotifications.php:223
@@ -1739,7 +1739,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:384
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:532
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:709
-#: src/Plugin.php:1170
+#: src/Plugin.php:1175
 #: templates/account/booking-summary.php:59
 #: templates/admin/partials/booking-popup.php:52
 #: src-react/admin/customers/components/CustomerTable.jsx:9
@@ -1809,7 +1809,7 @@ msgid "Payment"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:283
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:290
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:314
 #: src/Admin/Booking/Meta/BookingMeta.php:382
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:723
 #: src/Admin/Privacy/BookingExporter.php:100
@@ -2398,7 +2398,7 @@ msgstr ""
 msgid "Manual"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:245
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:258
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:517
 #: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:426
 #: src/Admin/Settings/Groups/FrontendSettings.php:381
@@ -2406,7 +2406,15 @@ msgstr ""
 msgid "Select Vehicle"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:262
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:275
+msgid "This vehicle is in the Trash: customers can no longer open its page. Restore it from the Vehicles list, or pick another vehicle."
+msgstr ""
+
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:276
+msgid "This vehicle is not published: customers can no longer open its page."
+msgstr ""
+
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:286
 #: src/Admin/Booking/Meta/BookingMeta.php:418
 #: src/Admin/Booking/Meta/BookingMeta.php:465
 #: templates/admin/partials/booking-popup.php:34
@@ -2415,28 +2423,28 @@ msgstr ""
 msgid "Booking Details"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:266
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:290
 #: src/Admin/Booking/Meta/BookingMeta.php:469
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:593
 #: templates/shortcodes/booking-form.php:97
 msgid "Pickup Date"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:271
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:295
 #: src/Admin/Booking/Meta/BookingMeta.php:474
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:598
 #: templates/shortcodes/booking-form.php:102
 msgid "Pickup Time"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:278
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:302
 #: src/Admin/Booking/Meta/BookingMeta.php:481
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:604
 #: templates/shortcodes/booking-form.php:114
 msgid "Return Date"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:283
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:307
 #: src/Admin/Booking/Meta/BookingMeta.php:486
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:609
 #: templates/shortcodes/booking-form.php:119
@@ -2444,54 +2452,58 @@ msgid "Return Time"
 msgstr ""
 
 #. translators: %s: additional service name.
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:379
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:403
 #, php-format
 msgid "%s (inactive)"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:394
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:418
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:662
 msgid "Select the additional services needed for this booking."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:432
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:456
 msgid "Quantity"
 msgstr ""
 
 #. translators: %s: additional service name.
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:433
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:457
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:676
 #, php-format
 msgid "Quantity: %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:448
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:472
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:686
 msgid "Additional Services Total:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:454
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:478
 msgid "No additional services available."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:460
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:484
 msgid "Special Notes / Requests"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:461
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:485
 msgid "Enter any special notes or customer requests..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:462
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:486
 msgid "Add any special notes or customer requests for this booking."
 msgstr ""
 
 #. translators: %s: vehicle title.
 #. translators: %s: vehicle title
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:640
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:664
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3065
 #, php-format
 msgid "Booking - %s"
+msgstr ""
+
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:754
+msgid "In Trash"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditNotice.php:88
@@ -13904,6 +13916,30 @@ msgstr ""
 msgid "Duplicate Review"
 msgstr ""
 
+#. translators: %d: number of further bookings not linked in the list.
+#: src/Admin/Vehicle/Hooks/VehicleTrashWarning.php:134
+#, php-format
+msgid "and %d more"
+msgid_plural "and %d more"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: vehicle title, 2: number of upcoming bookings.
+#: src/Admin/Vehicle/Hooks/VehicleTrashWarning.php:144
+#, php-format
+msgid "“%1$s” was moved to the Trash but still has %2$d upcoming booking. The booking keeps this vehicle, but customers can no longer open the vehicle’s page."
+msgid_plural "“%1$s” was moved to the Trash but still has %2$d upcoming bookings. The bookings keep this vehicle, but customers can no longer open the vehicle’s page."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Admin/Vehicle/Hooks/VehicleTrashWarning.php:157
+msgid "Bookings:"
+msgstr ""
+
+#: src/Admin/Vehicle/Hooks/VehicleTrashWarning.php:158
+msgid "Restore vehicle"
+msgstr ""
+
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:213
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1621
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:50
@@ -15173,7 +15209,7 @@ msgstr ""
 msgid "Rollback wrote nothing for this page: the previous manifest no longer resolves to it."
 msgstr ""
 
-#: src/Plugin.php:1184
+#: src/Plugin.php:1189
 msgid "Failed to create the customer role."
 msgstr ""
 

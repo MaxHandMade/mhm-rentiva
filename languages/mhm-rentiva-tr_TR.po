@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-11-11T21:45:35+00:00\n"
+"POT-Creation-Date: 2026-11-16T20:38:57+00:00\n"
 "PO-Revision-Date: 2026-11-11 15:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -154,7 +154,7 @@ msgstr "Hesaplanamadı"
 
 #: src/Admin/About/SystemInfo.php:223 src/Admin/Core/AssetManager.php:1635
 #: src/Admin/Frontend/Account/AccountController.php:290
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:596
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:597
 #: src/Admin/Settings/Groups/FrontendSettings.php:345
 msgid "Error"
 msgstr "Hata"
@@ -691,7 +691,7 @@ msgstr "\"%s\" ek hizmeti gereklidir."
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:125
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1087
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1461
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1813
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1819
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:457
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:734
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:53
@@ -704,10 +704,10 @@ msgstr "Güvenlik kontrolü başarısız oldu."
 #: src/Admin/Addons/AddonScreen.php:376 src/Admin/Addons/AddonScreen.php:516
 #: src/Admin/Booking/Actions/BookingActionGuard.php:93
 #: src/Admin/Booking/Actions/BookingApproveAjax.php:61
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:87
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:538
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:670
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:790
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:89
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:540
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:690
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:810
 msgid "You do not have permission for this action."
 msgstr "Bu eylem için izniniz yok."
 
@@ -754,7 +754,7 @@ msgstr "Fiyat başarıyla güncellendi."
 
 #: src/Admin/Addons/AddonMenu.php:87 src/Admin/Addons/AddonPostType.php:59
 #: src/Admin/Addons/AddonScreen.php:601
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:310
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:334
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:657
 #: src/Admin/Utilities/Menu/Menu.php:105 src/Admin/Utilities/Menu/Menu.php:106
 #: templates/shortcodes/booking-form.php:139
@@ -1065,8 +1065,8 @@ msgstr "%s hizmetini sil"
 #: src/Admin/Frontend/Account/AccountController.php:757
 #: src/Admin/Frontend/Account/AccountController.php:1069
 #: src/Admin/Frontend/Account/AccountController.php:1300
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4844
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4903
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5153
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5212
 msgid "Invalid booking ID."
 msgstr "Geçersiz rezervasyon kimliği."
 
@@ -1088,25 +1088,25 @@ msgid ""
 msgstr ""
 "Bu rezervasyon onaylanamadı. Değişmiş olabilir — listeyi yeniden yükleyin."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:122
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:175
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:124
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:177
 msgid "This booking does not use deposit system."
 msgstr "Bu rezervasyon kapora sistemi kullanmamaktadır."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:127
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:180
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:129
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:182
 msgid "No remaining amount found."
 msgstr "Kalan tutar bulunamadı."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:157
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:159
 msgid "Remaining amount processed successfully."
 msgstr "Kalan tutar başarıyla işlendi."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:218
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:220
 msgid "Payment link for the remaining amount e-mailed to the customer."
 msgstr "Kalan tutar için ödeme bağlantısı müşteriye e-postayla gönderildi."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:219
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:221
 msgid ""
 "Payment link for the remaining amount created; the e-mail to the customer "
 "could not be sent."
@@ -1114,11 +1114,11 @@ msgstr ""
 "Kalan tutar için ödeme bağlantısı oluşturuldu; müşteriye e-posta "
 "gönderilemedi."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:226
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:228
 msgid "Payment link generated and emailed to the customer."
 msgstr "Ödeme bağlantısı oluşturuldu ve müşteriye e-postayla gönderildi."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:227
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:229
 msgid ""
 "Payment link generated, but the e-mail could not be sent. Copy the link and "
 "send it to the customer yourself."
@@ -1126,21 +1126,21 @@ msgstr ""
 "Ödeme bağlantısı oluşturuldu, ancak e-posta gönderilemedi. Bağlantıyı "
 "kopyalayıp müşteriye kendiniz gönderin."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:258
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:260
 msgid "This booking is not awaiting payment."
 msgstr "Bu rezervasyon ödeme beklemiyor."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:283
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:285
 msgid "Payment confirmed successfully."
 msgstr "Ödeme başarıyla onaylandı."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:300
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:302
 #: src/Admin/Booking/Meta/BookingEditCancellation.php:144
 msgid "This booking cannot be cancelled."
 msgstr "Bu rezervasyon iptal edilemez."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:336
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:732
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:338
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:752
 #: src/Admin/Booking/Meta/BookingEditCancellation.php:170
 msgid ""
 "Booking cancelled, but the refund could not be completed. See the refund "
@@ -1149,28 +1149,28 @@ msgstr ""
 "Rezervasyon iptal edildi, ancak iade tamamlanamadı. Bu ekrandaki iade "
 "durumuna bakın."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:343
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:345
 msgid "Booking cancelled successfully."
 msgstr "Rezervasyon başarıyla iptal edildi."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:367
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:369
 msgid "Refund cannot be processed for this booking."
 msgstr "Bu rezervasyon için iade yapılamaz."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:368
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:370
 msgid "This booking has no refundable balance left."
 msgstr "Bu rezervasyonda iade edilebilir bakiye kalmadı."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:417
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:419
 msgid "Refund issued from the deposit management screen."
 msgstr "Kapora yönetimi ekranından iade işlendi."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:442
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:444
 msgid "Refund failed."
 msgstr "İade başarısız oldu."
 
 #. translators: %s: refund amount.
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:471
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:473
 #, php-format
 msgid ""
 "A refund record was opened for %s. Close it with \"Confirm hand transfer\" "
@@ -1180,14 +1180,14 @@ msgstr ""
 "onayla\" ile kapatın."
 
 #. translators: %s placeholder.
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:479
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:481
 #, php-format
 msgid "Refund completed successfully. Refund amount: %s"
 msgstr "İade başarıyla tamamlandı. İade tutarı: %s"
 
 #. translators: %d: minutes until an orphaned refund lock clears on its own.
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:562
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:828
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:564
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:848
 #: src/Admin/Payment/Refunds/Service.php:223
 #, php-format
 msgid ""
@@ -1208,30 +1208,35 @@ msgstr[1] ""
 "olduysa bu işlem %d dakika içinde yeniden kullanılabilir hale gelir."
 
 #. translators: %s: operator-supplied payment reference
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:603
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:621
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:605
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:623
 #, php-format
 msgid "Hand transfer of the refund confirmed. Reference: %s"
 msgstr "İadenin elden transferi onaylandı. Referans: %s"
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:622
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:624
 msgid "Hand transfer of the refund confirmed."
 msgstr "İadenin elden transferi onaylandı."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:632
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:634
 msgid "This refund is not awaiting a hand transfer."
 msgstr "Bu iade elden transfer beklemiyor."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:635
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:650
+#: src/Admin/Payment/Refunds/Service.php:734
+msgid "Refund notification could not be sent:"
+msgstr "İade bildirimi gönderilemedi:"
+
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:655
 msgid "Hand transfer recorded."
 msgstr "Elden transfer kaydedildi."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:674
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:889
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:694
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:909
 msgid "This booking is not awaiting review."
 msgstr "Bu rezervasyon inceleme beklemiyor."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:736
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:756
 msgid ""
 "Booking cancelled. No refund was found to process, so the review is still "
 "open."
@@ -1239,11 +1244,11 @@ msgstr ""
 "Rezervasyon iptal edildi. İşlenecek bir iade bulunamadığı için inceleme hâlâ "
 "açık."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:739
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:759
 msgid "Booking cancelled and the refund started."
 msgstr "Rezervasyon iptal edildi ve iade başlatıldı."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:805
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:825
 msgid ""
 "Say why no refund is due. This closes a money obligation and the reason is "
 "the record of it."
@@ -1252,16 +1257,16 @@ msgstr ""
 "gerekçe bunun kaydıdır."
 
 #. translators: %s: the operator's reason
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:878
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:898
 #, php-format
 msgid "Recorded that no refund is due. Reason: %s"
 msgstr "İade yapılmayacağı kaydedildi. Neden: %s"
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:900
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:920
 msgid "Could not record this decision. Please refresh the page and try again."
 msgstr "Bu karar kaydedilemedi. Lütfen sayfayı yenileyip yeniden deneyin."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:903
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:923
 msgid "Recorded: no refund is due."
 msgstr "Kaydedildi: iade yapılmayacak."
 
@@ -1272,7 +1277,7 @@ msgstr "Ödenmemiş"
 #: src/Admin/Booking/Core/PaymentView.php:86
 #: src/Admin/Booking/Core/Status.php:124
 #: src/Admin/Booking/ListTable/BookingColumns.php:1176
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:292
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:316
 #: src/Admin/Booking/Meta/BookingMeta.php:1624
 #: src/Admin/Core/AssetManager.php:1222
 #: src/Admin/Emails/Core/EmailTemplates.php:508
@@ -1317,7 +1322,7 @@ msgstr "Kısmen iade edildi"
 
 #: src/Admin/Booking/Core/PaymentView.php:92
 #: src/Admin/Booking/Core/Status.php:128
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:302
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:326
 #: src/Admin/Booking/Meta/BookingMeta.php:1628
 #: src/Admin/Core/AssetManager.php:1226
 #: src/Admin/Emails/Notifications/BookingNotifications.php:224
@@ -1362,7 +1367,7 @@ msgid "Pending Payment"
 msgstr "Bekleyen ödeme"
 
 #: src/Admin/Booking/Core/Status.php:125
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:293
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:317
 #: src/Admin/Booking/Meta/BookingMeta.php:1625
 #: src/Admin/Core/AssetManager.php:1223
 #: src/Admin/Emails/Core/EmailTemplates.php:509
@@ -1377,7 +1382,7 @@ msgid "Confirmed"
 msgstr "Onaylandı"
 
 #: src/Admin/Booking/Core/Status.php:126
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:294
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:318
 #: src/Admin/Booking/Meta/BookingMeta.php:1626
 #: src/Admin/Core/AssetManager.php:1224
 #: src/Admin/Emails/Notifications/BookingNotifications.php:222
@@ -1389,7 +1394,7 @@ msgstr "Devam ediyor"
 
 #: src/Admin/Booking/Core/Status.php:127
 #: src/Admin/Booking/ListTable/BookingColumns.php:1189
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:295
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:319
 #: src/Admin/Booking/Meta/BookingMeta.php:1627
 #: src/Admin/Core/AssetManager.php:1225
 #: src/Admin/Emails/Notifications/BookingNotifications.php:223
@@ -1759,17 +1764,23 @@ msgstr ""
 "bırakacağı için istek reddedildi."
 
 #: src/Admin/Booking/Helpers/Util.php:45 src/Admin/Booking/Helpers/Util.php:53
-#: src/Admin/Booking/Helpers/Util.php:66
+#: src/Admin/Booking/Helpers/Util.php:71
 msgid "Invalid date/time format."
 msgstr "Geçersiz tarih/saat biçimi."
 
 #: src/Admin/Booking/Helpers/Util.php:58
-msgid "End date must be after start date."
-msgstr "Bitiş tarihi başlangıç tarihinden sonra olmalıdır."
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:321
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1795
+msgid "Return date must be after pickup date."
+msgstr "Dönüş tarihi teslim alma tarihinden sonra olmalıdır."
+
+#: src/Admin/Booking/Helpers/Util.php:90
+msgid "The pickup time has already passed. Please choose a later date or time."
+msgstr "Teslim alma zamanı geçti. Lütfen daha ileri bir tarih veya saat seçin."
 
 #. translators: %d: number of days
 #. translators: %d: minimum days
-#: src/Admin/Booking/Helpers/Util.php:96
+#: src/Admin/Booking/Helpers/Util.php:119
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:359
 #, php-format
 msgid "Minimum rental period is %d day."
@@ -1779,7 +1790,7 @@ msgstr[1] "Minimum kiralama süresi %d gündür."
 
 #. translators: %d: number of days
 #. translators: %d: maximum days
-#: src/Admin/Booking/Helpers/Util.php:104
+#: src/Admin/Booking/Helpers/Util.php:127
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:366
 #, php-format
 msgid "Maximum rental period is %d day."
@@ -1787,48 +1798,40 @@ msgid_plural "Maximum rental period is %d days."
 msgstr[0] "Maksimum kiralama süresi %d gündür."
 msgstr[1] "Maksimum kiralama süresi %d gündür."
 
-#: src/Admin/Booking/Helpers/Util.php:246
+#: src/Admin/Booking/Helpers/Util.php:287
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:294
 msgid "Selected vehicle is not available, but we can suggest similar vehicles:"
 msgstr "Seçilen araç müsait değil, ancak benzer araçlar önerebiliriz:"
 
-#: src/Admin/Booking/Helpers/Util.php:255
+#: src/Admin/Booking/Helpers/Util.php:296
 msgid "Sorry, no vehicle found for selected dates. Please try different dates."
 msgstr ""
 "Üzgünüz, seçilen tarihlerde uygun araç bulunamadı. Lütfen farklı tarihler "
 "deneyin."
 
-#: src/Admin/Booking/Helpers/Util.php:264
+#: src/Admin/Booking/Helpers/Util.php:305
 #: src/Admin/Booking/Meta/BookingMeta.php:1713
 msgid ""
 "This vehicle is not available for rental. Please select another vehicle."
 msgstr "Bu araç kiralanamaz. Lütfen başka bir araç seçin."
 
-#: src/Admin/Booking/Helpers/Util.php:282 src/Admin/REST/Availability.php:190
+#: src/Admin/Booking/Helpers/Util.php:323 src/Admin/REST/Availability.php:190
 msgid "Selected vehicle not found. Please select a valid vehicle."
 msgstr "Seçilen araç bulunamadı. Lütfen geçerli bir araç seçin."
 
-#: src/Admin/Booking/Helpers/Util.php:304
+#: src/Admin/Booking/Helpers/Util.php:345
 msgid ""
 "This vehicle is currently not available for rental. Please select another "
 "vehicle."
 msgstr "Bu araç şu anda kiralanamaz. Lütfen başka bir araç seçin."
 
-#: src/Admin/Booking/Helpers/Util.php:315
-#: src/Admin/Frontend/Shortcodes/CalendarView.php:256
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:352
-msgid "Invalid date selection. Please check your pickup and return dates."
-msgstr ""
-"Geçersiz tarih seçimi. Lütfen teslim alma ve dönüş tarihlerinizi kontrol "
-"edin."
-
-#: src/Admin/Booking/Helpers/Util.php:337
+#: src/Admin/Booking/Helpers/Util.php:381
 msgid "✅ Great! This vehicle is available for your selected dates."
 msgstr "✅ Harika! Bu araç, seçtiğiniz tarihlerde kiralanabilir."
 
-#: src/Admin/Booking/Helpers/Util.php:370
-#: src/Admin/Booking/Helpers/Util.php:415
-#: src/Admin/Booking/Helpers/Util.php:427
+#: src/Admin/Booking/Helpers/Util.php:414
+#: src/Admin/Booking/Helpers/Util.php:459
+#: src/Admin/Booking/Helpers/Util.php:471
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1331
 msgid ""
 "This vehicle is already booked for the selected dates. Please choose "
@@ -1845,7 +1848,7 @@ msgstr "Onayla"
 #: src/Admin/Booking/ListTable/BookingColumns.php:274
 #: src/Admin/Booking/ListTable/BookingColumns.php:384
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:532
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:709 src/Plugin.php:1170
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:709 src/Plugin.php:1175
 #: templates/account/booking-summary.php:59
 #: templates/admin/partials/booking-popup.php:52
 #: src-react/admin/customers/components/CustomerTable.jsx:9
@@ -1855,7 +1858,7 @@ msgstr "Müşteri"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:276
 #: src/Admin/Booking/ListTable/BookingColumns.php:1720
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:521
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:753
 msgid "Booking ID"
 msgstr "Rezervasyon kimliği"
 
@@ -1864,9 +1867,9 @@ msgstr "Rezervasyon kimliği"
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:235
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:882
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:290
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:494
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:548
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:982
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:726
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:780
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1214
 #: src/Admin/Privacy/BookingExporter.php:101
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:211
 #: src/Admin/Vehicle/PostType/Vehicle.php:26
@@ -1902,9 +1905,9 @@ msgstr "Kapora tutarı"
 #: src/Admin/Booking/ListTable/BookingColumns.php:281
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:255
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:341
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:539
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:610
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1009
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:771
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:842
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1241
 msgid "Remaining Amount"
 msgstr "Kalan tutar"
 
@@ -1915,7 +1918,7 @@ msgid "Payment"
 msgstr "Ödeme"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:283
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:290
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:314
 #: src/Admin/Booking/Meta/BookingMeta.php:382
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:723
 #: src/Admin/Privacy/BookingExporter.php:100
@@ -2236,9 +2239,9 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:218
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:705
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:530
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:601
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1003
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:762
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:833
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1235
 msgid "Payment Type"
 msgstr "Ödeme türü"
 
@@ -2261,10 +2264,10 @@ msgstr "Kapora"
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:223
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:547
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:707
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:527
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:598
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1002
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3853
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:759
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:830
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1234
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4092
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:240
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:276
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:417
@@ -2534,7 +2537,7 @@ msgstr "Rezervasyon referansı"
 msgid "Manual"
 msgstr "Manuel"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:245
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:258
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:517
 #: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:426
 #: src/Admin/Settings/Groups/FrontendSettings.php:381
@@ -2542,7 +2545,19 @@ msgstr "Manuel"
 msgid "Select Vehicle"
 msgstr "Araç seç"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:262
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:275
+msgid ""
+"This vehicle is in the Trash: customers can no longer open its page. Restore "
+"it from the Vehicles list, or pick another vehicle."
+msgstr ""
+"Bu araç çöpte: müşteriler artık araç sayfasını açamıyor. Araçlar listesinden "
+"geri yükleyin ya da başka bir araç seçin."
+
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:276
+msgid "This vehicle is not published: customers can no longer open its page."
+msgstr "Bu araç yayında değil: müşteriler artık araç sayfasını açamıyor."
+
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:286
 #: src/Admin/Booking/Meta/BookingMeta.php:418
 #: src/Admin/Booking/Meta/BookingMeta.php:465
 #: templates/admin/partials/booking-popup.php:34
@@ -2551,28 +2566,28 @@ msgstr "Araç seç"
 msgid "Booking Details"
 msgstr "Rezervasyon ayrıntıları"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:266
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:290
 #: src/Admin/Booking/Meta/BookingMeta.php:469
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:593
 #: templates/shortcodes/booking-form.php:97
 msgid "Pickup Date"
 msgstr "Araç teslim alma tarihi"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:271
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:295
 #: src/Admin/Booking/Meta/BookingMeta.php:474
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:598
 #: templates/shortcodes/booking-form.php:102
 msgid "Pickup Time"
 msgstr "Teslim alma saati"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:278
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:302
 #: src/Admin/Booking/Meta/BookingMeta.php:481
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:604
 #: templates/shortcodes/booking-form.php:114
 msgid "Return Date"
 msgstr "Araç dönüş tarihi"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:283
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:307
 #: src/Admin/Booking/Meta/BookingMeta.php:486
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:609
 #: templates/shortcodes/booking-form.php:119
@@ -2580,55 +2595,59 @@ msgid "Return Time"
 msgstr "Araç dönüş saati"
 
 #. translators: %s: additional service name.
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:379
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:403
 #, php-format
 msgid "%s (inactive)"
 msgstr "%s (pasif)"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:394
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:418
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:662
 msgid "Select the additional services needed for this booking."
 msgstr "Bu rezervasyon için gerekli olan ek hizmetleri seçin."
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:432
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:456
 msgid "Quantity"
 msgstr "Adet"
 
 #. translators: %s: additional service name.
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:433
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:457
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:676
 #, php-format
 msgid "Quantity: %s"
 msgstr "Adet: %s"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:448
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:472
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:686
 msgid "Additional Services Total:"
 msgstr "Ek hizmetler toplamı:"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:454
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:478
 msgid "No additional services available."
 msgstr "Kullanılabilir ek hizmet yok."
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:460
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:484
 msgid "Special Notes / Requests"
 msgstr "Özel notlar / talepler"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:461
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:485
 msgid "Enter any special notes or customer requests..."
 msgstr "Özel notları veya müşteri taleplerini girin..."
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:462
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:486
 msgid "Add any special notes or customer requests for this booking."
 msgstr "Bu rezervasyon için özel notlar veya müşteri talepleri ekleyin."
 
 #. translators: %s: vehicle title.
 #. translators: %s: vehicle title
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:640
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2826
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:664
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3065
 #, php-format
 msgid "Booking - %s"
 msgstr "Rezervasyon - %s"
+
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:754
+msgid "In Trash"
+msgstr "Çöpte"
 
 #: src/Admin/Booking/Meta/BookingEditNotice.php:88
 msgid "I have checked it"
@@ -2906,13 +2925,13 @@ msgid "Email type"
 msgstr "E-posta türü"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:806
-#: src/Admin/Emails/Templates/BookingNotifications.php:54
-#: src/Admin/Emails/Templates/BookingNotifications.php:83
-#: src/Admin/Emails/Templates/BookingNotifications.php:119
-#: src/Admin/Emails/Templates/BookingNotifications.php:142
-#: src/Admin/Emails/Templates/BookingNotifications.php:171
-#: src/Admin/Emails/Templates/BookingNotifications.php:200
-#: src/Admin/Emails/Templates/BookingNotifications.php:222
+#: src/Admin/Emails/Templates/BookingNotifications.php:55
+#: src/Admin/Emails/Templates/BookingNotifications.php:84
+#: src/Admin/Emails/Templates/BookingNotifications.php:120
+#: src/Admin/Emails/Templates/BookingNotifications.php:143
+#: src/Admin/Emails/Templates/BookingNotifications.php:172
+#: src/Admin/Emails/Templates/BookingNotifications.php:201
+#: src/Admin/Emails/Templates/BookingNotifications.php:223
 #: src/Admin/Emails/Templates/RefundEmails.php:50
 #: src/Admin/Emails/Templates/RefundEmails.php:78
 #: src/Admin/Privacy/EmailLogPersonalData.php:54
@@ -3322,7 +3341,7 @@ msgid "Vehicle Total"
 msgstr "Araç toplamı"
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:239
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4271
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4510
 msgid "Add-ons"
 msgstr "Ek hizmetler"
 
@@ -3470,7 +3489,7 @@ msgstr "Gerekli alanlar eksik."
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:824
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1123
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1357
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1565
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1571
 msgid "Price could not be calculated."
 msgstr "Fiyat hesaplanamadı."
 
@@ -3856,7 +3875,7 @@ msgstr "Kaldır"
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:102
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:614
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php:170
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:2114
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2171
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:454
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:592
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:221
@@ -3969,7 +3988,7 @@ msgstr "Evet"
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:94
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:344
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:644
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:578
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:579
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:147
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:294
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:430
@@ -4620,7 +4639,7 @@ msgstr "Sıfırla"
 
 #: src/Admin/Core/AssetManager.php:1651
 #: src/Admin/Core/Assets/DatepickerAssets.php:422
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1942
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1955
 #: src/Blocks/BlockRegistry.php:254
 #: templates/admin/partials/booking-popup.php:40
 #: templates/partials/vehicle-details/booking-card.php:170
@@ -4639,7 +4658,7 @@ msgstr "Geri"
 
 #: src/Admin/Core/AssetManager.php:1653
 #: src/Admin/Customers/CustomersPage.php:442
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:595
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:596
 #: templates/account/payment-history.php:209
 #: templates/partials/rvs/account-bookings.php:147
 #: src-react/admin/contact-messages/ContactMessagesList.jsx:264
@@ -4648,7 +4667,7 @@ msgstr "Sonraki"
 
 #: src/Admin/Core/AssetManager.php:1654
 #: src/Admin/Customers/CustomersPage.php:437
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:594
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:595
 #: templates/account/payment-history.php:200
 #: templates/partials/rvs/account-bookings.php:138
 #: src-react/admin/contact-messages/ContactMessagesList.jsx:261
@@ -4660,7 +4679,7 @@ msgid "Submit"
 msgstr "Gönder"
 
 #: src/Admin/Core/AssetManager.php:1656
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1944
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1957
 #: templates/shortcodes/search-results.php:175
 #: templates/shortcodes/search-results.php:232
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:82
@@ -4715,133 +4734,133 @@ msgstr "Lütfen gerekli tüm alanları doldurun"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:391
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:540
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1946
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1959
 #: src/Blocks/BlockRegistry.php:256
 msgid "January"
 msgstr "Ocak"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:392
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:541
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1947
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1960
 #: src/Blocks/BlockRegistry.php:256
 msgid "February"
 msgstr "Şubat"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:393
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:542
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1948
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1961
 #: src/Blocks/BlockRegistry.php:256
 msgid "March"
 msgstr "Mart"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:394
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:543
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1949
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1962
 #: src/Blocks/BlockRegistry.php:256
 msgid "April"
 msgstr "Nisan"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:395
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:544
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1950
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1964
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1963
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1977
 #: src/Blocks/BlockRegistry.php:256
 msgid "May"
 msgstr "Mayıs"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:396
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:545
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1951
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1964
 #: src/Blocks/BlockRegistry.php:256
 msgid "June"
 msgstr "Haziran"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:397
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:546
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1952
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1965
 #: src/Blocks/BlockRegistry.php:256
 msgid "July"
 msgstr "Temmuz"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:398
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:547
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1953
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1966
 #: src/Blocks/BlockRegistry.php:256
 msgid "August"
 msgstr "Ağustos"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:399
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:548
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1954
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1967
 #: src/Blocks/BlockRegistry.php:256
 msgid "September"
 msgstr "Eylül"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:400
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:549
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1955
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1968
 #: src/Blocks/BlockRegistry.php:256
 msgid "October"
 msgstr "Ekim"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:401
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:550
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1956
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1969
 #: src/Blocks/BlockRegistry.php:256
 msgid "November"
 msgstr "Kasım"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:402
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:551
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1957
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1970
 #: src/Blocks/BlockRegistry.php:256
 msgid "December"
 msgstr "Aralık"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:423
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1943
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1956
 #: src/Blocks/BlockRegistry.php:255
 msgid "Today"
 msgstr "Bugün"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:425
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1992
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2005
 #: src/Blocks/BlockRegistry.php:257
 msgid "Su"
 msgstr "Pz"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:426
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1993
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2006
 #: src/Blocks/BlockRegistry.php:257
 msgid "Mo"
 msgstr "Pzt"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:427
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1994
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2007
 #: src/Blocks/BlockRegistry.php:257
 msgid "Tu"
 msgstr "Sal"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:428
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1995
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2008
 #: src/Blocks/BlockRegistry.php:257
 msgid "We"
 msgstr "Ça"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:429
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1996
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2009
 #: src/Blocks/BlockRegistry.php:257
 msgid "Th"
 msgstr "Per"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:430
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1997
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2010
 #: src/Blocks/BlockRegistry.php:257
 msgid "Fr"
 msgstr "Cu"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:431
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1998
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2011
 #: src/Blocks/BlockRegistry.php:257
 msgid "Sa"
 msgstr "Cmt"
@@ -5643,7 +5662,7 @@ msgstr ""
 "Pro'yu güncelleyin. Verileriniz değiştirilmedi."
 
 #. translators: %d: the booking id.
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:1642
+#: src/Admin/Core/Utilities/DatabaseMigrator.php:1652
 #, php-format
 msgid ""
 "Booking #%d was entered by hand to be paid outside the site, but its dates "
@@ -5651,10 +5670,10 @@ msgid ""
 "again since. It no longer holds the vehicle: check its dates, then confirm, "
 "move or cancel it."
 msgstr ""
-"Rezervasyon #%d site dışında ödenmek üzere elle girildi, ancak eski bir ödeme "
-"süresi dolduğunda tarihleri serbest kaldı ve o tarihler sonradan yeniden "
-"rezerve edilmiş olabilir. Rezervasyon artık aracı tutmuyor: tarihlerini "
-"kontrol edin, sonra onaylayın, taşıyın ya da iptal edin."
+"Rezervasyon #%d site dışında ödenmek üzere elle girildi, ancak eski bir "
+"ödeme süresi dolduğunda tarihleri serbest kaldı ve o tarihler sonradan "
+"yeniden rezerve edilmiş olabilir. Rezervasyon artık aracı tutmuyor: "
+"tarihlerini kontrol edin, sonra onaylayın, taşıyın ya da iptal edin."
 
 #: src/Admin/Core/Utilities/ErrorHandler.php:53
 msgid "Security Error"
@@ -6123,7 +6142,7 @@ msgstr "Farklı tarih seçin"
 
 #: src/Admin/Core/Utilities/UXHelper.php:367
 #: src/Admin/Core/Utilities/UXHelper.php:382
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:597
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:598
 msgid "Try Again"
 msgstr "Yeniden dene"
 
@@ -6467,6 +6486,10 @@ msgstr "%1$s, %2$s"
 msgid "Anonymous"
 msgstr "Anonim"
 
+#: src/Admin/Emails/Core/Templates.php:43
+msgid "Booking #{{booking.order_id}} Received - {{site.name}}"
+msgstr "Rezervasyon #{{booking.order_id}} alındı - {{site.name}}"
+
 #: src/Admin/Emails/Core/Templates.php:47
 msgid "New Booking Request #{{booking.order_id}} - {{site.name}}"
 msgstr "Yeni rezervasyon isteği #{{booking.order_id}} - {{site.name}}"
@@ -6557,16 +6580,34 @@ msgstr "Bu e-posta için içerik mevcut değil."
 msgid "All rights reserved."
 msgstr "Her hakkı saklıdır."
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:101
+#: src/Admin/Emails/Notifications/RefundNotifications.php:72
+msgid "Transfer notice not sent: no hand refund amount found on this booking."
+msgstr ""
+"Aktarım bildirimi gönderilmedi: bu rezervasyonda elden iade tutarı "
+"bulunamadı."
+
+#: src/Admin/Emails/Notifications/RefundNotifications.php:206
 msgid "full refund"
 msgstr "tam iade"
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:101
+#: src/Admin/Emails/Notifications/RefundNotifications.php:206
 msgid "partial refund"
 msgstr "kısmi iade"
 
+#. translators: 1: the refunded amount, 2: the bank transfer or receipt reference
+#: src/Admin/Emails/Notifications/RefundNotifications.php:232
+#, php-format
+msgid "%1$s has been transferred to you. Transfer reference: %2$s"
+msgstr "%1$s tutarındaki iadeniz size aktarıldı. Aktarım referansı: %2$s"
+
+#. translators: %s: the refunded amount
+#: src/Admin/Emails/Notifications/RefundNotifications.php:238
+#, php-format
+msgid "%s has been transferred to you."
+msgstr "%s tutarındaki iadeniz size aktarıldı."
+
 #. translators: 1: the amount already returned automatically to the customer's original payment method, 2: the amount that will still be transferred to the customer by hand
-#: src/Admin/Emails/Notifications/RefundNotifications.php:134
+#: src/Admin/Emails/Notifications/RefundNotifications.php:258
 #, php-format
 msgid ""
 "%1$s was returned to your original payment method automatically; the "
@@ -6576,7 +6617,7 @@ msgstr ""
 "tutarı ise size manuel olarak aktarılacaktır."
 
 #. translators: 1: the amount the payment gateway already returned automatically, 2: the amount that must still be transferred to the customer manually
-#: src/Admin/Emails/Notifications/RefundNotifications.php:146
+#: src/Admin/Emails/Notifications/RefundNotifications.php:270
 #, php-format
 msgid ""
 "The payment gateway already returned %1$s of this refund automatically; only "
@@ -6585,7 +6626,7 @@ msgstr ""
 "Ödeme ağ geçidi bu iadenin %1$s tutarını otomatik olarak zaten iade etti; "
 "yalnızca kalan %2$s tutarının müşteriye manuel olarak aktarılması gerekiyor."
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:152
+#: src/Admin/Emails/Notifications/RefundNotifications.php:276
 msgid ""
 "The refund will be transferred to you manually; it will not appear on your "
 "original payment method automatically."
@@ -6593,11 +6634,11 @@ msgstr ""
 "İade tutarı size manuel olarak aktarılacaktır; özgün ödeme yönteminizde "
 "otomatik olarak görünmeyecektir."
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:153
+#: src/Admin/Emails/Notifications/RefundNotifications.php:277
 msgid "The refund has been sent back to your original payment method."
 msgstr "İade tutarı, özgün ödeme yönteminize yatırılmıştır."
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:160
+#: src/Admin/Emails/Notifications/RefundNotifications.php:284
 msgid ""
 "The payment gateway could not process this refund automatically; the amount "
 "above must be transferred to the customer manually."
@@ -6605,14 +6646,14 @@ msgstr ""
 "Ödeme ağ geçidi bu iadeyi otomatik olarak işleyemedi; yukarıdaki tutarın "
 "müşteriye manuel olarak aktarılması gerekiyor."
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:161
+#: src/Admin/Emails/Notifications/RefundNotifications.php:285
 msgid ""
 "The payment gateway processed this refund automatically; no manual transfer "
 "is required."
 msgstr ""
 "Ödeme ağ geçidi bu iadeyi otomatik olarak işledi; elle aktarım gerekli değil."
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:204
+#: src/Admin/Emails/Notifications/RefundNotifications.php:328
 msgid "Refund notice not sent: no customer address on this booking."
 msgstr "İade bildirimi gönderilmedi: bu rezervasyonda müşteri adresi yok."
 
@@ -6683,11 +6724,11 @@ msgstr ""
 "İzin verilen HTML etiketleri: a, b, strong, em, i, u, p, br, span, ul, ol, "
 "li, h1, h2, h3, table, tr, td, th, img."
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:48
-#: src/Admin/Emails/Templates/BookingNotifications.php:77
-#: src/Admin/Emails/Templates/BookingNotifications.php:106
-#: src/Admin/Emails/Templates/BookingNotifications.php:165
-#: src/Admin/Emails/Templates/BookingNotifications.php:194
+#: src/Admin/Emails/Templates/BookingNotifications.php:49
+#: src/Admin/Emails/Templates/BookingNotifications.php:78
+#: src/Admin/Emails/Templates/BookingNotifications.php:107
+#: src/Admin/Emails/Templates/BookingNotifications.php:166
+#: src/Admin/Emails/Templates/BookingNotifications.php:195
 #: src/Admin/Emails/Templates/RefundEmails.php:45
 #: src/Admin/Emails/Templates/RefundEmails.php:46
 #: src/Admin/Emails/Templates/RefundEmails.php:67
@@ -6702,82 +6743,82 @@ msgstr ""
 msgid "Enabled"
 msgstr "Etkin"
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:60
-#: src/Admin/Emails/Templates/BookingNotifications.php:89
-#: src/Admin/Emails/Templates/BookingNotifications.php:125
-#: src/Admin/Emails/Templates/BookingNotifications.php:148
-#: src/Admin/Emails/Templates/BookingNotifications.php:177
-#: src/Admin/Emails/Templates/BookingNotifications.php:206
-#: src/Admin/Emails/Templates/BookingNotifications.php:228
+#: src/Admin/Emails/Templates/BookingNotifications.php:61
+#: src/Admin/Emails/Templates/BookingNotifications.php:90
+#: src/Admin/Emails/Templates/BookingNotifications.php:126
+#: src/Admin/Emails/Templates/BookingNotifications.php:149
+#: src/Admin/Emails/Templates/BookingNotifications.php:178
+#: src/Admin/Emails/Templates/BookingNotifications.php:207
+#: src/Admin/Emails/Templates/BookingNotifications.php:229
 #: src/Admin/Emails/Templates/RefundEmails.php:55
 #: src/Admin/Emails/Templates/RefundEmails.php:83
 msgid "Content (HTML)"
 msgstr "İçerik (HTML)"
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:67
+#: src/Admin/Emails/Templates/BookingNotifications.php:68
 msgid "New Booking Email"
 msgstr "Yeni rezervasyon e-postası"
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:68
+#: src/Admin/Emails/Templates/BookingNotifications.php:69
 msgid "Email sent to customer when a new booking is created."
 msgstr "Yeni bir rezervasyon oluşturulduğunda müşteriye gönderilen e-posta."
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:96
+#: src/Admin/Emails/Templates/BookingNotifications.php:97
 msgid "Booking Status Change Email"
 msgstr "Rezervasyon durumu değişikliği e-postası"
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:97
+#: src/Admin/Emails/Templates/BookingNotifications.php:98
 msgid "Email sent when booking status changes."
 msgstr "Rezervasyon durumu değiştiğinde gönderilen e-posta."
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:112
+#: src/Admin/Emails/Templates/BookingNotifications.php:113
 #: src/Admin/Emails/Templates/RefundEmails.php:73
 msgid "Admin Email"
 msgstr "Yönetici e-postası"
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:114
+#: src/Admin/Emails/Templates/BookingNotifications.php:115
 msgid "Recipient for administrative alerts."
 msgstr "İdari uyarılar için alıcı."
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:132
+#: src/Admin/Emails/Templates/BookingNotifications.php:133
 msgid "Admin Notification Email"
 msgstr "Yönetici bildirim e-postası"
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:133
+#: src/Admin/Emails/Templates/BookingNotifications.php:134
 msgid "Alert sent to administrator for every new reservation."
 msgstr "Her yeni rezervasyon için yöneticiye uyarı gönderilir."
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:155
+#: src/Admin/Emails/Templates/BookingNotifications.php:156
 msgid "Auto Cancel Email"
 msgstr "Otomatik iptal e-postası"
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:156
+#: src/Admin/Emails/Templates/BookingNotifications.php:157
 msgid "Sent when payment period expires."
 msgstr "Ödeme süresi dolduğunda gönderilir."
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:184
+#: src/Admin/Emails/Templates/BookingNotifications.php:185
 msgid "Manual Cancellation Email"
 msgstr "Manuel iptal e-postası"
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:185
+#: src/Admin/Emails/Templates/BookingNotifications.php:186
 msgid "Sent when a booking is manually cancelled by staff."
 msgstr ""
 "Bir rezervasyon personel tarafından manuel olarak iptal edildiğinde "
 "gönderilir."
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:212
+#: src/Admin/Emails/Templates/BookingNotifications.php:213
 msgid "Pickup Reminder Email"
 msgstr "Teslim alma hatırlatma e-postası"
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:213
+#: src/Admin/Emails/Templates/BookingNotifications.php:214
 msgid "Friendly reminder sent to customer shortly before pickup."
 msgstr "Teslim almadan kısa süre önce müşteriye gönderilen hatırlatma."
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:234
+#: src/Admin/Emails/Templates/BookingNotifications.php:235
 msgid "Customer Welcome Email"
 msgstr "Müşteri karşılama e-postası"
 
-#: src/Admin/Emails/Templates/BookingNotifications.php:235
+#: src/Admin/Emails/Templates/BookingNotifications.php:236
 msgid "Onboarding email sent after the first successful booking."
 msgstr "İlk başarılı rezervasyonun ardından gönderilen hoş geldiniz e-postası."
 
@@ -6849,7 +6890,7 @@ msgstr "Yok"
 #: src/Admin/Frontend/Shortcodes/CalendarView.php:288
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:515
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:297
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1553
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1601
 #, php-format
 msgid "%1$s – %2$s"
 msgstr "%1$s – %2$s"
@@ -7152,7 +7193,7 @@ msgid "Awaiting payment"
 msgstr "Ödeme bekleniyor"
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:504
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:579
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:580
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:431
 msgid "No vehicles found"
 msgstr "Araç bulunamadı"
@@ -7173,7 +7214,7 @@ msgid "Book Now"
 msgstr "Rezervasyon yap"
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:507
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:593
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:594
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:209
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:434
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:680
@@ -7184,7 +7225,7 @@ msgstr "Ayrıntıları görüntüle"
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:508
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:312
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:587
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:588
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:210
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:435
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:681
@@ -7195,7 +7236,7 @@ msgstr "Favorilere eklendi"
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:509
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:313
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:588
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:589
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:211
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:436
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:682
@@ -7565,10 +7606,6 @@ msgstr "Rezervasyonunuz başarıyla oluşturuldu!"
 msgid "Your booking has been successfully created! Booking No:"
 msgstr "Rezervasyonunuz başarıyla oluşturuldu! Rezervasyon No:"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:321
-msgid "Return date must be after pickup date."
-msgstr "Dönüş tarihi teslim alma tarihinden sonra olmalıdır."
-
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:324
 msgid "Please select a vehicle"
 msgstr "Lütfen bir araç seçin"
@@ -7595,7 +7632,7 @@ msgid "Alternative Vehicles"
 msgstr "Alternatif araçlar"
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:334
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:589
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:590
 #: templates/partials/vehicle-card.php:280
 #: templates/partials/vehicle-details/alternatives.php:59
 #: templates/partials/vehicle-details/booking-card.php:87
@@ -7664,7 +7701,7 @@ msgid "Pickup time is required."
 msgstr "Teslim alma zamanı gereklidir."
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1221
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1557
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1563
 msgid "Invalid payment type."
 msgstr "Geçersiz ödeme türü."
 
@@ -7691,121 +7728,128 @@ msgstr ""
 msgid "Too many price calculation requests. Please wait."
 msgstr "Çok fazla fiyat hesaplama talebi var. Lütfen bekleyin."
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1831
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1837
 msgid "Too many availability checks. Please wait."
 msgstr "Çok fazla müsaitlik kontrolü yapıldı. Lütfen bekleyin."
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1860
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1866
 msgid "Invalid data."
 msgstr "Geçersiz veri."
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1960
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1973
 msgid "Jan"
 msgstr "Oca"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1961
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1974
 msgid "Feb"
 msgstr "Şub"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1962
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1975
 msgid "Mar"
 msgstr "Mart"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1963
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1976
 msgid "Apr"
 msgstr "Nis"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1965
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1978
 msgid "Jun"
 msgstr "Haz"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1966
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1979
 msgid "Jul"
 msgstr "Tem"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1967
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1980
 msgid "Aug"
 msgstr "Ağu"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1968
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1981
 msgid "Sep"
 msgstr "Eyl"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1969
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1982
 msgid "Oct"
 msgstr "Eki"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1970
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1983
 msgid "Nov"
 msgstr "Kas"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1971
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1984
 msgid "Dec"
 msgstr "Ara"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1974
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1987
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:334
 #: assets/blocks/availability-calendar/index.js:58
 msgid "Sunday"
 msgstr "Pazar"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1975
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1988
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:335
 #: assets/blocks/availability-calendar/index.js:57
 msgid "Monday"
 msgstr "Pazartesi"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1976
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1989
 msgid "Tuesday"
 msgstr "Salı"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1977
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1990
 msgid "Wednesday"
 msgstr "Çarşamba"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1978
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1991
 msgid "Thursday"
 msgstr "Perşembe"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1979
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1992
 msgid "Friday"
 msgstr "Cuma"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1980
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1993
 msgid "Saturday"
 msgstr "Cumartesi"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1983
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1996
 msgid "Sun"
 msgstr "Paz"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1984
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1997
 msgid "Mon"
 msgstr "Pzt"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1985
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1998
 msgid "Tue"
 msgstr "Sal"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1986
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1999
 msgid "Wed"
 msgstr "Çar"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1987
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2000
 msgid "Thu"
 msgstr "Per"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1988
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2001
 msgid "Fri"
 msgstr "Cum"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1989
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2002
 msgid "Sat"
 msgstr "Cmt"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:2000
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:2013
 msgid "Wk"
 msgstr "Hf"
+
+#: src/Admin/Frontend/Shortcodes/CalendarView.php:256
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:352
+msgid "Invalid date selection. Please check your pickup and return dates."
+msgstr ""
+"Geçersiz tarih seçimi. Lütfen teslim alma ve dönüş tarihlerinizi kontrol "
+"edin."
 
 #. translators: 1: pickup date, 2: time of day the vehicle is free from.
 #: src/Admin/Frontend/Shortcodes/CalendarView.php:281
@@ -7849,7 +7893,7 @@ msgid "★ %s"
 msgstr "★ %s"
 
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:102
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:2114
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2171
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:454
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:592
 msgid "Out of Order"
@@ -8701,15 +8745,15 @@ msgstr "Depozito"
 msgid "Fuel policy"
 msgstr "Yakıt politikası"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:580
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:581
 msgid "Filter applied"
 msgstr "Filtre uygulandı"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:581
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:582
 msgid "Clear all filters"
 msgstr "Tüm filtreleri temizle"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:582
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:583
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:77
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:359
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:400
@@ -8717,45 +8761,45 @@ msgid "Clear All"
 msgstr "Tümünü temizle"
 
 #. translators: %d: count of filters.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:584
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:585
 #, php-format
 msgid "Clear All (%d)"
 msgstr "Tümünü temizle (%d)"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:585
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:586
 msgid "Try adjusting your search criteria or filters."
 msgstr "Arama kriterlerinizi veya filtrelerinizi değiştirmeyi deneyin."
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:586
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:587
 msgid "Back to Search"
 msgstr "Aramaya geri dön"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:590
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:591
 msgid "seats"
 msgstr "koltuk"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:591
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:592
 msgid "review"
 msgstr "yorum"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:592
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:593
 msgid "reviews"
 msgstr "yorum"
 
 #. translators: %d: number of vehicles.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:599
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:600
 #, php-format
 msgid "%d vehicle found"
 msgstr "%d araç bulundu"
 
 #. translators: %d: number of vehicles.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:601
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:602
 #, php-format
 msgid "%d vehicles found"
 msgstr "%d araç bulundu"
 
 #. translators: 1: number of vehicles picked for comparison, 2: the most that can be compared.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:603
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:604
 #: templates/shortcodes/search-results.php:318
 #, php-format
 msgid "%1$s vehicle selected · up to %2$s"
@@ -8764,30 +8808,30 @@ msgstr[0] "%1$s araç seçildi · en çok %2$s"
 msgstr[1] "%1$s araç seçildi · en çok %2$s"
 
 #. translators: 1: number of vehicles picked for comparison, 2: the most that can be compared.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:605
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:606
 #, php-format
 msgid "%1$s vehicles selected · up to %2$s"
 msgstr "%1$s araç seçildi · en çok %2$s"
 
 #. translators: %s: number of vehicles.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1540
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1913
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1588
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1970
 #, php-format
 msgid "%s vehicle"
 msgid_plural "%s vehicles"
 msgstr[0] "%s araç"
 msgstr[1] "%s araç"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1602
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1650
 msgid "No dates selected"
 msgstr "Tarih seçilmedi"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1616
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1664
 msgid "Show results"
 msgstr "Sonuçları göster"
 
 #. translators: %s: number of vehicles the filters leave.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1622
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1670
 #, php-format
 msgid "Show %s vehicle"
 msgid_plural "Show %s vehicles"
@@ -8795,92 +8839,92 @@ msgstr[0] "%s aracı göster"
 msgstr[1] "%s aracı göster"
 
 #. translators: %s: number of seats.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1676
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1724
 #: templates/shortcodes/search-results.php:208
 #, php-format
 msgid "%s seats"
 msgstr "%s koltuk"
 
 #. translators: %s: formatted minimum daily price.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1686
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1734
 #, php-format
 msgid "From %s/day"
 msgstr "En az %s/gün"
 
 #. translators: %s: formatted maximum daily price.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1688
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1736
 #, php-format
 msgid "Up to %s/day"
 msgstr "En çok %s/gün"
 
 #. translators: %s: model year.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1690
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1738
 #, php-format
 msgid "From %s"
 msgstr "%s ve sonrası"
 
 #. translators: %s: model year.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1692
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1740
 #, php-format
 msgid "Up to %s"
 msgstr "%s ve öncesi"
 
 #. translators: %s: mileage in km.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1694
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1742
 #, php-format
 msgid "Up to %s km"
 msgstr "En çok %s km"
 
 #. translators: 1: pickup point name, 2: the searched dates, e.g. "7 Dec – 10 Dec".
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1752
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1809
 #, php-format
 msgid "No cars are free at the %1$s pickup point for %2$s."
 msgstr "%1$s teslim yerinde %2$s için müsait araç yok."
 
 #. translators: %s: the searched dates, e.g. "7 Dec – 10 Dec".
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1754
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1811
 #, php-format
 msgid "No cars are free at the selected pickup points for %s."
 msgstr "Seçtiğiniz teslim yerlerinde %s için müsait araç yok."
 
 #. translators: %s: pickup point name.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1758
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1815
 #, php-format
 msgid "There are no cars at the %s pickup point yet."
 msgstr "%s teslim yerinde henüz araç yok."
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1759
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1816
 msgid "There are no cars at the selected pickup points yet."
 msgstr "Seçtiğiniz teslim yerlerinde henüz araç yok."
 
 #. translators: 1: city (several are joined into one), 2: the section's result summary, e.g. "2 vehicles · 7 Dec – 10 Dec · 3 days".
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1801
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1858
 #, php-format
 msgid "%1$s · %2$s"
 msgstr "%1$s · %2$s"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1837
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1894
 msgid "Matches your search, but not free on your dates"
 msgstr "Aramanıza uyan ama seçtiğiniz tarihlerde müsait olmayan araç"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1845
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1902
 msgid "Other pickup points in the same city"
 msgstr "Aynı şehirdeki diğer teslim yerleri"
 
 #. translators: %s: pickup point name.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1859
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1916
 #, php-format
 msgid "Booked for these dates at the %s pickup point"
 msgstr "%s teslim yerinde bu tarihlerde dolu"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1862
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1919
 #: templates/partials/rvs-vehicle-card.php:119
 #: templates/partials/rvs/compare-vehicle.php:53
 msgid "Booked for these dates"
 msgstr "Bu tarihlerde dolu"
 
 #. translators: %s: number of rental days.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1878
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1935
 #: templates/partials/search/rvs-summary.php:23
 #, php-format
 msgid "%s day"
@@ -8889,84 +8933,84 @@ msgstr[0] "%s gün"
 msgstr[1] "%s gün"
 
 #. translators: joins two items of one line, e.g. two city names or the parts of a results summary ("2 vehicles · 7 Dec – 10 Dec"). 1: the line so far, 2: the next item.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1895
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1952
 #, php-format
 msgctxt "joined items of one line"
 msgid "%1$s · %2$s"
 msgstr "%1$s · %2$s"
 
 #. translators: 1: a results section's heading, e.g. "Booked for these dates"; 2: number of vehicles in it, e.g. "1 vehicle".
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1915
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1972
 #, php-format
 msgid "%1$s: %2$s"
 msgstr "%1$s: %2$s"
 
 #. translators: 1: number of vehicles in the results, e.g. "2 vehicles"; 2: the extra sections with their counts, e.g. "Booked for these dates: 1 vehicle".
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1933
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1990
 #, php-format
 msgid "%1$s. %2$s."
 msgstr "%1$s. %2$s."
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1950
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2007
 #: assets/blocks/search-results/index.js:51
 msgid "Most Relevant"
 msgstr "En alakalı"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1951
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2008
 msgid "Total price: low to high"
 msgstr "Toplam fiyat: artan"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1951
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2008
 #: src/Admin/Settings/Groups/FrontendSettings.php:286
 #: assets/blocks/search-results/index.js:52
 msgid "Price: Low to High"
 msgstr "Fiyat: düşükten yükseğe"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1952
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2009
 msgid "Total price: high to low"
 msgstr "Toplam fiyat: azalan"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1952
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2009
 #: src/Admin/Settings/Groups/FrontendSettings.php:287
 #: assets/blocks/search-results/index.js:53
 msgid "Price: High to Low"
 msgstr "Fiyat: yüksekten düşüğe"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1953
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2010
 #: src/Admin/Settings/Groups/FrontendSettings.php:288
 #: assets/blocks/search-results/index.js:54
 msgid "Name: A to Z"
 msgstr "Ad: A'dan Z'ye"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1954
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2011
 #: src/Admin/Settings/Groups/FrontendSettings.php:289
 #: assets/blocks/search-results/index.js:55
 msgid "Name: Z to A"
 msgstr "Ad: Z'den A'ya"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1955
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2012
 #: assets/blocks/search-results/index.js:56
 msgid "Newest First"
 msgstr "Yeniden eskiye"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:2134
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2191
 msgid "No cars match your search"
 msgstr "Aramanıza uyan araç yok"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:2135
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2192
 msgid "Try other dates, another pickup location, or fewer filters."
 msgstr ""
 "Başka tarihler, başka bir teslim alma yeri ya da daha az filtre deneyin."
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:2136
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2193
 msgid "See all cars"
 msgstr "Tüm araçlar"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:2267
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2324
 msgid "Previous page"
 msgstr "Önceki sayfa"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:2282
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2339
 msgid "Next page"
 msgstr "Sonraki sayfa"
 
@@ -10644,10 +10688,6 @@ msgstr "Bu işlem başarısız olmadan önce %1$s zaten iade edildi: %2$s"
 msgid "A mhmrentiva_refund_completed listener failed:"
 msgstr "Bir mhmrentiva_refund_completed dinleyicisi başarısız oldu:"
 
-#: src/Admin/Payment/Refunds/Service.php:734
-msgid "Refund notification could not be sent:"
-msgstr "İade bildirimi gönderilemedi:"
-
 #: src/Admin/Payment/WooCommerce/CheckoutJourney.php:249
 msgid "Your booking"
 msgstr "Rezervasyonunuz"
@@ -10777,57 +10817,77 @@ msgstr "Teslimde ödenecek kapora:"
 msgid "Due at pickup:"
 msgstr "Teslimde ödenecek:"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:367
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:448
+#. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:427
+#, php-format
+msgid ""
+"Your cart already held \"%1$s\" for overlapping dates. It now holds your "
+"latest choice (%2$s - %3$s)."
+msgstr ""
+"Sepetinizde \"%1$s\" çakışan tarihler için zaten vardı. Sepet artık son "
+"seçiminizi tutuyor (%2$s - %3$s)."
+
+#. translators: %s: Vehicle title
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:462
+#, php-format
+msgid ""
+"Your cart holds \"%s\" more than once for overlapping dates. Remove the "
+"extra line to continue."
+msgstr ""
+"Sepetinizde \"%s\" çakışan tarihler için birden fazla kez var. Devam etmek "
+"için fazla satırı kaldırın."
+
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:599
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:680
 msgid "Vehicle Rental Booking"
 msgstr "Araç kiralama rezervasyonu"
 
 #. translators: %s: vehicle name
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:451
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:683
 #, php-format
 msgid "%s rental"
 msgstr "%s kiralama"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:511
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:575
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:991
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:743
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:807
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1223
 msgid "Pickup Date & Time"
 msgstr "Teslim alma tarihi ve saati"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:516
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:582
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:994
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:748
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:814
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1226
 msgid "Return Date & Time"
 msgstr "Dönüş tarihi ve saati"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:527
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:598
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1001
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3833
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:759
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:830
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1233
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4072
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:275
 msgid "Deposit Payment"
 msgstr "Kapora ödemesi"
 
 #. translators: %d: the WooCommerce order id with no items.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1072
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1304
 #, php-format
 msgid "No items found in order #%d"
 msgstr "Sipariş #%d içinde ürün bulunamadı"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1126
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1358
 msgid ""
 "Your booking could not be created and no payment was taken. Please try again."
 msgstr ""
 "Rezervasyonunuz oluşturulamadı ve ödeme alınmadı. Lütfen yeniden deneyin."
 
 #. translators: %s: why the booking was refused, as the customer read it.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1222
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2393
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1454
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2625
 #, php-format
 msgid "Booking refused, no payment taken: %s"
 msgstr "Rezervasyon reddedildi, ödeme alınmadı: %s"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1404
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1636
 msgid ""
 "The amount on this payment link is no longer current. Please ask us for a "
 "new payment link."
@@ -10835,7 +10895,7 @@ msgstr ""
 "Bu ödeme bağlantısındaki tutar artık geçerli değil. Lütfen bizden yeni bir "
 "ödeme bağlantısı isteyin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1624
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1856
 msgid ""
 "This booking was cancelled and can no longer be paid. Please make a new "
 "booking."
@@ -10843,7 +10903,7 @@ msgstr ""
 "Bu rezervasyon iptal edildi ve artık ödenemez. Lütfen yeni bir rezervasyon "
 "yapın."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1633
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1865
 msgid ""
 "The availability of this booking could not be checked, so no payment was "
 "taken. Please try again in a moment."
@@ -10851,7 +10911,7 @@ msgstr ""
 "Bu rezervasyonun müsaitliği denetlenemedi, ödeme alınmadı. Lütfen birazdan "
 "yeniden deneyin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1641
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1873
 msgid ""
 "The booking could not be updated, so nothing was changed. Please try again "
 "in a moment."
@@ -10859,7 +10919,7 @@ msgstr ""
 "Rezervasyon güncellenemedi, hiçbir şey değiştirilmedi. Lütfen birazdan "
 "yeniden deneyin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2023
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2255
 msgid ""
 "The dates were still free when the order was paid again; the booking holds "
 "them again."
@@ -10868,7 +10928,7 @@ msgstr ""
 "yeniden tutuyor."
 
 #. translators: %d: booking id.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2080
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2312
 #, php-format
 msgid ""
 "Booking #%d was revived for a payment that was then refused, and could not "
@@ -10879,7 +10939,7 @@ msgstr ""
 "beklemede kalır."
 
 #. translators: %d: booking id.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2217
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2449
 #, php-format
 msgid ""
 "Payment recorded on the order, but booking #%d could not be read back "
@@ -10891,7 +10951,7 @@ msgstr ""
 "kontrol edin."
 
 #. translators: 1: booking id, 2: the booking's payment status as stored, 3: the booking status.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2224
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2456
 #, php-format
 msgid ""
 "Payment recorded on the order, but booking #%1$d is not marked paid: its "
@@ -10902,7 +10962,7 @@ msgstr ""
 "edin."
 
 #. translators: 1: booking id, 2: the booking status.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2233
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2465
 #, php-format
 msgid ""
 "Payment recorded and booking #%1$d is marked paid, but its status is %2$s, "
@@ -10914,7 +10974,7 @@ msgstr ""
 "rezervasyona tarihlerini geri verin ya da ödemeyi iade edin."
 
 #. translators: 1: booking id, 2: the booking status it should have moved to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2241
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2473
 #, php-format
 msgid ""
 "Payment recorded and booking #%1$d marked paid, but it could not be moved to "
@@ -10924,7 +10984,7 @@ msgstr ""
 "ancak %2$s durumuna geçirilemedi. Rezervasyonu kontrol edin."
 
 #. translators: 1: booking id, 2: the booking status now, 3: the booking status it should have moved to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2249
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2481
 #, php-format
 msgid ""
 "Payment recorded and booking #%1$d marked paid, but it is %2$s instead of "
@@ -10934,7 +10994,7 @@ msgstr ""
 "ancak durumu %3$s yerine %2$s. Rezervasyonu kontrol edin."
 
 #. translators: 1: booking id, 2: why, as the customer would have read it.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2421
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2653
 #, php-format
 msgid ""
 "Order on hold, but booking #%1$d was not confirmed: it no longer holds its "
@@ -10945,7 +11005,7 @@ msgstr ""
 "rezervasyonu taşıyın."
 
 #. translators: 1: booking id, 2: why, as the customer would have read it.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2427
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2659
 #, php-format
 msgid ""
 "Payment recorded, but booking #%1$d was not confirmed: it no longer holds "
@@ -10955,9 +11015,9 @@ msgstr ""
 "artık tutmuyor (%2$s). Ödemeyi WooCommerce üzerinden iade edin ya da "
 "rezervasyonu taşıyın."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2472
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2583
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2611
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2704
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2815
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2843
 msgid ""
 "Cash on delivery is not available for a booking. Please choose another "
 "payment method."
@@ -10965,7 +11025,7 @@ msgstr ""
 "Rezervasyonlarda kapıda ödeme kullanılamaz. Lütfen başka bir ödeme yöntemi "
 "seçin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2474
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2706
 msgid ""
 "Payment method refused: cash on delivery is not available for a booking. No "
 "booking was made and no payment was taken."
@@ -10973,7 +11033,7 @@ msgstr ""
 "Ödeme yöntemi reddedildi: rezervasyonlarda kapıda ödeme kullanılamaz. "
 "Rezervasyon oluşturulmadı ve ödeme alınmadı."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2498
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2730
 msgid ""
 "Rentiva booking created from the block checkout. The customer could not "
 "change the payment type there."
@@ -10981,7 +11041,7 @@ msgstr ""
 "Rentiva rezervasyonu blok ödeme sayfasından oluşturuldu. Müşteri ödeme "
 "türünü orada değiştiremedi."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2665
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2897
 msgid ""
 "Cash on delivery is not offered for rentals, and no other payment method is "
 "set up yet. Please contact us to complete your booking."
@@ -10990,13 +11050,13 @@ msgstr ""
 "tanımlanmadı. Rezervasyonunuzu tamamlamak için lütfen bizimle iletişime "
 "geçin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2713
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4428
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2946
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4692
 msgid "Invalid booking dates. Please try again."
 msgstr "Geçersiz rezervasyon tarihleri. Lütfen yeniden deneyin."
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2730
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2969
 #, php-format
 msgid ""
 "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates "
@@ -11007,21 +11067,21 @@ msgstr ""
 "Araç başka bir müşteri tarafından rezerve edilmiş olabilir. Lütfen farklı "
 "tarihler veya başka bir araç seçin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2810
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3049
 msgid "Booking cancelled: Vehicle is not available for rental."
 msgstr "Rezervasyon iptal edildi: Araç kiralanamaz."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2982
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3221
 msgid "Booking created from WooCommerce order"
 msgstr "WooCommerce siparişinden oluşturulan rezervasyon"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3013
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3252
 msgid "Booking cancelled: Vehicle already booked for selected dates."
 msgstr ""
 "Rezervasyon iptal edildi: Araç seçilen tarihlerde zaten rezerve edilmiş."
 
 #. translators: 1: the WooCommerce order id that was cancelled, 2: the booking id it belongs to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3201
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3440
 #, php-format
 msgid ""
 "Remaining-payment order #%1$d was cancelled on booking #%2$d after it had "
@@ -11031,7 +11091,7 @@ msgstr ""
 "edildi. Para hâlâ bu siparişte duruyor: iadesini yapın veya siparişi geri "
 "yükleyin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3220
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3459
 msgid ""
 "The booking was kept: a remaining-payment order that fails or is cancelled "
 "does not cancel its booking. Send the customer a new payment link if one is "
@@ -11042,7 +11102,7 @@ msgstr ""
 "bağlantısı gönderin."
 
 #. translators: 1: the WooCommerce order id that was cancelled/failed, 2: the booking id it belongs to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3257
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3496
 #, php-format
 msgid ""
 "Order #%1$d was cancelled/failed on booking #%2$d while a sibling order "
@@ -11055,7 +11115,7 @@ msgstr ""
 "konusunda kimseye haber verilmedi."
 
 #. translators: %d: the WooCommerce order id.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3397
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3636
 #, php-format
 msgid ""
 "The remaining amount of a booking could not be read when its payment (order "
@@ -11066,7 +11126,7 @@ msgstr ""
 "bakiye değiştirilmedi ve bir sonraki durum değişikliğinde kapatılacak."
 
 #. translators: %d: the WooCommerce order id.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3460
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3699
 #, php-format
 msgid ""
 "The remaining amount of a booking could not be cleared when its payment "
@@ -11076,7 +11136,7 @@ msgstr ""
 "sıfırlanamadı; bir sonraki durum değişikliğinde yeniden denenecek."
 
 #. translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3521
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3760
 #, php-format
 msgid ""
 "A payment arrived on this booking through order #%1$d, which is no longer "
@@ -11088,7 +11148,7 @@ msgstr ""
 "değiştirilmedi: lütfen kontrol edin ve elle düzeltin."
 
 #. translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3530
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3769
 #, php-format
 msgid ""
 "A payment arrived on this booking for an amount that is no longer current "
@@ -11099,31 +11159,31 @@ msgstr ""
 "%2$s tahsil etti; kalan tutar %3$s). Kalan tutar değiştirilmedi: lütfen "
 "kontrol edin ve elle düzeltin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3597
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3836
 msgid "Booking completed — rental period ended."
 msgstr "Rezervasyon tamamlandı — kiralama süresi sona erdi."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3622
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3861
 msgid "Booking cancelled by customer."
 msgstr "Rezervasyon müşteri tarafından iptal edildi."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3821
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4060
 msgid "Payment Options"
 msgstr "Ödeme seçenekleri"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3835
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4074
 msgid "Pay deposit for booking, pay remaining amount at vehicle delivery"
 msgstr "Rezervasyon için kapora ödeyin, kalan tutarı araç tesliminde ödeyin"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3837
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4076
 msgid "Remaining:"
 msgstr "Kalan:"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3854
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4093
 msgid "Pay full amount now"
 msgstr "Tam tutarı şimdi ödeyin"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3959
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4198
 #: src/Admin/Settings/APIKeysPage.php:81
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:29
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:52
@@ -11147,20 +11207,20 @@ msgstr "Tam tutarı şimdi ödeyin"
 msgid "Invalid security nonce."
 msgstr "Geçersiz güvenlik geçici anahtarı."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3968
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4207
 msgid "Cart not available"
 msgstr "Sepet kullanılamıyor"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4074
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4313
 msgid "Booking not found in cart"
 msgstr "Sepette rezervasyon bulunamadı"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4090
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4329
 msgid "Payment type updated"
 msgstr "Ödeme türü güncellendi"
 
 #. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4278
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4517
 #, php-format
 msgid ""
 "Sorry, the vehicle \"%s\" is not available for rental. Please select another "
@@ -11168,7 +11228,7 @@ msgid ""
 msgstr "Üzgünüz, \"%s\" aracı kiralanamaz. Lütfen başka bir araç seçin."
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4332
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4591
 #, php-format
 msgid ""
 "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates "
@@ -11178,8 +11238,8 @@ msgstr ""
 "Lütfen farklı tarihler veya başka bir araç seçin."
 
 #. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4381
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4478
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4644
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4750
 #, php-format
 msgid ""
 "Sorry, booking for vehicle \"%s\" has been cancelled. Please select another "
@@ -11188,44 +11248,44 @@ msgstr ""
 "Üzgünüz, \"%s\" aracı için yapılan rezervasyon iptal edilmiştir. Lütfen "
 "başka bir araç seçin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4799
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5108
 #: src/Admin/Setup/SetupWizard.php:997
 msgid "WooCommerce"
 msgstr "WooCommerce"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4855
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5164
 msgid "Payment already processed by WooCommerce."
 msgstr "Ödeme WooCommerce tarafından işlenmiştir."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4873
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5182
 msgid "Redirecting to checkout..."
 msgstr "Ödeme sayfasına yönlendiriliyor..."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4880
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5189
 msgid "Failed to add booking to cart."
 msgstr "Rezervasyon sepete eklenemedi."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4896
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5205
 msgid "WooCommerce is not installed or activated."
 msgstr "WooCommerce kurulmamış veya etkinleştirilmemiş."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4911
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5220
 msgid "Invalid payment amount."
 msgstr "Geçersiz ödeme tutarı."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5006
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5315
 msgid "City"
 msgstr "Şehir"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5007
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5316
 msgid "District / Neighborhood"
 msgstr "İlçe / mahalle"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5144
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5453
 msgid "Return to Cart"
 msgstr "Sepete dön"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5177
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5486
 msgid "(incl. tax)"
 msgstr "(vergi dahil)"
 
@@ -12599,35 +12659,39 @@ msgstr ""
 msgid "Send Test Connection Email"
 msgstr "Test bağlantısı e-postası gönder"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:439
+#: src/Admin/Settings/Groups/EmailSettings.php:462
+msgid "Booking Received: #{booking_id}"
+msgstr "Rezervasyon alındı: #{booking_id}"
+
+#: src/Admin/Settings/Groups/EmailSettings.php:464
 msgid "Booking #{booking_id} status updated"
 msgstr "Rezervasyon #{booking_id} durumu güncellendi"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:441
+#: src/Admin/Settings/Groups/EmailSettings.php:466
 msgid "New Booking Alert: #{booking_id} - {site_name}"
 msgstr "Yeni rezervasyon uyarısı: #{booking_id} - {site_name}"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:443
+#: src/Admin/Settings/Groups/EmailSettings.php:468
 msgid "Booking Cancelled (Payment Timeout): #{booking_id}"
 msgstr "Rezervasyon iptal edildi (ödeme süresi doldu): #{booking_id}"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:445
+#: src/Admin/Settings/Groups/EmailSettings.php:470
 msgid "Booking Cancelled: #{booking_id}"
 msgstr "Rezervasyon iptal edildi: #{booking_id}"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:447
+#: src/Admin/Settings/Groups/EmailSettings.php:472
 msgid "Reminder: Your Booking #{booking_id} Starts Soon"
 msgstr "Hatırlatma: #{booking_id} numaralı rezervasyonunuz yakında başlıyor"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:449
+#: src/Admin/Settings/Groups/EmailSettings.php:474
 msgid "Welcome to {site_name}"
 msgstr "{site_name} sitesine hoş geldiniz"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:451
+#: src/Admin/Settings/Groups/EmailSettings.php:476
 msgid "Refund Processed for Booking #{booking_id}"
 msgstr "Rezervasyon #{booking_id} için iade işleme alındı"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:453
+#: src/Admin/Settings/Groups/EmailSettings.php:478
 msgid "Refund Alert: Booking #{booking_id}"
 msgstr "İade uyarısı: rezervasyon #{booking_id}"
 
@@ -14820,6 +14884,36 @@ msgstr "Yorum hatası"
 msgid "Duplicate Review"
 msgstr "Yinelenen yorum"
 
+#. translators: %d: number of further bookings not linked in the list.
+#: src/Admin/Vehicle/Hooks/VehicleTrashWarning.php:134
+#, php-format
+msgid "and %d more"
+msgid_plural "and %d more"
+msgstr[0] "ve %d tane daha"
+msgstr[1] "ve %d tane daha"
+
+#. translators: 1: vehicle title, 2: number of upcoming bookings.
+#: src/Admin/Vehicle/Hooks/VehicleTrashWarning.php:144
+#, php-format
+msgid ""
+"“%1$s” was moved to the Trash but still has %2$d upcoming booking. The "
+"booking keeps this vehicle, but customers can no longer open the vehicle’s "
+"page."
+msgid_plural ""
+"“%1$s” was moved to the Trash but still has %2$d upcoming bookings. The "
+"bookings keep this vehicle, but customers can no longer open the vehicle’s "
+"page."
+msgstr[0] "“%1$s” çöpe taşındı ama %2$d yaklaşan rezervasyonu var. Rezervasyonlar bu aracı korur, ancak müşteriler artık araç sayfasını açamaz."
+msgstr[1] "“%1$s” çöpe taşındı ama %2$d yaklaşan rezervasyonu var. Rezervasyonlar bu aracı korur, ancak müşteriler artık araç sayfasını açamaz."
+
+#: src/Admin/Vehicle/Hooks/VehicleTrashWarning.php:157
+msgid "Bookings:"
+msgstr "Rezervasyonlar:"
+
+#: src/Admin/Vehicle/Hooks/VehicleTrashWarning.php:158
+msgid "Restore vehicle"
+msgstr "Aracı geri yükle"
+
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:213
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1621
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:50
@@ -16169,7 +16263,7 @@ msgstr ""
 "Bu sayfa için geri alma hiçbir şey yazmadı: önceki manifest artık bu sayfaya "
 "çözümlenmiyor."
 
-#: src/Plugin.php:1184
+#: src/Plugin.php:1189
 msgid "Failed to create the customer role."
 msgstr "Müşteri rolü oluşturulamadı."
 
@@ -17069,28 +17163,34 @@ msgstr "Rezervasyon ilerlemesi"
 msgid "Remove filter"
 msgstr "Filtreyi kaldır"
 
-#: templates/partials/search/rvs-empty.php:31
+#: templates/partials/search/rvs-empty.php:33
 msgid ""
 "Choose your dates to see the total price and only the cars that are free."
 msgstr "Toplam fiyatı ve yalnızca müsait araçları görmek için tarih seçin."
 
-#: templates/partials/search/rvs-empty.php:32
+#: templates/partials/search/rvs-empty.php:34
 msgid "Choose dates"
 msgstr "Tarih seç"
 
-#: templates/partials/search/rvs-empty.php:38
+#: templates/partials/search/rvs-empty.php:41
+#: templates/partials/search/rvs-empty.php:60
+#: templates/partials/search/rvs-empty.php:76
+msgid "Change dates"
+msgstr "Tarihleri değiştir"
+
+#: templates/partials/search/rvs-empty.php:47
 msgid "No cars match your filters"
 msgstr "Filtrelerinize uyan araç yok"
 
-#: templates/partials/search/rvs-empty.php:39
+#: templates/partials/search/rvs-empty.php:48
 msgid "Remove a filter or clear them all."
 msgstr "Bir filtreyi kaldırın ya da hepsini temizleyin."
 
-#: templates/partials/search/rvs-empty.php:40
+#: templates/partials/search/rvs-empty.php:49
 msgid "Clear filters"
 msgstr "Filtreleri temizle"
 
-#: templates/partials/search/rvs-empty.php:48
+#: templates/partials/search/rvs-empty.php:57
 msgid ""
 "Other pickup points in the same city have cars. The car you looked for is "
 "below, with the earliest time it is free."
@@ -17098,24 +17198,19 @@ msgstr ""
 "Aynı şehirdeki diğer teslim yerlerinde müsait araçlar var. Aradığınız araç "
 "ise aşağıda, en erken müsait olacağı zamanla."
 
-#: templates/partials/search/rvs-empty.php:51
 #: templates/partials/search/rvs-empty.php:67
-msgid "Change dates"
-msgstr "Tarihleri değiştir"
-
-#: templates/partials/search/rvs-empty.php:58
 msgid "No vehicles are listed yet"
 msgstr "Henüz listelenmiş araç yok"
 
-#: templates/partials/search/rvs-empty.php:59
+#: templates/partials/search/rvs-empty.php:68
 msgid "Please check back soon."
 msgstr "Lütfen yakında tekrar bakın."
 
-#: templates/partials/search/rvs-empty.php:65
+#: templates/partials/search/rvs-empty.php:74
 msgid "No cars are free for these dates"
 msgstr "Bu tarihlerde müsait araç yok"
 
-#: templates/partials/search/rvs-empty.php:66
+#: templates/partials/search/rvs-empty.php:75
 msgid "Try other dates or another pickup location."
 msgstr "Başka tarihler ya da başka bir teslim alma yeri deneyin."
 
@@ -18886,43 +18981,8 @@ msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste yerleşiminde görüntüleyin."
 
-#: src/Admin/Booking/Helpers/Util.php:90
-msgid "The pickup time has already passed. Please choose a later date or time."
-msgstr "Teslim alma zamanı geçti. Lütfen daha ileri bir tarih veya saat seçin."
-
-#. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:377
-#, php-format
-msgid "Your cart already held \"%1$s\" for overlapping dates. It now holds your latest choice (%2$s - %3$s)."
-msgstr "Sepetinizde \"%1$s\" çakışan tarihler için zaten vardı. Sepet artık son seçiminizi tutuyor (%2$s - %3$s)."
-
-#. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:412
-#, php-format
-msgid "Your cart holds \"%s\" more than once for overlapping dates. Remove the extra line to continue."
-msgstr "Sepetinizde \"%s\" çakışan tarihler için birden fazla kez var. Devam etmek için fazla satırı kaldırın."
-
-#: src/Admin/Emails/Core/Templates.php:43
-msgid "Booking #{{booking.order_id}} Received - {{site.name}}"
-msgstr "Rezervasyon #{{booking.order_id}} alındı - {{site.name}}"
-
-#: src/Admin/Settings/Groups/EmailSettings.php:462
-msgid "Booking Received: #{booking_id}"
-msgstr "Rezervasyon alındı: #{booking_id}"
-
-#: src/Admin/Emails/Notifications/RefundNotifications.php
-#, php-format
-msgid "%1$s has been transferred to you. Transfer reference: %2$s"
-msgstr "%1$s tutarındaki iadeniz size aktarıldı. Aktarım referansı: %2$s"
-
-#: src/Admin/Emails/Notifications/RefundNotifications.php
-#, php-format
-msgid "%s has been transferred to you."
-msgstr "%s tutarındaki iadeniz size aktarıldı."
-
-#: src/Admin/Emails/Notifications/RefundNotifications.php
-msgid "Transfer notice not sent: no hand refund amount found on this booking."
-msgstr "Aktarım bildirimi gönderilmedi: bu rezervasyonda elden iade tutarı bulunamadı."
+#~ msgid "End date must be after start date."
+#~ msgstr "Bitiş tarihi başlangıç tarihinden sonra olmalıdır."
 
 #~ msgid "Refund not processed due to cancellation policy."
 #~ msgstr "İptal politikası nedeniyle iade işleme alınmadı."

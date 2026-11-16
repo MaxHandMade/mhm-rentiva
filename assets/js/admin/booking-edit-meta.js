@@ -82,8 +82,15 @@
             const plateMatch = optionText.match(/\(([^)]+)\)$/);
             const plate = plateMatch ? plateMatch[1] : '';
             
+            // The booked vehicle's status line (in the Trash, not published)
+            // is the server's; it shows only while that vehicle is selected.
+            const selectedValue = $(this).val();
+            $(this).siblings('p.mhm-vehicle-status-note').each(function () {
+                this.hidden = String($(this).data('vehicle-id')) !== String(selectedValue);
+            });
+
             // Update or create description element
-            let $description = $(this).siblings('p.description');
+            let $description = $(this).siblings('p.description').not('.mhm-vehicle-status-note');
             if ($description.length === 0) {
                 $description = $('<p class="description"></p>');
                 $(this).after($description);

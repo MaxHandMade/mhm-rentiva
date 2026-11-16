@@ -161,4 +161,46 @@ final class BookingEditFormMarkupTest extends WP_UnitTestCase
 
 		$this->assertStringNotContainsString('Additional Services Total:', $this->form($post));
 	}
+
+	/**
+	 * Manager-lens #15: the selector listed published vehicles only, so a
+	 * booking whose vehicle went to the Trash showed "Select Vehicle" and no
+	 * sign of which vehicle it holds.
+	 */
+	public function test_the_bookings_own_vehicle_stays_selected_after_it_is_trashed(): void
+	{
+		$post = $this->booking();
+		wp_trash_post($this->vehicle);
+		$other_trashed = (int) self::factory()->post->create(array(
+			'post_type'   => 'mhmrentiva_vehicle',
+			'post_status' => 'trash',
+			'post_title'  => 'Retired Fiat',
+		));
+
+		$html = $this->form($post);
+
+		$this->assertMatchesRegularExpression(
+			'/<option value="' . $this->vehicle . '"\s+selected=[\'"]selected[\'"]\s*>Toyota Corolla 1\.6[^<]*In Trash[^<]*<\/option>/',
+			$html,
+			'The booked vehicle is offered, selected, and marked as trashed.'
+		);
+		$this->assertStringContainsString('This vehicle is in the Trash', $html, 'A line under the selector says why.');
+		$this->assertStringNotContainsString('value="' . $other_trashed . '"', $html, 'Other trashed vehicles are not offered.');
+	}
+
+	public function test_a_published_vehicle_carries_no_status_marker(): void
+	{
+		$html = $this->form($this->booking());
+
+		$this->assertMatchesRegularExpression('/<option value="' . $this->vehicle . '"\s+selected=[\'"]selected[\'"]\s*>Toyota Corolla 1\.6<\/option>/', $html);
+		$this->assertStringNotContainsString('This vehicle is in the Trash', $html);
+	}
+
+	public function test_a_draft_vehicle_is_marked_with_its_status(): void
+	{
+		$post = $this->booking();
+		wp_update_post(array( 'ID' => $this->vehicle, 'post_status' => 'draft' ));
+
+		$this->assertMatchesRegularExpression('/<option value="' . $this->vehicle . '"\s+selected=[\'"]selected[\'"]\s*>Toyota Corolla 1\.6[^<]*Draft[^<]*<\/option>/', $this->form($post));
+	}
 }

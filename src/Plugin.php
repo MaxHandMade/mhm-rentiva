@@ -360,6 +360,11 @@ final class Plugin {
 			\MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns::register();
 		}
 
+		// Warn when a vehicle with upcoming bookings goes to the Trash (#15).
+		if ($this->is_class_available('MHMRentiva\Admin\Vehicle\Hooks\VehicleTrashWarning')) {
+			\MHMRentiva\Admin\Vehicle\Hooks\VehicleTrashWarning::register();
+		}
+
 		if ($this->is_class_available('MHMRentiva\Admin\Booking\ListTable\BookingColumns')) {
 			\MHMRentiva\Admin\Booking\ListTable\BookingColumns::register();
 		}

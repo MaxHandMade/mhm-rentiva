@@ -241,17 +241,41 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 			)
 		);
 
+		// The booking's own vehicle is offered whatever its status: listing
+		// published vehicles only left a booking whose vehicle went to the
+		// Trash (or back to draft) on "Select Vehicle", with no sign of the
+		// vehicle it holds (manager-lens #15). Other unpublished vehicles are
+		// not offered.
+		$vehicle_id  = (int) $vehicle_id;
+		$own_vehicle = $vehicle_id > 0 ? get_post( $vehicle_id ) : null;
+		$own_status  = '';
+		if ( $own_vehicle instanceof \WP_Post && 'mhmrentiva_vehicle' === $own_vehicle->post_type && 'publish' !== $own_vehicle->post_status ) {
+			$own_status = $own_vehicle->post_status;
+			array_unshift( $vehicles, $own_vehicle );
+		}
+
 		echo '<select id="mhmrentiva_booking_edit_vehicle_id" name="mhmrentiva_edit_vehicle_id" class="mhm-field-select">';
 		echo '<option value="">' . esc_html__( 'Select Vehicle', 'mhm-rentiva' ) . '</option>';
 
 		foreach ( $vehicles as $vehicle_option ) {
 			$plate         = get_post_meta( $vehicle_option->ID, '_mhmrentiva_license_plate', true );
-			$plate_display = $plate ? ' (' . esc_html( $plate ) . ')' : '';
-			$selected      = selected( $vehicle_id, $vehicle_option->ID, false );
-			echo '<option value="' . esc_attr( $vehicle_option->ID ) . '" ' . esc_attr( $selected ) . '>' . esc_html( $vehicle_option->post_title ) . esc_html( $plate_display ) . '</option>';
+			$plate_display = $plate ? ' (' . $plate . ')' : '';
+			$status_note   = '';
+			if ( '' !== $own_status && (int) $vehicle_option->ID === $vehicle_id ) {
+				$status_note = ' — ' . self::vehicle_status_label( $own_status );
+			}
+			// The plate stays last: the edit screen's script reads it from "(PLATE)" at the end.
+			echo '<option value="' . esc_attr( (string) $vehicle_option->ID ) . '"' . selected( $vehicle_id, (int) $vehicle_option->ID, false ) . '>' . esc_html( $vehicle_option->post_title . $status_note . $plate_display ) . '</option>';
 		}
 
 		echo '</select>';
+
+		if ( '' !== $own_status ) {
+			$note = 'trash' === $own_status
+				? __( 'This vehicle is in the Trash: customers can no longer open its page. Restore it from the Vehicles list, or pick another vehicle.', 'mhm-rentiva' )
+				: __( 'This vehicle is not published: customers can no longer open its page.', 'mhm-rentiva' );
+			echo '<p class="description mhm-vehicle-status-note" data-vehicle-id="' . esc_attr( (string) $vehicle_id ) . '">' . esc_html( $note ) . '</p>';
+		}
 
 		// Plate is shown inside the vehicle dropdown option and updated dynamically by JS
 
@@ -720,5 +744,17 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		BookingMeta::sync_booking_timestamps( $post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time );
 		BookingMeta::invalidate_edit_caches( (int) $old_vehicle_id, (int) get_post_meta( $post_id, '_mhmrentiva_vehicle_id', true ) );
 		BookingMeta::blocked_day_notice_after_write( $post_id );
+	}
+
+	/**
+	 * The word shown beside an unpublished vehicle in the selector.
+	 */
+	private static function vehicle_status_label( string $status ): string {
+		if ( 'trash' === $status ) {
+			return __( 'In Trash', 'mhm-rentiva' );
+		}
+		$object = get_post_status_object( $status );
+
+		return $object && is_string( $object->label ) ? $object->label : $status;
 	}
 }
