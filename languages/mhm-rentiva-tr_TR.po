@@ -18898,6 +18898,18 @@ msgstr "Araçları liste yerleşiminde görüntüleyin."
 msgid "The pickup time has already passed. Please choose a later date or time."
 msgstr "Teslim alma zamanı geçti. Lütfen daha ileri bir tarih veya saat seçin."
 
+#. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:340
+#, php-format
+msgid "Your cart already held \"%1$s\" for overlapping dates. It now holds your latest choice (%2$s - %3$s)."
+msgstr "Sepetinizde \"%1$s\" çakışan tarihler için zaten vardı. Sepet artık son seçiminizi tutuyor (%2$s - %3$s)."
+
+#. translators: %s: Vehicle title
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:375
+#, php-format
+msgid "Your cart holds \"%s\" more than once for overlapping dates. Remove the extra line to continue."
+msgstr "Sepetinizde \"%s\" çakışan tarihler için birden fazla kez var. Devam etmek için fazla satırı kaldırın."
+
 #~ msgid "Refund not processed due to cancellation policy."
 #~ msgstr "İptal politikası nedeniyle iade işleme alınmadı."
 
