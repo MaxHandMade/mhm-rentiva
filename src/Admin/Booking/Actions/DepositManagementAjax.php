@@ -21,6 +21,8 @@ use MHMRentiva\Admin\Payment\Core\RefundLock;
 use MHMRentiva\Admin\Payment\Core\RefundStatus;
 use MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler;
 use MHMRentiva\Admin\Emails\Core\Mailer;
+use MHMRentiva\Admin\Emails\Notifications\RefundNotifications;
+use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -630,6 +632,24 @@ final class DepositManagementAjax {
 
 		if ( ! $moved ) {
 			wp_send_json_error( array( 'message' => __( 'This refund is not awaiting a hand transfer.', 'mhm-rentiva' ) ) );
+		}
+
+		// The customer was told at cancellation that the amount "will be
+		// transferred"; now it has been. Only a click that closed the refund
+		// gets here, so a second click sends nothing. A mail that fails does
+		// not undo the record above.
+		try {
+			RefundNotifications::notify_transferred( $booking_id, $reference );
+		} catch ( \Throwable $e ) {
+			AdvancedLogger::add(
+				array(
+					'gateway'    => 'refund',
+					'action'     => 'refund_notification',
+					'status'     => 'error',
+					'booking_id' => $booking_id,
+					'message'    => __( 'Refund notification could not be sent:', 'mhm-rentiva' ) . ' ' . $e->getMessage(),
+				)
+			);
 		}
 
 		wp_send_json_success( array( 'message' => __( 'Hand transfer recorded.', 'mhm-rentiva' ) ) );
