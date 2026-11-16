@@ -108,6 +108,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		add_action('woocommerce_check_cart_items', array( self::class, 'validate_cart_availability' ), 10);
 		add_action('woocommerce_checkout_process', array( self::class, 'validate_checkout_availability' ), 10);
 
+		// A guest paying for a rental is offered an account (product decision 2026-11-11).
+		add_filter('woocommerce_checkout_registration_enabled', array( self::class, 'offer_account_for_rentals' ));
+
 		// AJAX handlers for payment type change
 		add_action('wp_ajax_mhmrentiva_update_booking_payment_type', array( self::class, 'ajax_update_payment_type' ));
 		add_action('wp_ajax_nopriv_mhmrentiva_update_booking_payment_type', array( self::class, 'ajax_update_payment_type' ));
@@ -257,6 +260,38 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		$time = trim($time);
 
 		return \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant(trim($date), '' === $time ? '00:00' : $time);
+	}
+
+	/**
+	 * WooCommerce's "Create an account?" box on the checkout, while a rental
+	 * is in the cart.
+	 *
+	 * A guest could book, then had no way back to the booking: My Account
+	 * asks for a login, and the store's "allow customers to create an account
+	 * during checkout" is off by default. The store setting is not changed --
+	 * other carts follow it -- and a store that already offers accounts keeps
+	 * offering them. The booking reaches the new account through the order's
+	 * customer id (with_order_contact()).
+	 *
+	 * @param mixed $enabled What the store setting (or an earlier filter) decided.
+	 */
+	public static function offer_account_for_rentals($enabled): bool
+	{
+		if ($enabled) {
+			return true;
+		}
+
+		if (! function_exists('WC') || ! isset(\WC()->cart)) {
+			return false;
+		}
+
+		foreach (\WC()->cart->get_cart() as $item) {
+			if (! empty($item['mhmrentiva_booking_pending'])) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

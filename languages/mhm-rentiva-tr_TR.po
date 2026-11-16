@@ -18910,6 +18910,14 @@ msgstr "Sepetinizde \"%1$s\" çakışan tarihler için zaten vardı. Sepet artı
 msgid "Your cart holds \"%s\" more than once for overlapping dates. Remove the extra line to continue."
 msgstr "Sepetinizde \"%s\" çakışan tarihler için birden fazla kez var. Devam etmek için fazla satırı kaldırın."
 
+#: src/Admin/Emails/Core/Templates.php:43
+msgid "Booking #{{booking.order_id}} Received - {{site.name}}"
+msgstr "Rezervasyon #{{booking.order_id}} alındı - {{site.name}}"
+
+#: src/Admin/Settings/Groups/EmailSettings.php:458
+msgid "Booking Received: #{booking_id}"
+msgstr "Rezervasyon alındı: #{booking_id}"
+
 #~ msgid "Refund not processed due to cancellation policy."
 #~ msgstr "İptal politikası nedeniyle iade işleme alınmadı."
 
