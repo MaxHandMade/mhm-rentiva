@@ -281,11 +281,13 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return true;
 		}
 
-		if (! function_exists('WC') || ! isset(\WC()->cart)) {
+		// The filter also runs where no cart is loaded (admin, some REST).
+		$cart = function_exists('WC') ? \WC()->cart : null;
+		if (! $cart instanceof \WC_Cart) {
 			return false;
 		}
 
-		foreach (\WC()->cart->get_cart() as $item) {
+		foreach ($cart->get_cart() as $item) {
 			if (! empty($item['mhmrentiva_booking_pending'])) {
 				return true;
 			}
