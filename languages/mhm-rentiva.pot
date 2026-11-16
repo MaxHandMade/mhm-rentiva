@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-16T08:42:19+00:00\n"
+"POT-Creation-Date: 2026-11-16T08:50:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -11849,39 +11849,39 @@ msgstr ""
 msgid "Send Test Connection Email"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:458
+#: src/Admin/Settings/Groups/EmailSettings.php:462
 msgid "Booking Received: #{booking_id}"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:460
+#: src/Admin/Settings/Groups/EmailSettings.php:464
 msgid "Booking #{booking_id} status updated"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:462
+#: src/Admin/Settings/Groups/EmailSettings.php:466
 msgid "New Booking Alert: #{booking_id} - {site_name}"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:464
+#: src/Admin/Settings/Groups/EmailSettings.php:468
 msgid "Booking Cancelled (Payment Timeout): #{booking_id}"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:466
+#: src/Admin/Settings/Groups/EmailSettings.php:470
 msgid "Booking Cancelled: #{booking_id}"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:468
+#: src/Admin/Settings/Groups/EmailSettings.php:472
 msgid "Reminder: Your Booking #{booking_id} Starts Soon"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:470
+#: src/Admin/Settings/Groups/EmailSettings.php:474
 msgid "Welcome to {site_name}"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:472
+#: src/Admin/Settings/Groups/EmailSettings.php:476
 msgid "Refund Processed for Booking #{booking_id}"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:474
+#: src/Admin/Settings/Groups/EmailSettings.php:478
 msgid "Refund Alert: Booking #{booking_id}"
 msgstr ""
 

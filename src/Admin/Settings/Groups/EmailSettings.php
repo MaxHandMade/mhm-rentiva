@@ -426,12 +426,6 @@ final class EmailSettings {
 		return SettingsCore::get( 'mhmrentiva_email_auto_send', '1' ) === '1';
 	}
 	/**
-	 * The subject a template goes out with when the operator saved none --
-	 * the one the Settings screen shows, so the screen and the sent e-mail
-	 * agree (PR 3b-3, Codex #178). Null for a template the screen has no
-	 * subject field for (the registry's subject applies).
-	 */
-	/**
 	 * Values this plugin once shipped as a field's default, word for word.
 	 * Saving the e-mail settings screen writes every field as shown, so a site
 	 * that saved it holds the old default as if an administrator had typed
@@ -445,10 +439,20 @@ final class EmailSettings {
 		),
 	);
 
+	/**
+	 * Whether a stored option value is one of the defaults this plugin once
+	 * shipped for it (LEGACY_DEFAULTS), so it reads as not saved.
+	 */
 	public static function is_legacy_default_value( string $option, string $value ): bool {
 		return in_array( trim( $value ), self::LEGACY_DEFAULTS[ $option ] ?? array(), true );
 	}
 
+	/**
+	 * The subject a template goes out with when the operator saved none --
+	 * the one the Settings screen shows, so the screen and the sent e-mail
+	 * agree (PR 3b-3). Null for a template the screen has no subject field
+	 * for (the registry's subject applies).
+	 */
 	public static function default_subject( string $key ): ?string {
 		switch ( $key ) {
 			case 'booking_created_customer':

@@ -6467,10 +6467,6 @@ msgstr "%1$s, %2$s"
 msgid "Anonymous"
 msgstr "Anonim"
 
-#: src/Admin/Emails/Core/Templates.php:43
-msgid "Booking #{{booking.order_id}} Confirmed - {{site.name}}"
-msgstr "Rezervasyon #{{booking.order_id}} onaylandı - {{site.name}}"
-
 #: src/Admin/Emails/Core/Templates.php:47
 msgid "New Booking Request #{{booking.order_id}} - {{site.name}}"
 msgstr "Yeni rezervasyon isteği #{{booking.order_id}} - {{site.name}}"
@@ -12602,10 +12598,6 @@ msgstr ""
 #: src/Admin/Settings/Groups/EmailSettings.php:322
 msgid "Send Test Connection Email"
 msgstr "Test bağlantısı e-postası gönder"
-
-#: src/Admin/Settings/Groups/EmailSettings.php:437
-msgid "Booking Confirmed: #{booking_id}"
-msgstr "Rezervasyon onaylandı: #{booking_id}"
 
 #: src/Admin/Settings/Groups/EmailSettings.php:439
 msgid "Booking #{booking_id} status updated"
@@ -18914,7 +18906,7 @@ msgstr "Sepetinizde \"%s\" çakışan tarihler için birden fazla kez var. Devam
 msgid "Booking #{{booking.order_id}} Received - {{site.name}}"
 msgstr "Rezervasyon #{{booking.order_id}} alındı - {{site.name}}"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:458
+#: src/Admin/Settings/Groups/EmailSettings.php:462
 msgid "Booking Received: #{booking_id}"
 msgstr "Rezervasyon alındı: #{booking_id}"
 
@@ -19474,3 +19466,9 @@ msgstr "Rezervasyon alındı: #{booking_id}"
 
 #~ msgid "Browse Vehicles"
 #~ msgstr "Araçlara göz atın"
+
+#~ msgid "Booking Confirmed: #{booking_id}"
+#~ msgstr "Rezervasyon onaylandı: #{booking_id}"
+
+#~ msgid "Booking #{{booking.order_id}} Confirmed - {{site.name}}"
+#~ msgstr "Rezervasyon #{{booking.order_id}} onaylandı - {{site.name}}"
