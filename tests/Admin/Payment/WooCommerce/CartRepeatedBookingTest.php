@@ -35,7 +35,12 @@ final class CartRepeatedBookingTest extends WP_UnitTestCase
 	{
 		parent::setUp();
 		$this->require_woocommerce();
-		$this->ensure_booking_product();
+		// As get_booking_product_id() creates it: sold individually. WooCommerce
+		// refuses a second add of an item already in the cart for such a
+		// product, which a plain fixture product would hide (audit, PR-B r2).
+		$product = $this->ensure_booking_product();
+		$product->set_sold_individually(true);
+		$product->save();
 		WC()->cart->empty_cart();
 		wc_clear_notices();
 		$this->pin_site_timezone('Europe/Istanbul');

@@ -416,11 +416,23 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			'mhmrentiva_booking_pending' => true, // Flag to indicate booking is not created yet
 		);
 
+		// The booking product is sold individually (get_booking_product_id()):
+		// WooCommerce refuses to add an item whose key is already in the cart
+		// ("You cannot add another ..."). For a choice identical to a line it
+		// replaces, that key IS the old line -- let WooCommerce merge into it
+		// for this one call; replace_rental_lines() sets it back to quantity 1.
+		$allow_merge = static fn(): bool => false;
+		if (array() !== $old_keys) {
+			add_filter('woocommerce_add_to_cart_sold_individually_found_in_cart', $allow_merge, PHP_INT_MAX);
+		}
+
 		try {
 			$new_key = \WC()->cart->add_to_cart($product_id, 1, 0, array(), $cart_item_data);
 		} catch (\Exception $e) {
 			AdvancedLogger::error('Failed to add to cart', array( 'exception' => $e->getMessage() ), AdvancedLogger::CATEGORY_PAYMENT);
 			return false;
+		} finally {
+			remove_filter('woocommerce_add_to_cart_sold_individually_found_in_cart', $allow_merge, PHP_INT_MAX);
 		}
 
 		// add_to_cart() answers false (with its own notice) when WooCommerce
