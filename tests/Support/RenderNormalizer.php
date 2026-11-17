@@ -18,8 +18,8 @@ namespace MHMRentiva\Tests\Support;
  *
  * The baseline (Task 0 Step 1) was the measurement tool's normalizer verbatim
  * (docs/superpowers/audits/2026-10-10-elementor-kopru-dilim-3/olcum/block-dead-audit-v4.php:25-32),
- * whose last rule `[a-z0-9]{13,}` also erased every long lower-case word
- * (Fable r2-4). Step 6 narrowed that rule to the uniqid prefixes above; the
+ * whose last rule `[a-z0-9]{13,}` also erased every long lower-case word.
+ * Step 6 narrowed that rule to the uniqid prefixes above; the
  * measured dead set did not change (see the task-0 report).
  */
 final class RenderNormalizer

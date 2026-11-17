@@ -34,7 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * refunds from the STORED total, frees the STORED dates and mails the STORED
  * booking, so neither saver may write vehicle, dates, add-ons, guests or
  * price first -- a re-priced total would open a refund for money that was
- * never taken (Fable plan audit C1). Special notes are written; they move no
+ * never taken. Special notes are written; they move no
  * money.
  *
  * Request-scoped: the priority-5 saver runs the request, the priority-10 saver
@@ -56,8 +56,7 @@ final class BookingEditCancellation {
 		// The same status the savers write: the edit box's field, or -- when it
 		// is empty -- the older mhmrentiva_booking_status that BookingMeta's
 		// saver still accepts. Read here too, or that field would reach
-		// Status::update_status() past the handler and its money check (Codex
-		// code audit 3b-2, Important 1).
+		// Status::update_status() past the handler and its money check.
 		$status = $request->text( 'mhmrentiva_edit_status' );
 		if ( '' === $status ) {
 			$status = $request->text( 'mhmrentiva_booking_status' );
@@ -120,7 +119,7 @@ final class BookingEditCancellation {
 	 */
 	public static function run( int $post_id, VerifiedRequest $request ): void {
 		// Once per booking and request: a listener that re-saves the booking
-		// must not cancel it twice (Codex code audit 3b-2, Important 2).
+		// must not cancel it twice.
 		if ( isset( self::$handled[ $post_id ] ) ) {
 			return;
 		}

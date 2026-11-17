@@ -214,7 +214,7 @@ final class BookingEraserTest extends WP_UnitTestCase
 	/**
 	 * Core's anonymous e-mail is the fixed 'deleted@site.invalid'. A request
 	 * for that very address must still finish: an erased booking leaves the
-	 * queue even though its e-mail still "matches" (Codex r4 B2).
+	 * queue even though its e-mail still "matches".
 	 */
 	public function test_a_request_for_the_anonymous_address_finishes(): void
 	{
@@ -237,7 +237,7 @@ final class BookingEraserTest extends WP_UnitTestCase
 
 	/**
 	 * Identity half-written: the e-mail key changed but the user ID did not.
-	 * The booking must stay findable by the request's address (Codex r4 B1).
+	 * The booking must stay findable by the request's address.
 	 */
 	public function test_a_half_written_identity_stays_findable(): void
 	{

@@ -13,7 +13,7 @@ use WP_Ajax_UnitTestCase;
  * The checkout payment-type switch writes the booking's type and remaining
  * amount for an existing booking in the cart (WooCommerceBridge:3609-3618,
  * the `mhmrentiva_booking_id` branch); that write is a PaymentView scope
- * (spec PR 3a, plan r4 R1 / Codex r1 #3).
+ * (spec PR 3a, plan r4 R1).
  */
 final class PaymentHistoryPaymentTypeScopeTest extends WP_Ajax_UnitTestCase {
 	use WooCommerceFixtures;

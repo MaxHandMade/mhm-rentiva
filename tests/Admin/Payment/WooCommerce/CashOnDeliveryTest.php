@@ -322,7 +322,7 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 		$order = wc_get_order($order->get_id());
 		$this->assertSame('pending', $order->get_status());
 		$this->assertSame('', $order->get_meta('_mhmrentiva_booking_id'), 'No booking was made.');
-		$this->assertSame('', $order->get_payment_method(), 'Fable delta8 3: the refused order keeps no COD method.');
+		$this->assertSame('', $order->get_payment_method(), 'The refused order keeps no COD method.');
 		$this->assertSame('', $order->get_payment_method_title());
 	}
 
@@ -367,7 +367,7 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 	/**
 	 * The Store API checkout route itself: in REST the gateway list is left
 	 * alone, and the order hook refuses the rental order paid with COD before
-	 * any booking or payment (Codex PR K delta7).
+	 * any booking or payment.
 	 *
 	 * Its own process: the route defines WOOCOMMERCE_CHECKOUT (StoreApi\Legacy).
 	 *
@@ -497,7 +497,7 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex delta6 2 / delta7: a shop order paid on the route keeps COD,
+	 * A shop order paid on the route keeps COD,
 	 * whatever the session's cart holds -- the route pays that order, not the
 	 * cart, and REST leaves the gateway list alone.
 	 *
@@ -544,7 +544,7 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable delta6 F4: a store whose only gateway is COD tells a rental
+	 * A store whose only gateway is COD tells a rental
 	 * customer why there is nothing to choose, not WooCommerce's generic line.
 	 */
 	public function test_a_rental_with_cash_on_delivery_as_the_only_gateway_says_why(): void
@@ -570,7 +570,7 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 		$this->assertSame($generic, apply_filters('woocommerce_no_available_payment_methods_message', $generic));
 	}
 	/**
-	 * Codex delta7 1: the order WooCommerce pays is $request['id'], and a body
+	 * The order WooCommerce pays is $request['id'], and a body
 	 * or query `id` shadows the URL's. A rental's URL with the shop order's
 	 * `id`: WooCommerce pays the shop order, which keeps COD.
 	 *
@@ -595,7 +595,7 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex delta7 note / Fable delta6 3: a later list in the same process --
+	 * A later list in the same process --
 	 * one without COD, or a shop cart's -- does not keep the rental's message.
 	 */
 	public function test_a_later_list_does_not_keep_the_rental_message(): void
@@ -615,7 +615,7 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable delta7 1: on the classic checkout a customer with no billing
+	 * On the classic checkout a customer with no billing
 	 * country yet reads WooCommerce's "fill in your details", not ours.
 	 */
 	public function test_no_billing_country_keeps_woocommerces_fill_in_message(): void
@@ -631,8 +631,7 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 	/**
 	 * A stale REST state, as an integration's caught exception inside
 	 * rest_do_request() leaves it: wp_is_rest_endpoint() stays true. The list
-	 * keeps COD; the classic checkout still refuses it in validation (Codex
-	 * delta8), with one payment error, ours (Fable delta9 2).
+	 * keeps COD; the classic checkout still refuses it in validation, with one payment error, ours.
 	 */
 	public function test_with_a_stale_rest_state_the_classic_checkout_still_refuses_cash_on_delivery(): void
 	{
@@ -700,12 +699,12 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 		$this->assertGreaterThan(0, wc_notice_count('error'), 'The form shows the refusal.');
 		$this->assertStringContainsString('Cash on delivery is not available for a booking', (string) ( wc_get_notices('error')[0]['notice'] ?? '' ));
 		$this->assertSame('pending', wc_get_order($order->get_id())->get_status(), 'The COD gateway never processed the payment.');
-		$this->assertSame('', wc_get_order($order->get_id())->get_payment_method(), 'Codex delta9 3: the refused order keeps no COD method.');
+		$this->assertSame('', wc_get_order($order->get_id())->get_payment_method(), 'The refused order keeps no COD method.');
 		$this->assertSame('', wc_get_order($order->get_id())->get_payment_method_title());
 	}
 
 	/**
-	 * Fable delta10 1: with COD out of the list, WooCommerce refuses a tampered
+	 * With COD out of the list, WooCommerce refuses a tampered
 	 * `payment_method=cod` before it writes the method -- the order keeps the
 	 * method it was placed with, the cleanup does not blank it.
 	 */
@@ -739,7 +738,7 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 
 	/**
 	 * Every COD refusal and the cleanup are wired by register(), not only by
-	 * the tests' own hook() calls (Fable delta10 2).
+	 * the tests' own hook() calls.
 	 */
 	public function test_register_wires_the_cash_on_delivery_hooks(): void
 	{
@@ -759,7 +758,7 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable delta9 2: a tampered `payment_method=cod` on the classic checkout
+	 * A tampered `payment_method=cod` on the classic checkout
 	 * of a rental cart reads one payment error -- ours, not WooCommerce's
 	 * "Invalid payment method." next to it.
 	 */

@@ -16,7 +16,7 @@ use ReflectionMethod;
 use WP_UnitTestCase;
 
 /**
- * Fable audit, H-2: "a mixed-mode refund tells the operator to hand-transfer
+ * "a mixed-mode refund tells the operator to hand-transfer
  * money the gateway already returned."
  *
  * Service::runOperation() decides refund_payment PER ORDER -- its own comment

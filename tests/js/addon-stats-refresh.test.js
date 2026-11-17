@@ -169,7 +169,7 @@ describe( 'add-on screen counters after a toggle', () => {
 	} );
 
 	/**
-	 * Fable's LOW-2: applyStats was only ever driven through the toggle, while
+	 * applyStats was only ever driven through the toggle, while
 	 * the line the fix added sits in the INLINE PRICE callback. Average Price
 	 * and Total Value are the two cards a price moves, and neither was asserted
 	 * anywhere -- the same "the sweep's newest member is the one no test calls

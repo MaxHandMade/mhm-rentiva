@@ -6,7 +6,7 @@ namespace MHMRentiva\Tests\Support;
 /**
  * Gate G4 (spec 2026-10-10-elementor-kopru-dilim-3a §3): a removed setting is gone
  * from every layer, per (tag, key) -- a bare name grep is useless, because
- * orderby, limit, status, layout, title ... are live on other tags (Fable I3).
+ * orderby, limit, status, layout, title ... are live on other tags.
  *
  * The five layers (SettingGates::layers()): the tag's block.json, the block's
  * editor script, the tag's Elementor controls, AllowlistRegistry's list and

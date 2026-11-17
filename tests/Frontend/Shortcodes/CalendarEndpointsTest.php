@@ -12,7 +12,7 @@ use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\VehicleDetailsView;
 use WP_Ajax_UnitTestCase;
 
 /**
- * The calendar's endpoints (R10, R11, r2 m16, Codex suffix): the quote is the
+ * The calendar's endpoints (R10, R11): the quote is the
  * vehicle page's own, a transfer-only vehicle is no vehicle here, the old
  * endpoint is gone.
  *
@@ -125,7 +125,7 @@ final class CalendarEndpointsTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * Codex: K7, the amount plus WooCommerce's suffix.
+	 * The amount plus WooCommerce's suffix.
 	 */
 	public function test_total_html_carries_the_woocommerce_price_suffix(): void
 	{

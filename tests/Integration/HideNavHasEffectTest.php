@@ -11,7 +11,7 @@ use MHMRentiva\Tests\Support\WidgetFactory;
 use WP_UnitTestCase;
 
 /**
- * hide_nav has an effect (spec 2026-10-10-elementor-kopru-dilim-3a §3 G1, Fable I8).
+ * hide_nav has an effect (spec 2026-10-10-elementor-kopru-dilim-3a §3 G1).
  *
  * G1 cannot render this effect here. AccountRenderer::get_navigation() returns []
  * whenever WooCommerce is loaded (AccountRenderer.php:444-450), and the test suite

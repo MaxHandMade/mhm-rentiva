@@ -13,7 +13,7 @@ use WP_UnitTestCase;
  *
  * `cancelled_by` alone is an id, and an id outlives the role it had: an
  * operator who cancelled on their own vehicle and later became a vendor was
- * counted as a cancelling vendor (Codex Pro #124). A customer who is also a
+ * counted as a cancelling vendor (Pro #124). A customer who is also a
  * vendor cancelling their own rental from My Account is a customer's
  * cancellation, which only the surface can tell.
  *
@@ -32,7 +32,7 @@ final class CancellationRecordsActorCapacityTest extends WP_UnitTestCase
 
 		// cancel_booking() opens its own transaction; its START TRANSACTION
 		// would implicitly commit the framework's, and its COMMIT would make
-		// the cancellation stick past the test (Codex #182). Removed in
+		// the cancellation stick past the test (#182). Removed in
 		// tearDown() BEFORE the framework's ROLLBACK, which this filter would
 		// otherwise swallow too.
 		$this->no_transactions = static function ($query) {

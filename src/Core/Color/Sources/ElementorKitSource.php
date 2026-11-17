@@ -36,7 +36,7 @@ final class ElementorKitSource implements AccentSource {
 
 	public function resolve(): ?string
 	{
-		// One kit read for both references (Fable M3).
+		// One kit read for both references.
 		$found = ElementorGlobals::resolve_all(array_column(self::REFS, 0));
 		foreach (self::REFS as $label => list( $stored, $factory )) {
 			$item = $found[ $stored ] ?? null;

@@ -72,7 +72,7 @@ final class CancelledOrderDoesNotCancelPaidBookingTest extends WP_UnitTestCase
             'The remaining balance must not be touched by cancelling the collection instrument.'
         );
 
-        // PR-2 A1 (Codex r4 B1): this fixture's remaining order was PAID
+        // PR-2 A1: this fixture's remaining order was PAID
         // (create_paid_order_for_booking() moves it to processing) before it
         // was cancelled. Cancelled is not a refund and WooCommerce keeps its
         // date_paid, so the pointer is how PaymentState::orders() and the

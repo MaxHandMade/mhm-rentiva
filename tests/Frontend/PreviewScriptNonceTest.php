@@ -13,7 +13,7 @@ use MHMRentiva\Tests\Support\ShortcodeFixtures;
 use WP_UnitTestCase;
 
 /**
- * Slice 3B-2a, script layer (Codex P1): in an editor preview every nonce the
+ * Slice 3B-2a, script layer: in an editor preview every nonce the
  * widgets hand their scripts through wp_localize_script() is the empty string,
  * so a request the asset sends from the preview (booking submit, favourite
  * toggle, account call, ...) fails the server-side nonce check. On the front
@@ -196,7 +196,7 @@ final class PreviewScriptNonceTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * The booking form, the Codex finding: the exact object submitForm() reads.
+	 * The booking form: the exact object submitForm() reads.
 	 */
 	public function test_booking_form_nonce_is_empty_in_preview_and_real_on_front(): void
 	{

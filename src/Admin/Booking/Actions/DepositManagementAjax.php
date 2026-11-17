@@ -205,15 +205,14 @@ final class DepositManagementAjax {
 			array(
 				'order_id' => $order->get_id(),
 				'sent_by'  => get_current_user_id(),
-				// Whether the customer was really e-mailed (Fable #175 delta M-B).
+				// Whether the customer was really e-mailed.
 				'emailed'  => (bool) $mailed,
 			)
 		);
 		// The operator's action in the booking history too (function scan H16):
 		// the log above is invisible on the screen.
-		// The row and the answer follow what the mailer reported (Codex code
-		// audit 3b-2, Minor 7): a link the customer did not receive is not
-		// "e-mailed".
+		// The row and the answer follow what the mailer reported: a link
+		// the customer did not receive is not "e-mailed".
 		BookingMeta::add_history_note(
 			$booking_id,
 			$mailed

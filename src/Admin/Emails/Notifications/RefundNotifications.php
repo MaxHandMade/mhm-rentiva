@@ -127,7 +127,7 @@ final class RefundNotifications {
 	}
 
 	/**
-	 * @param int $auto_refunded_kurus   Fable audit H-2: Service::runOperation()
+	 * @param int $auto_refunded_kurus   Service::runOperation()
 	 *                                   decides refund_payment PER ORDER -- a
 	 *                                   deposit paid by card and a remainder
 	 *                                   paid by transfer are two different

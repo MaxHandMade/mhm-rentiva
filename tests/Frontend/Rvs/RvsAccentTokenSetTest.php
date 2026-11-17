@@ -254,7 +254,7 @@ final class RvsAccentTokenSetTest extends WP_UnitTestCase
 		}
 		$this->assertSame(array(), $other, 'outline: shorthand with a colour other than --rvs-accent-text.');
 
-		// The longhand too (PR 1 Fable Minor-4): a separate outline-color.
+		// The longhand too: a separate outline-color.
 		$longhand = array();
 		foreach (self::target_rules() as $rule) {
 			preg_match_all('/(?:^|[;\s{])outline-color:\s*([^;]+);/', $rule['body'], $m);

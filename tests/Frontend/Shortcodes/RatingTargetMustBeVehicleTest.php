@@ -131,7 +131,7 @@ final class RatingTargetMustBeVehicleTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * Fable audit finding M-A, on the render path now that the list endpoint is gone:
+	 * On the render path now that the list endpoint is gone:
 	 * naming any post must never hand out its comments.
 	 */
 	public function test_rating_list_does_not_dump_comments_of_a_non_vehicle_post(): void

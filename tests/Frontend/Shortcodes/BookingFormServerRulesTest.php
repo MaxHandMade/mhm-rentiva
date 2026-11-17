@@ -346,7 +346,7 @@ final class BookingFormServerRulesTest extends WP_Ajax_UnitTestCase
 	// ------------------------------------------------- L-2: payment type
 
 	/**
-	 * Aşama 2 PR C (Fable m8): each suggested vehicle carries its page link with
+	 * Each suggested vehicle carries its page link with
 	 * the window, so the summary's "Change" link can follow the one chosen.
 	 */
 	public function test_alternatives_carry_their_vehicle_page_link(): void

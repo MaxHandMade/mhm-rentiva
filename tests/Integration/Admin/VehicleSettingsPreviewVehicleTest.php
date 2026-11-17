@@ -60,7 +60,7 @@ final class VehicleSettingsPreviewVehicleTest extends WP_UnitTestCase {
 	}
 
 	public function test_a_stale_thumbnail_id_is_skipped_for_the_next_vehicle_with_a_usable_image(): void {
-		// Codex review on PR #53: after a database import the oldest vehicle
+		// PR #53: after a database import the oldest vehicle
 		// can carry a _thumbnail_id whose attachment no longer exists. The
 		// query matched it, the image URL came back false, and the card fell
 		// back to the placeholder although a newer vehicle had a real image.
@@ -75,7 +75,7 @@ final class VehicleSettingsPreviewVehicleTest extends WP_UnitTestCase {
 	}
 
 	public function test_the_name_is_plain_text_not_html_entities(): void {
-		// Fable delta-6 Minor 1: get_the_title() runs wptexturize, and
+		// get_the_title() runs wptexturize, and
 		// wp_localize_script() only decodes top-level scalars, so a nested
 		// name reached the card's textContent as "Fiat&#8217;s 500".
 		$this->vehicle( "Fiat's 500 & Co", '2021-03-01 10:00:00' );

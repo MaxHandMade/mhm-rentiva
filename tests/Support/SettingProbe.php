@@ -149,7 +149,7 @@ final class SettingProbe
 	 * Every data control of every Rentiva widget: the own stack (content and style
 	 * bucket), minus value-less UI controls, group-control parts and `selectors`
 	 * style controls. Controls whose id maps to no schema key are included: they
-	 * are dead precisely because nothing maps them (spec §3 G1, Fable I1).
+	 * are dead precisely because nothing maps them (spec §3 G1).
 	 *
 	 * @param array<string,string>|null $widgets Short class name => tag; null = LITE_WIDGETS.
 	 * @return array<int,array{tag:string,widget:string,control:string}>

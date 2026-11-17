@@ -215,7 +215,7 @@ final class ContactFormSettingsTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * PR F R2 (Fable m1): a booking question no longer requires a phone, so
+	 * A booking question no longer requires a phone, so
 	 * show_phone applies there too and the form still cannot be refused for it.
 	 */
 	public function test_booking_form_without_phone_field_is_accepted(): void

@@ -155,7 +155,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 			// server drew -- the baseline an untouched form is compared to, set
 			// before the script runs so input made before the page was ready still
 			// counts as a change -- and Util::parse_datetimes()'s empty-time
-			// defaults (Codex r4).
+			// defaults.
 			global $post;
 			if ( $post instanceof \WP_Post ) {
 				list( $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) = BookingEditDates::stored( (int) $post->ID );
@@ -321,7 +321,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		// 2026-11-07). A booking that already IS cancelled always shows it,
 		// selected: without the option the browser would post the first one
 		// (pending), and cancelled -> pending is an allowed transition -- a
-		// notes-only Update would silently re-book it (Fable r2-C1).
+		// notes-only Update would silently re-book it.
 		if ( 'cancelled' === $status || BookingEditCancellation::actor_may_cancel( (int) $post->ID ) ) {
 			echo '<option value="cancelled"' . selected( $status, 'cancelled', false ) . '>' . esc_html__( 'Cancelled', 'mhm-rentiva' ) . '</option>';
 		}
@@ -689,7 +689,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		if ( $guests_posted ) {
 			update_post_meta( $post_id, '_mhmrentiva_guests', $guests );
 		}
-		// Unslashed once on input; the meta API unslashes again (Fable #175 M-A).
+		// Unslashed once on input; the meta API unslashes again.
 		update_post_meta( $post_id, '_mhmrentiva_special_notes', wp_slash( $special_notes ) );
 
 		$selection->store( $post_id );
@@ -719,7 +719,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 
 		// A new vehicle re-prices the booking -- after the add-ons and times are
 		// written, so the calculator reads this Update's inputs, not the ones it
-		// replaces (Fable H2 r4 E1).
+		// replaces.
 		if ( $vehicle_changed && $pickup_date && $dropoff_date ) {
 			BookingMeta::recalculate_booking_costs( $post_id, $pickup_date, $dropoff_date );
 		}

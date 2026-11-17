@@ -8,7 +8,7 @@ use MHMRentiva\Admin\Frontend\Shortcodes\BookingForm;
 use WP_Ajax_UnitTestCase;
 
 /**
- * Slice 3B-2a (Codex P1): booking-form.js re-enables the submit button that the
+ * Slice 3B-2a: booking-form.js re-enables the submit button that the
  * preview markup disables, and submitForm() posts
  * `mhmRentivaBookingForm.nonce`. In a preview that value is '' (see
  * PreviewScriptNonceTest), so the server must refuse the request before it

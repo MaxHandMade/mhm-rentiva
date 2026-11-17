@@ -185,8 +185,8 @@ final class ContactAttachmentStore {
 				wp_delete_file($real);
 			}
 			// The token file this request generated is always ours, even if
-			// a filter made $result report a different path afterwards
-			// (Fable I2): core had already moved the real upload there.
+			// a filter made $result report a different path afterwards:
+			// core had already moved the real upload there.
 			$own = $root . '/' . $token;
 			if (is_file($own)) {
 				wp_delete_file($own);
@@ -196,7 +196,7 @@ final class ContactAttachmentStore {
 
 		// The bytes core moved onto disk are not necessarily the bytes
 		// validate() checked above: a *_prefilter hook can rewrite tmp_name's
-		// content in place before the move (Fable I1). Re-check the stored
+		// content in place before the move. Re-check the stored
 		// file itself, and take the recorded size from it, not from the
 		// pre-upload figure.
 		$again = ContactAttachmentValidator::validate($real, $name);
@@ -206,7 +206,7 @@ final class ContactAttachmentStore {
 		}
 
 		// Re-apply the cap to the bytes actually stored: the same prefilter
-		// that can rewrite content (Fable I1) can also just make it bigger.
+		// that can rewrite content can also just make it bigger.
 		$stored_size = (int) filesize($real);
 		if ($max_bytes > 0 && $stored_size > $max_bytes) {
 			wp_delete_file($real);

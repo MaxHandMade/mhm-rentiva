@@ -23,10 +23,10 @@ use WP_Ajax_UnitTestCase;
  * mhmrentiva_booking_cancelled for Pro. Now the edit form hands the booking to
  * CancellationHandler::cancel_booking() exactly as the button does.
  *
- * A cancellation request writes nothing that moves money (Fable plan audit
- * C1): the handler refunds from the STORED total and frees the STORED dates,
- * so a date or add-on changed in the same Update would open a refund for
- * money that was never taken.
+ * A cancellation request writes nothing that moves money: the handler
+ * refunds from the STORED total and frees the STORED dates, so a date or
+ * add-on changed in the same Update would open a refund for money that was
+ * never taken.
  *
  * @covers \MHMRentiva\Admin\Booking\Meta\BookingEditCancellation
  * @covers \MHMRentiva\Admin\Booking\Meta\BookingEditNotice
@@ -339,11 +339,10 @@ final class BookingEditCancellationTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * Fable code audit M-7 (delta condition): the edit box's saver accepts its
-	 * own nonce OR core's _wpnonce, so this post carries neither -- only
-	 * BookingMeta's own nonce. The priority-5 saver then returns before
-	 * requested(), and the priority-10 saver runs the cancellation itself,
-	 * through the same handler.
+	 * The edit box's saver accepts its own nonce OR core's _wpnonce, so this
+	 * post carries neither -- only BookingMeta's own nonce. The priority-5
+	 * saver then returns before requested(), and the priority-10 saver runs
+	 * the cancellation itself, through the same handler.
 	 */
 	public function test_the_priority_10_saver_alone_runs_the_same_cancellation(): void
 	{
@@ -389,7 +388,7 @@ final class BookingEditCancellationTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * Codex code audit 3b-2, Important 1: BookingMeta's saver also reads the
+	 * BookingMeta's saver also reads the
 	 * older mhmrentiva_booking_status field. Posted alone, with only that
 	 * saver's nonce, it reached Status::update_status() past the handler and
 	 * its money check.
@@ -414,7 +413,7 @@ final class BookingEditCancellationTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * Codex code audit 3b-2, Important 2: a listener that re-saves the booking
+	 * A listener that re-saves the booking
 	 * after the cancellation must not let the edit box's saver write the
 	 * posted dates, nor run the handler a second time.
 	 */
@@ -459,7 +458,7 @@ final class BookingEditCancellationTest extends WP_Ajax_UnitTestCase
 		$this->assertSame('confirmed', Status::get($id));
 	}
 
-	/** Codex code audit 3b-2, Minor 4: the refusal says the other changes were ignored too. */
+	/** The refusal says the other changes were ignored too. */
 	public function test_a_refusal_with_changed_dates_says_the_changes_were_not_saved(): void
 	{
 		$id = $this->booking('in_progress');
@@ -480,7 +479,7 @@ final class BookingEditCancellationTest extends WP_Ajax_UnitTestCase
 		$this->assertStringContainsString('Other changes in the form were not saved', BookingEditNotice::peek($id));
 	}
 
-	/** Codex code audit 3b-2, Minor 6. */
+	/** A backslash typed in the special notes survives the cancellation save. */
 	public function test_a_backslash_in_the_notes_survives_the_cancellation(): void
 	{
 		$id = $this->booking();

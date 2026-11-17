@@ -192,7 +192,7 @@ final class ListingSettingsTest extends WP_UnitTestCase
 		$this->assertContains('rvs-card-grid--mobile-3', preg_split('/\s+/', $m[1]));
 
 		// An explicit 1 is reachable: it prints its class, so phones show one column
-		// instead of the tablet fallback (Fable, Lite #92).
+		// instead of the tablet fallback (Lite #92).
 		$html = do_shortcode('[rentiva_vehicles_grid layout="masonry" columns_mobile="1"]');
 		$this->assertSame(1, preg_match('/<div class="rvs-card-grid (rvs-card-grid--masonry[^"]*)"/', $html, $m), 'No masonry in the render.');
 		$this->assertContains('rvs-card-grid--mobile-1', preg_split('/\s+/', $m[1]));

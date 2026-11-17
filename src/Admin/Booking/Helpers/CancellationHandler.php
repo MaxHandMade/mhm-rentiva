@@ -1177,7 +1177,7 @@ final class CancellationHandler {
 
 			// processFullRefund() returns early -- before finish() -- when
 			// RefundValidator refuses the request (empty/pending/failed/refunded
-			// payment status). Fable audit I-3: that early return now closes
+			// payment status). That early return now closes
 			// its own pending marker and logs the refusal's own words
 			// (Service::closeRefusedByValidator()), because withLock() raises
 			// the marker for direct callers too and those had no second layer

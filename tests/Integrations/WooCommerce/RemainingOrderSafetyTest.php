@@ -21,7 +21,7 @@ use WP_UnitTestCase;
  *  - a late payment zeroed the remaining amount whatever it had been paid
  *    against (:3111-3114, :3123-3125);
  *  - a paid remaining order that was later cancelled lost its only reference,
- *    so PaymentState stopped seeing the money (Codex r4 B1);
+ *    so PaymentState stopped seeing the money;
  *  - "send the link again" on a failed order built a new one beside it.
  *
  * Plan: docs/superpowers/plans/2026-11-11-pr2-kalan-odeme-guvenligi.md (r4 A1-A3, r5).
@@ -144,7 +144,7 @@ final class RemainingOrderSafetyTest extends WP_UnitTestCase
 
 	public function test_a_failed_remaining_order_with_no_paid_sibling_says_so_and_sends_no_sibling_mail(): void
 	{
-		// Codex code r1: the sibling e-mail says "another order on the same
+		// The sibling e-mail says "another order on the same
 		// booking is still paid" -- false when nothing was ever collected.
 		$booking_id = $this->booking('1000', false);
 		$order      = $this->link($booking_id);
@@ -323,7 +323,7 @@ final class RemainingOrderSafetyTest extends WP_UnitTestCase
 
 	public function test_a_cleared_balance_stored_as_another_zero_is_applied_and_ends_the_retry(): void
 	{
-		// Codex code r4: after a first read failure (retry mark), a clear that
+		// After a first read failure (retry mark), a clear that
 		// a sanitize filter stores as '0.00' must count as held -- otherwise
 		// the next transition took the paid order for an unjudged one and
 		// flagged a false mismatch.
@@ -389,7 +389,7 @@ final class RemainingOrderSafetyTest extends WP_UnitTestCase
 
 	public function test_a_mismatch_is_decided_once_on_the_order(): void
 	{
-		// Fable code r1 Ş1: the next paid transition must not re-decide it. The
+		// The next paid transition must not re-decide it. The
 		// operator corrects the balance by hand and dismisses the notice; the
 		// corrected figure happens to equal what the order was built for.
 		$booking_id = $this->booking();
@@ -408,7 +408,7 @@ final class RemainingOrderSafetyTest extends WP_UnitTestCase
 
 	public function test_a_payment_whose_first_read_failed_is_still_judged_on_the_next_transition(): void
 	{
-		// Codex code r1: "paid before, nothing owed now" is the pre-upgrade
+		// "paid before, nothing owed now" is the pre-upgrade
 		// exception, not proof. An order whose own first settle could not read
 		// the balance was never judged, so it is judged now: the operator has
 		// settled the balance by hand meanwhile, and the customer paid twice.
@@ -427,7 +427,7 @@ final class RemainingOrderSafetyTest extends WP_UnitTestCase
 
 	public function test_a_read_failure_after_the_first_judgement_does_not_reopen_an_applied_order(): void
 	{
-		// Codex code r2: an order the old code applied before the upgrade (no
+		// An order the old code applied before the upgrade (no
 		// applied mark) whose later transition fails to read was judged already;
 		// the retry mark must not take away its pre-upgrade exception.
 		$booking_id = $this->booking();
@@ -449,7 +449,7 @@ final class RemainingOrderSafetyTest extends WP_UnitTestCase
 
 	public function test_a_late_payment_on_an_order_that_is_no_longer_the_link_does_not_settle(): void
 	{
-		// Fable code r1 Ş2: the amount matches, but the money lands on an order
+		// The amount matches, but the money lands on an order
 		// PaymentState no longer reads (it reads the link), so clearing the
 		// balance would hide it. A human decides.
 		$booking_id = $this->booking();

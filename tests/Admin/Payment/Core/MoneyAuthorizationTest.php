@@ -91,7 +91,7 @@ final class MoneyAuthorizationTest extends WP_UnitTestCase
     /**
      * The predicate measured at the money step itself, not at a call site --
      * the defect this task fixes was the predicate stopping at the call site
-     * (Fable, slice 5): Actions::refund_booking() never asked at all. This
+     *: Actions::refund_booking() never asked at all. This
      * proves the gate is now the money step's own first statement.
      */
     public function test_the_service_refuses_a_refund_the_predicate_rejects(): void

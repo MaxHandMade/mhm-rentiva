@@ -9,8 +9,8 @@
  *
  * 🔴 WHY THIS FILE EXISTS. Pro is private, so Lite's public CI cannot check it
  * out, and a test that compares against the real Pro file skips there -- a
- * Lite change to a shared entry used to pass every Lite check (found by the
- * Codex review on PR #65). This file is the contract both sides can read:
+ * Lite change to a shared entry used to pass every Lite check (found in review of
+ * PR #65). This file is the contract both sides can read:
  *
  * - Lite's IconConceptsTwinTest asserts IconConcepts::MAP against it on every
  *   run, with no skip. Changing a shared entry in Lite turns Lite CI red.

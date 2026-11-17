@@ -11,7 +11,7 @@ use MHMRentiva\Tests\Support\WooCommerceFixtures;
 use WP_UnitTestCase;
 
 /**
- * PR K final fixes, Codex 1 and 2: a booking id on the order is not enough.
+ * A booking id on the order is not enough.
  *
  * 1. A failed payment cancels the booking; another customer books the dates;
  *    the first order is paid again. Every path that can take that money --
@@ -197,7 +197,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		return array_map(static fn($n) => (string) $n->content, wc_get_order_notes(array( 'order_id' => $order->get_id() )));
 	}
 
-	// ------------------------------------------------- Codex 1: double booking
+	// ------------------------------------------------- double booking
 
 	public function test_failed_then_booked_by_another_then_paid_again_on_the_store_api_is_stopped(): void
 	{
@@ -324,7 +324,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertSame('cancelled', get_post_meta($booking_id, '_mhmrentiva_status', true));
 	}
 
-	// ------------------------------------------------ Codex 2: self conflict
+	// ------------------------------------------------ self conflict
 
 	/**
 	 * The cart line of a checkout retry: the gateway threw after the booking
@@ -426,7 +426,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertSame(Status::PENDING, get_post_meta($booking_id, '_mhmrentiva_status', true));
 	}
 
-	// ------------------------------------- Codex delta H1: deadline race
+	// ------------------------------------- deadline race
 
 	/**
 	 * @return array<string, array{0: string}>
@@ -502,7 +502,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertTrue($fired, 'The race ran.');
 		// Both arms confirm under the vehicle's lock: a race that fired on the
 		// fallback would have run B inside A's lock, where Locker refuses it
-		// and the test passes without testing anything (Fable code r1).
+		// and the test passes without testing anything.
 		$this->assertSame('lock', $via, 'The race fired before A took the lock.');
 		$this->assertGreaterThan(0, $other, 'B booked the dates while A had not locked yet.');
 		wp_cache_delete($booking, 'post_meta');
@@ -515,7 +515,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		}
 	}
 
-	// ----------------------------- Codex delta H2: unreadable is not free
+	// ----------------------------- unreadable is not free
 
 	/**
 	 * Make the locked COUNT, or the vehicle's row lock, fail.
@@ -607,7 +607,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertSame(0, $this->bookings_of_vehicle());
 	}
 
-	// ----------------------------------- Codex delta advice: all or nothing
+	// ----------------------------------- all or nothing
 
 	public function test_a_refused_later_booking_puts_the_earlier_revival_back(): void
 	{
@@ -646,7 +646,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertSame('cancelled', get_post_meta($ids[1], '_mhmrentiva_status', true));
 	}
 
-	// ------------------------------------ Fable delta M1: closed bookings
+	// ------------------------------------ closed bookings
 
 	/**
 	 * @return array<string, array{0: string, 1: string}>
@@ -689,7 +689,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertSame(array(), array_filter($notes, static fn($n) => str_contains($n, 'Payment recorded')));
 	}
 
-	// --------------------------- Codex delta2 H1: undo keeps a later payment
+	// --------------------------- undo keeps a later payment
 
 	/**
 	 * One order, two rentals, both cancelled by a failed payment; the second
@@ -772,10 +772,10 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		remove_filter('query', $boom);
 
 		wp_cache_delete($ids[0], 'post_meta');
-		$this->assertSame('cancelled', get_post_meta($ids[0], '_mhmrentiva_status', true), 'Fable delta2 m1: the first revival is put back.');
+		$this->assertSame('cancelled', get_post_meta($ids[0], '_mhmrentiva_status', true), 'The first revival is put back.');
 	}
 
-	// ------------------------- Codex delta2 H2: writes that do not hold
+	// ------------------------- writes that do not hold
 
 	/**
 	 * Make one meta write of one booking fail, as a database error would:
@@ -911,10 +911,10 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertContains('ROLLBACK', $this->transactions, 'The failed undo is rolled back.');
 	}
 
-	// ------------------------- Codex delta3: the object cache decides nothing
+	// ------------------------- the object cache decides nothing
 
 	/**
-	 * Codex delta3 H1. A reader read the first booking's revived `pending`
+	 * A reader read the first booking's revived `pending`
 	 * before the payment committed and puts it into the shared object cache
 	 * (Redis) only after: between the payment and the undo the cache says
 	 * `pending`/unpaid while the database says `confirmed`/`paid`. The entry
@@ -969,7 +969,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable delta3 m2: a payment that only marked the booking paid (its status
+	 * A payment that only marked the booking paid (its status
 	 * left as it was) is kept too.
 	 */
 	public function test_undoing_a_revival_keeps_a_booking_that_was_marked_paid_meanwhile(): void
@@ -996,7 +996,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex delta3 Orta: any Throwable inside the lock rolls the transaction
+	 * Any Throwable inside the lock rolls the transaction
 	 * back, and the request cache does not keep what the rolled-back
 	 * transaction let it read.
 	 */
@@ -1029,7 +1029,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertFalse(wp_cache_get($booking_id, 'post_meta'), 'Nothing the rolled-back transaction wrote is served from the cache.');
 	}
 
-	// ------------------------------ Codex delta4: writes the cache cannot fool
+	// ------------------------------ writes the cache cannot fool
 
 	/**
 	 * @param mixed ...$args
@@ -1075,7 +1075,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex delta4 1: in the database no_show/paid; a delayed reader put the old
+	 * In the database no_show/paid; a delayed reader put the old
 	 * confirmed/paid entry back into the cache. The paid mark needs no write,
 	 * so nothing clears that entry -- the transition is decided on the
 	 * database, and a no-show booking is not completed.
@@ -1103,7 +1103,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex delta3 3 / Fable F1: an allowed unlocked transition that does not
+	 * An allowed unlocked transition that does not
 	 * hold is a failure the operator hears of, not a success -- and the note
 	 * says what is true: the payment is recorded and the booking marked paid,
 	 * only its status did not move. Nothing to refund.
@@ -1145,7 +1145,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex delta4 2 / Fable B1: update_post_meta()'s $prev_value tests empty(),
+	 * update_post_meta()'s $prev_value tests empty(),
 	 * so '' and '0' made no condition. The condition is now the locked read:
 	 * an expected '' or '0' that the row no longer holds is not overwritten,
 	 * and the key's rows are locked (SELECT … FOR UPDATE) before anything is
@@ -1212,7 +1212,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex delta4 3: one key, two rows, two values. The first row alone is no
+	 * One key, two rows, two values. The first row alone is no
 	 * answer, and a write over it alone is no success: refused, nothing written.
 	 */
 	public function test_duplicate_rows_that_disagree_are_refused(): void
@@ -1238,7 +1238,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable B2: a read that fails inside the write is a read failure ("could
+	 * A read that fails inside the write is a read failure ("could
 	 * not be checked"), not a write that did not hold.
 	 */
 	public function test_a_read_failure_inside_a_write_is_not_a_write_failure(): void
@@ -1266,7 +1266,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		}
 	}
 
-	// ------------------------------ Codex delta5: the write is core's own
+	// ------------------------------ the write is core's own
 
 	/**
 	 * The four core actions a meta update runs, with their arguments; meta
@@ -1302,7 +1302,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex delta5 1: every core meta action runs, in core's order and with
+	 * Every core meta action runs, in core's order and with
 	 * core's arguments -- the same as a plain update_post_meta().
 	 */
 	public function test_a_booking_write_runs_the_core_meta_actions_as_update_post_meta_does(): void
@@ -1326,7 +1326,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex delta5 2: sanitize_meta() runs, and a value a sanitize filter
+	 * sanitize_meta() runs, and a value a sanitize filter
 	 * changed is not the value asked for: not held.
 	 */
 	public function test_a_value_a_sanitize_filter_changes_is_not_held(): void
@@ -1343,7 +1343,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex delta5 3: the locking read of the meta ids fails -- nothing is
+	 * The locking read of the meta ids fails -- nothing is
 	 * written, no meta action runs, and the caller hears a read failure.
 	 */
 	public function test_a_failed_locking_read_writes_nothing_and_runs_no_hook(): void
@@ -1377,7 +1377,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable F2: a status that already held -- another writer moved it to the
+	 * A status that already held -- another writer moved it to the
 	 * target meanwhile -- is not announced a second time.
 	 */
 	public function test_a_status_that_already_held_is_not_announced_again(): void
@@ -1400,10 +1400,10 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertSame(array( 'completed' ), $this->rows($booking_id, '_mhmrentiva_status'));
 	}
 
-	// ------------------------------------ Codex/Fable delta6
+	// ------------------------------------ transactions and reads inside the lock
 
 	/**
-	 * Codex delta6 H: the unlocked path opens no transaction. Inside one that is
+	 * The unlocked path opens no transaction. Inside one that is
 	 * already open -- here the test case's own, as an integration's
 	 * wc_transaction_query('start') would be -- a START TRANSACTION would
 	 * commit it implicitly. setUp() records every START TRANSACTION / COMMIT /
@@ -1425,7 +1425,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable delta6 F1: inside a transaction a plain SELECT may answer from an
+	 * Inside a transaction a plain SELECT may answer from an
 	 * older snapshot than the locked check. One connection cannot show two
 	 * snapshots, so the order of statements is the test: every read of the
 	 * key after the write is a locking read.
@@ -1482,7 +1482,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable delta6 F2: a status that was already back when this attempt wrote
+	 * A status that was already back when this attempt wrote
 	 * it is not this attempt's revival, and its change is not announced again.
 	 */
 	public function test_a_revival_whose_status_already_held_is_not_announced_again(): void
@@ -1507,7 +1507,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable delta6 F2: nor is it undone -- putting it back would cancel a
+	 * Nor is it undone -- putting it back would cancel a
 	 * revival somebody else made.
 	 */
 	public function test_a_revival_whose_status_already_held_is_not_undone(): void
@@ -1522,7 +1522,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertSame(1, wc_notice_count('error'), 'The second booking is refused.');
 		$this->assertSame(array( 'pending' ), $this->rows($ids[0], '_mhmrentiva_status'), 'Not put back to cancelled: that revival was not ours.');
 	}
-	// --------------------- Codex delta7 3: the note says what persisted
+	// --------------------- the note says what persisted
 
 	/**
 	 * @return array{0: \WC_Order, 1: int, 2: \ArrayObject<int, array<int, mixed>>, 3: callable}
@@ -1548,7 +1548,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex delta7 3, probe 1: the paid mark became `failed` (a sanitize
+	 * The paid mark became `failed` (a sanitize
 	 * filter, under autocommit, no transaction to roll back). The note says
 	 * so; it never says "nothing was changed".
 	 */
@@ -1564,7 +1564,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex delta7 3, probe 2: the move to completed persisted `cancelled`,
+	 * The move to completed persisted `cancelled`,
 	 * and the booking is paid. A cancelled booking holds no dates
 	 * (BookingConflicts STATUS_SQL): the note asks for reconciliation.
 	 */
@@ -1579,7 +1579,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertCount(0, $changes, 'No false confirmed -> completed status hook.');
 	}
 	/**
-	 * Fable delta8 2: a paid mark that did not hold (Codex's paid -> failed
+	 * A paid mark that did not hold (a paid -> failed
 	 * probe) does not reach the status mapping, so a full payment's
 	 * remaining balance is not cleared.
 	 */
@@ -1605,7 +1605,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable delta8 4: an empty status reads "-", never "status .".
+	 * An empty status reads "-", never "status .".
 	 */
 	public function test_an_empty_status_in_the_note_reads_as_a_dash(): void
 	{

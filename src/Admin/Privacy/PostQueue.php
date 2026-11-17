@@ -99,7 +99,7 @@ final class PostQueue {
 	 * delete_metadata_by_mid() and then the post; a filter or a failed DELETE
 	 * there leaves rows of a post that no longer exists, and no queue reaches
 	 * them again (the queues read posts). Those rows are deleted here, straight
-	 * from the table, and counted (Codex r6 on 5a B4). The post's own delete
+	 * from the table, and counted. The post's own delete
 	 * hooks still run with its meta in place -- Pro's thread summary reads it.
 	 *
 	 * @param int $post_id Post ID.

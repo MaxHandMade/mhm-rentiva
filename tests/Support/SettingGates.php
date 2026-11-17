@@ -16,8 +16,7 @@ use MHMRentiva\Core\Attribute\KeyNormalizer;
 final class SettingGates
 {
 	/**
-	 * Live option translations applied before the schema sees the value (spec G3,
-	 * Fable I2): my-bookings `filterStatus` 'all' => '' (assets/blocks/my-bookings/index.js:40),
+	 * Live option translations applied before the schema sees the value (spec G3): my-bookings `filterStatus` 'all' => '' (assets/blocks/my-bookings/index.js:40),
 	 * and payment history's the same way (spec 3A Task 7b). 'all' is outside both schemas'
 	 * `values`, whose first value '' is what Transformers::to_enum() gives it: no filter.
 	 */
@@ -75,7 +74,7 @@ final class SettingGates
 	}
 
 	/**
-	 * Where (tag, key) still exists, layer => places (spec §3 G4, Fable I3):
+	 * Where (tag, key) still exists, layer => places (spec §3 G4):
 	 *   block.json        -- an attribute of the tag's block that normalizes to key;
 	 *   editor control    -- an attribute the block's editor script writes that normalizes to key
 	 *                        (BlockEditorWriteScanner);

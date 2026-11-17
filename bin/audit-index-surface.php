@@ -7,7 +7,7 @@
  * Görev 1 of the 2026-08-03 T8 remediation round deletes the plugin's
  * core-table index-management subsystem in DatabaseMigrator.php
  * (add_performance_indexes() / add_missing_indexes() / rebuild_indexes() /
- * the index half of rollback_migration() -- the independent Fable audit for
+ * the index half of rollback_migration() -- the independent audit for
  * this round recommends REMOVE 20/20 on exactly that surface). This tool is
  * the before/after instrument for that deletion. Run before Görev 1, its
  * numbers are the baseline; run after, both should read at or near zero. If

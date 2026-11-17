@@ -8,7 +8,7 @@
     const DATE_FIELDS = ['pickup_date', 'pickup_time', 'dropoff_date', 'dropoff_time'];
     // The range the server drew (window.mhmBookingEditDates, printed before
     // this script): the baseline, so input made before the page was ready
-    // still counts as a change (Codex r4).
+    // still counts as a change.
     const dateData = window.mhmBookingEditDates || {};
     const initialDates = dateData.initial || {};
 
@@ -20,8 +20,7 @@
         // advisory so they cannot block an Update the server accepts.
         $('#post').on('submit', function (e) {
             // A cancellation request writes no dates on the server (it keeps
-            // the stored ones), so the date check must not block it (Codex
-            // code audit 3b-2, Important 3).
+            // the stored ones), so the date check must not block it.
             if (isCancellationRequest()) {
                 return true;
             }

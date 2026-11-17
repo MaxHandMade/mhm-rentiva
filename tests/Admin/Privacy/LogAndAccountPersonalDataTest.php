@@ -167,7 +167,7 @@ final class LogAndAccountPersonalDataTest extends WP_UnitTestCase
 	/**
 	 * A stored '0' is the customer's "do not e-mail me"; Mailer treats a missing
 	 * value as allowed. Erasing the opt-out would sign the person back up --
-	 * for the active bookings the eraser keeps, too (Codex bot P2, Lite #186).
+	 * for the active bookings the eraser keeps, too (Lite #186).
 	 */
 	public function test_notification_opt_outs_survive_the_erasure(): void
 	{

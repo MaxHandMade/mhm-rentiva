@@ -12,7 +12,7 @@ use WP_UnitTestCase;
  * ElementorGlobals resolves a stored global colour reference through Elementor's
  * own data_manager_v2->run() only while Elementor runs its own internal server
  * (is_internal()); otherwise through the kit array that mirrors the
- * globals/colors endpoint (plan R1 after Fable I1, R2).
+ * globals/colors endpoint (plan R1, R2).
  *
  * data_manager_v2 keeps `server`, `is_internal` and `cache` for the whole
  * process and the WP test case does not reset $GLOBALS['wp_rest_server'];
@@ -88,8 +88,7 @@ final class ElementorGlobalsTest extends WP_UnitTestCase
 
 	/**
 	 * Elementor's own CSS-generation state: its internal REST server is running
-	 * (is_internal true, server bound). The only state the run() path is used in
-	 * (Fable I1).
+	 * (is_internal true, server bound). The only state the run() path is used in.
 	 */
 	private static function make_elementor_internal(): void
 	{
@@ -280,7 +279,7 @@ final class ElementorGlobalsTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable I1: with the core REST server up but Elementor not running its
+	 * With the core REST server up but Elementor not running its
 	 * internal server (a front-end request after something built the server),
 	 * resolution takes the kit-array path and Elementor's is_internal flag stays
 	 * false (it would open READABLE globals/* to everyone for the request).
@@ -370,7 +369,7 @@ final class ElementorGlobalsTest extends WP_UnitTestCase
 
 	public function test_kit_source_builds_the_kit_items_once(): void
 	{
-		// Accent at factory value: the source reads accent, then primary (Fable M3).
+		// Accent at factory value: the source reads accent, then primary.
 		$this->kit(
 			array(
 				'primary' => '#123456',
@@ -426,7 +425,7 @@ final class ElementorGlobalsTest extends WP_UnitTestCase
 	public function test_server_is_up_requires_elementor_internal(): void
 	{
 		rest_get_server();
-		$this->assertFalse(ElementorGlobals::server_is_up(), 'A core REST server alone is not enough (Fable I1)');
+		$this->assertFalse(ElementorGlobals::server_is_up(), 'A core REST server alone is not enough');
 		self::make_elementor_internal();
 		$this->assertTrue(ElementorGlobals::server_is_up());
 		self::reset_elementor_rest_state();

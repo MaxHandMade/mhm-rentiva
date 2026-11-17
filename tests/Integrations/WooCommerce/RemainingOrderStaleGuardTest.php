@@ -14,7 +14,7 @@ use WP_UnitTestCase;
  *
  * An admin re-price moves the remaining amount (function scan H2 face 2), and
  * an order built before that -- or between the admin's check and the write --
- * still asks for the old amount (Codex plan audits r7-r9: a customer could pay
+ * still asks for the old amount (a customer could pay
  * 2,050 for a booking re-priced to owe nothing). The order now carries the
  * gross amount it was built for; the pay-time claim refuses an order whose
  * amount is not the booking's current remaining, before the gateway; and a
@@ -172,7 +172,7 @@ final class RemainingOrderStaleGuardTest extends WP_UnitTestCase
 	{
 		update_option('woocommerce_currency', 'TRY');
 		$order = $this->link();
-		// Same number, other currency (Codex r10 1 probe).
+		// Same number, other currency.
 		$order->set_currency('EUR');
 		$order->save();
 
@@ -196,7 +196,7 @@ final class RemainingOrderStaleGuardTest extends WP_UnitTestCase
 		}
 
 		$this->assertSame('100040', (string) $order->get_meta('_mhmrentiva_remaining_due_minor', true), 'stamped at 2 decimals');
-		$this->assertEqualsWithDelta(1000.40, (float) wc_get_order($order->get_id())->get_total(), 0.001, 'the order asks for 1,000.40, not 1,000 (Codex r11 1)');
+		$this->assertEqualsWithDelta(1000.40, (float) wc_get_order($order->get_id())->get_total(), 0.001, 'the order asks for 1,000.40, not 1,000');
 
 		add_filter('wc_get_price_decimals', $visitor);
 		try {
@@ -230,7 +230,7 @@ final class RemainingOrderStaleGuardTest extends WP_UnitTestCase
 		remove_filter('wc_get_price_decimals', $visitor);
 
 		$this->assertTrue($thrown, 'PREMISE: the build threw midway');
-		$this->assertSame(3, $decimals, 'the rest of the request sees the visitor precision again (Codex r12 1)');
+		$this->assertSame(3, $decimals, 'the rest of the request sees the visitor precision again');
 	}
 
 	public function test_the_amount_owed_is_read_from_the_database_not_the_cache(): void

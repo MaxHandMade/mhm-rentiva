@@ -133,7 +133,7 @@ final class DashboardFiguresTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Codex audit 2026-11-17 (Q4): a payment status this reader does not know
+	 * A payment status this reader does not know
 	 * is shown as owed, not hidden -- only settled statuses owe nothing.
 	 */
 	public function test_an_unknown_payment_status_is_owed_not_hidden(): void {
@@ -143,7 +143,7 @@ final class DashboardFiguresTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Codex audit 2026-11-17 (Q2): a booking carrying a meta key twice is one
+	 * A booking carrying a meta key twice is one
 	 * booking -- counted once, its price summed once, its debt summed once.
 	 */
 	public function test_a_duplicated_meta_row_does_not_count_a_booking_twice(): void {
@@ -160,7 +160,7 @@ final class DashboardFiguresTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Codex audit 2026-11-17 (Q3): "all time" has no date condition, so a row
+	 * "All time" has no date condition, so a row
 	 * whose post_date is the zero date is not dropped by a sentinel bound.
 	 */
 	public function test_all_time_has_no_date_bound(): void {
@@ -175,7 +175,7 @@ final class DashboardFiguresTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Codex PR review (P2, #203): the debt total must not load the metadata of
+	 * PR #203: the debt total must not load the metadata of
 	 * every settled booking in the site's history -- only bookings that can
 	 * still owe are read.
 	 */

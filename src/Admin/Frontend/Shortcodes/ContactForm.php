@@ -792,10 +792,10 @@ final class ContactForm extends AbstractShortcode {
 	/**
 	 * The cap for an anonymous upload: 5 MB, filterable, never above PHP's
 	 * own limit -- and, on a multisite network with upload space checks on,
-	 * never above the network's own per-file quota either (Fable M2): core's
+	 * never above the network's own per-file quota either: core's
 	 * check_upload_size prefilter enforces that quota on this path too, so
 	 * a cap that ignores it would advertise a size the network will refuse.
-	 * Public: the template needs it to show the real cap (Fable M3).
+	 * Public: the template needs it to show the real cap.
 	 */
 	public static function max_attachment_bytes(): int
 	{

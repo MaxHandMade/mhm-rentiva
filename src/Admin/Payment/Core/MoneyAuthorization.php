@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * This is the single home for the question (spec §5). Before this class, the
  * predicate lived at each call site -- CancellationHandler had its own private
  * may_move_money(), duplicated rather than shared -- and a new caller had to
- * remember to ask. Actions::refund_booking() never did (Fable, slice 5).
+ * remember to ask. Actions::refund_booking() never did.
  * Service::process() and Service::processFullRefund() now ask this as their
  * first statement, so every caller inherits the gate whether it remembers to
  * ask or not.

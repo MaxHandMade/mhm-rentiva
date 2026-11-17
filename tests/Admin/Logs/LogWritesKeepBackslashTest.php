@@ -9,7 +9,7 @@ use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 use WP_UnitTestCase;
 
 /**
- * Backslash class (Codex #177): the e-mail log and the plugin log insert posts
+ * Backslash class (#177): the e-mail log and the plugin log insert posts
  * and meta from unslashed values -- a subject or message with a backslash lost
  * it, and the e-mail context JSON lost its escapes (`ü` → `u00fc`, a quote
  * made it undecodable).

@@ -9,7 +9,7 @@ use MHMRentiva\Admin\Emails\Core\Mailer;
 use WP_UnitTestCase;
 
 /**
- * PR 3b-3 (Fable I6 / Codex): the Settings preview and test send with a real
+ * PR 3b-3: the Settings preview and test send with a real
  * booking are built from the context the automatic e-mail uses, so what the
  * operator previews is what the customer gets -- formatted dates, the
  * greeting name, a cancellation's reason. The sample-data branch and the

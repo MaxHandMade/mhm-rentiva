@@ -97,7 +97,7 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex code audit 3b-2, r2: moving both ends to one moment was saved while
+	 * Moving both ends to one moment was saved while
 	 * pricing, the day count and the occupancy timestamps refused it -- the
 	 * screen showed the new dates, occupancy used the old ones.
 	 */
@@ -180,7 +180,7 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		$this->assertSame('', BookingEditNotice::peek($id));
 	}
 
-	/** Codex code audit 3b-2, Minor 8: BookingMeta's saver alone still tells the operator. */
+	/** BookingMeta's saver alone still tells the operator. */
 	public function test_the_priority_10_saver_alone_tells_the_operator(): void
 	{
 		$id = $this->booking();
@@ -201,7 +201,7 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		$this->assertStringContainsString('The return date and time must be after the pickup.', BookingEditNotice::peek($id));
 	}
 
-	/** Codex r3 Minor 1 / Fable M-D: the form's own reading is what is compared. */
+	/** The form's own reading is what is compared. */
 	public function test_a_booking_with_zero_times_is_not_seen_as_changed(): void
 	{
 		$id = $this->booking('2099-05-01', '2099-05-01');
@@ -232,7 +232,7 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		$this->assertFalse(BookingEditDates::is_refused($this->booking(), '2099-06-01', '', '2099-06-01', ''), 'Server and browser agree: 08:00 -> 18:00 is a rental.');
 	}
 
-	/** Codex r4: the baseline and the defaults are printed before the script, as data. */
+	/** The baseline and the defaults are printed before the script, as data. */
 	public function test_the_edit_screen_prints_the_drawn_range_before_the_script(): void
 	{
 		global $post, $post_type;
@@ -247,10 +247,10 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		$this->assertStringContainsString('"pickup_date":"2099-05-01"', $before);
 		$this->assertStringContainsString('"defaultTimes"', $before);
 		$post      = null;
-		$post_type = null; // Not reset by the test library (Fable M-H).
+		$post_type = null; // Not reset by the test library.
 	}
 
-	/** Codex r5: a stored time the time input cannot hold is '' -- as the browser posts it. */
+	/** A stored time the time input cannot hold is '' -- as the browser posts it. */
 	public function test_a_stored_time_the_input_cannot_hold_is_read_as_empty(): void
 	{
 		foreach (array( '9:00', '24:00' ) as $bad) {
@@ -273,7 +273,7 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex r6: a refused change keeps the meta exactly -- the savers write the
+	 * A refused change keeps the meta exactly -- the savers write the
 	 * RAW stored range back, not the input-shaped one (which reads '9:00' as '').
 	 */
 	public function test_a_refused_range_keeps_a_raw_stored_time_and_its_timestamp(): void
@@ -295,7 +295,7 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		$this->assertSame('4084318800', (string) get_post_meta($id, '_mhmrentiva_start_ts', true));
 	}
 
-	/** Codex r6 Minors: \z not $, and years of four digits or more. */
+	/** \z not $, and years of four digits or more. */
 	public function test_input_shapes_follow_the_html_contract(): void
 	{
 		$id = $this->booking();
@@ -309,7 +309,7 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex r7: an UNTOUCHED form posts '' for a stored '9:00' (the time input
+	 * An UNTOUCHED form posts '' for a stored '9:00' (the time input
 	 * cannot hold it); the savers keep the database value, and the timestamp.
 	 */
 	public function test_an_untouched_form_keeps_a_raw_stored_time_and_its_timestamp(): void
@@ -342,7 +342,7 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		);
 	}
 
-	/** Codex r7 Minor: years past 32767 follow the calendar, not checkdate(). */
+	/** Years past 32767 follow the calendar, not checkdate(). */
 	public function test_long_years_follow_the_calendar(): void
 	{
 		$id = $this->booking();
@@ -354,7 +354,7 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		$this->assertSame('', $stored[2], '99999 is not a leap year.');
 	}
 
-	/** Fable r8 M-1: the availability check gets a range it can parse. */
+	/** The availability check gets a range it can parse. */
 	public function test_the_check_reads_a_parsable_range_when_the_stored_time_is_malformed(): void
 	{
 		$id = $this->booking('2099-06-01', '2099-06-03');
@@ -366,7 +366,7 @@ final class BookingEditDatesTest extends WP_UnitTestCase
 		$this->assertSame(array( '2099-06-01', '', '2099-06-03', '18:00' ), BookingEditDates::to_check($id, $untouched), 'The check reads the shown range (empty time = default).');
 	}
 
-	/** Codex r8: no integer limit on the year. */
+	/** No integer limit on the year. */
 	public function test_a_huge_leap_year_is_kept(): void
 	{
 		$id = $this->booking();

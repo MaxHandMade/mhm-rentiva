@@ -28,7 +28,7 @@ final class SetupWizardSystemStepTest extends WP_UnitTestCase
 
 	/**
 	 * The wizard said PHP 7.4+ and WordPress 6.0+ were fine while the plugin
-	 * required 8.1 and 6.7, then 7.0 (Fable, Lite #163). The minimums now come
+	 * required 8.1 and 6.7, then 7.0 (Lite #163). The minimums now come
 	 * from the plugin header, the one place WordPress itself enforces.
 	 */
 	public function test_minimum_versions_follow_the_plugin_header(): void

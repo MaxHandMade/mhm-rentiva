@@ -69,8 +69,8 @@ final class ManualBookingStyleTest extends TestCase
 
 	/**
 	 * The one meta box is the whole screen: collapsing it left three tiny
-	 * arrows and no form, and core keeps the closed state for the next visit
-	 * (Fable PR 2 delta). Its move/collapse controls are not offered, and a
+	 * arrows and no form, and core keeps the closed state for the next visit.
+	 * Its move/collapse controls are not offered, and a
 	 * stored closed state still shows the form.
 	 */
 	public function test_the_form_box_cannot_be_collapsed_away(): void

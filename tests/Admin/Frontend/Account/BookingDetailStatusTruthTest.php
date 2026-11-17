@@ -76,7 +76,7 @@ final class BookingDetailStatusTruthTest extends WP_UnitTestCase
 	/**
 	 * An order with a product line, like a real checkout. Without a line,
 	 * WooCommerce skips 'processing' as a paid state and never writes
-	 * date_paid, so PaymentState would not count it (Fable 0.3 M1).
+	 * date_paid, so PaymentState would not count it.
 	 */
 	private function unpaid_order( string $status ): \WC_Order
 	{

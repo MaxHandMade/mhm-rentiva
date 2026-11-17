@@ -298,7 +298,7 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * The keys the Fable audit named: read by the Pro commission bridge and by
+	 * The keys the audit named: read by the Pro commission bridge and by
 	 * the remaining-payment flow, absent from the list, therefore deleted.
 	 */
 	public function test_every_meta_key_read_by_code_is_in_the_allowlist(): void

@@ -116,7 +116,7 @@ final class PoUntranslatedGateTest extends WP_UnitTestCase
         $this->assertSame('missing_plural_form', $findings[0]['reason']);
     }
 
-    // ── Reading a catalog the way WP-CLI reads it (Codex, Lite #48) ──
+    // ── Reading a catalog the way WP-CLI reads it (Lite #48) ──
 
     /**
      * WP-CLI compiles the catalogs WordPress loads, and its gettext Po extractor

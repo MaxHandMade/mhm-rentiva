@@ -291,7 +291,7 @@ final class VehicleColumns {
 				// column set. Without it, native Quick Edit opens with EMPTY
 				// title/date/status fields (saving would blank the title) and
 				// Bulk Edit lists "(no title)". Print it here; the function
-				// does its own capability check. (Fable review finding.)
+				// does its own capability check.
 				$vehicle_post = get_post($post_id);
 				if ($vehicle_post instanceof \WP_Post && function_exists('get_inline_data')) {
 					get_inline_data($vehicle_post);

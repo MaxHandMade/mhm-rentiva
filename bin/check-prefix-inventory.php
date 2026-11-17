@@ -28,12 +28,10 @@
  *                      one of the two BOOTSTRAP_FALLBACK_ALLOWLIST names).
  *                      A name only reachable via RUNTIME_STRING_RULES is not
  *                      enough -- that would rename the code string without
- *                      migrating the stored value (Fable uyum denetimi
- *                      MAJOR-3, 2026-07-31).
+ *                      migrating the stored value (2026-07-31).
  *   6. cron-hooks   -- every hook name scheduled via wp_schedule_event()/
  *                      wp_schedule_single_event() has an entry in
- *                      PrefixMigrationMap::CRON_HOOKS (Fable mimari denetimi
- *                      MAJOR-2, 2026-07-31).
+ *                      PrefixMigrationMap::CRON_HOOKS (2026-07-31).
  *
  * Usage:
  *   php bin/check-prefix-inventory.php                 # run all 6, report each

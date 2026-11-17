@@ -12,8 +12,7 @@ use WP_UnitTestCase;
  * with the Update (PR 4 plan r2/r3). Before this, nothing saved it: the
  * *-grid_order fields the save path reads were never printed, and the AJAX
  * saver failed its nonce on every request -- and, had it passed, rewrote the
- * global mhmrentiva_vehicle_* label options without the keys it was not sent
- * (Codex PR 4 plan Y1).
+ * global mhmrentiva_vehicle_* label options without the keys it was not sent.
  *
  * @covers \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta
  */

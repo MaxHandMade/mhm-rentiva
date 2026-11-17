@@ -63,7 +63,7 @@ final class VehicleColumnsLayoutTest extends WP_UnitTestCase
 
     public function test_vehicle_cell_prints_the_core_inline_data_holder(): void
     {
-        // Fable CRITICAL: core prints the hidden #inline_{ID} div only in
+        // Core prints the hidden #inline_{ID} div only in
         // column_title(), which never runs once 'title' leaves the column
         // set. Without it native Quick Edit opens with an EMPTY title field
         // and saving blanks the post title. The Vehicle cell must print it.
@@ -130,7 +130,7 @@ final class VehicleColumnsLayoutTest extends WP_UnitTestCase
 
         $this->assertStringContainsString('rv-vhl-feature', $html);
         $this->assertStringContainsString('5 seats', $html);
-        // Quick-edit prefill contract (Fable finding — scraping translated
+        // Quick-edit prefill contract (scraping translated
         // chip text broke silently when the columns merged).
         $this->assertStringContainsString('data-seats="5"', $html);
         $this->assertStringContainsString('data-transmission="auto"', $html);

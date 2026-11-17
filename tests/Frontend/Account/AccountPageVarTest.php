@@ -17,7 +17,7 @@ use WP_UnitTestCase;
  * bookings filter vars (AccountController::PUBLIC_QUERY_VARS). Core `paged` is not
  * used: on a WooCommerce account endpoint redirect_canonical() rewrites
  * `?paged=2` to `/page/2/`, which the endpoint rule then swallows as the
- * endpoint's value -- every "Next" lands on page 1 (measured live, Fable r2-1).
+ * endpoint's value -- every "Next" lands on page 1 (measured live).
  * A plugin var is left alone by redirect_canonical().
  */
 final class AccountPageVarTest extends WP_UnitTestCase

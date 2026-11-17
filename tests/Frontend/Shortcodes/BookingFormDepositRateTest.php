@@ -150,7 +150,7 @@ final class BookingFormDepositRateTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * Fable A3: enable_deposit="0" hides the deposit in the breakdown too; the
+	 * enable_deposit="0" hides the deposit in the breakdown too; the
 	 * amounts the answer carries (and the charge) do not change.
 	 */
 	public function test_breakdown_html_omits_deposit_when_disabled(): void

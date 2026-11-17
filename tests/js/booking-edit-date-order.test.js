@@ -78,7 +78,7 @@ describe( 'booking edit: return must come after pickup', () => {
 		expect( $( '.error-message' ).length ).toBe( 0 );
 	} );
 
-	// Codex code audit 3b-2, Important 3: "Cancelled" chosen on a booking that
+	// "Cancelled" chosen on a booking that
 	// was not cancelled is a cancellation request; the server ignores the
 	// dates then, so the browser must not block it on them.
 	test( 'a cancellation request is not blocked by reversed dates', () => {
@@ -93,13 +93,13 @@ describe( 'booking edit: return must come after pickup', () => {
 		expect( submit( '2099-05-04', '10:00', '2099-05-01', '10:00' ) ).toBe( true );
 	} );
 
-	// Codex code audit 3b-2 r2: an equal moment is no rental for pricing and
+	// An equal moment is no rental for pricing and
 	// availability, so a CHANGED range may not end where it starts.
 	test( 'a changed range that ends where it starts blocks the Update', () => {
 		expect( submit( '2099-06-01', '10:00', '2099-06-01', '10:00' ) ).toBe( true );
 	} );
 
-	// Fable code audit M-2: an equal range the booking already carries (a
+	// An equal range the booking already carries (a
 	// transfer) is not touched, so it does not block saving other fields.
 	test( 'an unchanged equal range does not block the Update', async () => {
 		await mount( { pickup_date: '2099-06-01', pickup_time: '10:00', dropoff_date: '2099-06-01', dropoff_time: '10:00' } );
@@ -108,7 +108,7 @@ describe( 'booking edit: return must come after pickup', () => {
 		expect( event.isDefaultPrevented() ).toBe( false );
 	} );
 
-	// Codex r3 Minor 1: a stored '0' time is drawn into the attribute, the time
+	// A stored '0' time is drawn into the attribute, the time
 	// input holds '' -- untouched, that is not a change.
 	test( "an attribute the time input cannot hold is not a change", async () => {
 		await mount( { pickup_date: '2099-06-01', pickup_time: '0', dropoff_date: '2099-06-01', dropoff_time: '0' } );
@@ -117,13 +117,13 @@ describe( 'booking edit: return must come after pickup', () => {
 		expect( event.isDefaultPrevented() ).toBe( false );
 	} );
 
-	// Codex r3 Minor 2: the empty-time defaults are the server's filters.
+	// The empty-time defaults are the server's filters.
 	test( 'empty times use the server defaults', async () => {
 		await mount( { defaultTimes: { pickup: '08:00', dropoff: '18:00' } } );
 		expect( submit( '2099-06-01', '', '2099-06-01', '' ) ).toBe( false );
 	} );
 
-	// Codex r4 Minor 1: a value typed before the page was ready is still a
+	// A value typed before the page was ready is still a
 	// change -- the baseline is what the server drew, not what the field held
 	// when the script ran.
 	test( 'input made before the script ran still counts as a change', async () => {
@@ -136,7 +136,7 @@ describe( 'booking edit: return must come after pickup', () => {
 		expect( event.isDefaultPrevented() ).toBe( true );
 	} );
 
-	// Codex r5: a stored time the input cannot hold ('9:00') reaches the
+	// A stored time the input cannot hold ('9:00') reaches the
 	// browser as '' in the field and as '' in the server's baseline
 	// (BookingEditDates::stored() normalises it) -- untouched, no change.
 	test( 'a stored time the input cannot hold is not a change', async () => {

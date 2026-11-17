@@ -9,7 +9,7 @@ use WP_UnitTestCase;
 /**
  * Every `--mhm-*` token must land in exactly one class, and prose could not say which.
  *
- * Three independent audit rounds (two Fable lenses + Codex, 2026-08-27) failed the
+ * Three independent audit rounds (2026-08-27) failed the
  * same thing three different ways: the spec described the gate's predicates in
  * sentences, and sentences have no execution semantics. The blockers were not
  * disagreements about what SHOULD happen -- they were places where two honest

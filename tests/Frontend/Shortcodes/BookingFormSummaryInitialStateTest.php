@@ -45,7 +45,7 @@ class BookingFormSummaryInitialStateTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex P2 (PR #90): the card-side price helper turns a missing/zero price
+	 * PR #90: the card-side price helper turns a missing/zero price
 	 * into a hard-coded 1000, while the booking calculator reads the raw meta.
 	 * The summary must not quote a price the calculation will not use.
 	 */

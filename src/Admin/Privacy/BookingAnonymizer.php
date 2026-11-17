@@ -110,7 +110,7 @@ final class BookingAnonymizer {
 		// The keys are several separate writes, so first pin the request's
 		// keyed hash on the booking: if a later write fails half-way, the
 		// matcher still finds the booking by that hash and a later run
-		// finishes the job (Codex r4 B1).
+		// finishes the job.
 		$subject = EmailMatch::subject_hash( $request_email );
 		if ( '' !== $subject ) {
 			update_post_meta( $booking_id, BookingMatcher::SUBJECT_KEY, $subject );
@@ -134,7 +134,7 @@ final class BookingAnonymizer {
 		// The first erasure's time is the one worth keeping. The mark is what
 		// takes the booking out of the queue (core's anonymous address is a
 		// fixed one), so it is read back: unwritten, the booking is not done
-		// and keeps its subject hash (Codex r5).
+		// and keeps its subject hash.
 		if ( ! metadata_exists( 'post', $booking_id, BookingMatcher::ERASED_KEY ) ) {
 			update_post_meta( $booking_id, BookingMatcher::ERASED_KEY, gmdate( 'c' ) );
 			if ( ! EmailMatch::meta_exists_now( 'post', $booking_id, BookingMatcher::ERASED_KEY ) ) {
@@ -290,7 +290,7 @@ final class BookingAnonymizer {
 	 * Every row of a meta key, by meta ID, oldest first, read from the table.
 	 *
 	 * A key can be stored more than once; get_*_meta( ..., true ) sees only the
-	 * first row, so a second row would keep the person's data (Codex r6).
+	 * first row, so a second row would keep the person's data.
 	 *
 	 * @param string $type      'post' or 'order_item'.
 	 * @param int    $object_id Post or order item ID.
@@ -384,7 +384,7 @@ final class BookingAnonymizer {
 			// the post even when the file stays, and then nothing points at the
 			// file any more. Until the file is really gone, keep the post and
 			// the link so verify() reports the receipt and the booking keeps
-			// matching its person (Codex r4 B4).
+			// matching its person.
 			foreach ( self::attachment_files( $attachment ) as $file ) {
 				if ( file_exists( $file ) ) {
 					wp_delete_file( $file );
@@ -561,7 +561,7 @@ final class BookingAnonymizer {
 		if ( ! function_exists( 'wc_get_order_item_meta' ) ) {
 			// WooCommerce is off but its tables may still hold this booking's
 			// copy. An API we cannot call is not an absent copy: report every
-			// linked line as left, so the identity is not cleared (Codex r4 B5).
+			// linked line as left, so the identity is not cleared.
 			return self::linked_item_ids( $booking_id );
 		}
 

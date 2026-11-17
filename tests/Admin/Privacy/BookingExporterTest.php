@@ -111,7 +111,7 @@ final class BookingExporterTest extends WP_UnitTestCase
 
 	/**
 	 * Built with the real writer: `at` is a UTC Unix time, and the export
-	 * shows it as a site date, not as a number (Codex r5).
+	 * shows it as a site date, not as a number.
 	 */
 	public function test_history_written_by_the_real_writer_shows_a_date(): void
 	{
@@ -142,7 +142,7 @@ final class BookingExporterTest extends WP_UnitTestCase
 
 	/**
 	 * An old booking that only has the legacy status key shows its status,
-	 * as BookingState reads it (Codex r6, 5a).
+	 * as BookingState reads it.
 	 */
 	public function test_legacy_status_key_is_exported(): void
 	{

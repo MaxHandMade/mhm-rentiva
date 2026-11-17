@@ -228,7 +228,7 @@ final class RentalCheckoutLookTest extends WP_UnitTestCase
 	{
 		$order = $this->order($this->rental_data());
 
-		// Fable PR K M1: the journey draws the heading; the page title stays
+		// The journey draws the heading; the page title stays
 		// WooCommerce's, so a theme that prints it never repeats the heading.
 		RentalCheckoutLook::register();
 		$this->assertFalse(has_filter('woocommerce_endpoint_order-received_title'));
@@ -276,7 +276,7 @@ final class RentalCheckoutLookTest extends WP_UnitTestCase
 		$GLOBALS['wp']->query_vars['order-received'] = (string) $order->get_id();
 
 		$_GET['key'] = 'wc_order_guessed';
-		$this->assertNotContains('rvs-rental', \MHMRentiva\Admin\Payment\WooCommerce\CheckoutJourney::body_class(array()), 'Fable PR K m2.');
+		$this->assertNotContains('rvs-rental', \MHMRentiva\Admin\Payment\WooCommerce\CheckoutJourney::body_class(array()), 'A wrong order key does not add the rental body class.');
 
 		$this->visit('order-received', $order);
 		$this->assertContains('rvs-rental', \MHMRentiva\Admin\Payment\WooCommerce\CheckoutJourney::body_class(array()));
@@ -313,7 +313,7 @@ final class RentalCheckoutLookTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex PR K 3: the bank must receive the order's total. Prices without
+	 * The bank must receive the order's total. Prices without
 	 * tax and a 20% rate, a coupon and a fee: the net snapshot deposit (200) is
 	 * not what the order charges.
 	 */

@@ -99,7 +99,7 @@ final class BookingHistoryBoxTest extends WP_Ajax_UnitTestCase
 	{
 		// The payment box returns before its payment sections on a pre-deposit
 		// booking; the history (a box of its own until PR 3b-1) must not go
-		// with them (Codex plan audit 3b-1, finding 1).
+		// with them.
 		delete_post_meta($this->booking, '_mhmrentiva_payment_type');
 		ob_start();
 		\MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox::render_deposit_management(get_post($this->booking));
@@ -184,7 +184,7 @@ final class BookingHistoryBoxTest extends WP_Ajax_UnitTestCase
 		$this->assertCount(1, $history);
 		$this->assertSame('Called the customer', array_values($history)[0]['note']);
 	}
-	/** Codex plan audit r1: why the select offers only two types. */
+	/** Why the select offers only two types. */
 	public function test_note_select_explains_the_rows_rentiva_writes_itself(): void
 	{
 		$html = $this->html();
@@ -195,7 +195,7 @@ final class BookingHistoryBoxTest extends WP_Ajax_UnitTestCase
 		);
 	}
 
-	/** Codex code audit 3b-2, Minor 6: the history writer keeps a backslash. */
+	/** The history writer keeps a backslash. */
 	public function test_a_history_note_keeps_its_backslash(): void
 	{
 		BookingMeta::add_history_note($this->booking, 'ref BANK\2026', 'note');

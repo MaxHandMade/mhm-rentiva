@@ -548,7 +548,7 @@ final class ContactRecipientTokenTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * Codex P1 on PR #92: revocation reads the form's own recipient setting, not any
+	 * PR #92: revocation reads the form's own recipient setting, not any
 	 * occurrence of the address on the page. After email_to is removed, the address
 	 * left in a mailto link or plain text no longer vouches for the payload.
 	 */

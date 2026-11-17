@@ -579,8 +579,7 @@ final class BookingMeta extends AbstractMetaBox {
 		// Same rule as the edit box's saver (function scan H4): a reversed range
 		// keeps the stored dates. The notice is queued there.
 		if (BookingEditDates::is_refused($post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time)) {
-			// Queued here too: this saver can run alone (Codex code audit 3b-2, Minor
-			// 8). Not over a notice that already says it -- the edit box's saver
+			// Queued here too: this saver can run alone. Not over a notice that already says it -- the edit box's saver
 			// may have joined it with a price refusal in the one slot.
 			if (! str_contains(BookingEditNotice::peek($post_id), BookingEditDates::notice())) {
 				BookingEditNotice::queue($post_id, BookingEditDates::notice(), 'warning');
@@ -602,7 +601,7 @@ final class BookingMeta extends AbstractMetaBox {
 		if ($guests_posted) {
 			update_post_meta($post_id, '_mhmrentiva_guests', $guests);
 		}
-		// Unslashed once on input; the meta API unslashes again (Fable #175 M-A).
+		// Unslashed once on input; the meta API unslashes again.
 		update_post_meta($post_id, '_mhmrentiva_special_notes', wp_slash($special_notes));
 
 		// Re-price only when a price input moved (BookingPricingInputs): the
@@ -1028,8 +1027,7 @@ final class BookingMeta extends AbstractMetaBox {
 
 		$history[ $timestamp . '-' . wp_generate_password(6, false) ] = $entry;
 
-		// The meta API unslashes; a note's backslash must survive (Codex code
-		// audit 3b-2, Minor 6).
+		// The meta API unslashes; a note's backslash must survive.
 		return update_post_meta($booking_id, '_mhmrentiva_booking_history', wp_slash($history)) !== false;
 	}
 
@@ -1131,8 +1129,7 @@ final class BookingMeta extends AbstractMetaBox {
 		// Mixed or foreign currencies, and an order shared with other bookings or
 		// products, leave this booking's own share unknown. BookingEditPriceFloor refuses a
 		// total change for both; the payment fields are left as they are below,
-		// since rebuilding them from a deposit would reopen money already paid
-		// (Codex r10 3).
+		// since rebuilding them from a deposit would reopen money already paid.
 		$unknown   = BookingEditPriceFloor::collected_is_unknown($booking_id, $state);
 		$collected = $unknown ? 0 : $state->paid();
 
@@ -1160,7 +1157,7 @@ final class BookingMeta extends AbstractMetaBox {
 		// The detail rows follow the new total, so the order, the account page
 		// and the report do not keep the lines of the window before the edit.
 		// Add-on titles from the database; slashed for the unslashing meta API
-		// (backslash class, Fable #177 M1).
+		// (backslash class).
 		update_post_meta(
 			$booking_id,
 			'_mhmrentiva_addon_details',
@@ -1898,7 +1895,7 @@ final class BookingMeta extends AbstractMetaBox {
 		$context = Mailer::getBookingContext($booking_id) ?? array();
 		if ('booking_cancelled' === $email_type) {
 			// A cancellation e-mail announces the change TO cancelled, whatever
-			// the booking's status is now (Fable #178 D2: on a confirmed booking
+			// the booking's status is now (on a confirmed booking
 			// the reason was left out).
 			$status  = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
 			$context = array_merge($context, \MHMRentiva\Admin\Emails\Notifications\BookingNotifications::status_change_context($booking_id, $status, Status::CANCELLED));

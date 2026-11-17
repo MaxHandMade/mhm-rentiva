@@ -257,7 +257,7 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable #175 r8 M-1, end to end: a stored time the time input cannot hold
+	 * A stored time the time input cannot hold
 	 * ('9:00') is drawn as '' and posted back untouched. The availability check
 	 * must still run on the range the form shows (default time) and refuse a
 	 * busy vehicle; the stored '9:00' stays.

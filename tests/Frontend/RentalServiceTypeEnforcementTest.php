@@ -138,7 +138,7 @@ final class RentalServiceTypeEnforcementTest extends WP_Ajax_UnitTestCase
 	/**
 	 * The booking form asks check_availability_with_alternatives(); a service-type refusal
 	 * must reach the customer as itself, not as "not available ... we can suggest similar
-	 * vehicles" (which reads like a date problem). Fable B1.
+	 * vehicles" (which reads like a date problem).
 	 */
 	public function test_the_form_check_keeps_the_service_refusal_message(): void
 	{

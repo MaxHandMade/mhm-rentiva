@@ -121,7 +121,7 @@ final class PaymentHistoryOrderScopesTest extends WP_UnitTestCase
 
 	public function test_a_nested_order_for_a_later_booking_still_leaves_it_one_row(): void
 	{
-		// Codex #170: while the outer order loop handles A, A's status change
+		// #170: while the outer order loop handles A, A's status change
 		// runs another order that changes B; the outer loop then reaches B and
 		// changes it again. B must get one row (pending -> paid), not two.
 		$a      = $this->booking('paid', 70.0);
