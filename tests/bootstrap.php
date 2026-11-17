@@ -195,8 +195,12 @@ tests_add_filter(
 	static function (array $dir) use ($mhmrentiva_uploads_sandbox): array {
 		$real_root = rtrim(str_replace('\\', '/', WP_CONTENT_DIR), '/') . '/uploads';
 		$basedir   = str_replace('\\', '/', (string) $dir['basedir']);
-		// Keep a multisite site's "/sites/N" under the sandbox.
-		$tail           = str_starts_with($basedir, $real_root) ? substr($basedir, strlen($real_root)) : '';
+		// Keep a multisite site's "/sites/N" under the sandbox. A custom root
+		// (UPLOADS, ms-files' blogs.dir/N/files) gets a directory of its own,
+		// named from that root, so two sites never share one.
+		$tail           = str_starts_with($basedir, $real_root)
+			? substr($basedir, strlen($real_root))
+			: '/root-' . substr(md5($basedir), 0, 12);
 		$dir['basedir'] = $mhmrentiva_uploads_sandbox . $tail;
 		$dir['path']    = $dir['basedir'] . $dir['subdir'];
 		return $dir;

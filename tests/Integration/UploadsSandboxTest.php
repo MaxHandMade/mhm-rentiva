@@ -26,10 +26,67 @@ final class UploadsSandboxTest extends WP_UnitTestCase {
 	}
 
 	public function test_uploads_url_is_left_as_core_computes_it(): void {
-		$dir = wp_upload_dir( null, false );
+		$core = _wp_upload_dir();
+		$dir  = wp_upload_dir( null, false );
 
-		$this->assertStringEndsWith( '/wp-content/uploads', untrailingslashit( $dir['baseurl'] ) );
-		$this->assertSame( $dir['baseurl'] . $dir['subdir'], $dir['url'] );
+		$this->assertSame( $core['baseurl'], $dir['baseurl'] );
+		$this->assertSame( $core['url'], $dir['url'] );
+	}
+
+	/**
+	 * A custom uploads root (UPLOADS, ms-files' blogs.dir) is not under
+	 * WP_CONTENT_DIR/uploads; two such roots must not share one sandbox
+	 * directory, or two sites' same-named files collide.
+	 */
+	public function test_two_custom_roots_keep_separate_sandbox_directories(): void {
+		$basedir_for = function ( string $root ): string {
+			$pin = static function ( array $dir ) use ( $root ): array {
+				$dir['basedir'] = $root;
+				$dir['path']    = $root . $dir['subdir'];
+				return $dir;
+			};
+			add_filter( 'upload_dir', $pin, 0 );
+			$basedir = wp_normalize_path( wp_upload_dir( null, false )['basedir'] );
+			remove_filter( 'upload_dir', $pin, 0 );
+			return $basedir;
+		};
+
+		$site_2 = $basedir_for( '/srv/media/sites/2' );
+		$site_3 = $basedir_for( '/srv/media/sites/3' );
+
+		$this->assertStringStartsWith( $this->temp_root(), $site_2 );
+		$this->assertStringStartsWith( $this->temp_root(), $site_3 );
+		$this->assertNotSame( $site_2, $site_3 );
+	}
+
+	/**
+	 * @group multisite
+	 */
+	public function test_a_switched_site_writes_to_its_own_sandbox_directory(): void {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'multisite only (composer test:multisite)' );
+		}
+
+		// Known debt, declared as in CustomersCacheTypeTest: creating a site fires
+		// the plugin's own wpmu_new_blog listener (mhm-rentiva.php), deprecated
+		// since WordPress 5.1.0 in favour of wp_initialize_site.
+		$this->setExpectedDeprecated( 'wpmu_new_blog' );
+
+		$main = wp_upload_bits( 'mhm-rentiva-sandbox-same-name.txt', null, 'main' );
+		$blog = self::factory()->blog->create();
+		switch_to_blog( $blog );
+		try {
+			$other = wp_upload_bits( 'mhm-rentiva-sandbox-same-name.txt', null, 'other' );
+		} finally {
+			restore_current_blog();
+		}
+
+		$this->assertStringStartsWith( $this->temp_root(), wp_normalize_path( $other['file'] ) );
+		$this->assertNotSame( dirname( $main['file'] ), dirname( $other['file'] ) );
+		$this->assertSame( 'main', file_get_contents( $main['file'] ) );
+
+		unlink( $main['file'] );
+		unlink( $other['file'] );
 	}
 
 	public function test_a_file_written_by_a_test_never_lands_in_the_real_uploads_directory(): void {
