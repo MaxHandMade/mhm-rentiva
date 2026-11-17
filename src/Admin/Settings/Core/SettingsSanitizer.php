@@ -201,6 +201,7 @@ final class SettingsSanitizer {
 		$keys = array(
 			'mhmrentiva_booking_security_deposit_note',
 			'mhmrentiva_booking_fuel_policy_note',
+			'mhmrentiva_rental_agreement_text',
 			'mhmrentiva_text_login_required',
 			'mhmrentiva_transfer_custom_types',
 		);
@@ -628,6 +629,9 @@ final class SettingsSanitizer {
 			// Shown on the vehicle page's rental conditions.
 			'mhmrentiva_booking_security_deposit_note'    => sanitize_textarea_field( (string) ( $input['mhmrentiva_booking_security_deposit_note'] ?? '' ) ),
 			'mhmrentiva_booking_fuel_policy_note'         => sanitize_textarea_field( (string) ( $input['mhmrentiva_booking_fuel_policy_note'] ?? '' ) ),
+			// Rental agreement on the booking form; an empty text uses the template.
+			'mhmrentiva_rental_agreement_enabled'         => self::get_bool( $input, 'mhmrentiva_rental_agreement_enabled' ),
+			'mhmrentiva_rental_agreement_text'            => sanitize_textarea_field( (string) ( $input['mhmrentiva_rental_agreement_text'] ?? '' ) ),
 		);
 	}
 
