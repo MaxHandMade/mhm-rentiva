@@ -83,16 +83,16 @@ final class AccountController {
 	 * rather than a static front page. Inner pages -- including every URL these
 	 * two params actually appear on -- resolve unchanged.
 	 *
-	 * `mhmrentiva_page` is the account lists' page number (spec 2026-10-10 slice
-	 * 3A §2.5; read by AccountRenderer::current_page()). Core `paged` can not do
+	 * `mhmrentiva_page` is the account lists' page number (read
+	 * by AccountRenderer::current_page()). Core `paged` can not do
 	 * it: on a WooCommerce account endpoint redirect_canonical() rewrites
 	 * `?paged=2` to `/page/2/`, which the endpoint rule then takes as the
 	 * endpoint's value, so every "Next" landed on page 1. redirect_canonical()
 	 * leaves plugin vars alone. Pager links always point at the list's own page,
 	 * never the site root, so the side effect above does not reach them.
 	 *
-	 * `mhmrentiva_payments_page` is the payment history's own page number (3B-2a
-	 * U5-2): it used to share `mhmrentiva_page` with the bookings list, so paging
+	 * `mhmrentiva_payments_page` is the payment history's own page number: it used to
+	 * share `mhmrentiva_page` with the bookings list, so paging
 	 * one paged the other. `mhmrentiva_page` stays the bookings list's variable,
 	 * so existing links keep working.
 	 *
@@ -103,9 +103,9 @@ final class AccountController {
 		'mhmrentiva_search_booking',
 		'mhmrentiva_page',
 		'mhmrentiva_payments_page',
-		// The bookings list's section (PR D, R6): upcoming, past or cancelled.
+		// The bookings list's section: upcoming, past or cancelled.
 		'mhmrentiva_view',
-		// The printable booking summary (PR D, K14): BookingSummaryPage::QUERY_VAR.
+		// The printable booking summary: BookingSummaryPage::QUERY_VAR.
 		'mhmrentiva_summary',
 	);
 
@@ -189,7 +189,7 @@ final class AccountController {
 		// Communication preferences handler
 		add_action('init', array( self::class, 'handle_communication_preferences' ));
 
-		// Printable booking summary (K14)
+		// Printable booking summary
 		BookingSummaryPage::register();
 
 		// Remaining payment AJAX handler
@@ -347,7 +347,7 @@ final class AccountController {
 		}
 
 		// Account styles and my-account.js load on account pages and endpoints
-		// only (spec m5): nothing leaks onto other pages, and the script's
+		// only: nothing leaks onto other pages, and the script's
 		// `wp_rest` nonce is no longer printed site-wide.
 		$is_account             = self::is_account_page();
 		$has_endpoint           = ! empty($endpoint);
@@ -362,7 +362,7 @@ final class AccountController {
 	}
 
 	/**
-	 * Styles of one account asset class (AccountSurface, PR D r3 Y1).
+	 * Styles of one account asset class (AccountSurface).
 	 *
 	 * Class `rvs` loads the `rvs-` account layer only. Class `wc` loads the
 	 * page frame and navigation layer only; WooCommerce styles its own content.
@@ -384,7 +384,7 @@ final class AccountController {
 
 		self::enqueue_legacy_account_styles();
 
-		// Kit stat cards (K4: iconless on the front end).
+		// Kit stat cards (iconless on the front end).
 		\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'front' );
 
 		wp_enqueue_style(
@@ -712,7 +712,7 @@ final class AccountController {
 	}
 
 	/**
-	 * May a bank receipt be uploaded for this booking? (R13, plan r3 y10.)
+	 * May a bank receipt be uploaded for this booking?
 	 *
 	 * Only while no money has arrived through any channel and the booking is
 	 * still waiting (`pending_payment` or `pending`). A paid order, an offline
@@ -766,7 +766,7 @@ final class AccountController {
 			wp_send_json_error(array( 'message' => __('You are not allowed to upload for this booking.', 'mhm-rentiva') ), 403);
 		}
 
-		// The one dekont rule (R13, y10), enforced here and not only by hiding
+		// The one dekont rule, enforced here and not only by hiding
 		// the button: once money has arrived, or the booking is no longer
 		// waiting, no slip is accepted.
 		if (! self::receipt_upload_allowed($booking_id)) {
@@ -950,15 +950,15 @@ final class AccountController {
 		// Serving a binary file needs either readfile()/fpassthru() (which trip
 		// WordPress.WP.AlternativeFunctions) or reading it into memory and echoing
 		// it (which trips WordPress.Security.EscapeOutput -- escaping would corrupt
-		// the bytes). Both were measured against gate G-D: each produces exactly one
-		// ERROR, so there is no shape of this operation that the gate accepts and no
+		// the bytes). Both were measured against the stricter ruleset: each produces exactly one
+		// ERROR, so there is no shape of this operation that the ruleset accepts and no
 		// suppression-free version to write. The narrower cost is chosen here:
 		// streaming, so a large receipt is never held in memory.
 		//
 		// Scope note: WordPress.org's own Plugin Check, run with the plugin_repo
 		// category it actually reviews against, reports nothing here -- measured,
-		// not assumed. This finding exists only in our wider G-D ruleset.
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile -- See the note above: both alternatives produce one G-D error each; this one does not buffer the file.
+		// not assumed. The warning exists only in a wider ruleset.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile -- See the note above: both alternatives produce one error each under that wider ruleset; this one does not buffer the file.
 		readfile($path);
 		exit;
 	}
@@ -1076,7 +1076,7 @@ final class AccountController {
 			wp_send_json_error(array( 'message' => __('You are not allowed to remove receipt for this booking.', 'mhm-rentiva') ), 403);
 		}
 
-		// Same rule as the upload (R13, y10): once money arrived or the booking
+		// Same rule as the upload: once money arrived or the booking
 		// stopped waiting, the customer cannot delete the slip -- the button being
 		// hidden is not the gate. Staff keep their access.
 		if (! self::receipt_upload_allowed($booking_id) && ! ( 'mhmrentiva_booking' === get_post_type($booking_id) && current_user_can('edit_post', $booking_id) )) {
@@ -1329,7 +1329,7 @@ final class AccountController {
 		wp_cache_delete($booking_id, 'post_meta');
 
 		if (! empty($result['problems']) || RefundStatus::FAILED === RefundStatus::get($booking_id)) {
-			// Task 14b item 9: "See the refund status on this screen" is an
+			// "See the refund status on this screen" is an
 			// admin-facing sentence -- DepositManagementAjax::cancel_booking()
 			// uses the identical string correctly, because that screen has a
 			// refund-status meta box to look at. My Account has no such

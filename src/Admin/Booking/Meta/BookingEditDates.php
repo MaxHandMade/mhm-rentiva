@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * A range the rest of Rentiva cannot use is not saved (function scan H4).
+ * A range the rest of Rentiva cannot use is not saved.
  *
  * The rule is Util::parse_datetimes() itself -- the one availability, pricing
  * and the booking timestamps run on: the return must come after the pickup

@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Every handler opens with a line-local `check_ajax_referer( ..., false )`
  * that is REDUNDANT with authorize_booking_action() immediately below it.
  * That is deliberate: this file used to contain its own nonce and capability
- * checks inline, and the Faz 2 Task 7 guard extraction moved both one file
+ * checks inline, and the guard extraction moved both one file
  * away -- leaving five registered `wp_ajax_*` money endpoints in which
  * grepping for a nonce check finds nothing (a sixth, close_manual_refund(),
  * joined later under the same pattern). The authoritative check (and the
@@ -47,7 +47,7 @@ final class DepositManagementAjax {
 	/**
 	 * Single entry guard for every deposit action.
 	 *
-	 * Delegates to BookingActionGuard::authorize() (Faz 2 Task 7 extraction)
+	 * Delegates to BookingActionGuard::authorize() (the extracted guard)
 	 * under this class's own nonce action -- byte-for-byte the same four
 	 * checks (nonce, id, post_type, edit_post on the resolved booking) this
 	 * method used to run inline. See BookingActionGuard's docblock for why
@@ -65,25 +65,25 @@ final class DepositManagementAjax {
 		}
 
 		// Redundant by design: keeps the capability check greppable in this
-		// file (WP.org review lens). BookingActionGuard::authorize() already
+		// file (a WP.org reviewer's reading of it). BookingActionGuard::authorize() already
 		// ran this exact current_user_can('edit_post', ...) check against
 		// this exact booking id one line above -- nothing runs in between
 		// that could change the outcome, so this branch can never reject a
 		// caller the guard just approved. Message matches the guard's own
 		// rejection payload so behaviour is identical either way.
 		//
-		// Fix round 1, I2: the `return 0;` below is genuinely unreachable in
+		// The `return 0;` below is genuinely unreachable in
 		// production (wp_send_json_error() calls wp_die()) -- PHPStan proves
-		// it and Task 16 step 2 deleted its 25 siblings on exactly that
-		// evidence. Kept here anyway: this is the one call sitting right
+		// it, and its 25 siblings were deleted on exactly that evidence.
+		// Kept here anyway: this is the one call sitting right
 		// beneath the comment above ("Redundant by design: keeps the
-		// capability check greppable in this file (WP.org review lens)") --
+		// capability check greppable in this file") --
 		// an authorization helper returning int, where a human reading the
 		// failure branch must see it end the function, not fall through to
 		// `return $booking_id;` two lines down. Deleting it would make this
 		// specific helper read fail-open to exactly the audience the
-		// surrounding comment was written for, on a plugin with a rejection
-		// history on review-lens grounds. The resulting single baseline
+		// surrounding comment was written for, on a plugin that has been
+		// rejected on exactly such grounds. The resulting single baseline
 		// entry (phpstan-baseline.neon) is the cost, accepted explicitly.
 		if ( ! current_user_can( 'edit_post', $booking_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
@@ -209,8 +209,8 @@ final class DepositManagementAjax {
 				'emailed'  => (bool) $mailed,
 			)
 		);
-		// The operator's action in the booking history too (function scan H16):
-		// the log above is invisible on the screen.
+		// The operator's action in the booking history too: the log above is
+		// invisible on the screen.
 		// The row and the answer follow what the mailer reported: a link
 		// the customer did not receive is not "e-mailed".
 		BookingMeta::add_history_note(
@@ -301,9 +301,9 @@ final class DepositManagementAjax {
 			wp_send_json_error( array( 'message' => __( 'This booking cannot be cancelled.', 'mhm-rentiva' ) ) );
 		}
 
-		// One entry point for both cancellation surfaces (spec §5.3, decision
-		// 4). $force is true because the deadline in CancellationHandler is the
-		// CUSTOMER's cancellation policy; the operator's own button must not
+		// One entry point for both cancellation surfaces. $force is true because
+		// the deadline in CancellationHandler is the CUSTOMER's cancellation
+		// policy; the operator's own button must not
 		// inherit it -- this screen never applied it before.
 		$result = CancellationHandler::cancel_booking( $booking_id, get_current_user_id(), '', true, false, 'admin_deposit' );
 
@@ -383,7 +383,7 @@ final class DepositManagementAjax {
 		// one that now needs Money::toMajor().
 		$refund_amount = PaymentState::forBooking( $booking_id )->refundable();
 
-		// No deadline check here (customer-eye round #20, 2026-11-10). The
+		// No deadline check here (2026-11-10). The
 		// cancellation policy is enforced at the cancellation gate --
 		// CancellationHandler::check_cancellation_deadline(), counted from
 		// pickup -- and this screen only refunds bookings that are already
@@ -460,10 +460,9 @@ final class DepositManagementAjax {
 		);
 
 		// An offline refund is a record, not a payment: the money still has to
-		// be handed over, and the refund row reads "waiting for hand transfer"
-		// (function scan H7). Only a refund the gateway actually made is
-		// "completed". Cache cleared: Refunds\Service wrote the status in this
-		// request.
+		// be handed over, and the refund row reads "waiting for hand transfer".
+		// Only a refund the gateway actually made is "completed". Cache cleared:
+		// Refunds\Service wrote the status in this request.
 		wp_cache_delete( $booking_id, 'post_meta' );
 		if ( RefundStatus::MANUAL_PENDING === RefundStatus::get( $booking_id ) ) {
 			wp_send_json_success(
@@ -483,8 +482,8 @@ final class DepositManagementAjax {
 	}
 
 	/**
-	 * Free text from an operator -- a manual-close reference, or (Task 12)
-	 * the reason a review was dismissed -- is capped so a pasted essay does
+	 * Free text from an operator -- a manual-close reference, or the
+	 * reason a review was dismissed -- is capped so a pasted essay does
 	 * not land verbatim in a WC order note and in post meta. 191, not a round
 	 * number: the sibling-safe bound under utf8mb4 (the historical MySQL
 	 * index-byte-length ceiling other varchar columns in this stack are sized
@@ -498,7 +497,7 @@ final class DepositManagementAjax {
 	 *
 	 * Moves no money and computes nothing: RefundStatus::transition() already
 	 * refuses every edge except manual_pending -> completed_manually, so a
-	 * second click, or a click on a booking this task never reached, is
+	 * second click, or a click on a booking that never reached it, is
 	 * turned away by the transition matrix itself rather than by a check
 	 * duplicated here. The booking-level audit trio (_by/_at/_reference) is
 	 * written unconditionally -- it is the entire record of who is vouching
@@ -508,7 +507,7 @@ final class DepositManagementAjax {
 	 * so requiring one would make the channel impossible to close.
 	 *
 	 * Every terminating wp_send_json_*() call is OUTSIDE the try/finally
-	 * below, on purpose (fix round 1, C1). wp_send_json_*() calls wp_die(),
+	 * below, on purpose. wp_send_json_*() calls wp_die(),
 	 * which is a hard exit in production -- PHP does not run a finally block
 	 * across an exit -- so a version of this method that called
 	 * wp_send_json_success()/wp_send_json_error() from INSIDE the try left
@@ -543,15 +542,15 @@ final class DepositManagementAjax {
 		$reference = mb_substr( $req->text( 'reference' ), 0, self::REFERENCE_MAX_LENGTH );
 
 		if ( ! RefundLock::acquire( $booking_id ) ) {
-			// Task 14b item 2: this used to claim "another refund is
-			// already running" as fact. RefundLock::acquire() cannot
-			// actually tell that apart from an orphaned lock a dead
-			// request left behind (RefundLock.php's own "steal" branch) --
-			// the honest answer covers both without asserting either.
-			// Fix round 1, F5: the wait bound is DERIVED from
-			// RefundLock::TTL_SECONDS rather than a hardcoded "5 minutes" --
-			// a hardcoded number here is exactly the kind of confident
-			// falsehood item 2 removed, the moment the TTL ever changes.
+			// This used to claim "another refund is already running" as
+			// fact. RefundLock::acquire() cannot actually tell that apart
+			// from an orphaned lock a dead request left behind
+			// (RefundLock.php's own "steal" branch) -- the honest answer
+			// covers both without asserting either. The wait bound is
+			// DERIVED from RefundLock::TTL_SECONDS rather than a hardcoded
+			// "5 minutes" -- a hardcoded number is exactly the kind of
+			// confident falsehood that goes stale the moment the TTL
+			// changes.
 			// Hoisted, and it has to stay hoisted -- see the note on
 			// Refunds\Service.php's copy of this message: `wp i18n make-pot`
 			// silently drops an i18n call whose argument list contains
@@ -707,10 +706,10 @@ final class DepositManagementAjax {
 			)
 		);
 
-		// Fix round 1, F6: cancel_booking() commits the CANCELLED status
-		// before it ever asks process_refund() to move money, and
-		// process_refund() returns early -- writing nothing -- the moment
-		// the booking has no balance left to refund (CancellationHandler.php's
+		// cancel_booking() commits the CANCELLED status before it ever asks
+		// process_refund() to move money, and process_refund() returns early --
+		// writing nothing -- the moment the booking has no balance left to refund
+		// (CancellationHandler.php's
 		// own $has_money guard). A non-WP_Error return therefore proves the
 		// booking was cancelled, not that the review closed: on a booking
 		// with nothing left to refund, RefundStatus never leaves
@@ -733,14 +732,13 @@ final class DepositManagementAjax {
 		wp_cache_delete( $booking_id, 'post_meta' );
 		$refund_status_after_delegation = (string) get_post_meta( $booking_id, RefundStatus::META_KEY, true );
 
-		// Task 14a fix round 1, F2 / fix round 2, G2: the same two-part
-		// condition its two AJAX siblings carry (DepositManagementAjax::
+		// The same two-part condition its two AJAX siblings carry (DepositManagementAjax::
 		// cancel_booking(), AccountController::ajax_cancel_booking()) --
 		// $result['problems'] covers a post-commit throwable OR a refused
-		// PENDING transition (correction #7's named race: a concurrent
-		// review_dismiss() writing not_required WHILE this request is in
+		// PENDING transition (the race where a concurrent
+		// review_dismiss() writes not_required WHILE this request is in
 		// flight), and the FAILED check covers a validator refusal that
-		// never threw at all (fix round 1 left this third surface with only
+		// never threw at all (without it this third surface would have only
 		// the first half, asymmetric with its siblings). $refund_status_after_delegation
 		// is reused rather than a second RefundStatus::get() call -- it is
 		// already the freshness-guaranteed read taken immediately above.
@@ -764,7 +762,7 @@ final class DepositManagementAjax {
 	 *
 	 * The source-state check is done fresh, INSIDE the lock, immediately
 	 * after RefundLock::acquire() and before RefundStatus::transition() is
-	 * even attempted (fix round 1, F1) -- unlike review_cancel_and_refund()'s
+	 * even attempted -- unlike review_cancel_and_refund()'s
 	 * own NEEDS_REVIEW check, which is an unlocked pre-check because that
 	 * method writes no refund-status meta of its own (see its docblock).
 	 * The matrix cannot supply this precondition by itself here: unlike
@@ -777,19 +775,18 @@ final class DepositManagementAjax {
 	 * review_cancel_and_refund() itself, or a failed/partial_failure retry)
 	 * let a stale "No refund is due" click close it as not_required,
 	 * silently discarding an in-flight refund obligation -- and, because of
-	 * this task's own barrier widening, took the booking out of both
+	 * the widened barrier, took the booking out of both
 	 * sweeps' reach at the same moment.
 	 *
 	 * Every terminating wp_send_json_*() call is OUTSIDE the try/finally
 	 * below, for the exact reason close_manual_refund()'s own docblock gives
-	 * (fix round 1, C1, re-measured for Task 12 against the same running
-	 * stack): wp_send_json_*() calls wp_die(), a hard exit in production, and
-	 * PHP does not run a finally block across an exit. $in_review and $moved
+	 * (re-measured against the same running stack): wp_send_json_*() calls
+	 * wp_die(), a hard exit in production, and PHP does not run a finally block
+	 * across an exit. $in_review and $moved
 	 * are both decided and acted on entirely inside the try, and the lock is
 	 * released before either response is sent.
-	 * RefundLockFinallyDoesNotSendJsonTest (fix round 1, F2) now scans src/
-	 * for exactly this shape, so a future regression here does not depend on
-	 * a human re-noticing it.
+	 * RefundLockFinallyDoesNotSendJsonTest now scans src/ for exactly this shape,
+	 * so a future regression here does not depend on a human re-noticing it.
 	 */
 	public static function review_dismiss(): void {
 		// Line-local nonce check, redundant by design -- see the class
@@ -809,11 +806,11 @@ final class DepositManagementAjax {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
 		}
 
-		// Fix round 1, F4: trim() BEFORE the length cap. Capping first could
+		// trim() BEFORE the length cap. Capping first could
 		// truncate a long, genuinely non-empty reason down to nothing but
 		// leading whitespace, rejecting it as empty and, on success, storing
-		// whitespace nobody asked to keep. Fix round 1, F3: textarea(), not
-		// text() -- the control this posts from is a <textarea>
+		// whitespace nobody asked to keep. textarea(), not text() -- the control
+		// this posts from is a <textarea>
 		// (BookingRefundMetaBox::render_needs_review_controls()), and
 		// text()'s sanitize_text_field() collapses the newlines a
 		// multi-line reason relies on; textarea()'s sanitize_textarea_field()
@@ -827,15 +824,15 @@ final class DepositManagementAjax {
 		$reason = mb_substr( $reason, 0, self::REFERENCE_MAX_LENGTH );
 
 		if ( ! RefundLock::acquire( $booking_id ) ) {
-			// Task 14b item 2: this used to claim "another refund is
-			// already running" as fact. RefundLock::acquire() cannot
-			// actually tell that apart from an orphaned lock a dead
-			// request left behind (RefundLock.php's own "steal" branch) --
-			// the honest answer covers both without asserting either.
-			// Fix round 1, F5: the wait bound is DERIVED from
-			// RefundLock::TTL_SECONDS rather than a hardcoded "5 minutes" --
-			// a hardcoded number here is exactly the kind of confident
-			// falsehood item 2 removed, the moment the TTL ever changes.
+			// This used to claim "another refund is already running" as
+			// fact. RefundLock::acquire() cannot actually tell that apart
+			// from an orphaned lock a dead request left behind
+			// (RefundLock.php's own "steal" branch) -- the honest answer
+			// covers both without asserting either. The wait bound is
+			// DERIVED from RefundLock::TTL_SECONDS rather than a hardcoded
+			// "5 minutes" -- a hardcoded number is exactly the kind of
+			// confident falsehood that goes stale the moment the TTL
+			// changes.
 			// Hoisted, and it has to stay hoisted -- see the note on
 			// Refunds\Service.php's copy of this message: `wp i18n make-pot`
 			// silently drops an i18n call whose argument list contains
@@ -909,8 +906,8 @@ final class DepositManagementAjax {
 		}
 
 		if ( ! $moved ) {
-			// Fix round 1, F5: deliberately a different message from the
-			// precondition refusal above. $in_review was true a moment ago,
+			// Deliberately a different message from the precondition
+			// refusal above. $in_review was true a moment ago,
 			// under the same lock this process still held -- nothing else
 			// could have written this booking's refund status in between --
 			// so reaching here means the write itself failed for a reason
@@ -923,8 +920,8 @@ final class DepositManagementAjax {
 	}
 
 	/**
-	 * Append an operator action to `_mhmrentiva_booking_logs`. Public since PR
-	 * 3b-2: the edit form's cancellation writes the same row the button does.
+	 * Append an operator action to `_mhmrentiva_booking_logs`. Public because the
+	 * edit form's cancellation writes the same row the button does.
 	 *
 	 * @param array<string, mixed> $data
 	 */

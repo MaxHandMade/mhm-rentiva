@@ -30,8 +30,8 @@ if (! defined('ABSPATH')) {
 final class ComparisonView {
 
 	/**
-	 * Rows of the drawing's groups. A listed key wins over its category, because
-	 * an admin category is not a drawing group: the deposit is a "details" field
+	 * Rows of the comparison's groups. A listed key wins over its category, because
+	 * an admin category is not a comparison group: the deposit is a "details" field
 	 * and reads under Features. Anything unknown reads under Details.
 	 */
 	public const GROUPS = array(
@@ -194,7 +194,7 @@ final class ComparisonView {
 	}
 
 	/**
-	 * The drawing's group a row belongs to.
+	 * The comparison group a row belongs to.
 	 */
 	public static function group_of(string $key, string $category): string
 	{
@@ -341,7 +341,7 @@ final class ComparisonView {
 	}
 
 	/**
-	 * A row from its cells, the drawing's rule: a cell differs when its value
+	 * A row from its cells, the comparison's rule: a cell differs when its value
 	 * occurs once in the row. Null when no vehicle has a value.
 	 *
 	 * @param list<array{text: string, value: string, empty: bool}> $cells

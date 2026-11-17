@@ -1,6 +1,5 @@
 /* =============================================
    MHM Rentiva — New booking (post-new.php, mhmrentiva_booking)
-   Approved design: canvas board Yon-Yeni-Rezervasyon (v116).
    Tokens: ui-core kit (admin.css), declared on .mhmui-admin;
    the screen adds that class to <body>.
    ============================================= */
@@ -190,7 +189,7 @@
 	color: var(--mhmui-danger-ink);
 }
 
-/* The new customer's country and state are optional (spec K6). */
+/* The new customer's country and state are optional. */
 .mhm-field-label .mhm-field-optional {
 	color: var(--mhmui-text-muted);
 	font-weight: 400;

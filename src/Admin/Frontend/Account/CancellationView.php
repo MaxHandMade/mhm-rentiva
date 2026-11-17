@@ -14,8 +14,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * The booking detail's cancellation section, as the rule applies it (PR D,
- * Task 4; R10, R11, K-D2).
+ * The booking detail's cancellation section, as the rule applies it.
  *
  * - `none`: nothing to cancel -- cancelled, refunded, completed, a no-show,
  *   or a rental already under way (its pickup, and so its deadline, passed);

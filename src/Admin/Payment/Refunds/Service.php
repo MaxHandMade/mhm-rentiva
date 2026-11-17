@@ -49,7 +49,7 @@ final class Service {
 	}
 
 	public static function process( int $bookingId, int $amountKurus, string $reason, int $actorId, string $surface = '' ): array {
-		// First statement, on purpose (spec §5): every caller of this method
+		// First statement, on purpose: every caller of this method
 		// inherits the gate whether it remembers to ask or not. Before this
 		// task the question lived at each call site instead, and one of them
 		// -- Actions::refund_booking() -- never asked at all.
@@ -64,7 +64,7 @@ final class Service {
 		// this one would refuse here AFTER that lock and write already
 		// happened -- and the caller-side code records that as
 		// 'reason' => 'validator_refused', a label that would then describe a
-		// permission refusal, not a validator one (fix round 1, F6). Threading
+		// permission refusal, not a validator one. Threading
 		// the caller's own surface through this ask was judged out of this
 		// task's scope; a surface-aware filter has to account for the
 		// two-ask sequence itself.
@@ -170,7 +170,7 @@ final class Service {
 	 * after the fact -- this task's whole point is that a caller (like
 	 * Actions::refund_booking()) can now reach this refusal having never
 	 * asked the question itself, so nothing else in the tree is guaranteed
-	 * to have logged the attempt (fix round 1, F2). Mirrors the shape
+	 * to have logged the attempt. Mirrors the shape
 	 * CancellationHandler::process_refund()'s own refusal branch already
 	 * uses, one layer up.
 	 */
@@ -198,12 +198,12 @@ final class Service {
 	 */
 	private static function withLock( int $bookingId, callable $operation, string $surface = '' ): array {
 		if ( ! RefundLock::acquire( $bookingId ) ) {
-			// Task 14b item 2: was "another refund is already running",
+			// Was "another refund is already running",
 			// stated as fact. RefundLock::acquire() cannot tell that apart
 			// from an orphaned lock a dead request left behind (RefundLock.php's
 			// own "steal" branch) -- the same fix as the two AJAX surfaces
 			// in DepositManagementAjax.php that return this exact string.
-			// Fix round 1, F5: the wait bound is DERIVED from
+			// The wait bound is DERIVED from
 			// RefundLock::TTL_SECONDS, not a hardcoded "5 minutes" that
 			// would silently go stale the moment the TTL changes.
 			// Hoisted, and it has to stay hoisted: `wp i18n make-pot` silently
@@ -272,8 +272,7 @@ final class Service {
 	 * path where nothing else will ever write a terminal status. Spec v3
 	 * section 7.5 hangs the stuck-pending rule on the write rather than on
 	 * the flow, so it belongs to every path that raises the marker -- not
-	 * just to CancellationHandler, which has closed this shape one layer up
-	 * since slice 4.
+	 * just to CancellationHandler, which has closed this shape one layer up.
 	 *
 	 * The log lives here rather than at the caller because this is where the
 	 * refusal's own words are: a caller that only sees a false return cannot
@@ -318,7 +317,7 @@ final class Service {
 	 * auto_refunded and manual_refunded (both minor units, summing to
 	 * 'refunded') carry the same per-order split forward: 'mode' alone
 	 * collapses a mixed operation to a single word, which is exactly the
-	 * H-2 messaging defect -- an operator told "transfer the amount above
+	 * messaging defect -- an operator told "transfer the amount above
 	 * manually" for the WHOLE total when only part of it never touched a
 	 * gateway. RefundNotifications::notify() reads these two to tell the
 	 * two amounts apart.
@@ -334,7 +333,7 @@ final class Service {
 
 		if ( RefundValidator::CHANNEL_OFFLINE === $channel ) {
 			// Nothing to call: there is no gateway behind offline money. The
-			// refund is a bookkeeping record and Task 8 writes it.
+			// refund is a bookkeeping record and the success path writes it.
 			return array(
 				'ok'              => true,
 				'refunded'        => $amountKurus,
@@ -461,8 +460,7 @@ final class Service {
 	/**
 	 * Close the operation: log it, record it, tell the customer once.
 	 *
-	 * Built out across Tasks 6-9 of the slice-3 plan. It exists from Task 6
-	 * so the two entry points have one exit, not two.
+	 * It exists so the two entry points have one exit, not two.
 	 *
 	 * @param array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string, order_refunds: array<int, string>} $operation
 	 */
@@ -528,7 +526,7 @@ final class Service {
 			// hand-closed to completed_manually (terminal) before a second
 			// operation runs on its still-refundable second leg. The payload
 			// must report what the store actually holds, never what this call
-			// merely attempted (fix round 1, F2) -- RefundStatus::get() is the
+			// merely attempted -- RefundStatus::get() is the
 			// fallback for exactly that refusal.
 			$transitioned = RefundStatus::transition(
 				$bookingId,
@@ -555,13 +553,10 @@ final class Service {
 
 		// 'completed' is a claim that the money has already gone back. Only the
 		// gateway path can make it: a manual refund is a bookkeeping record and
-		// the operator still has to transfer the money by hand
-		// (wp-knowledge/official/woocommerce/wc-refunds.md, fact 2). Spec §5.3
-		// step 9 names this value; N-05 (step 7) is what will show it.
+		// the operator still has to transfer the money by hand.
 		$refundStatus = RefundValidator::MODE_MANUAL === $operation['mode'] ? RefundStatus::MANUAL_PENDING : RefundStatus::COMPLETED;
 
-		// See the failure branch's own comment on $transitioned (fix round 1,
-		// F2): the same refusal is reachable here too, when a second
+		// See the failure branch's own comment on $transitioned: the same refusal is reachable here too, when a second
 		// operation on this booking runs after an earlier one already
 		// reached a DIFFERENT terminal status by another path
 		// (completed_manually, completed_externally, not_required).
@@ -578,7 +573,7 @@ final class Service {
 			// money has no WC_Order_Refund behind it, so no hook fired and this
 			// meta is the entire record of what has been given back. Every
 			// other write of this key -- the WooCommerce channel's -- is
-			// absolute and derived from PaymentState (Task 8).
+			// absolute and derived from PaymentState.
 			$previous = max( 0, (int) get_post_meta( $bookingId, '_mhmrentiva_refunded_amount', true ) );
 
 			update_post_meta( $bookingId, '_mhmrentiva_refunded_amount', $previous + $operation['refunded'] );
@@ -664,7 +659,7 @@ final class Service {
 	 *
 	 * Extracted so every caller asks this exact question once, rather than
 	 * copying the fallback inline. Takes an already-resolved PaymentState
-	 * rather than a booking id (fix round 1, F3): PaymentState::forBooking()
+	 * rather than a booking id: PaymentState::forBooking()
 	 * is uncached and walks every paid order via wc_get_order() +
 	 * get_remaining_refund_amount() -- inside the refund lock. finish()
 	 * already resolves one instance per branch for isFullyRefunded()/its
@@ -693,7 +688,7 @@ final class Service {
 	 * WooCommerce's own "Refunded order" customer e-mail is deliberately NOT
 	 * suppressed: it fires for every manual refund made from the WooCommerce
 	 * order screen too, and silencing a core customer mail is a larger change
-	 * than this slice carries. The mode-specific sentence lives in ours.
+	 * than is warranted here. The mode-specific sentence lives in ours.
 	 *
 	 * @param array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string, order_refunds: array<int, string>} $operation
 	 */
@@ -706,7 +701,7 @@ final class Service {
 				$state->isFullyRefunded() ? 'refunded' : 'partially_refunded',
 				'',
 				$operation['mode'],
-				// H-2 (fable-audit.md): 'mode' alone collapses a mixed
+				// 'mode' alone collapses a mixed
 				// operation (a deposit paid by card, a remainder paid by
 				// transfer) to a single word, and the old message named the
 				// OPERATION TOTAL regardless -- an operator told to

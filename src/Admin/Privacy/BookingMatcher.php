@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * One matcher for the booking exporter and eraser (5a spec T2, T4).
+ * One matcher for the booking exporter and eraser.
  *
  * A booking belongs to the person when its customer user ID is the account
  * that carries the e-mail (only for a real account: guests store 0, and a

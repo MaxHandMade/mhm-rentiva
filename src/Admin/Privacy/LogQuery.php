@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Every match is exact and in SQL -- no candidate is fetched and then rejected
- * in PHP (spec r5 #7): a rejected candidate would neither be deleted nor
+ * in PHP: a rejected candidate would neither be deleted nor
  * marked, and the next page would fetch it again. A log that carries the
  * person's address as a whole JSON string, or their account ID as a JSON
  * field, holds their data, so deleting it is right.

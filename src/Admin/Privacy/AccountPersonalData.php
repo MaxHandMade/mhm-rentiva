@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * `mhm-rentiva-account` exporter and eraser (5a spec T7).
+ * `mhm-rentiva-account` exporter and eraser.
  *
  * Only the meta Rentiva writes; WordPress exports the account itself and
  * WooCommerce the billing fields. The account is never deleted (core's

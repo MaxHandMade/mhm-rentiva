@@ -357,7 +357,7 @@
 
     $(document).ready(function () {
         RentivaInteractions.init();
-        // The results band's link (R3): the server gave it the first paint's window.
+        // The results band's link: the server gave it the first paint's window.
         $('[data-rvs-compare-link]').each(function () {
             this.setAttribute('href', withWindow(this.getAttribute('href')));
         });

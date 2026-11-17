@@ -1,11 +1,11 @@
 <?php
 /**
- * "My bookings" list (PR D, Task 2; drawings Hesabim + Hesabim-Mobil).
+ * "My bookings" list.
  *
- * Title, the section control (links, so it works without JS; R6), the table
+ * Title, the section control (links, so it works without JS), the table
  * (a raised card per row on phones), the section's empty sentence or the
  * general empty state, and the pager. The search box and status select of the
- * old list are not drawn; their query vars still narrow the list (R6).
+ * old list are not drawn; their query vars still narrow the list.
  *
  * @var list<array{id:int, number:string, vehicle:string, image:string, dates:string, amount_html:string, status:array{modifier:string,label:string}, url:string}> $rows AccountBookingsView::rows().
  * @var array{upcoming:int, past:int, cancelled:int}      $counts       Section sizes (AccountBookingsQuery::counts()).

@@ -1,6 +1,6 @@
 <?php
 /**
- * One extra section of the results (PR S): "other pickup points in the same
+ * One extra section of the results: "other pickup points in the same
  * city" or "booked for these dates". A labelled region with its own h2, so a
  * screen reader can list and jump to it; page 1 only, outside the totals.
  *

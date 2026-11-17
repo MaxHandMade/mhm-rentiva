@@ -43,13 +43,13 @@ final class RefundStatus {
 	 * Spec v3 section 3: the value sets the refund_status_changed context is
 	 * allowed to announce. They are listed here rather than in each caller so
 	 * that "which surfaces exist" has one answer, and so a caller inventing a
-	 * sixth one cannot quietly teach integrators a value the spec never named.
+	 * sixth one cannot quietly teach integrators a value that was never defined.
 	 */
 	public const SURFACES = array( 'admin_deposit', 'customer_account', 'auto_cancel', 'manual_close', 'review_action' );
 	public const CHANNELS = array( 'auto', 'manual', 'mixed', 'external', 'none' );
 
 	/**
-	 * From => allowed destinations. Spec v3 §2.2 verbatim.
+	 * From => allowed destinations.
 	 *
 	 * The four terminal states (not_required, completed_externally, completed,
 	 * completed_manually) are absent as keys, which is how they have no exit.
@@ -84,7 +84,7 @@ final class RefundStatus {
 	 * Derived from matrix() itself, not enumerated a second time: a status
 	 * that appears somewhere as a destination but never as a key has nowhere
 	 * left to go, which is the class docblock's own definition of terminal.
-	 * Task 12 (slice 5) needs this so AutoCancel::not_parked_for_review() can
+	 * AutoCancel::not_parked_for_review() uses this so it can
 	 * follow the matrix instead of restating a list beside it -- the same
 	 * shape selectable_status_values() already uses for Status's machine. A
 	 * hand-written list here would drift the same way that one used to: an
@@ -175,18 +175,18 @@ final class RefundStatus {
 	}
 
 	/**
-	 * Fill the spec's triple, and refuse to republish a value it does not name.
+	 * Fill the context triple, and refuse to republish a value it does not name.
 	 *
 	 * Spec v3 section 3 says the context carries AT LEAST channel, surface and
 	 * actor_id. Thirteen call sites passed one or two of them and none passed
 	 * all three, so an integrator mirroring refund state had to guess -- and
 	 * two sites announced surface "refunds_service", which is not one of the
-	 * five the spec names and which no listener could switch on.
+	 * five defined here and which no listener could switch on.
 	 *
 	 * Gaps are filled rather than made fatal: refund_status is money state and
 	 * the context is telemetry, so a caller that forgot a key must not cost the
 	 * booking its recorded state. An out-of-contract value is a different case
-	 * -- passing it through would publish a vocabulary the spec does not have --
+	 * -- passing it through would publish a vocabulary the contract does not have --
 	 * so it is dropped to "unstated" and logged where someone will read it. Our
 	 * own call sites are held to the real values by
 	 * RefundStatusContextInventoryTest; an empty surface in the wild therefore
@@ -221,7 +221,7 @@ final class RefundStatus {
 	private static function reportOutOfContract( int $booking_id, string $key, string $value, array $allowed ): void {
 		\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
 			sprintf(
-				/* translators: 1: the context key, 2: the value the caller passed, 3: the comma-separated list of values the spec allows. */
+				/* translators: 1: the context key, 2: the value the caller passed, 3: the comma-separated list of allowed values. */
 				__( 'A refund_status_changed context announced %1$s "%2$s", which is not one of: %3$s. It was dropped.', 'mhm-rentiva' ),
 				$key,
 				$value,

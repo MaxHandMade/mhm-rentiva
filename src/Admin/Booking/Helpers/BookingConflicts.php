@@ -446,7 +446,7 @@ final class BookingConflicts {
 	 * accepts (VehicleDetailsView::window()): `from` rounds up, `until`
 	 * rounds down, so the calendar never offers a slot the server refuses.
 	 * A hold that leaves free time on both sides of one day marks it
-	 * booked: a day grid has no room for two times (Ç6, 2026-11-11).
+	 * booked: a day grid has no room for two times (2026-11-11).
 	 *
 	 * @return array<string, array{state: string, from?: string, until?: string}>
 	 */

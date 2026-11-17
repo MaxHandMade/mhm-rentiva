@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-// My Favorites page template (PR D, Task 2: the outer shell on the `rvs-` layer).
+// My Favorites page template (the outer shell on the `rvs-` layer).
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 

@@ -1,9 +1,9 @@
 /**
- * Vehicle comparison (PR E): remove, "only differences", and what follows from them.
+ * Vehicle comparison: remove, "only differences", and what follows from them.
  *
  * Every [data-rvs-comparison] keeps its own state and touches nothing outside its
  * root. The server draws the page; this script only recomputes what a removal
- * changes, by the drawing's rule: a cell differs when its value occurs once in the
+ * changes, by the comparison's rule: a cell differs when its value occurs once in the
  * row. Below two vehicles the visitor's list reloads (the server's empty state);
  * a fixed list (vehicle_ids) never touches the visitor's list and shows the
  * empty state it was printed with.

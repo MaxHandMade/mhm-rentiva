@@ -29,7 +29,7 @@ $layout_class   = $layout_class ?? 'rv-vehicles-grid';
 $columns_class  = $columns_class ?? 'rv-vehicles-grid--columns-3';
 $wrapper_class  = $wrapper_class ?? '';
 $booking_url    = $booking_url ?? '';
-// Set by the favourites shortcode only (spec 3A Task 7b); the vehicles grid keeps
+// Set by the favourites shortcode only; the vehicles grid keeps
 // grid cards and its own empty state.
 $card_layout     = $card_layout ?? 'grid';
 $no_results_text = $no_results_text ?? '';

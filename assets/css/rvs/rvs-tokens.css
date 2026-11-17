@@ -1,9 +1,8 @@
 /**
  * Rentiva front-end standard -- design tokens (`--rvs-*`).
  *
- * Values from the "live front-end language" board (`Canli-Ornek`, class `.R`):
- * vivid blue accent on a pale blue page, white surfaces, Plus Jakarta Sans
- * (bundled, assets/vendor/fonts/) with a system sans-serif fallback, 4 px corners. Owner decision 2026-11-01; it replaces the Aşama 1 canvas
+ * Values: vivid blue accent on a pale blue page, white surfaces, Plus Jakarta Sans
+ * (bundled, assets/vendor/fonts/) with a system sans-serif fallback, 4 px corners. Adopted 2026-11-01; it replaces the earlier
  * palette (teal accent, warm greys, a serif face, 2 px corners). Scoped to
  * `.rvs-shell`, not `:root`: the admin and the older `.rv-*` / `--mhm-*`
  * surfaces never see them, and a theme's own custom properties cannot be
@@ -16,11 +15,10 @@
  *
  * One more scope: WooCommerce's My Account wrapper (`.woocommerce-account
  * .woocommerce`). Its navigation is WooCommerce's own markup and sits outside
- * any `.rvs-shell`, yet rvs-account-nav.css draws it from these tokens (PR D,
- * R1). WooCommerce puts `.woocommerce-account` on the account page's body and
+ * any `.rvs-shell`, yet rvs-account-nav.css draws it from these tokens. WooCommerce puts `.woocommerce-account` on the account page's body and
  * nowhere else, so the extra scope reaches no other page.
  *
- * And the rental pages of WooCommerce (`body.rvs-rental`, PR K, R16): the cart,
+ * And the rental pages of WooCommerce (`body.rvs-rental`): the cart,
  * checkout, thank-you and order-pay pages of one rental, whose forms and tables
  * are WooCommerce's own markup outside any `.rvs-shell`. Tokens only: no
  * background or type reaches the theme's body from this rule. CheckoutJourney
@@ -51,9 +49,9 @@ body.rvs-rental,
 	--rvs-accent-deep: #135e96;
 	--rvs-accent-100: #dcecf9;
 
-	/* Text on the accent and on its deep tone (PR 2 picks dark or white by
+	/* Text on the accent and on its deep tone (dark or white, picked by
 	   contrast). The accent as text, link, focus ring and selected line: at
-	   least 4.5:1 on white and on --rvs-bg, so PR 2 may darken it while the
+	   least 4.5:1 on white and on --rvs-bg, so it may be darkened while the
 	   fill keeps the site's colour. */
 	--rvs-on-accent: #ffffff;
 	--rvs-accent-text: #2271b1;

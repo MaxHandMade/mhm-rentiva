@@ -58,7 +58,7 @@ class VehiclesListWidget extends ElementorWidgetBase {
 			array(
 				'label'   => __( 'Columns', 'mhm-rentiva' ),
 				'type'    => 'select',
-				// One column: what the list has always shown (spec 3A §2.2).
+				// One column: what the list has always shown.
 				'default' => '1',
 				'options' => array(
 					'1' => '1',

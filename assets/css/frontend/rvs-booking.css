@@ -2,8 +2,7 @@
  * Rentiva front-end standard -- the booking form (`[rentiva_booking_form]`).
  *
  * Markup: templates/shortcodes/booking-form.php and
- * templates/partials/selected-vehicle-summary.php. Values from the approved
- * canvas (`Rezervasyon`, `Rezervasyon-Mobil`): heading, journey steps, then
+ * templates/partials/selected-vehicle-summary.php. Values: heading, journey steps, then
  * the form and a sticky summary side by side; on a phone the summary is a
  * bottom band (total, deposit, submit) that opens to the full breakdown.
  * The option cards, steppers and steps are rvs-forms.css; the breakdown is
@@ -14,7 +13,7 @@
  * templates/partials/rvs/journey-summary.php): the compact step bar and the
  * booking summary above WooCommerce's own checkout and order details.
  *
- * The jQuery UI datepicker popup's rvs skin (`rvs-shell rvs-dp`, R6) is
+ * The jQuery UI datepicker popup's rvs skin (`rvs-shell rvs-dp`) is
  * rvs-datepicker.css, shared with the search strip and the vehicle page.
  */
 

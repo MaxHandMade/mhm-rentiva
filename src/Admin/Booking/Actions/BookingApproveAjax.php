@@ -10,15 +10,14 @@ if (!defined('ABSPATH')) {
 use MHMRentiva\Admin\Booking\Core\Status;
 
 /**
- * "Approve" row action on the Bookings list (Faz 2 Task 7) -- the only new
- * write endpoint this round adds. Admin-only (wp_ajax_ only, no nopriv
- * counterpart).
+ * "Approve" row action on the Bookings list. Admin-only
+ * (wp_ajax_ only, no nopriv counterpart).
  *
  * Moves a `pending` booking to `confirmed` through Status::update_status(),
  * the same transition gate every other status change in this plugin uses --
  * it validates the transition itself and fires
- * `mhmrentiva_booking_status_changed`, which Task 2 subscribed the
- * occupancy-map invalidation to. This endpoint does not touch
+ * `mhmrentiva_booking_status_changed`, which the
+ * occupancy-map invalidation subscribes to. This endpoint does not touch
  * `_mhmrentiva_payment_status` or any other payment meta: approving a
  * booking's schedule status is a separate concern from confirming its
  * payment, which DepositManagementAjax::approve_payment() already owns.

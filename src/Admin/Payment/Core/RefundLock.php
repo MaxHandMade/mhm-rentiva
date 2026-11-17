@@ -12,8 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * One INSERT IGNORE against wp_options' UNIQUE KEY option_name: atomic in a
  * single statement, no transaction opened, no schema change. The three
- * alternatives were measured and rejected (spec §5.4 and the plan's evidence
- * section): Locker::withLock() commits PHPUnit's transaction; add_option() is
+ * alternatives were measured and rejected:
+ * Locker::withLock() commits PHPUnit's transaction; add_option() is
  * INSERT ... ON DUPLICATE KEY UPDATE, so the second racer overwrites the first
  * lock; wp_cache_add() is a request-local array without a persistent object
  * cache. GET_LOCK() is atomic too, but it is re-entrant per connection, which
@@ -69,13 +69,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * is no second barrier, and this lock is the only defence against a
  * double-refund race.
  *
- * Spec §5.3 puts mhmrentiva_refund_completed AFTER the lock is released;
+ * The design calls for mhmrentiva_refund_completed to fire AFTER the lock is released;
  * Refunds\Service fires it from inside finish(), which runs INSIDE
  * withLock(). Known deviation, kept deliberately: both of finish()'s
  * callers (process() and processFullRefund()) return finish()'s array as
  * their own result, so moving the hook outside the lock would mean firing
  * it after the return value is already computed, from both entry points --
- * a larger change to their contract than this slice carries.
+ * a larger change to their contract than is warranted here.
  *
  * A request that dies mid-refund (a fatal, a killed worker) leaves its
  * mhmrentiva_refund_lock_<id> row standing: nothing runs release() for it.
@@ -98,7 +98,7 @@ final class RefundLock {
 	/**
 	 * How long a lock may sit before another request may take it over.
 	 *
-	 * Public since Task 14b fix round 1, F5: three operator/customer-facing
+	 * Public so that three operator/customer-facing
 	 * messages (DepositManagementAjax.php x2, Refunds/Service.php) used to
 	 * hardcode "within 5 minutes" -- exactly the kind of confident
 	 * falsehood item 2 removed elsewhere in this task, the moment this

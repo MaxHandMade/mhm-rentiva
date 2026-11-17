@@ -15,7 +15,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * The booking detail's "Progress" list (PR D, Task 4; R9).
+ * The booking detail's "Progress" list.
  *
  * Drawn only from recorded facts: the post date, paid orders and their
  * WooCommerce paid date, the structured status-change entries of the
@@ -112,8 +112,8 @@ final class BookingTimeline {
 
 	/**
 	 * Planned pickup and return instants (Unix timestamps), null when the
-	 * date is missing. Pickup time: CancellationHandler::pickup_time_for()
-	 * (R10). Return time: `_mhmrentiva_end_time` -> `_mhmrentiva_dropoff_time`
+	 * date is missing. Pickup time: CancellationHandler::pickup_time_for().
+	 * Return time: `_mhmrentiva_end_time` -> `_mhmrentiva_dropoff_time`
 	 * -> `_mhmrentiva_booking_dropoff_time`, else the pickup time (a rental
 	 * returns at the hour it started, as the booking card shows it).
 	 *

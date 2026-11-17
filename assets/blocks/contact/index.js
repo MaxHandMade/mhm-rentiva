@@ -16,7 +16,7 @@
             var blockProps = useBlockProps();
 
             // Each control writes the live attribute its shortcode key reads
-            // (slice 3A: "Recipient Email" -> emailTo, "Show Phone Field" -> showPhone,
+            // ("Recipient Email" -> emailTo, "Show Phone Field" -> showPhone,
             // "Show Vehicle Select" -> showVehicleSelector).
             var emailTo = attributes.emailTo;
             var successMessage = attributes.successMessage;

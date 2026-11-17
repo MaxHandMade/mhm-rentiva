@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * `mhm-rentiva-app-log` eraser (5a spec T7). No exporter: the application log
+ * `mhm-rentiva-app-log` eraser. No exporter: the application log
  * is an internal diagnostic record that its own retention setting purges; the
  * eraser still removes every entry that names the person -- by the two account
  * meta keys, by the address anywhere in the entry, or by the account ID in the

@@ -122,7 +122,7 @@ $payment_status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true
 	<!-- Refund Notice -->
 	<?php
 	// Same question CancellationHandler::process_refund() asks before it moves
-	// money (spec §5.3): the balance, not just the status string. A booking
+	// money: the balance, not just the status string. A booking
 	// whose meta still claims 'paid' after a channel emptied it, or one that
 	// took a PARTIAL refund and still carries a remainder, must both see this
 	// panel -- 'paid' alone missed the partially_refunded case entirely, which

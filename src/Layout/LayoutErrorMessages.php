@@ -178,7 +178,7 @@ final class LayoutErrorMessages {
 
             default:
                 // A code the package raises but this class does not (yet) know --
-                // e.g. a future ErrorCodes addition, or a rename that Task B7's
+                // e.g. a future ErrorCodes addition, or a rename that the
                 // HANDLED/ErrorCodes::ALL parity test exists to catch. Name the
                 // code rather than inventing a sentence it never earned.
                 return sprintf(

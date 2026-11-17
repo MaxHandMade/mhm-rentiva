@@ -1,6 +1,6 @@
 <?php
 /**
- * A booking status tag: icon + label (R7 -- the colour is never the only cue).
+ * A booking status tag: icon + label (the colour is never the only cue).
  *
  * @var array{modifier: string, label: string} $status RvsStatus::for().
  */

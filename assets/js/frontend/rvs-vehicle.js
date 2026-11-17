@@ -45,7 +45,7 @@
 	}
 
 	// The dates and the time only: the car is picked up and returned at its
-	// own point, which the server takes from the car (PR S) -- a location
+	// own point, which the server takes from the car -- a location
 	// field, should one turn up in the form, is not posted.
 	const WINDOW_KEYS = [ 'pickup_date', 'pickup_time', 'return_date' ];
 
@@ -178,7 +178,7 @@
 		}
 		// Dates the server could not price (wrong order) show no total: the
 		// message beside them says why. A car taken for the window (the
-		// server's `taken`, owner decision 2026-11-03) shows no total block at
+		// server's `taken`) shows no total block at
 		// all -- the header and the phone bar show its daily price instead.
 		const taken = data.taken === true;
 		const totaled = data.priced !== false && ! taken;

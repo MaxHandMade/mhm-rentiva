@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class MyBookings extends AbstractAccountShortcode {
 
-	/** Renders inside the front-end standard's shell (PR D). */
+	/** Renders inside the front-end standard's shell. */
 	protected static bool $rvs_shell = true;
 
 	protected static function get_shortcode_tag(): string {
@@ -37,7 +37,7 @@ final class MyBookings extends AbstractAccountShortcode {
 			// Empty: each section's own pickup order. ASC / DESC: by created date.
 			'order'              => '',
 			'hide_nav'           => false,
-			// Spec 3A Task 7a: these gate markup that was unconditional, so on by default.
+			// These gate markup that was unconditional, so on by default.
 			'show_image'         => '1',
 			'show_booking_dates' => '1',
 			'show_status_toggle' => '1',
@@ -48,7 +48,7 @@ final class MyBookings extends AbstractAccountShortcode {
 
 	protected static function prepare_template_data( array $atts ): array {
 		// An editor preview always shows the fixed sample rows, never the
-		// editing user's own bookings (spec 3B-2a §2.1, account class).
+		// editing user's own bookings.
 		if ( RenderContext::current()->allows_sample() ) {
 			$data                            = AccountRenderer::get_bookings_preview_data( $atts );
 			$data[ self::PREVIEW_BADGE_KEY ] = __( 'Preview: sample data. Logged-in customers see their own records.', 'mhm-rentiva' );

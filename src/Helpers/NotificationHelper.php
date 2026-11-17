@@ -62,8 +62,8 @@ class NotificationHelper {
 	/**
 	 * Send Refund Needs-Review Email
 	 *
-	 * AutoCancel found a paid order inside its cancel set and, per K6 (no
-	 * unattended path moves money), parked the booking instead of cancelling
+	 * AutoCancel found a paid order inside its cancel set and, because no
+	 * unattended path moves money, parked the booking instead of cancelling
 	 * it. Unlike send_auto_cancel_email() this is not behind a settings
 	 * toggle -- a paid order left alone by a sweep is exactly the situation
 	 * that needs a human, every time it happens, not only when an admin has
@@ -107,10 +107,10 @@ class NotificationHelper {
 
 		$subject = __('A cancelled reservation still holds paid money', 'mhm-rentiva');
 
-		// Whole-branch review, F2: paid() is zeroed for a mixed-currency
-		// booking (Task 15) -- summing across currencies is exactly the
+		// paid() is zeroed for a mixed-currency
+		// booking -- summing across currencies is exactly the
 		// meaningless number isMixedCurrency() exists to refuse. This
-		// e-mail's decision to fire (K6: a paid order was found) is made
+		// e-mail's decision to fire (a paid order was found) is made
 		// per-order (AutoCancel::is_paid()) with no currency-matching
 		// involved, so a booking whose two paid orders sit in different
 		// currencies reaches this same e-mail -- and printing that zero
@@ -187,8 +187,8 @@ class NotificationHelper {
 
 		$subject = __('A cancelled booking had a problem completing its refund', 'mhm-rentiva');
 
-		// Whole-branch review, F2: refundable() is zeroed for a
-		// mixed-currency booking (Task 15). CancellationHandler.php's own
+		// refundable() is zeroed for a
+		// mixed-currency booking. CancellationHandler.php's own
 		// `$recovery_state->isMixedCurrency()` disjunct (:403) routes this
 		// exact shape to THIS e-mail deliberately -- its own comment says so
 		// -- BECAUSE money is owed and unknowable, not despite it. Printing

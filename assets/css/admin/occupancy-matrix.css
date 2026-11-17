@@ -1,5 +1,5 @@
 /*
- * Faz 2 Task 8 — skin for the three new admin-list surfaces: the
+ * Skin for the three new admin-list surfaces: the
  * segmented view toggle, the shared fleet occupancy matrix (Vehicles +
  * Bookings Calendar faces), the Vehicles Cards face, and the Bookings
  * "Approve" row action. Refined WP-admin language (accent #2271b1,
@@ -8,7 +8,7 @@
  * Light-pinned: every colour below is a literal hex value, never a
  * `var(--mhm-*)` design token, so this skin renders identically whether
  * or not the plugin's dark-mode stylesheet (css-variables.css) is active
- * — same decision Faz 1a/1b made for vehicle-list.css/booking-list.css.
+ * — the same choice vehicle-list.css and booking-list.css make.
  *
  * Every rule is scoped under the screen body classes
  * (.mhm-vehicle-list / .mhm-booking-list) so nothing here leaks onto
@@ -18,8 +18,7 @@
 /* ════════════════════════════════════════════════════════════
    1. Segmented view toggle (rv-view-toggle / rv-view-toggle__btn)
    Supersedes the minimal placeholder that used to live inline in
-   vehicle-list.css/booking-list.css ("the refined skin lands in
-   Task 8") — that placeholder is removed as part of this task.
+   vehicle-list.css/booking-list.css; that placeholder is removed.
    ════════════════════════════════════════════════════════════ */
 
 .mhm-vehicle-list .rv-view-toggle,
@@ -170,7 +169,7 @@
    floor used only where the shared layout can't spare more (the day
    columns get the rest of the width once this column is satisfied).
    Deliberately NOT sized from the "Vehicles" header label (4 characters)
-   — that was the exact mistake an earlier round on this screen made on a
+   — that was the exact mistake an earlier version of this screen made on a
    different column and had to walk back after it clipped real data; this
    floor comes from actually querying every vehicle title in the table,
    not the shortest string that happens to be visible in a screenshot. */
@@ -280,7 +279,7 @@
 }
 
 /* status-in_progress (underscore — matches FleetOccupancyMatrix::STATUS_CLASSES)
-   had NO styling before this task; this is its first colour. */
+   had NO styling before this rule; this is its first colour. */
 .mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-in_progress,
 .mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-in_progress {
 	background: #37a24a;
@@ -382,7 +381,7 @@
 	background: repeating-linear-gradient(45deg, #e9a8a8, #e9a8a8 5px, #fbeaea 5px, #fbeaea 10px);
 }
 
-/* ── Empty-state notices (Task 5): readable card-ish block ── */
+/* ── Empty-state notices: readable card-ish block ── */
 .mhm-booking-list .mhm-occupancy-matrix-empty,
 .mhm-booking-list .mhm-occupancy-matrix-vehicleless-note,
 .mhm-booking-list .mhm-occupancy-matrix-cap-notice {
@@ -405,7 +404,7 @@
 }
 
 /* ════════════════════════════════════════════════════════════
-   3. Vehicles Cards face (Faz 2 Task 6)
+   3. Vehicles Cards face
    ════════════════════════════════════════════════════════════ */
 
 .mhm-vehicle-list .rv-vhl-cards {
@@ -599,7 +598,7 @@
 }
 
 /* ════════════════════════════════════════════════════════════
-   4. Bookings "Approve" row action (Faz 2 Task 7)
+   4. Bookings "Approve" row action
    ════════════════════════════════════════════════════════════ */
 
 .mhm-booking-list .rv-bkl-approve {

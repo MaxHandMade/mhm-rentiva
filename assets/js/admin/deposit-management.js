@@ -379,8 +379,8 @@
         }
 
         // The notice lands in the box of the button that asked: the cancel
-        // button sits in Booking Status and the refund button in Refund
-        // (PR 3b-1), not in the deposit box any more.
+        // button sits in Booking Status and the refund button in Refund,
+        // not in the deposit box any more.
         showMessage(type, message, $from) {
             const dismissText = (mhmDepositManagement.strings && mhmDepositManagement.strings.dismiss) || 'Dismiss this notice';
             const $notice = $(`

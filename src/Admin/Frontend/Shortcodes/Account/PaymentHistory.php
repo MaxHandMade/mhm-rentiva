@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class PaymentHistory extends AbstractAccountShortcode {
 
-	/** Renders inside the front-end standard's shell (PR D). */
+	/** Renders inside the front-end standard's shell. */
 	protected static bool $rvs_shell = true;
 
 
@@ -33,8 +33,8 @@ final class PaymentHistory extends AbstractAccountShortcode {
 
 	protected static function get_default_attributes(): array {
 		return array(
-			// Spec 3A Task 7b: '10' is the page size the list always had (Rule 1);
-			// the '20' here was never read.
+			// '10' is the page size the list always had; the '20' here was
+			// never read.
 			'limit'               => '10',
 			'hide_nav'            => false,
 			'orderby'             => 'date',
@@ -50,7 +50,7 @@ final class PaymentHistory extends AbstractAccountShortcode {
 
 	protected static function prepare_template_data( array $atts ): array {
 		// An editor preview always shows the fixed sample rows, never the
-		// editing user's own payments (spec 3B-2a §2.1, account class).
+		// editing user's own payments.
 		if ( RenderContext::current()->allows_sample() ) {
 			$data                            = AccountRenderer::get_payment_history_preview_data( $atts );
 			$data[ self::PREVIEW_BADGE_KEY ] = __( 'Preview: sample data. Logged-in customers see their own records.', 'mhm-rentiva' );

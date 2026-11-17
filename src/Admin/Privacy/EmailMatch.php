@@ -37,7 +37,7 @@ final class EmailMatch {
 
 	/**
 	 * Keyed hash of the address, stored on a booking while its identity is
-	 * being anonymised so a half-written identity stays findable (spec T4).
+	 * being anonymised so a half-written identity stays findable.
 	 * Not reversible without the site's salts.
 	 *
 	 * @param string $email Raw address.
@@ -72,7 +72,7 @@ final class EmailMatch {
 	 * The address is JSON-encoded first (quotes included, and "/" escaped the
 	 * way wp_json_encode() stores it), then escaped for LIKE. Keeping the
 	 * quotes stops "a@example.test" from matching "ba@example.test". Callers
-	 * act on every match without a second check (spec r5 #7): a record that
+	 * act on every match without a second check: a record that
 	 * carries the address as a whole JSON string holds the person's data.
 	 *
 	 * @param string $email Raw address.

@@ -147,7 +147,7 @@ final class ColorMath {
 			}
 		}
 
-		// 2. Hover fill (spec §5 step 2, ruling R16).
+		// 2. Hover fill.
 		$deep_ok = static fn (string $d): bool => self::contrast($on, $d) >= 4.5 && self::contrast($a, $d) >= 1.3;
 		$first   = self::WHITE === $on ? self::BLACK : self::WHITE;
 		$flipped = self::WHITE === $first ? self::BLACK : self::WHITE;
@@ -189,7 +189,7 @@ final class ColorMath {
 			}
 		}
 
-		// 6. Text hover; also on the accent-100 fill (ruling R5).
+		// 6. Text hover; also on the accent-100 fill.
 		$hover_ok = static fn (string $h): bool => self::contrast($h, $accent_100) >= 4.5 && self::contrast($h, self::WHITE) >= 4.5 && self::contrast($h, $bg) >= 4.5;
 		$hover    = self::mix($text, self::BLACK, 80);
 		if (! $hover_ok($hover)) {
@@ -204,7 +204,7 @@ final class ColorMath {
 
 		// A near-black accent leaves the darker hover
 		// indistinguishable from the text, so it turns lighter. A flipped fixed
-		// step is not a loop (same definition as accent-deep, R16).
+		// step is not a loop (same definition as accent-deep).
 		if (self::contrast($text, $hover) < 1.3) {
 			$flipped_hover = self::mix($text, self::WHITE, 80);
 			if ($hover_ok($flipped_hover) && self::contrast($text, $flipped_hover) >= 1.3) {

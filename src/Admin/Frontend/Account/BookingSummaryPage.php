@@ -16,7 +16,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * The printable "Booking summary" (PR D, K14, R12).
+ * The printable "Booking summary".
  *
  * One page per booking, opened from the dashboard card, the booking detail and
  * the thank-you page. It is the booking detail's view of the booking on a

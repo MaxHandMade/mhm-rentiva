@@ -69,7 +69,7 @@ final class PaymentState {
 	/**
 	 * Resolve one consistent snapshot of a booking's payment state.
 	 *
-	 * Named forBooking() rather than the spec's for(): `for` is a reserved
+	 * Named forBooking() rather than for(): `for` is a reserved
 	 * word and, while PHP 7+ accepts it as a method name, it reads badly at
 	 * every call site.
 	 */
@@ -125,9 +125,9 @@ final class PaymentState {
 	}
 
 	// The booking id is deliberately NOT kept as a property. PHPStan level 5
-	// catches write-only state, and nothing in this slice ever reads it back --
+	// catches write-only state, and nothing here ever reads it back --
 	// resolveOfflineChannel() takes it as a parameter from this scope instead.
-	// When a later slice needs the object to carry its own identity, it gets
+	// If a later change needs the object to carry its own identity, it gets
 	// added together with the caller that needs it.
 
 	/**
@@ -234,7 +234,7 @@ final class PaymentState {
 	 * WooCommerce channel and refundableManual() for the offline one, each
 	 * bound to that channel's own record of what is still owed back.
 	 *
-	 * Zeroed when isMixedCurrency() (Task 15): the sum would be a number with
+	 * Zeroed when isMixedCurrency(): the sum would be a number with
 	 * no meaning wearing whichever currency happened to arrive first. Zero is
 	 * the less wrong of two wrong answers -- see the class docblock and
 	 * MixedCurrencyTest for the consumers this deliberately makes read 0.

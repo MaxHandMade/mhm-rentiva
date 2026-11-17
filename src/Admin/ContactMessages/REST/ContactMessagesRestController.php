@@ -92,7 +92,7 @@ final class ContactMessagesRestController {
 	}
 
 	/**
-	 * Write routes (Task 5). Kept as a separate method so this task compiles alone.
+	 * Write routes.
 	 *
 	 * @param callable $can
 	 * @param array<string,mixed> $id
@@ -482,7 +482,7 @@ final class ContactMessagesRestController {
 				'download_url' => null !== ContactAttachmentStore::path($record) ? ContactAttachmentStore::download_url($post->ID) : null,
 			);
 		} elseif ('' !== $legacy) {
-			// R-6: only an unfinished 4.4.1 migration leaves a URL here; never link it.
+			// Only an unfinished 4.4.1 migration leaves a URL here; never link it.
 			$legacy_name = sanitize_file_name(wp_basename( (string) wp_parse_url($legacy, PHP_URL_PATH)));
 			$attachment  = array(
 				'name'         => $legacy_name,

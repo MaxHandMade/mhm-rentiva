@@ -43,7 +43,7 @@
                             onChange: function (val) { setAttributes({ layout: val }); }
                         }),
                         // The first request's order (default_sort). The options are exactly
-                        // the values SearchResults' sort switch applies (spec 3A §2.5 E).
+                        // the values SearchResults' sort switch applies.
                         el(SelectControl, {
                             label: __('Default Sort Order', 'mhm-rentiva'),
                             value: defaultSort,

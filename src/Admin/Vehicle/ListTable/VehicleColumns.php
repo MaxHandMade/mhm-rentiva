@@ -63,7 +63,7 @@ final class VehicleColumns {
 		'mhmrentiva_lifecycle_filter',
 		'mhmrentiva_month',
 		'mhmrentiva_year',
-		// View engine (Faz 2): which face of the screen is active. Same
+		// View engine: which face of the screen is active. Same
 		// bookmarkable-display-parameter reasoning as the params above.
 		'mhmrentiva_view',
 	);
@@ -155,7 +155,7 @@ final class VehicleColumns {
 		// which is exactly the layout jump this seam removes. Priority alone
 		// decides the visual order now; there is no relocation script left.
 
-		// View-switch toggle (Faz 2): new block, no existing toolbar on this
+		// View-switch toggle: new block, no existing toolbar on this
 		// screen to share with. Priority puts it ahead of the KPI band.
 		add_action(ListScreenLayout::HEADER_ACTION, array( self::class, 'render_view_toggle' ), 8);
 
@@ -165,14 +165,14 @@ final class VehicleColumns {
 		// Category chip strip below the KPI band.
 		add_action(ListScreenLayout::HEADER_ACTION, array( self::class, 'category_chips' ), 15);
 
-		// Calendar face (Faz 2 view engine) — replaces the old
+		// Calendar face — replaces the old
 		// add_monthly_calendar(). Still runs after the KPI band, exactly as it
 		// did when both sat in the `admin_notices` stream, so the AutoCancel
 		// fallback it carries keeps its old position relative to the stats.
 		add_action(ListScreenLayout::FACE_ACTION, array( self::class, 'render_calendar_view' ), 20);
 
-		// Cards face (Faz 2 view engine, Task 6) — same slot as the calendar
-		// face; the two are mutually exclusive via get_current_view(), and
+		// Cards face — same slot as the calendar face;
+		// the two are mutually exclusive via get_current_view(), and
 		// render_calendar_view() already runs the AutoCancel fallback on
 		// every face load, so this method doesn't need to repeat it.
 		add_action(ListScreenLayout::FACE_ACTION, array( self::class, 'render_cards_view' ), 20);
@@ -656,7 +656,7 @@ final class VehicleColumns {
 				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/css/admin/booking-calendar.css')
 			);
 
-			// Faz 2 Task 8 skin: toggle + occupancy matrix + cards face.
+			// Toggle + occupancy matrix + cards face.
 			// Declared as a dependency of vehicle-list.css below so it loads
 			// after the base calendar files but before the screen skin.
 			wp_enqueue_style(
@@ -677,7 +677,7 @@ final class VehicleColumns {
 			);
 
 			// The wp_add_inline_style() popup/blocked-day patch that used to
-			// sit here is gone (Faz 2 Task 8): booking-calendar.css already
+			// sit here is gone: booking-calendar.css already
 			// carries the full popup redesign (.mhm-popup-modal etc.), making
 			// the inline copy redundant, and the blocked-day/available cursor
 			// override now lives in occupancy-matrix.css, scoped to
@@ -811,8 +811,8 @@ final class VehicleColumns {
 	 * Render the 7-day strip markup for a strip produced by get_week_strip().
 	 *
 	 * Shared by the list face's `mhmrentiva_week` column and the cards face
-	 * (Task 6) — same `rv-vhl-week`/`rv-vhl-day` classes either way, so
-	 * Task 8's CSS only has to style one shape.
+	 * — same `rv-vhl-week`/`rv-vhl-day` classes either way, so
+	 * the CSS only has to style one shape.
 	 *
 	 * @param array<int, array{class: string, label: string, title: string}> $strip
 	 */
@@ -831,7 +831,7 @@ final class VehicleColumns {
 	/**
 	 * Status-pill CSS class for a vehicle status value. Shared by the list
 	 * face's `mhmrentiva_available` column and the cards face's badge
-	 * (Task 6) so both faces paint the identical class for the identical
+	 * so both faces paint the identical class for the identical
 	 * status — the mapping VehicleDataHelper::get_status() feeds is the
 	 * single source of truth, this is only the display-class lookup.
 	 */
@@ -847,7 +847,7 @@ final class VehicleColumns {
 	}
 
 	/**
-	 * Cards face (Faz 2 view engine, Task 6). Renders a card grid from the
+	 * Cards face. Renders a card grid from the
 	 * MAIN query's current page — `$wp_query->posts` already reflects
 	 * category chip / search / pagination, so this adds no query of its
 	 * own beyond the ONE `update_post_thumbnail_cache()` priming call
@@ -982,7 +982,7 @@ final class VehicleColumns {
 	{
 		$classes .= ' mhm-vehicle-list';
 
-		// Faz 2 view engine: face-scoped visibility CSS keys off this class
+		// View engine: face-scoped visibility CSS keys off this class
 		// (vehicle-list.css); 'list' carries no face class at all.
 		$view = self::get_current_view();
 		if ('cards' === $view) {
@@ -995,9 +995,8 @@ final class VehicleColumns {
 	}
 
 	/**
-	 * Segmented view-switch control (List | Cards | Calendar) — Faz 2 view
-	 * engine. Markup only (`rv-view-toggle` / `rv-view-toggle__btn` /
-	 * `is-active`); styling lands in Task 8. No existing toolbar block on
+	 * Segmented view-switch control (List | Cards | Calendar). Markup only (`rv-view-toggle` / `rv-view-toggle__btn` /
+	 * `is-active`); styling lives in the stylesheet. No existing toolbar block on
 	 * this screen (unlike Bookings), so this is a plain standalone block —
 	 * ListScreenLayout's header slot prints it directly under the page title.
 	 */
@@ -1395,12 +1394,12 @@ final class VehicleColumns {
 	}
 
 	/**
-	 * Calendar face (Faz 2 view engine). Replaces the old
+	 * Calendar face. Replaces the old
 	 * add_monthly_calendar()/get_monthly_bookings()/get_calendar_vehicles()
 	 * trio: rows come straight from the main query's current page (category
 	 * chip + search + native pagination already applied by WordPress), and
 	 * painting is delegated to the shared FleetOccupancyMatrix renderer
-	 * both this screen and the Bookings Calendar face (Task 5) use.
+	 * both this screen and the Bookings Calendar face use.
 	 *
 	 * Prints from ListScreenLayout's face slot
 	 * (`manage_posts_extra_tablenav`, bottom), the one core extension point
@@ -1841,8 +1840,8 @@ final class VehicleColumns {
 	/**
 	 * Clear all vehicle statistics caches.
 	 *
-	 * Pairs with the transient writer in get_vehicle_stats() (re-enabled in
-	 * the Faz 1b round). Delegates to OccupancyMapService::invalidate() —
+	 * Pairs with the transient writer in get_vehicle_stats() (re-enabled).
+	 * Delegates to OccupancyMapService::invalidate() —
 	 * the body moved there so the occupancy map service can invalidate
 	 * itself without depending on this class; kept here because other code
 	 * still calls this method directly.

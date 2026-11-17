@@ -1,6 +1,6 @@
 <?php
 /**
- * Booking detail (PR D, Task 4; drawing Rezervasyon-Detayi).
+ * Booking detail.
  *
  * Back link, title with status tag and payment line, an actions row, the
  * vehicle card, the progress list, the cancellation section and the payment
@@ -15,7 +15,7 @@
  * data-booking-id; my-account.js).
  *
  * @var int                  $booking_id
- * @var string               $number       Display number (R4).
+ * @var string               $number       Display number.
  * @var string               $back_url     "My bookings".
  * @var string               $summary_url  BookingSummaryPage::url().
  * @var array{modifier: string, label: string} $status RvsStatus::for().

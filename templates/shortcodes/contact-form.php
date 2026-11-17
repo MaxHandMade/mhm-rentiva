@@ -2,7 +2,7 @@
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
- * Contact form (`Iletisim`, `Iletisim-Mobil`; PR F).
+ * Contact form.
  *
  * Templates::include_template_with_vars() hands each template var over as its own
  * variable. Fields that only some topics have carry data-rvs-topics, and

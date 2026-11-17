@@ -2,8 +2,8 @@
  * Rentiva front-end standard -- availability calendar page block.
  *
  * Markup: templates/shortcodes/availability-calendar.php and
- * templates/partials/rvs/calendar-panel.php. No drawing of its own: it follows
- * the vehicle page's availability section (`Arac-Detay`, rvs-vehicle.css), and
+ * templates/partials/rvs/calendar-panel.php. No styling of its own: it follows
+ * the vehicle page's availability section (rvs-vehicle.css), and
  * the months themselves are the shared rvs-calendar.css. The script toggles
  * [hidden] on the panel and the link; empty panel lines take no room.
  */
@@ -90,7 +90,7 @@
 	font-size: 14px;
 }
 
-/* Two a row at most, further months below (R9). */
+/* Two a row at most, further months below. */
 .rvs-shell .rvs-availability__months {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -182,7 +182,7 @@
 	background: transparent;
 }
 
-/* Ç6: partly available (split cell) and closed (hatched), as in the grid. */
+/* Partly available (split cell) and closed (hatched), as in the grid. */
 .rvs-shell .rvs-availability__swatch--partial {
 	border-color: var(--rvs-line);
 	background: linear-gradient(135deg, var(--rvs-n-300) 50%, var(--rvs-raised) 50%);
@@ -232,7 +232,7 @@
 	font-size: 14px;
 }
 
-/* Ç6: the pickup moved to a partly free day's first free time. */
+/* The pickup moved to a partly free day's first free time. */
 .rvs-shell .rvs-availability__note {
 	margin: 0;
 	padding: 8px 12px;

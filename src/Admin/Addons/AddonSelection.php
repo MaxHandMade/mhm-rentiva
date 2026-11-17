@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Selected add-on ids plus id => quantity (Aşama 2 PR G, K12).
+ * Selected add-on ids plus id => quantity.
  *
  * Two readers only: from_input() (a form, an AJAX call, an admin screen) and
  * for_booking() (a stored booking). The id list keeps the shape every reader

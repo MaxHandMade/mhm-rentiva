@@ -168,7 +168,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			return false;
 		}
 
-		// The Payment Management box's own rule (PR 3b-2): '0' is
+		// The Payment Management box's own rule: '0' is
 		// "old system" too, so the handler refuses what the button hides.
 		if ( ! self::uses_deposit_system( $booking_id ) ) {
 			return false;
@@ -325,7 +325,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		// Deposit timeline
 		self::render_deposit_timeline( $post->ID );
 
-		// Booking history, under the payment history (canvas v135).
+		// Booking history, under the payment history.
 		BookingMeta::render_history_section( $post );
 
 		// Deposit actions
@@ -423,8 +423,8 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			}
 		}
 
-		// The two buttons that pay money OUT live in their own boxes (canvas
-		// v135): cancel in Booking Status (render_cancel_button()), refund in the
+		// The two buttons that pay money OUT live in their own boxes:
+		// cancel in Booking Status (render_cancel_button()), refund in the
 		// Refund box (render_refund_button()). Both keep their ids and markup.
 
 		echo '</div>';
@@ -432,7 +432,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 	}
 
 	/**
-	 * The cancel button, in the Booking Status box (canvas v135). The same rule
+	 * The cancel button, in the Booking Status box. The same rule
 	 * that drew it here: the booking has a payment type (render_deposit_management()
 	 * returns before any button otherwise), the actor may move money on it, and
 	 * it is pending or confirmed. Markup and id unchanged: deposit-management.js
@@ -459,7 +459,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 	}
 
 	/**
-	 * The refund button, in the Refund box (canvas v135). Printed exactly when it
+	 * The refund button, in the Refund box. Printed exactly when it
 	 * was printed here before: the actor may move money on the booking
 	 * (MoneyAuthorization, surface 'admin_deposit') and the booking state allows a
 	 * refund (can_refund_from_deposit_screen(), which also requires a payment
@@ -498,7 +498,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 	 * the Payment Management box, the cancel button and the refund button share.
 	 *
 	 * PHP truthiness, exactly as the box's early return always read it: an empty
-	 * value AND '0' mean "old system". Before PR 3b-1 the two buttons lived after
+	 * value AND '0' mean "old system". The two buttons used to live after
 	 * that return; moved out, they must keep asking the same question (a '0'
 	 * payment type grew both buttons).
 	 */

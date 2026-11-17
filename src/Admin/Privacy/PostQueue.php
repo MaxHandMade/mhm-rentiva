@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * One paging contract for the contact, e-mail log and app log erasers (and
- * Pro's message threads), the same as the booking eraser's (spec T4):
+ * Pro's message threads), the same as the booking eraser's:
  *
  * - the queue callback returns at most PER_PAGE matching IDs that were not
  *   marked failed in the last ErasureMarker::WINDOW seconds (in SQL);
@@ -140,7 +140,7 @@ final class PostQueue {
 	 *
 	 * Trashed contact messages and logs are included on purpose: the trash
 	 * still holds the person's data, and deleting it is harmless. (Bookings
-	 * leave trash out -- spec T2 -- because an anonymised booking is kept,
+	 * leave trash out because an anonymised booking is kept,
 	 * not deleted.) The failure window is added by each caller.
 	 *
 	 * @param string $post_type Post type.

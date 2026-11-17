@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * The customer-facing empty and error box (drawing Bos-Hata): a kicker, a
+ * The customer-facing empty and error box: a kicker, a
  * headline, one honest line and, when there is somewhere to go, one action.
  *
  * It reuses `rvs-empty` and adds only the left-aligned layout (`rvs-state`);

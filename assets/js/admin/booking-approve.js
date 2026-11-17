@@ -1,12 +1,12 @@
 /**
- * "Approve" row action on the Bookings list (Faz 2 Task 7).
+ * "Approve" row action on the Bookings list.
  *
  * Fires the mhmrentiva_approve_booking AJAX endpoint from the row action
  * BookingColumns::add_approve_row_action() renders (post_row_actions, class
  * rv-bkl-approve). On success it swaps the row's own status pill text/class
  * and removes the Approve link -- nothing outside that one row is touched.
  * Deliberately NO optimistic KPI/chip count update: those come from a full
- * page load and stay that way until the next one (spec decision) -- a
+ * page load and stay that way until the next one -- a
  * single-row AJAX response is not the shape those aggregates are computed
  * from.
  */
@@ -113,7 +113,7 @@ jQuery( document ).ready( function ( $ ) {
 				// ever appears on a `pending` booking (BookingColumns::
 				// add_approve_row_action()), so the pill's status class is
 				// always exactly `status-pending` going in -- but wiping the
-				// whole class list would silently drop any class Task 8's
+				// whole class list would silently drop any class a later
 				// styling pass adds to the badge later.
 				$row.find( '.column-mhmrentiva_booking_status .badge' )
 					.removeClass( 'status-pending' )

@@ -23,9 +23,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Choosing "Cancelled" in the status list and pressing Update does what the
- * "Cancel booking" button does (spec PR 3b "Tek iptal yolu", plan PR 3b-2).
+ * "Cancel booking" button does (a single cancellation path).
  *
- * Before, the form only flipped the status (fonksiyon-taramasi.md §8): no
+ * Before, the form only flipped the status: no
  * refund, no cancellation record, two mails instead of five, no
  * mhmrentiva_booking_cancelled for Pro. Now the edit form hands the booking to
  * CancellationHandler::cancel_booking() with the button's own arguments.

@@ -21,9 +21,7 @@ if (! defined('ABSPATH')) {
  *   $opt switch, EmailTemplates.php's save_email_fields() $fields arrays,
  *   and a handful of class constants such as
  *   AddonContextMigration::FLAG_OPTION) that a literal-string-only grep
- *   would miss. The two brief-cited counts (plan's "10 bare-mhm", compliance
- *   audit's "30 mhm_rentiva_*") both undercounted; see the baseline inventory for
- *   the reconciliation.
+ *   would miss.
  * - TABLES lists only the tables THIS plugin's own dbDelta()/CREATE TABLE
  *   code creates unconditionally. Two tables named in the original brief
  *   stub (mhm_rentiva_transfer_locations, mhm_rentiva_transfer_routes) were
@@ -884,7 +882,7 @@ final class PrefixMigrationMap {
         'mhmrentiva_contact_status_migrated',
         'mhmrentiva_contact_status_migrated_at',
         // Contact attachment migration (DB schema 4.4.1): a done-flag, its
-        // admin-notice backlog, and the in-flight source-file tracker (R-8).
+        // admin-notice backlog, and the in-flight source-file tracker.
         // Same reasoning as the entries above -- get_option()/update_option()
         // call sites in ContactAttachmentMigration (DONE_OPTION,
         // UNMIGRATED_OPTION, PENDING_OPTION); no legacy spelling exists
@@ -918,7 +916,7 @@ final class PrefixMigrationMap {
         // retry counter. New in 4.8.0, no legacy spelling.
         'mhmrentiva_booking_ts_normalised_480',
         'mhmrentiva_booking_ts_normalise_attempts',
-        // Cache generations (6.4.0, PR S): Cache::GENERATION_OPTION . $scope --
+        // Cache generations (6.4.0): Cache::GENERATION_OPTION . $scope --
         // the whole availability cache, one per vehicle
         // (`mhmrentiva_cache_gen_avail_<vehicle id>`) and the vehicle-stats
         // keys. New in 6.4.0, no legacy spelling; swept by the uninstaller's
@@ -929,13 +927,13 @@ final class PrefixMigrationMap {
         'mhmrentiva_cache_gen_',
         'mhmrentiva_cache_gen_avail',
         'mhmrentiva_cache_gen_vehicle_stats',
-        // Contact auto reply limit (6.4.0, PR F): one transient per address,
+        // Contact auto reply limit (6.4.0): one transient per address,
         // `mhmrentiva_contact_reply_` . wp_hash(address), so the options table
         // never holds an address. The entry is the dynamic prefix as the call
         // spells it. New in 6.4.0, no legacy spelling; one hour long, it
         // expires on its own.
         'mhmrentiva_contact_reply_',
-        // Setup wizard step 4 saved-flag (6.4.0, admin screens PR 1): the
+        // Setup wizard step 4 saved-flag (6.4.0): the
         // summary's evidence that step 4 was saved. New in 6.4.0, no legacy
         // spelling; swept by the `mhmrentiva%` LIKE.
         'mhmrentiva_setup_frontend_saved',

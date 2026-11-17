@@ -269,11 +269,10 @@ final class AdvancedLogger {
 	 * Logs a guaranteed-LEVEL_ERROR entry, linked to a booking when one
 	 * applies.
 	 *
-	 * Task 14b item 1 (slice 5): this replaces the `error()` immediately
+	 * This replaces the `error()` immediately
 	 * followed by `add()` pattern that had spread to 9 call sites across
-	 * this codebase by this slice -- Task 4 set "extract on the third
-	 * occurrence" as the threshold, and this slice passed it several times
-	 * over. Both halves existed for a reason and neither alone was enough:
+	 * this codebase -- well past the "extract on the third occurrence"
+	 * threshold. Both halves existed for a reason and neither alone was enough:
 	 * `error()` guarantees LEVEL_ERROR, which `should_skip_log()` never
 	 * drops under the default `mhmrentiva_log_level` of 'error', but it
 	 * takes no `booking_id` and never passes one to `log()` -- so the
@@ -290,7 +289,7 @@ final class AdvancedLogger {
 	 * promoted to error level but no specific booking is in scope (e.g. a
 	 * cron-schedule or plugin-activation failure) -- named `error_linked()`
 	 * rather than the original `error_for_booking()` for exactly that
-	 * reason (fix round 1, F7): four call sites pass `0` because no
+	 * reason: four call sites pass `0` because no
 	 * booking applies at all, and a name promising "for a booking" was
 	 * not honest about them. `error_linked()` describes what the method
 	 * actually always does -- guarantee the level, link when a booking id

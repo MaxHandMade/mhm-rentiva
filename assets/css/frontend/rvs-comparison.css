@@ -1,8 +1,7 @@
 /**
  * Rentiva front-end standard -- the vehicle comparison.
  *
- * Values from the approved canvas (`Karsilastirma`, `Karsilastirma-Mobil`).
- * One table for every width: under 782 px the drawing's sticky vehicle header and
+ * One table for every width: under 782 px a sticky vehicle header and
  * labelled rows, by CSS (the template names every element's role, because a
  * changed `display` would drop it). Selectors are scoped to `.rvs-shell`; colours
  * come from rvs-tokens.css.
@@ -285,7 +284,7 @@
 	text-align: end;
 }
 
-/* The drawing's mobile: sticky vehicle header + labelled rows ------------------ */
+/* Mobile: sticky vehicle header + labelled rows ------------------ */
 
 @media (max-width: 781.98px) {
 	.rvs-shell .rvs-compare {

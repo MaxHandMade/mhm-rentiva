@@ -11,7 +11,7 @@ if (! defined('ABSPATH')) {
  * Resolves a stored Elementor global colour reference (`globals/colors?id=xxx`,
  * the raw `__globals__` value) to a concrete '#rrggbb'.
  *
- * Two paths, same data (spec §6, plan R1/R2):
+ * Two paths, same data:
  * - Elementor's own `data_manager_v2->run( $stored )`, the stored string as is,
  *   only while Elementor is already running its internal REST server (its own
  *   CSS generation). Then `is_internal()` is true and Elementor's server is set,
@@ -108,7 +108,7 @@ final class ElementorGlobals {
 	}
 
 	/**
-	 * The endpoint's item list, built from the kit array (plan R2).
+	 * The endpoint's item list, built from the kit array.
 	 *
 	 * @return array<string, mixed>
 	 */

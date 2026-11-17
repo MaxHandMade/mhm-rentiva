@@ -164,7 +164,7 @@ final class BookingForm extends AbstractShortcode {
 			'end_date'              => '',        // End date
 			'show_vehicle_selector' => '1',       // Show vehicle selector
 			// Return date prefill, N days after the chosen pickup (booking-form.js).
-			// Empty = no prefill, as before it was applied (spec 3A Task 6, Rule 1).
+			// Empty = no prefill, as before it was applied.
 			// The rental day limits are the Settings > Booking values (get_js_config()
 			// and the server validation), not per form.
 			'default_days'          => '',
@@ -196,7 +196,7 @@ final class BookingForm extends AbstractShortcode {
 	/**
 	 * No per-shortcode stylesheet: rvs-booking.css comes with the rvs chain
 	 * (AssetManager::enqueue_rvs_booking()). datepicker-custom.css is not loaded
-	 * either -- rvs-booking.css styles the popup while it carries the shell (R6).
+	 * either -- rvs-booking.css styles the popup while it carries the shell.
 	 */
 	protected static function get_css_files(array $atts = array()): array
 	{
@@ -228,7 +228,7 @@ final class BookingForm extends AbstractShortcode {
 	}
 
 	/**
-	 * Never cached (Aşama 2 PR C, m4): the form carries a nonce, the visitor's
+	 * Never cached: the form carries a nonce, the visitor's
 	 * window and the add-ons on sale right now, and the price behind it moves.
 	 * The `mhmrentiva_shortcode_html_cache_enabled` filter is not consulted.
 	 */
@@ -453,7 +453,7 @@ final class BookingForm extends AbstractShortcode {
 		$atts['return_time'] = self::get_text('return_time');
 
 		// No pickup location from the URL: the car is picked up and returned at
-		// its own point, derived from the vehicle below (PR S).
+		// its own point, derived from the vehicle below.
 
 		// The window as ISO dates (Y-m-d), before the fields get the site format:
 		// the summary and the "Change" link speak ISO.
@@ -930,7 +930,7 @@ final class BookingForm extends AbstractShortcode {
 	 * obliges a request to have come from it. AddonManager::filter_sellable()
 	 * (inside AddonSelection::from_input()) is the refusal.
 	 *
-	 * Each accepted id carries its quantity (`addon_qty[<id>]`, Aşama 2 K12),
+	 * Each accepted id carries its quantity (`addon_qty[<id>]`),
 	 * clamped to its add-on's maximum; a missing one counts as 1.
 	 *
 	 * @param VerifiedRequest $req Verified request.
@@ -1153,8 +1153,8 @@ final class BookingForm extends AbstractShortcode {
 			$dropoff_time = self::return_time($pickup_time);
 
 			$guests = max(1, $req->int('guests', 1));
-			// The car's own pickup point; a posted pickup_location_id is not read
-			// (PR S): the customer picks up where the car is.
+			// The car's own pickup point; a posted pickup_location_id is not read:
+			// the customer picks up where the car is.
 			$pickup_location_id = self::vehicle_location_id($vehicle_id);
 
 			// ⭐ WooCommerce Integration: Customer information is optional
@@ -1621,7 +1621,7 @@ final class BookingForm extends AbstractShortcode {
 				),
 				'is_weekend'            => $day_of_week >= 6,
 				// The summary's breakdown, rendered by the shared partial from the
-				// same quote (Aşama 2 PR C). The fields above stay for older scripts.
+				// same quote. The fields above stay for older scripts.
 				'breakdown_html'        => self::breakdown_html($req, $vehicle_id, $days, $start_ts, $selection, $deposit_result),
 			);
 
@@ -1667,7 +1667,7 @@ final class BookingForm extends AbstractShortcode {
 	 * The car's own pickup point id (LocationContext::for_vehicle: vehicle ->
 	 * vendor -> site default, a rental location only; the one location on a
 	 * single-location site), else 0 -- also on a site without rental
-	 * locations (Lite alone). The request never names it (PR S).
+	 * locations (Lite alone). The request never names it.
 	 */
 	private static function vehicle_location_id(int $vehicle_id): int
 	{
@@ -1694,7 +1694,7 @@ final class BookingForm extends AbstractShortcode {
 	 * Rows from RentalPricing with one line per add-on ("Child seat × 2",
 	 * AddonManager::line_label()). The deposit and due-at-pickup rows appear only
 	 * when the deposit splits the total -- a rate strictly between 0 and 100 on a
-	 * deposit quote (R7) -- and never on a form with enable_deposit="0". That flag
+	 * deposit quote -- and never on a form with enable_deposit="0". That flag
 	 * is display only: the charge and the answer's deposit fields do not read it.
 	 *
 	 * @param array<string, mixed> $deposit_result DepositCalculator::calculate_booking_deposit().

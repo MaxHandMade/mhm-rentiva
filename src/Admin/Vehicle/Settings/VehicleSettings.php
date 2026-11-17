@@ -79,7 +79,7 @@ final class VehicleSettings {
 
 		// Nothing hooks or calls this today (measured 2026-08-27), so it is unreachable.
 		// The check is here anyway: its signature is save_post-shaped, and the day someone
-		// hooks it the M-1 defect arrives with it -- edit_post proves permission, never
+		// hooks it the same defect arrives with it -- edit_post proves permission, never
 		// identity, and this writes global vehicle settings.
 		if ( 'mhmrentiva_vehicle' !== $post->post_type ) {
 			return;
@@ -1154,7 +1154,7 @@ final class VehicleSettings {
 			} ) );
 		};
 
-		// The single editing order (spec §6) is persisted explicitly so it round-trips exactly;
+		// The single editing order is persisted explicitly so it round-trips exactly;
 		// two filtered subsets (card/detail) cannot reconstruct one merged order. Empty until
 		// the first v2 save -- the UI then derives one from card/detail order as a fallback.
 		$stored_settings = (array) get_option( 'mhmrentiva_settings', array() );
@@ -1215,7 +1215,7 @@ final class VehicleSettings {
 	 * frontend renders from. Comparison is stored as submitted (the frontend gates Passive keys at
 	 * render, ComparisonView::selected_keys()), so a Passive-field compare flag
 	 * may persist as harmless storage cruft. The matrix order (mhmrentiva_vehicle_matrix_order)
-	 * is stored as the id list so the single editing order round-trips exactly (spec §6).
+	 * is stored as the id list so the single editing order round-trips exactly.
 	 */
 	private static function save_display_payload( VerifiedRequest $req ): void {
 		$settings         = get_option( 'mhmrentiva_settings', array() );
@@ -1265,7 +1265,7 @@ final class VehicleSettings {
 		$settings['comparison_fields'] = $sanitized_comparison;
 		$settings_updated              = true;
 
-		// Persist the single editing order (spec §6) as a "type:key" id list, so it round-trips
+		// Persist the single editing order as a "type:key" id list, so it round-trips
 		// exactly instead of being re-inferred from the card/detail subsets.
 		if ( $req->has( 'mhmrentiva_vehicle_matrix_order' ) ) {
 			$decoded_order = json_decode( $req->text( 'mhmrentiva_vehicle_matrix_order' ), true );

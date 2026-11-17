@@ -10,7 +10,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * "Rezervasyon durumu" (canvas Yon-Rezervasyon-Duzenle v135): the core publish
+ * "Rezervasyon durumu": the core publish
  * box, re-registered with the booking summary and the cancel button on top.
  *
  * The box stays core's `submitdiv` so `#submitpost`, the `name="save"` Update
@@ -44,8 +44,8 @@ final class BookingStatusBox {
 			'high'
 		);
 
-		// Core's slug box means nothing for a booking (no public URL; canvas
-		// v135 has none). Without its field edit_post() posts no post_name and
+		// Core's slug box means nothing for a booking (no public URL).
+		// Without its field edit_post() posts no post_name and
 		// wp_update_post() keeps the stored one. The new-booking screen already
 		// removes it (ManualBookingMetaBox).
 		remove_meta_box('slugdiv', 'mhmrentiva_booking', 'normal');

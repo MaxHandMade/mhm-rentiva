@@ -8,7 +8,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * The booking edit screen's box order (canvas Yon-Rezervasyon-Duzenle v135).
+ * The booking edit screen's box order.
  *
  * Core's do_meta_boxes() reads get_user_option( "meta-box-order_$page" ) and
  * moves every listed id into the 'sorted' bucket in list order

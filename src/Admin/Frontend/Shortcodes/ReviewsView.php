@@ -10,7 +10,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * View values of the review component (PR F): the summary, one card, who may post
+ * View values of the review component: the summary, one card, who may post
  * and the answer to a submission. It reads no reviews: callers hand it rows, so the
  * rating form, the vehicle page and the testimonials draw the same thing from their
  * own data sources. The partials are templates/partials/rvs/review-*.php.
@@ -179,7 +179,7 @@ final class ReviewsView {
 	/**
 	 * What the visitor is told after sending, from the comment's real status.
 	 * A guest's review waiting for approval is not listed for anyone, the guest
-	 * included (r2 M5), so that sentence does not promise "only you can see it".
+	 * included, so that sentence does not promise "only you can see it".
 	 *
 	 * @param bool $approved  The stored comment is approved.
 	 * @param bool $is_update An existing review was changed.

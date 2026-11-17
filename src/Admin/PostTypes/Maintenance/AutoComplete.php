@@ -146,7 +146,7 @@ final class AutoComplete {
 				// Per-booking failure must not abort the cron sweep; log and continue.
 				// Routed to the plugin's own logger instead of the site's PHP error log.
 				//
-				// Task 14b item 3: promoted from warning() to error(). A
+				// Promoted from warning() to error(). A
 				// per-booking exception here means the sweep silently never
 				// completed a booking it selected -- the same shape as
 				// AutoCancel.php's sibling catch -- and warning() is

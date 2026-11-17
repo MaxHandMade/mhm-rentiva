@@ -936,10 +936,10 @@ final class AllowlistRegistry {
             'custom_css_class',
             'min_rating',
             'min_reviews',
-            // Card inputs of the vehicle card widget (spec 3A Task 2).
+            // Card inputs of the vehicle card widget.
             'button_text',
             'show_rating_count',
-            // The card's layout (vehicle card widget), spec 3A Task 3.
+            // The card's layout (vehicle card widget).
             'layout' => [
                 'default' => 'list',
                 'values'  => [ 'list', 'grid' ],
@@ -961,8 +961,8 @@ final class AllowlistRegistry {
             'show_rating'          => [ 'default' => '1' ],
             'show_badges'          => [ 'default' => '1' ],
             // The first request's order. `values` are the sorts SearchResults'
-            // switch applies (get_sorting_options()), the list every editor offers
-            // (spec 3A §2.5 E, gate G3). The type stays 'string' and block.json
+            // switch applies (get_sorting_options()), the list every editor offers.
+            // The type stays 'string' and block.json
             // carries no enum: a value saved from a removed option (newest/
             // popularity/rating) keeps falling to the switch's relevance branch as
             // today on every surface, instead of becoming price_asc.
@@ -1046,7 +1046,7 @@ final class AllowlistRegistry {
             // show_star_rating, show_text_review, show_category_ratings,
             // show_photo_upload, show_vehicle_preview, show_recommend_toggle,
             // require_login, require_booking, max_photos and min_review_length were
-            // removed (spec 3A Task 8): never read; login and review length are the
+            // removed: never read; login and review length are the
             // global Comments settings, applied server side.
             'show_rating_display',
             'show_form',
@@ -1114,7 +1114,7 @@ final class AllowlistRegistry {
             'sort_by',
             'sort_order',
             // category, show_vehicle_name, show_author_name, limit_items and autoplay
-            // were removed (spec 3A Task 8); the editor controls of the four twins
+            // were removed; the editor controls of the four twins
             // write show_vehicle, show_customer, limit and auto_rotate.
         ],
         'rentiva_payment_history'       => [
@@ -1135,7 +1135,7 @@ final class AllowlistRegistry {
             'show_pagination',
             'hide_nav',
             // show_invoice_download, show_transaction_id and limit_results were
-            // removed (spec 3A Task 7b).
+            // removed.
         ],
         'rentiva_my_favorites'          => [
             'limit',
@@ -1159,8 +1159,7 @@ final class AllowlistRegistry {
             'show_booking_button',
             'layout',
             'no_results_text',
-            // show_badges, show_remove_button and show_added_date were removed
-            // (spec 3A Task 7b).
+            // show_badges, show_remove_button and show_added_date were removed.
         ],
         'rentiva_my_bookings'           => [
             'limit',
@@ -1172,7 +1171,7 @@ final class AllowlistRegistry {
             'status',
             'show_pagination',
             // orderby, limit_results, show_cancel_btn, show_modify_btn and
-            // show_details_link were removed (spec 3A Task 7a).
+            // show_details_link were removed.
             // Empty: each section's own pickup order (AccountBookingsQuery::segment_ids()).
             'order' => [ 'values' => [ '', 'asc', 'desc', 'ASC', 'DESC' ] ],
             'hide_nav',
@@ -1192,7 +1191,7 @@ final class AllowlistRegistry {
             'show_rating',
             'show_category',
             // The card reads show_booking_button (vehicle-card-base.php:40); its alias
-            // showBookButton is the block toggle. show_book_button was removed (spec 3A T3).
+            // showBookButton is the block toggle. show_book_button was removed.
             'show_booking_button',
             'show_features',
             'max_features',

@@ -2,7 +2,7 @@
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
- * Template: search strip (front-end standard, Aşama 2 PR 3).
+ * Template: search strip (front-end standard).
  *
  * One row on wide screens -- pickup location · pickup · return · Search --
  * stacked on phones. Lite has one service (rental), so the strip has no tabs

@@ -1,8 +1,7 @@
 /**
  * Rentiva front-end standard -- primitives.
  *
- * Button, field, input, check, tag, chip, kicker, help/error text. Values from
- * the approved canvas (`Main`). Every interactive element is at least 44x44;
+ * Button, field, input, check, tag, chip, kicker, help/error text. Every interactive element is at least 44x44;
  * inputs are 48 px tall (the search strip's 52 px is `.rvs-input--lg`).
  * Selectors are scoped to `.rvs-shell` so they outrank a theme's element rules.
  */
@@ -254,7 +253,7 @@
 	border: 0;
 }
 
-/* Empty and error state (drawing Bos-Hata) -----------------------------------
+/* Empty and error state -----------------------------------
    `rvs-empty` is the card; `rvs-state` lays it out left-aligned, with the
    kicker, headline, line and one action stacked. `--alert` is the same box in
    the alert colours. Markup: Frontend\StateBox::html(). */
@@ -300,7 +299,7 @@
 	color: var(--rvs-text);
 }
 
-/* Loading: skeleton and busy button (drawing Bos-Hata) ----------------------
+/* Loading: skeleton and busy button ----------------------
    A skeleton block holds the place of content that is on its way; the region
    that carries it is `aria-busy="true"` and names itself with an sr-only label.
    Motion stops under prefers-reduced-motion. */

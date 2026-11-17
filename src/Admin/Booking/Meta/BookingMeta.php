@@ -46,7 +46,7 @@ final class BookingMeta extends AbstractMetaBox {
 	private static bool $registered = false;
 
 	/**
-	 * The "Send email to customer" types (PR 3b-3): the Settings templates the
+	 * The "Send email to customer" types: the Settings templates the
 	 * customer also receives automatically, and a custom message. "Payment
 	 * reminder" left the box (user decision 2026-11-08): the payment link goes
 	 * out from Payment management only. Anything else is refused.
@@ -131,7 +131,7 @@ final class BookingMeta extends AbstractMetaBox {
 		// The status-change note is hooked in Core\Hooks: transitions happen in every context.
 		// `mhmrentiva_payment_status_changed` was listened for here but fired by nothing in
 		// either edition, so no payment note was ever written; the listener and its
-		// method are gone. Payment notes come from the payment view's scopes (PR 3a).
+		// method are gone. Payment notes come from the payment view's scopes.
 
 		// Show admin notices
 		add_action('admin_notices', array( self::class, 'show_admin_notices' ));
@@ -166,7 +166,7 @@ final class BookingMeta extends AbstractMetaBox {
 		);
 
 		// Receipt review meta box -- only when the customer uploaded a receipt
-		// (canvas v135). Without one the box only said "no receipt"; the review
+		// Without one the box only said "no receipt"; the review
 		// controls inside it need an attachment to act on.
 		if ( (int) get_post_meta($post->ID, '_mhmrentiva_receipt_attachment_id', true) > 0 ) {
 			add_meta_box(
@@ -179,8 +179,8 @@ final class BookingMeta extends AbstractMetaBox {
 			);
 		}
 
-		// Booking history (spec PR 3a) is not a box of its own any more: the
-		// Payment Management box draws it (render_history_section(), PR 3b-1).
+		// Booking history is not a box of its own any more: the
+		// Payment Management box draws it (render_history_section()).
 	}
 
 	public static function enqueue_scripts(string $hook): void
@@ -570,13 +570,13 @@ final class BookingMeta extends AbstractMetaBox {
 		$pickup_time  = $req->text('mhmrentiva_edit_pickup_time');
 		$dropoff_date = $req->text('mhmrentiva_edit_dropoff_date');
 		$dropoff_time = $req->text('mhmrentiva_edit_dropoff_time');
-		// No guests field on the edit form any more (PR 3b-1): only a posted
+		// No guests field on the edit form any more: only a posted
 		// value is written, so the stored guests survive an Update.
 		$guests_posted = $req->has('mhmrentiva_edit_guests');
 		$guests        = max(1, $req->int('mhmrentiva_edit_guests', 1));
 		$special_notes = $req->textarea('mhmrentiva_edit_special_notes');
 
-		// Same rule as the edit box's saver (function scan H4): a reversed range
+		// Same rule as the edit box's saver: a reversed range
 		// keeps the stored dates. The notice is queued there.
 		if (BookingEditDates::is_refused($post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time)) {
 			// Queued here too: this saver can run alone. Not over a notice that already says it -- the edit box's saver
@@ -663,7 +663,7 @@ final class BookingMeta extends AbstractMetaBox {
 			return;
 		}
 
-		// A cancellation request writes nothing here (PR 3b-2): the edit box's
+		// A cancellation request writes nothing here: the edit box's
 		// saver ran it at priority 5, or -- when that saver did not run -- it is
 		// run now. Either way the status and every price input stay as the
 		// cancellation path left them. See BookingEditCancellation.
@@ -785,9 +785,9 @@ final class BookingMeta extends AbstractMetaBox {
 
 		echo '<hr style="margin: 15px 0;">';
 
-		// PR 3b-3: the Settings templates the customer also gets automatically,
-		// plus a custom message; type and subject side by side, the message in
-		// the WordPress editor, the button on the right (canvas).
+		// The Settings templates the customer also gets automatically, plus a
+		// custom message; type and subject side by side, the message in the
+		// WordPress editor, the button on the right.
 		echo '<div class="mhm-email-form" data-booking-id="' . (int) $post->ID . '">';
 		wp_nonce_field('mhmrentiva_send_email', 'mhmrentiva_email_nonce');
 
@@ -836,7 +836,7 @@ final class BookingMeta extends AbstractMetaBox {
 	}
 
 	/**
-	 * The box's options, in the order the canvas shows them.
+	 * The box's options, in the order the box shows them.
 	 *
 	 * @return array<string, string>
 	 */
@@ -854,7 +854,7 @@ final class BookingMeta extends AbstractMetaBox {
 	 * Booking history meta box
 	 */
 	/**
-	 * The history as a section of the Payment Management box (canvas v135).
+	 * The history as a section of the Payment Management box.
 	 */
 	public static function render_history_section(\WP_Post $post): void
 	{
@@ -887,7 +887,7 @@ final class BookingMeta extends AbstractMetaBox {
 		echo '<p>';
 		echo '<label for="note_type">' . esc_html__('Type:', 'mhm-rentiva') . '</label><br/>';
 		echo '<select id="note_type" name="note_type" class="widefat" style="margin-bottom: 10px;">';
-		// Status, payment and system rows are Rentiva's own (PR 3b-1).
+		// Status, payment and system rows are Rentiva's own.
 		echo '<option value="note">' . esc_html__('Note', 'mhm-rentiva') . '</option>';
 		echo '<option value="customer_contact">' . esc_html__('Customer Contact', 'mhm-rentiva') . '</option>';
 		echo '</select>';
@@ -963,7 +963,7 @@ final class BookingMeta extends AbstractMetaBox {
 
 		echo '</div>';
 
-		// K4: the notes are not private to the staff.
+		// The notes are not private to the staff.
 		echo '<p class="description mhm-history-privacy">' . esc_html__("These notes are included in the customer's personal data export.", 'mhm-rentiva') . '</p>';
 		echo '</div>';
 	}
@@ -1103,7 +1103,7 @@ final class BookingMeta extends AbstractMetaBox {
 	 * since the booking re-prices it), and per-passenger add-ons are counted once,
 	 * as the calculator counts them at checkout.
 	 *
-	 * Money already collected is kept (function scan H2, face 2; user decisions
+	 * Money already collected is kept (user decisions
 	 * 2026-11-08/09): the offline channel's paid amount is DERIVED (PaymentState:
 	 * total − remaining), so writing a higher total with remaining 0 made the
 	 * whole new total read as paid. While anything has been collected, the
@@ -1636,7 +1636,7 @@ final class BookingMeta extends AbstractMetaBox {
 		);
 
 		// The sentence is for staff; the customer's progress reads the
-		// structured fields (R9), never the sentence.
+		// structured fields, never the sentence.
 		self::add_history_note(
 			$booking_id,
 			$note,
@@ -1764,7 +1764,7 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// The Settings template with the context the automatic e-mail uses, in
-		// the site language; a custom message starts empty (PR 3b-3).
+		// the site language; a custom message starts empty.
 		$template = SiteLocaleString::in_site_locale(
 			static function () use ($booking_id, $email_type): array {
 				if ('custom' === $email_type) {
@@ -1830,7 +1830,7 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Rendered in the site language, from the context the automatic e-mail
-		// uses; an empty subject or message takes the template's (PR 3b-3).
+		// uses; an empty subject or message takes the template's.
 		$email                            = SiteLocaleString::in_site_locale(
 			static function () use ($booking_id, $email_type, $subject, $message): array {
 				$context = self::customer_email_context($booking_id, $email_type);
@@ -1861,7 +1861,7 @@ final class BookingMeta extends AbstractMetaBox {
 			wp_send_json_error(__('Failed to send email. Please check your WordPress email configuration.', 'mhm-rentiva'));
 		}
 
-		// In the booking history (function scan H16): which e-mail went out, to
+		// In the booking history: which e-mail went out, to
 		// the test address in test mode, and whether the customer had turned
 		// automatic notifications off.
 		/* translators: %s: e-mail subject */

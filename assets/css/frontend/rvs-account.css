@@ -1,10 +1,9 @@
 /**
- * My Account -- Lite's redesigned screens (PR D): dashboard, bookings, booking
+ * My Account -- Lite's redesigned screens: dashboard, bookings, booking
  * detail, payment history, favorites. Depends on rvs-account-nav.css (page
  * frame and menu), rvs-data.css, rvs-forms.css and rvs-overlay.css.
  *
- * Vocabulary the account templates use (drawings Hesabim, Hesabim-Mobil,
- * Rezervasyon-Detayi):
+ * Vocabulary the account templates use:
  *
  *   .rvs-account               the screen; on a WooCommerce endpoint the
  *                              template's shell (`rvs-shell rvs-account`)
@@ -526,7 +525,7 @@
 	align-self: flex-start;
 }
 
-/* My bookings list (drawings Hesabim, Hesabim-Mobil). The table turns into cards
+/* My bookings list. The table turns into cards
    by the section's own width: a 782px screen and a narrow theme column are the
    same problem. */
 .rvs-shell .rvs-account-bookings {
@@ -654,7 +653,7 @@
 }
 
 /* Too narrow for the table: each row is a raised card -- car and status, then
-   "no, dates, amount" (spaced, no dots); the whole card is the link (Hesabim-Mobil). */
+   "no, dates, amount" (spaced, no dots); the whole card is the link. */
 @container rvs-list (max-width: 700px) {
 	.rvs-shell .rvs-account-bookings__table thead {
 		position: absolute;

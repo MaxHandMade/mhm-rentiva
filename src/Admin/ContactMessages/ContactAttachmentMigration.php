@@ -10,7 +10,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * 4.4.1: move pre-4.4.1 contact attachments into the private store (spec §4).
+ * 4.4.1: move pre-4.4.1 contact attachments into the private store.
  *
  * The meta it reads could be written by an anonymous visitor before 4.4.0
  * (the form copied a POST text field into it), so a URL is moved only when
@@ -39,9 +39,9 @@ final class ContactAttachmentMigration {
 		// an empty private folder just because it upgraded. store_copy() creates
 		// the folder on the first real move and fails the run if it cannot.
 		//
-		// Review Focus 3: the WHOLE body below runs inside this one try, not
-		// just the per-URL call -- no exception, foreseen or not, may escape
-		// run() and reach admin_init (R-19).
+		// The WHOLE body below runs inside this one try, not just the
+		// per-URL call -- no exception, foreseen or not, may escape run() and
+		// reach admin_init.
 		$collected = array();
 		try {
 			self::finish_pending_sources();
@@ -52,12 +52,12 @@ final class ContactAttachmentMigration {
 				$url_count = count($urls);
 
 				// Phase 1: classify every post behind every URL in THIS batch
-				// without deleting or moving anything yet. Review Focus 1
-				// (round 3): keyed by the classified SOURCE PATH, not by URL --
-				// two different meta values (a host-case variant, an http/https
-				// pair, a percent-encoded name) can classify to the exact same
-				// real file. Keying by URL (round 2) gave each variant its own
-				// plan; phase 2 would then copy the same file twice and the
+				// without deleting or moving anything yet. Keyed by the
+				// classified SOURCE PATH, not by URL -- two different meta
+				// values (a host-case variant, an http/https pair, a
+				// percent-encoded name) can classify to the exact same real
+				// file. Keying by URL would give each variant its own plan;
+				// phase 2 would then copy the same file twice and the
 				// SECOND store_copy() would find its source already deleted by
 				// the first, failing the whole run and leaving every remaining
 				// URL public. Grouping by path means one copy serves every
@@ -73,10 +73,10 @@ final class ContactAttachmentMigration {
 					$seen[ $url ] = true;
 
 					foreach (self::posts_for($url) as $id => $date) {
-						// M2: classify() is expected to fail safe on planted input, but
+						// classify() is expected to fail safe on planted input, but
 						// a Throwable here must refuse only THIS row, not the run -- the
 						// outer try/catch below still catches whatever a $seen stop or a
-						// truly unexpected error throws for the whole batch (R-19).
+						// truly unexpected error throws for the whole batch.
 						try {
 							$c = self::classify($url, $date);
 						} catch (\Throwable $e) {
@@ -106,14 +106,14 @@ final class ContactAttachmentMigration {
 					}
 				}
 
-				// Review Focus 2 (round 2 fix): every refusal THIS batch found
-				// is written down BEFORE any of its meta is cleared below.
-				// Previously the option was written only in this method's
-				// finally, so a fatal (timeout/memory -- not a catchable
-				// exception, so try/finally never runs either) between an
-				// earlier batch's delete_post_meta() and the end of run()
-				// could clear a meta whose refusal was never recorded
-				// anywhere, losing the URL for good. A death between THIS
+				// Every refusal THIS batch found is written down BEFORE any of
+				// its meta is cleared below. Writing the option only in this
+				// method's finally would not be enough, since a fatal
+				// (timeout/memory -- not a catchable exception, so try/finally
+				// never runs either) between an earlier batch's
+				// delete_post_meta() and the end of run() could clear a meta
+				// whose refusal was never recorded anywhere, losing the URL for
+				// good. A death between THIS
 				// flush and the deletions below now only leaves the metas in
 				// place: the next run re-refuses the same posts, and
 				// persist_unmigrated()'s de-dup (by post_id + reason) keeps
@@ -135,13 +135,13 @@ final class ContactAttachmentMigration {
 					}
 				}
 
-				// Same ordering for 'source' items (Review Focus 2): they are
+				// Same ordering for 'source' items: they are
 				// recorded, never meta-deleted, so flushing once per batch --
 				// rather than only at the very end -- is enough.
 				self::persist_unmigrated($collected);
 			} while (self::BATCH === $url_count);
 
-			// Review Focus 4: a clean finish no longer needs to say the folder
+			// A clean finish no longer needs to say the folder
 			// was unwritable, even if an earlier run once flagged it.
 			self::clear_store_failed();
 			update_option(self::DONE_OPTION, '1', false);
@@ -177,7 +177,7 @@ final class ContactAttachmentMigration {
 			return self::refuse('shape');
 		}
 		$rel = rawurldecode(substr($path, strlen($base_path) + 1));
-		// R-19: pre-4.4.0 meta was raw form text; sanitize_text_field() keeps a
+		// Pre-4.4.0 meta was raw form text; sanitize_text_field() keeps a
 		// NUL, and realpath() throws ValueError on one. No upload core names
 		// ever carries a control character.
 		if (1 === preg_match('/[\x00-\x1f\x7f]/', $rel)) {
@@ -207,7 +207,7 @@ final class ContactAttachmentMigration {
 		if (false === $real_base || false === $real || ! is_file($real)) {
 			return self::refuse('missing');
 		}
-		// Review Focus 2 (round 2 fix): compared against the RESOLVED base,
+		// Compared against the RESOLVED base,
 		// not the literal (unresolved) uploads['basedir'] -- a symlinked
 		// uploads root (Bedrock/Capistrano shared/uploads, a mounted volume)
 		// must not refuse every legitimate file just because
@@ -238,7 +238,7 @@ final class ContactAttachmentMigration {
 	}
 
 	/**
-	 * Review Focus 1: a conservative stem for the library-exclusion prefix
+	 * A conservative stem for the library-exclusion prefix
 	 * match, not an enumeration of specific candidate names -- core generates
 	 * far more variant names than any fixed list could name. Strips the
 	 * extension, then repeatedly strips one core-added suffix (measured in
@@ -264,7 +264,7 @@ final class ContactAttachmentMigration {
 	}
 
 	/**
-	 * R-18: queried directly, not through attachment_url_to_postid(), whose
+	 * Queried directly, not through attachment_url_to_postid(), whose
 	 * pre_attachment_url_to_postid filter may answer 0 without looking -- and
 	 * this answer decides whether a source file gets deleted. A stem prefix
 	 * match (library_stem()) catches every core-generated variant of the
@@ -282,7 +282,7 @@ final class ContactAttachmentMigration {
 		$stem     = self::library_stem($basename);
 
 		$attached_like = $wpdb->esc_like($dir . $stem) . '%';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- No filterable lookup may decide a delete (R-18).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- No filterable lookup may decide a delete.
 		$found = (int) $wpdb->get_var($wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_wp_attached_file' AND meta_value LIKE %s",
 			$attached_like
@@ -295,7 +295,7 @@ final class ContactAttachmentMigration {
 		// _wp_attached_file at all; the raw name still appears, quoted, in
 		// its serialized _wp_attachment_metadata or _wp_attachment_backup_sizes.
 		$basename_like = '%' . $wpdb->esc_like('"' . $basename . '"') . '%';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- As above (R-18).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- As above.
 		$found = (int) $wpdb->get_var($wpdb->prepare(
 			"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key IN ('_wp_attachment_backup_sizes', '_wp_attachment_metadata') AND meta_value LIKE %s",
 			$basename_like
@@ -317,7 +317,6 @@ final class ContactAttachmentMigration {
 
 		echo '<div class="notice notice-warning">';
 		if (! empty($state['store_failed'])) {
-			// R-20.
 			echo '<p>' . esc_html__('The private attachment folder could not be written. Attachments saved by earlier versions are still in the public uploads folder; moving them will be retried on the next update.', 'mhm-rentiva') . '</p>';
 		}
 		if (array() === $items) {
@@ -336,7 +335,7 @@ final class ContactAttachmentMigration {
 			),
 			count($items)
 		)) . '</p><ul>';
-		// Review Focus 5: the sentence above already carries the true total;
+		// The sentence above already carries the true total;
 		// the list itself is capped so a very large backlog cannot render an
 		// unbounded admin screen.
 		foreach (array_slice($items, 0, 50) as $item) {
@@ -352,17 +351,17 @@ final class ContactAttachmentMigration {
 	 * Copies $source into the private store once and attaches it to every
 	 * post in $movable, whatever URL variant each one originally pointed at.
 	 * Called only after run() has already flushed this batch's refusals
-	 * (Review Focus 2, round 2) -- classification and meta deletion for
+	 * -- classification and meta deletion for
 	 * refusals happen in run() itself, not here.
 	 *
-	 * @param list<string>                                       $urls     Every URL variant this batch found pointing at $source['path'] (R-8 pending tracking).
+	 * @param list<string>                                       $urls     Every URL variant this batch found pointing at $source['path'] (pending tracking).
 	 * @param list<array{post_id:int,url:string}>                $movable  Every post to attach, with the URL it was found under.
 	 * @param array{path:string,name:string,mime:string}         $source
 	 * @param list<array{post_id:int,url:string,reason:string}>  $collected Appended to on a 'source' refusal.
 	 */
 	private static function store_and_attach(array $urls, array $movable, array $source, array &$collected): bool
 	{
-		// Review Focus 1 (round 3), second belt: a different URL variant of
+		// Second belt: a different URL variant of
 		// this exact file, classified in an EARLIER batch, may already have
 		// copied and deleted it -- the by-path grouping above only merges
 		// variants found WITHIN one batch, and two variants far apart
@@ -374,7 +373,7 @@ final class ContactAttachmentMigration {
 			foreach ($movable as $m) {
 				self::collect_unmigrated($refused, $m['post_id'], $m['url'], 'missing');
 			}
-			// Same rule as Review Focus 2 (round 2): record before deleting.
+			// Same rule as above: record before deleting.
 			self::persist_unmigrated($refused);
 			foreach ($movable as $m) {
 				delete_post_meta($m['post_id'], ContactAttachmentStore::META_KEY);
@@ -394,7 +393,7 @@ final class ContactAttachmentMigration {
 		if (self::delete_source($source['path'])) {
 			self::set_pending($source['path'], null);
 		} else {
-			// R-20: the move itself succeeded (rows keep their private record);
+			// The move itself succeeded (rows keep their private record);
 			// the public copy is listed for the owner and stays pending.
 			self::log('the public copy could not be deleted: ' . $source['path']);
 			self::collect_unmigrated($collected, $movable[0]['post_id'], $movable[0]['url'], 'source');
@@ -422,9 +421,9 @@ final class ContactAttachmentMigration {
 	}
 
 	/**
-	 * R-8. A pending path may now name more than one URL (round 3, Review
-	 * Focus 1): every variant that classified to this exact file in one
-	 * store_and_attach() call. A plain string is still accepted -- a pending
+	 * A pending path may name more than one URL: every variant that classified to
+	 * this exact file in one store_and_attach() call. A plain string is still
+	 * accepted -- a pending
 	 * row an earlier version wrote before this change named only one.
 	 */
 	private static function finish_pending_sources(): void
@@ -446,7 +445,7 @@ final class ContactAttachmentMigration {
 			$exists  = false !== $uploads && false !== $real && is_file($real)
 				&& str_starts_with(wp_normalize_path($real), untrailingslashit(wp_normalize_path($uploads)) . '/');
 			if ($exists) {
-				// Review Focus 6: it may have become a library file (e.g. a
+				// It may have become a library file (e.g. a
 				// re-import) since this path was queued; forget it, never
 				// delete it, the same rule classify() applies on the way in.
 				$rel = ltrim(substr(wp_normalize_path($real), strlen(untrailingslashit(wp_normalize_path($uploads)))), '/');
@@ -455,7 +454,7 @@ final class ContactAttachmentMigration {
 					continue;
 				}
 				if (! self::delete_source($real)) {
-					continue; // Still there: keep it pending (R-20); it is already listed.
+					continue; // Still there: keep it pending; it is already listed.
 				}
 			}
 			self::set_pending( (string) $path, null);
@@ -529,15 +528,14 @@ final class ContactAttachmentMigration {
 	}
 
 	/**
-	 * Review Focus 5: merges run()'s in-memory refusals into the stored
-	 * option and writes it once, whatever else already changed it this
-	 * request (flag_store_failed()/clear_store_failed() read-modify-write
+	 * Merges run()'s in-memory refusals into the stored option and writes it
+	 * once, whatever else already changed it this request
+	 * (flag_store_failed()/clear_store_failed() read-modify-write
 	 * the same option earlier in the same request; this always re-reads
 	 * fresh before merging, so nothing here clobbers those).
 	 *
-	 * De-duplicated by post_id + reason + url (round 2 / Review Focus 2;
-	 * round 3, Review Focus 2: the key now also includes the url -- the same
-	 * post can legitimately be refused for the same reason under two
+	 * De-duplicated by post_id + reason + url (the key includes the url --
+	 * the same post can legitimately be refused for the same reason under two
 	 * DIFFERENT URL variants, and both are worth listing). $collected keeps
 	 * growing across a run and this is now called once per batch, so the
 	 * same item would otherwise be re-merged on every later call; a second
@@ -578,7 +576,7 @@ final class ContactAttachmentMigration {
 		update_option(self::UNMIGRATED_OPTION, $state, false);
 	}
 
-	/** Review Focus 4: a run that finishes cleanly no longer needs to say the folder was unwritable. */
+	/** A run that finishes cleanly no longer needs to say the folder was unwritable. */
 	private static function clear_store_failed(): void
 	{
 		$state = get_option(self::UNMIGRATED_OPTION, array());

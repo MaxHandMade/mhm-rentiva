@@ -463,7 +463,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 			}
 			echo '</div>';
 
-			// The stored total of the booked services (canvas v135). It was a
+			// The stored total of the booked services. It was a
 			// hidden "0,00" that nothing on this screen ever filled. It reflects
 			// the booking as saved; a ticked or unticked box counts after Update.
 			$addon_total = (float) get_post_meta( $post->ID, '_mhmrentiva_addon_total', true );
@@ -599,7 +599,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		$pickup_time    = $request->text( 'mhmrentiva_edit_pickup_time' );
 		$dropoff_date   = $request->text( 'mhmrentiva_edit_dropoff_date' );
 		$dropoff_time   = $request->text( 'mhmrentiva_edit_dropoff_time' );
-		// The guests field left the form (canvas v135). Without it the stored
+		// The guests field left the form. Without it the stored
 		// value stands: the old default of 1 would have reset every booking's
 		// guests on its next Update.
 		$guests_posted = $request->has( 'mhmrentiva_edit_guests' );
@@ -613,7 +613,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		$special_notes = $request->textarea( 'mhmrentiva_edit_special_notes' );
 
 		// A return before the pickup is not saved; the stored range stands and
-		// the rest of the Update goes on (function scan H4).
+		// the rest of the Update goes on.
 		if ( BookingEditDates::is_refused( $post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time ) ) {
 			BookingEditNotice::queue( $post_id, BookingEditDates::notice(), 'warning' );
 		}

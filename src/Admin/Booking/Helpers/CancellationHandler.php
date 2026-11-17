@@ -34,13 +34,12 @@ final class CancellationHandler {
 	 * Booking id => the operator's refund-failed e-mail has already been
 	 * sent SUCCESSFULLY once for this booking, this request.
 	 *
-	 * Fix round 1, F6 (Task 14b review): settle_refund()'s PENDING-not-
-	 * recorded refusal (item 11) and cancel_booking()'s own post-commit
-	 * recovery block both decide to send
+	 * Both settle_refund()'s PENDING-not-recorded refusal and cancel_booking()'s
+	 * own post-commit recovery block decide to send
 	 * NotificationHelper::send_refund_failed_email() on the identical
 	 * `refundable() > 0` condition, and both can fire in the SAME
 	 * cancel_booking() call: the refusal returns a value rather than
-	 * throwing (fix round 2, G1), so execution continues normally into
+	 * throwing, so execution continues normally into
 	 * `do_action( 'mhmrentiva_booking_cancelled', ... )`, and if a LATER
 	 * listener on that hook throws for an unrelated reason, the recovery
 	 * block runs too -- sending the operator the identical e-mail a
@@ -62,9 +61,9 @@ final class CancellationHandler {
 	 * @param bool   $force Force cancellation even if deadline passed (admin only)
 	 * @param bool   $system Attribution only: true for cron/automation callers, which
 	 *                       have no current user. It buys nothing at the money step --
-	 *                       since K6 no unattended path moves money at all, an
+	 *                       no unattended path moves money at all, an
 	 *                       unattributed 0 actor is refused by MoneyAuthorization
-	 *                       regardless of this flag (spec §5.4). Kept on the signature
+	 *                       regardless of this flag. Kept on the signature
 	 *                       so a caller can still say who it is without that
 	 *                       declaration becoming a bypass.
 	 *
@@ -72,23 +71,22 @@ final class CancellationHandler {
 	 *               An array on success -- 'cancelled' is always true past
 	 *               COMMIT, and 'problems' lists process_refund()'s own
 	 *               refusal (a string describing a refusal it could not
-	 *               even start -- fix round 2, G1) plus any post-commit
+	 *               even start) plus any post-commit
 	 *               \Throwable messages, empty when nothing went wrong
 	 *               after COMMIT. WP_Error only for a failure BEFORE
 	 *               COMMIT (validation, the deadline, permission, or a
 	 *               rolled-back write).
 	 *
-	 *               Task 14b item 12: a 'refund' key used to sit beside
+	 *               A 'refund' key used to sit beside
 	 *               'problems' carrying the exact same value process_refund()
 	 *               returned (null = nothing to surface, a string = a
 	 *               refusal, ALREADY copied into 'problems' too) -- reversed
 	 *               polarity from what its name suggests (a non-null string
 	 *               means the refund did NOT start, not that one did), and
 	 *               measured to have zero readers on this unpublished branch.
-	 *               Fix round 1, F9: the original measurement covered
-	 *               `src/ tests/ templates/ assets/` in THIS repo only;
-	 *               re-measured against the local Pro checkout
-	 *               (`plugins/mhm-rentiva-pro/`) for this fix round --
+	 *               The measurement covered
+	 *               `src/ tests/ templates/ assets/` in this repo and the
+	 *               local Pro checkout (`plugins/mhm-rentiva-pro/`) --
 	 *               `grep -rn "['refund']"` over its whole tree returns
 	 *               nothing, and Pro has no caller of
 	 *               `CancellationHandler::cancel_booking()` at all, so it
@@ -142,7 +140,7 @@ final class CancellationHandler {
 		}
 
 		// Check user permission (user can only cancel their own bookings).
-		// Tied to the same predicate the money step uses (spec §5): both
+		// Tied to the same predicate the money step uses: both
 		// questions -- may this actor cancel, may this actor move money --
 		// resolve to "is this actor the booking's customer, or an admin",
 		// and asking current_user_can() here (the request, not the argument)
@@ -223,22 +221,19 @@ final class CancellationHandler {
 			// Commit changes
 			$wpdb->query( 'COMMIT' );
 		} catch ( \Throwable $e ) {
-			// \Throwable, not \Exception (Task 14b item 10): Status::update_status()
-			// above fires the public mhmrentiva_booking_status_changed action
-			// BEFORE COMMIT, and a third-party listener on it -- or a plain
+			// \Throwable, not \Exception: Status::update_status() above fires the
+			// public mhmrentiva_booking_status_changed action BEFORE COMMIT, and
+			// a third-party listener on it -- or a plain
 			// TypeError -- can throw an \Error, which catch(\Exception) never
-			// sees. Before this fix an \Error here skipped ROLLBACK entirely
-			// and fatalled the request with the transaction left open; this is
-			// the same defect class 14a closed one phase later, on the
-			// post-commit try below.
+			// sees. Catching only \Exception would let an \Error skip ROLLBACK
+			// entirely and fatal the request with the transaction left open;
+			// the post-commit try below guards against the same defect class.
 			// Rollback on error
 			$wpdb->query( 'ROLLBACK' );
 
-			// Fix round 1, F4 (Task 14b review): widening this catch to
-			// \Throwable (item 10) pulled two consequences into a task
-			// about visibility that were not addressed at the time. (a)
-			// This branch wrote NOTHING to the Logs -- the only branch
-			// this task touched that skipped error_linked(). (b)
+			// Catching \Throwable here has two consequences. (a) This branch
+			// must write to the Logs like every other failure branch, so it
+			// calls error_linked(). (b)
 			// $e->getMessage() below is echoed verbatim to whichever
 			// caller asked, and on a customer-reachable endpoint
 			// (AccountController::ajax_cancel_booking()) that was only
@@ -248,8 +243,7 @@ final class CancellationHandler {
 			// before catch(\Throwable) existed, such an \Error fatalled to
 			// a generic WordPress critical-error page instead of reaching
 			// this return at all, so echoing it verbatim to the customer
-			// is a NEW disclosure this fix introduced, not a pre-existing
-			// one. Logged here regardless of type (the full message is
+			// would be a new disclosure. Logged here regardless of type (the full message is
 			// safe in the admin-only Logs screen); returned to the caller
 			// only when it is plugin-authored.
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
@@ -281,7 +275,7 @@ final class CancellationHandler {
 		// "cancellation failed" -- ROLLBACK on an already-committed
 		// transaction does nothing.
 		//
-		// Deliberately OUTSIDE the try/catch above (fix round 1, F1): every
+		// Deliberately OUTSIDE the try/catch above: every
 		// post-commit statement, INCLUDING this block's own recovery path a
 		// few lines down, must sit outside the rollback-protected try. An
 		// \Exception raised while HANDLING a post-commit problem is
@@ -289,12 +283,11 @@ final class CancellationHandler {
 		// public mhmrentiva_refund_status_changed action, wp_mail() runs
 		// phpmailer_init listeners and only catches PHPMailer's own
 		// exception type, AdvancedLogger::add() inserts a post and fires
-		// save_post -- and before this fix such an \Exception was caught by
+		// save_post -- and such an \Exception inside that try would be caught by
 		// the ROLLBACK handler above and reported as "Cancellation failed"
 		// about a booking that was already committed cancelled, while an
-		// \Error there was uncaught entirely. Both are exactly the outcomes
-		// this task exists to remove, so nothing post-COMMIT may sit inside
-		// that try any more.
+		// \Error there would be uncaught entirely. Neither outcome is
+		// acceptable, so nothing post-COMMIT may sit inside that try.
 		$problems = array();
 		$refund   = null;
 
@@ -312,10 +305,9 @@ final class CancellationHandler {
 			// see process_refund() and MoneyAuthorization.
 			$refund = self::process_refund( $booking_id, $user_id, $reason, $surface );
 
-			// Fix round 2, G1: a non-null return is a refusal
-			// process_refund() could not even start (correction #7) --
-			// recorded here as a VALUE, precisely so it does NOT abort this
-			// try the way fix round 1's throw did. Aborting here skipped
+			// A non-null return is a refusal process_refund() could not even
+			// start -- recorded here as a VALUE, precisely so it does NOT
+			// abort this try the way a throw would. Aborting here would skip
 			// do_action() below entirely, even though the cancellation had
 			// already committed and other listeners (Pro's
 			// VendorCancellationDateBlocker::maybe_block_dates() among them)
@@ -331,13 +323,13 @@ final class CancellationHandler {
 			// defect this block exists to remove (see above).
 			$problems[] = $e->getMessage();
 
-			// The recovery itself gets its own try/catch (fix round 1, F1):
+			// The recovery itself gets its own try/catch:
 			// none of RefundLock::acquire(), RefundStatus::transition(),
 			// the logging calls, or send_refund_failed_email() may be
 			// allowed to escape uncaught -- there is no outer catch left to
 			// (mis)handle them any more, on purpose, so a throwable from in
 			// here must be caught right here or it fatals the request just
-			// like the original defect this task removes.
+			// like the defect this block exists to prevent.
 			try {
 				if ( \MHMRentiva\Admin\Payment\Core\RefundLock::acquire( $booking_id ) ) {
 					try {
@@ -348,7 +340,7 @@ final class CancellationHandler {
 						);
 
 						if ( ! $failed_recorded ) {
-							// Matrix refused (fix round 1, F4) -- most
+							// Matrix refused -- most
 							// commonly because refund_status is still ''
 							// (process_refund() never reached settle_refund()
 							// at all, e.g. no money owed): matrix('')'s only
@@ -358,7 +350,7 @@ final class CancellationHandler {
 							// than silently discarded, the same reasoning as
 							// settle_refund()'s own PENDING-refusal guard
 							// below.
-							// Task 14b item 1: was error() + add() -- one call
+							// Was error() + add() -- one call
 							// now does both (booking-linked, LEVEL_ERROR).
 							\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
 								sprintf(
@@ -375,8 +367,8 @@ final class CancellationHandler {
 						\MHMRentiva\Admin\Payment\Core\RefundLock::release( $booking_id );
 					}
 				} else {
-					// Lock refusal, previously silent (fix round 1, F4).
-					// Task 14b item 1: was error() + add(); merged.
+					// Lock refusal, previously silent.
+					// Was error() + add(); merged.
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
 						__( 'Refund lock refused while recording a post-commit failure. A post-commit cancellation problem occurred, but the refund lock could not be acquired to record it.', 'mhm-rentiva' ),
 						$booking_id,
@@ -385,7 +377,7 @@ final class CancellationHandler {
 					);
 				}
 
-				// Task 14b item 1: was a standalone error() with no
+				// Was a standalone error() with no
 				// booking_id (see the removed comment this method used to
 				// carry about error() dropping the link); error_linked()
 				// keeps this entry traceable like its siblings above.
@@ -400,28 +392,27 @@ final class CancellationHandler {
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 				);
 
-				// Tam başarısızlıkta operatör e-postası (plan Step 5),
-				// gated on there actually being money at stake (fix round 1,
-				// F5): an unrelated post-commit throwable on a booking with
+				// The operator e-mail on a full failure is gated on there
+				// actually being money at stake: an unrelated post-commit throwable on a booking with
 				// nothing owed must not tell the operator a refund is
 				// missing when none was ever due.
 				//
-				// Correction #5 (Task 15): refundable() is zeroed for a
+				// refundable() is zeroed for a
 				// mixed-currency booking, which is precisely the case where
 				// money IS owed and a human IS needed -- without the
 				// isMixedCurrency() disjunct this gate would silently drop
-				// the operator e-mail for exactly the booking this slice
-				// exists to stop closing silently.
+				// the operator e-mail for exactly the booking whose cancellation
+				// must not close silently.
 				$recovery_state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id );
 
 				if ( $recovery_state->refundable() > 0 || $recovery_state->isMixedCurrency() ) {
-					// Fix round 1, F6: routed through send_refund_failed_email_once()
+					// Routed through send_refund_failed_email_once()
 					// rather than the helper directly -- this branch and
-					// settle_refund()'s PENDING-not-recorded refusal (item 11)
+					// settle_refund()'s PENDING-not-recorded refusal
 					// both send this same e-mail on this same condition, and
 					// both can fire in one cancel_booking() call.
 					if ( ! self::send_refund_failed_email_once( $booking_id ) ) {
-						// Task 14b item 1: was error() + add(), same pair and
+						// Was error() + add(), same pair and
 						// same reasons as every other "the notification
 						// itself may silently fail" branch in this codebase
 						// (AutoCancel.php's send_refund_needs_review_email()
@@ -436,7 +427,7 @@ final class CancellationHandler {
 					}
 				}
 			} catch ( \Throwable $e2 ) {
-				// The recovery itself failed (fix round 1, F1) -- recorded
+				// The recovery itself failed -- recorded
 				// like any other post-commit problem, never a WP_Error,
 				// never left to propagate.
 				$problems[] = $e2->getMessage();
@@ -488,7 +479,7 @@ final class CancellationHandler {
 	}
 
 	/**
-	 * The pickup time a booking's cancellation deadline counts from (R10).
+	 * The pickup time a booking's cancellation deadline counts from.
 	 *
 	 * One read order for every reader: `_mhmrentiva_start_time` (what the
 	 * booking form and the manual booking screen write) -> `_mhmrentiva_pickup_time`
@@ -712,7 +703,7 @@ final class CancellationHandler {
 
 	/**
 	 * Sends the operator's refund-failed notification at most ONCE per
-	 * booking per request (fix round 1, F6). Wraps
+	 * booking per request. Wraps
 	 * NotificationHelper::send_refund_failed_email() so the two independent
 	 * branches that both decide to send it (settle_refund()'s
 	 * PENDING-not-recorded refusal, and cancel_booking()'s own post-commit
@@ -729,9 +720,9 @@ final class CancellationHandler {
 	 * Considered moving the send itself outside settle_refund()'s
 	 * RefundLock instead (the lock is released via `finally` before
 	 * settle_refund() returns to process_refund(), so the caller already
-	 * runs unlocked): rejected for this fix round because settle_refund()
-	 * returns a bare string for TWO different refusals (this one, item 11's
-	 * PENDING-not-recorded; and item 13's FAILED-not-recorded, which must
+	 * runs unlocked): rejected because settle_refund()
+	 * returns a bare string for TWO different refusals (this one, the
+	 * PENDING-not-recorded; and the FAILED-not-recorded, which must
 	 * NOT send this e-mail), and telling them apart from process_refund()
 	 * would mean widening the return contract -- a larger change than a
 	 * duplicate-send bug calls for. The dedupe flag removes the double-send
@@ -754,11 +745,11 @@ final class CancellationHandler {
 	}
 
 	/**
-	 * The money step of a cancellation (spec §5.3).
+	 * The money step of a cancellation.
 	 *
 	 * @param int    $booking_id Booking ID
 	 * @param int    $user_id    The actor. There is no $system leg any more --
-	 *                           since K6 no unattended path moves money at
+	 *                           no unattended path moves money at
 	 *                           all, so an unattributed 0 actor is refused
 	 *                           here regardless of how cancel_booking() was
 	 *                           called (see MoneyAuthorization).
@@ -769,8 +760,8 @@ final class CancellationHandler {
 	 *                      pre-existing failure was already logged by
 	 *                      settle_refund() through its own channel). A
 	 *                      string when settle_refund() could not even
-	 *                      record that a refund attempt started (fix round
-	 *                      2, G1) -- returned, not thrown, so cancel_booking()
+	 *                      record that a refund attempt started -- returned,
+	 *                      not thrown, so cancel_booking()
 	 *                      can add it to 'problems' AND still go on to fire
 	 *                      mhmrentiva_booking_cancelled, which a throw here
 	 *                      used to skip.
@@ -799,8 +790,8 @@ final class CancellationHandler {
 		// integrators who fire on exactly that claim. It closes as
 		// not_required below instead.
 		//
-		// T15-R1: isMixedCurrency() is ALSO an OR here, deliberately. paid()
-		// is zeroed for a mixed-currency booking (Task 15), so without this
+		// isMixedCurrency() is ALSO an OR here, deliberately. paid()
+		// is zeroed for a mixed-currency booking, so without this
 		// disjunct a mixed booking whose payment_status meta is not
 		// 'paid'/'partially_refunded' would never reach settle_refund() at
 		// all -- and settle_refund()'s own mixed-currency guard, which is
@@ -826,17 +817,17 @@ final class CancellationHandler {
 		update_post_meta( $booking_id, '_mhmrentiva_refund_requested_by', $user_id );
 
 		// The surface travels from whoever asked for the cancellation, because
-		// only they know it: spec v3 section 3 names five surfaces and they
+		// only they know it: the contract names five surfaces and they
 		// describe where the ACTION came from, not which layer is executing it.
 		// This used to pass the literal 'cancellation_handler' -- a layer name,
 		// not one of the five -- which reached every refund_status_changed
-		// listener as a value the contract does not define (I-2).
+		// listener as a value the contract does not define.
 		return self::settle_refund( $booking_id, $reason, $user_id, $payment_gateway, $surface );
 	}
 
 	/**
-	 * Steps 4-9 of the spec §5.3 sequence, plus (as of the single-writer slice)
-	 * the pending write and the integrator hook, both moved inside the lock.
+	 * The settlement steps of the refund sequence, including the pending write
+	 * and the integrator hook, both of which run inside the lock.
 	 *
 	 * RefundStatus::transition() refuses to write without the lock held, so
 	 * the pending marker has to be set AFTER acquire(), not before it --
@@ -845,7 +836,7 @@ final class CancellationHandler {
 	 * started from the empty string.
 	 *
 	 * Two different resolutions of PaymentState appear below, deliberately:
-	 * the first, before the hook, is a stub for Task 15's mixed-currency guard,
+	 * the first, before the hook, feeds the mixed-currency guard,
 	 * which needs to see the booking's currency shape before pending is even
 	 * written. The second, after the hook, is what THIS method's own decision
 	 * uses -- an integrator that made its own refund in mhmrentiva_process_refund
@@ -865,18 +856,18 @@ final class CancellationHandler {
 	 *                      call this class check `RefundStatus::FAILED ===
 	 *                      RefundStatus::get(...)` themselves). A string on
 	 *                      every other early return: the PENDING transition
-	 *                      itself could not be recorded (fix round 1, F2),
+	 *                      itself could not be recorded,
 	 *                      this booking's payment is split across
-	 *                      currencies (Task 15), the FAILED transition could
+	 *                      currencies, the FAILED transition could
 	 *                      not be recorded because the matrix genuinely
-	 *                      refused it for another reason (Task 14b item 13),
+	 *                      refused it for another reason,
 	 *                      or finish() had already written partial_failure
-	 *                      for this exact failure (whole-branch review, F3
-	 *                      -- partial_failure has no matrix edge to failed,
+	 *                      for this exact failure
+	 *                      (partial_failure has no matrix edge to failed,
 	 *                      but IS a real failure the surfaces' `FAILED ===`
 	 *                      check cannot see on its own). All of these return
 	 *                      the refusal message as a VALUE rather than
-	 *                      throwing it (fix round 2, G1) -- a throw here
+	 *                      throwing it -- a throw here
 	 *                      used to unwind past process_refund()'s return in
 	 *                      cancel_booking(), skipping the public
 	 *                      mhmrentiva_booking_cancelled action entirely (a
@@ -894,8 +885,8 @@ final class CancellationHandler {
 			// that never held it has no standing to describe the booking's
 			// refund state; only the actual holder does. Reaching FAILED
 			// from here would mean two writers can disagree about this
-			// booking's status, exactly the class this slice exists to
-			// remove. _mhmrentiva_refund_status is left untouched: '' if
+			// booking's status, exactly the class of defect the single
+			// lock-holding writer exists to prevent. _mhmrentiva_refund_status is left untouched: '' if
 			// this is the booking's first attempt, or whatever terminal
 			// value the actual holder already wrote if it finished first.
 			//
@@ -912,8 +903,8 @@ final class CancellationHandler {
 			// this call exists to prevent. Verified empirically: the
 			// intended assertion in CancellationInitiatesRefundTest found no
 			// log post until this was switched from warning() to error().
-			// Task 14b item 1: was error() + add(), merged into one call.
-			// Task 14b item 2: the message no longer asserts a cause
+			// Was error() + add(), merged into one call.
+			// The message no longer asserts a cause
 			// RefundLock::acquire() cannot actually tell apart -- a lock
 			// refusal means either a genuinely running refund OR a lock a
 			// dead request left behind that has not hit RefundLock's own
@@ -941,23 +932,23 @@ final class CancellationHandler {
 
 			$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id );
 
-			// Spec v3 §6/2: BEFORE pending and before every zero-balance
+			// BEFORE pending and before every zero-balance
 			// branch, because refundable() returns the same 0 for "mixed
 			// currency" and "nothing to refund" -- and closing a mixed-currency
 			// booking as not_required is exactly the silent close this guard
-			// exists to prevent. Task 15 fills this in.
+			// exists to prevent.
 			if ( $state->isMixedCurrency() ) {
 				// Before pending, deliberately: the matrix has no
 				// pending -> needs_review edge, and adding one would grow the
 				// machine for a case that never starts an operation at all.
 				// '' -> needs_review is already an edge, so this lands
-				// cleanly -- verified against RefundStatus::matrix() (Task
-				// 15 correction #6): this call sits inside RefundLock's own
-				// try block, after acquire() above already succeeded, so
+				// cleanly -- verified against RefundStatus::matrix(): this call
+				// sits inside RefundLock's own try block, after acquire() above
+				// already succeeded, so
 				// RefundStatus::transition()'s isHeld() guard is satisfied.
 				//
 				// Mirrors AutoCancel::cancel_booking_with_orders()'s own
-				// park branch (Task 14b's sibling pattern): the notification
+				// park branch (the sibling pattern): the notification
 				// is only attempted once the transition itself is recorded,
 				// and its bool is never discarded -- a dropped notification
 				// here would leave a mixed-currency booking parked in
@@ -973,7 +964,7 @@ final class CancellationHandler {
 				);
 
 				if ( $mixed_currency_recorded ) {
-					// Review fix round 1, F1: NOT send_refund_needs_review_email().
+					// NOT send_refund_needs_review_email().
 					// That helper's wording is AutoCancel's own -- "left it
 					// alone, did not cancel the booking" and "AutoCancel
 					// found" are both FALSE on this path (the booking IS
@@ -999,10 +990,9 @@ final class CancellationHandler {
 						);
 					}
 				} else {
-					// Review fix round 1, F2: this used to return silently,
-					// exactly the defect this slice has already fixed twice
-					// elsewhere. The matrix refusing NEEDS_REVIEW means this
-					// booking's CURRENT refund_status has no outgoing edge to
+					// Returning silently here would discard the refusal. The
+					// matrix refusing NEEDS_REVIEW means this booking's CURRENT
+					// refund_status has no outgoing edge to
 					// it from here -- e.g. a concurrent request already moved
 					// it to pending/failed/a terminal value, or this is a
 					// second cancellation attempt on a booking already
@@ -1027,11 +1017,10 @@ final class CancellationHandler {
 					);
 				}
 
-				// settle_refund()'s contract is ?string, not bool, as of Task
-				// 14a -- null means "nothing to surface", a non-empty string
-				// is a problem cancel_booking() appends to 'problems'. Review
-				// fix round 1 measured that none of the three AJAX surfaces
-				// actually display this text (each emits its own fixed
+				// settle_refund()'s contract is ?string, not bool -- null means
+				// "nothing to surface", a non-empty string is a problem
+				// cancel_booking() appends to 'problems'. None of the three
+				// AJAX surfaces actually display this text (each emits its own fixed
 				// sentence once 'problems' is non-empty) -- the BEHAVIOURAL
 				// half still matters (a non-null return flips which sentence
 				// a surface shows), so this still returns a real string
@@ -1057,7 +1046,7 @@ final class CancellationHandler {
 				// to land in, so it must not run at all -- the single-writer
 				// discipline this class exists for (RefundStatus's own
 				// docblock).
-				// Task 14b item 1: was error() + add(), merged into one call.
+				// Was error() + add(), merged into one call.
 				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
 					sprintf(
 						/* translators: 1: the surface that attempted this refund, 2: the booking's current refund_status, which has no outgoing edge to PENDING. */
@@ -1073,24 +1062,21 @@ final class CancellationHandler {
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 				);
 
-				// Task 14b item 11: this refusal used to be a throw (fix
-				// round 1), which landed in cancel_booking()'s post-commit
-				// recovery block and sent the operator this same
-				// send_refund_failed_email() whenever refundable() > 0. Fix
-				// round 2 turned it into a returned value instead (G1),
-				// precisely so it stops skipping
-				// do_action('mhmrentiva_booking_cancelled', ...) -- but that
-				// also means this refusal no longer reaches that recovery
-				// block at all, so the operator e-mail it used to send
-				// silently stopped firing: only the customer, reading
-				// 'problems' below, ever learned money was still owed on a
-				// terminal refund_status. Sent here directly instead, on the
-				// same condition the old recovery block used. $state is
+				// A throw here would land in cancel_booking()'s post-commit
+				// recovery block, which sends the operator
+				// send_refund_failed_email() whenever refundable() > 0. This
+				// refusal is a returned value instead, precisely so it does
+				// not skip do_action('mhmrentiva_booking_cancelled', ...) --
+				// but that also means it never reaches that recovery block,
+				// so without a send here only the customer, reading
+				// 'problems' below, would ever learn money was still owed on
+				// a terminal refund_status. The e-mail is therefore sent here
+				// directly, on the same condition the recovery block uses. $state is
 				// still the fresh pre-hook snapshot read a few lines above --
 				// nothing between there and here can have changed it, since
 				// this branch returns before the hook ever fires.
 				//
-				// Fix round 1, F6: because this branch RETURNS rather than
+				// Because this branch RETURNS rather than
 				// throws, execution still reaches do_action() below and, if
 				// a LATER listener on it throws, cancel_booking()'s own
 				// post-commit recovery block -- which checks this identical
@@ -1111,10 +1097,10 @@ final class CancellationHandler {
 					}
 				}
 
-				// Fix round 2, G1: RETURNED as a value, not thrown. Fix round
-				// 1 threw here, which reported the refusal but also unwound
-				// past process_refund()'s own return inside cancel_booking()'s
-				// try -- skipping do_action( 'mhmrentiva_booking_cancelled', ... )
+				// RETURNED as a value, not thrown. A throw here would report
+				// the refusal but also unwind past process_refund()'s own return
+				// inside cancel_booking()'s try -- skipping do_action(
+				// 'mhmrentiva_booking_cancelled', ... )
 				// entirely, even though the cancellation itself had already
 				// committed and other listeners (Pro's
 				// VendorCancellationDateBlocker::maybe_block_dates() among
@@ -1126,7 +1112,7 @@ final class CancellationHandler {
 				return __( "Refund not attempted: this booking's refund status changed before the refund could start.", 'mhm-rentiva' );
 			}
 
-			// Spec v3 §4.2: the integrator hook moves INSIDE the lock. Its
+			// The integrator hook runs INSIDE the lock. Its
 			// stated purpose -- a refund the listener makes is visible to the
 			// decision below -- is satisfied equally here, and outside the lock
 			// two concurrent requests could run two listeners at once while the
@@ -1134,7 +1120,7 @@ final class CancellationHandler {
 			try {
 				do_action( 'mhmrentiva_process_refund', $booking_id, $payment_gateway, $user_id );
 			} catch ( \Throwable $e ) {
-				// Task 14b item 1: was error() + add() -- error() alone used
+				// Was error() + add() -- error() alone used
 				// to drop this entry's booking linkage (AdvancedLogger::error()
 				// takes no booking_id and never passes one to log(), which
 				// only writes _mhmrentiva_log_booking_id when
@@ -1155,7 +1141,7 @@ final class CancellationHandler {
 			}
 
 			// Resolved again, deliberately: $state above is the pre-hook
-			// snapshot Task 15's mixed-currency guard needs. This decision
+			// snapshot the mixed-currency guard needs. This decision
 			// must not reuse it -- see the method docblock.
 			wp_cache_delete( $booking_id, 'post_meta' );
 			$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id );
@@ -1196,10 +1182,9 @@ final class CancellationHandler {
 				$recorded = \MHMRentiva\Admin\Payment\Core\RefundStatus::transition( $booking_id, \MHMRentiva\Admin\Payment\Core\RefundStatus::FAILED, array( 'reason' => 'validator_refused' ) );
 
 				if ( $recorded ) {
-					// Fix round 1, F8: was add() -- the only remaining place
+					// Was add() -- the only remaining place
 					// in this if/else pair still logging through the
-					// deprecated API while its own `else` sibling (item 13,
-					// added in the same fix round) already uses
+					// deprecated API while its own `else` sibling already uses
 					// error_linked(). Converged onto the same call so one
 					// if/else does not log through two different
 					// mechanisms, one of them deprecated.
@@ -1210,10 +1195,10 @@ final class CancellationHandler {
 						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 					);
 				} else {
-					// Whole-branch review, F3: transition() to FAILED returns
+					// transition() to FAILED returns
 					// false for TWO unrelated reasons, and this branch used
-					// to treat them as one. Reason one is the genuine race
-					// item 13 was written for: something else moved
+					// to treat them as one. Reason one is the genuine race:
+					// something else moved
 					// refund_status to an unrelated terminal value between
 					// the PENDING write above and this point. Reason two is
 					// not a race at all -- Service::finish() (inside
@@ -1263,16 +1248,16 @@ final class CancellationHandler {
 							?? __( 'Refund partially failed; the rest did not go back.', 'mhm-rentiva' );
 					}
 
-					// The real race item 13 was written for: the matrix
+					// The real race: the matrix
 					// refused the FAILED write for a reason OTHER than
 					// finish() having already recorded this exact failure --
 					// e.g. a mhmrentiva_process_refund listener moved
 					// refund_status to an unrelated terminal value (without
 					// actually resolving the balance) between the PENDING
-					// write above and this point. Before item 13, this
-					// branch did nothing at all: no log, and $success's own
-					// failure never reached 'problems' either -- so all
-					// three AJAX surfaces kept reading "cancelled
+					// write above and this point. This branch must not do
+					// nothing: without a log, and without $success's own
+					// failure reaching 'problems', all
+					// three AJAX surfaces would keep reading "cancelled
 					// successfully" while the money never moved and nothing
 					// anywhere said a refund had even been attempted here.
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
@@ -1290,13 +1275,12 @@ final class CancellationHandler {
 				}
 			}
 
-			// Fix round 2, G1: $success already drove the FAILED transition
-			// and its log entry above -- both existed before this task and
-			// are untouched. A validator refusal here is read back from
+			// $success already drove the FAILED transition and its log entry
+			// above. A validator refusal here is read back from
 			// _mhmrentiva_refund_status by every consumer that cares (the
-			// AJAX surfaces' FAILED check, F6), so it does not also need a
+			// AJAX surfaces' FAILED check), so it does not also need a
 			// 'problems' entry; only the PENDING-not-recorded refusal above,
-			// and item 13's own $recorded === false branch just above, do.
+			// and the $recorded === false branch just above, do.
 			return null;
 		} finally {
 			\MHMRentiva\Admin\Payment\Core\RefundLock::release( $booking_id );
@@ -1329,7 +1313,7 @@ final class CancellationHandler {
 	 * measured on 2026-08-16 the key had zero writers in the tree, no migration
 	 * step, and zero rows in the database.
 	 *
-	 * The Faz 2 sweep reached this conclusion independently and pinned it in
+	 * This conclusion is pinned in
 	 * CancellationOwnershipTest::test_the_gate_reads_the_key_that_is_actually_written().
 	 */
 	private static function resolve_booking_customer_id( int $booking_id ): int {
@@ -1342,7 +1326,7 @@ final class CancellationHandler {
 		}
 
 		// Admins can always cancel. Asks the $user_id argument, not the
-		// ambient request (fix round 1, F3) -- this was the same defect
+		// ambient request -- this was the same defect
 		// class MoneyAuthorization exists to remove one method below,
 		// reached from the UI-gate side instead of the money side. The
 		// single production caller (templates/account/booking-detail.php)

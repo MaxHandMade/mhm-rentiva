@@ -1,6 +1,6 @@
 <?php
 /**
- * Payment History page (PR D, Task 6; drawings Hesabim list section and Hesabim-Mobil cards).
+ * Payment History page.
  *
  * One table, a raised card per row on phones. Each row is one booking: the
  * status tag is the payment's own (completed / pending / cancelled, money
@@ -32,7 +32,7 @@ $total        = (int) ( $data['total'] ?? 0 );
 $total_pages  = (int) ( $data['total_pages'] ?? 1 );
 $current_page = (int) ( $data['current_page'] ?? 1 );
 
-// Spec 3A Task 7b: column and pager settings; missing means today's markup.
+// Column and pager settings; missing means today's markup.
 $show_date           = $data['show_date'] ?? true;
 $show_payment_method = $data['show_payment_method'] ?? true;
 $show_booking_link   = $data['show_booking_link'] ?? false;

@@ -8,7 +8,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * View values of the contact form (PR F): topics, fields per topic, the visitor's
+ * View values of the contact form: topics, fields per topic, the visitor's
  * bookings, the information rows, consent, the attachment limits and the ids of
  * one instance. It reads nothing: ContactForm gathers the context.
  *
@@ -27,7 +27,7 @@ final class ContactFormView {
 	public const HONEYPOT_FIELD = 'rvs_leave_blank';
 
 	/**
-	 * The types one form may submit, which is also what its token vouches for (r2 M1).
+	 * The types one form may submit, which is also what its token vouches for.
 	 *
 	 * @param string $type     The form's normalized type.
 	 * @param bool   $selector Whether the visitor chooses the topic.
@@ -108,7 +108,7 @@ final class ContactFormView {
 	}
 
 	/**
-	 * R3 + r2 M3: `list` the visitor's own bookings, `number` the old box (a guest,
+	 * `list` the visitor's own bookings, `number` the old box (a guest,
 	 * or a member with nothing to list, can still type a number), '' no field.
 	 */
 	private static function booking_mode(bool $selector, bool $attribute, bool $has_list): string
@@ -137,7 +137,7 @@ final class ContactFormView {
 			'company'        => self::on($atts, 'show_company'),
 			'vehicle_id'     => self::on($atts, 'show_vehicle_selector') && ! empty($context['has_vehicles']),
 			'booking_id'     => $has_booking,
-			// Not in the drawing's topics (r2 M3): these two stay on a fixed form.
+			// These two stay on a fixed form.
 			'preferred_date' => ! $selector && 'booking' === $topic,
 			'rating'         => ! $selector && 'feedback' === $topic,
 			'priority'       => self::on($atts, 'show_priority') || in_array('priority', $required, true),
@@ -194,7 +194,7 @@ final class ContactFormView {
 	}
 
 	/**
-	 * The information rows that have something to say (R5).
+	 * The information rows that have something to say.
 	 *
 	 * @param array<string,mixed> $context Context.
 	 * @return list<array{key:string,label:string,value:string,href:string,note:string}>
@@ -238,7 +238,7 @@ final class ContactFormView {
 	}
 
 	/**
-	 * R6: `html` carries the link when there is a privacy page; escaped here, printed as markup.
+	 * `html` carries the link when there is a privacy page; escaped here, printed as markup.
 	 *
 	 * @return array{enabled:bool,url:string,text:string,html:string}
 	 */
@@ -263,7 +263,7 @@ final class ContactFormView {
 	}
 
 	/**
-	 * R18: the types the server really takes, not a shortened list.
+	 * The types the server really takes, not a shortened list.
 	 *
 	 * @param array<int,string> $types Extensions.
 	 * @return array{accept:string,types:string,max_bytes:int,max_label:string,help:string}

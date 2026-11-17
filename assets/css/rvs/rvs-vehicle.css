@@ -1,7 +1,7 @@
 /**
  * Rentiva front-end standard -- vehicle page (`rentiva_vehicle_details`).
  *
- * Canvas `Arac-Detay` (desktop, 1200 px column) and `Arac-Detay-Mobil` (390 px).
+ * Desktop: 1200 px column; phone: 390 px.
  * Markup: templates/shortcodes/vehicle-details.php and the partials in
  * templates/partials/vehicle-details/. The calendar, breakdown and dialog
  * come from rvs-calendar.css, rvs-breakdown.css and rvs-overlay.css.
@@ -318,7 +318,7 @@
 	box-shadow: inset 0 0 0 1px var(--rvs-line);
 }
 
-/* Ç6: partly available and closed days, as in the grid. */
+/* Partly available and closed days, as in the grid. */
 .rvs-shell .rvs-vd__swatch--partial {
 	background: linear-gradient(135deg, var(--rvs-n-300) 50%, var(--rvs-raised) 50%);
 	box-shadow: inset 0 0 0 1px var(--rvs-line);
@@ -386,7 +386,7 @@
 	margin: 0;
 }
 
-/* PR S: the car's own pickup point, in place of a select of every branch. */
+/* The car's own pickup point, in place of a select of every branch. */
 .rvs-shell .rvs-vd__where {
 	display: flex;
 	align-items: center;
@@ -581,8 +581,7 @@
 /* Phone -------------------------------------------------------------------- */
 
 @media (max-width: 768px) {
-	/* Favourite and compare sit on the photo as icon buttons (canvas
-	   Arac-Detay-Mobil); the same buttons as on desktop, so their state
+	/* Favourite and compare sit on the photo as icon buttons; the same buttons as on desktop, so their state
 	   cannot drift. Without a gallery they stay under the title. */
 	.rvs-shell .rvs-vd:has(> .rvs-vd__gallery) .rvs-vd__actions {
 		position: absolute;

@@ -28,7 +28,7 @@ trait EndpointHelperTrait {
 	 *
 	 * `label` is the single source of both the My Account menu item and the
 	 * endpoint's page title (WooCommerceIntegration::endpoint_title()).
-	 * Sentence case, as on the `rvs-` screens (PR D, K-D1).
+	 * Sentence case, as on the `rvs-` screens.
 	 */
 	public static function get_rentiva_endpoints_map(): array {
 		return array(

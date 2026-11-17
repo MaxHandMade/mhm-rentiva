@@ -14,7 +14,7 @@
 
     $(document).ready(function () {
         // The edit box is a <div> inside WordPress's own #post form, so a
-        // submit handler on it never ran (function scan H4). Only the date
+        // submit handler on it never ran. Only the date
         // order is checked on #post: the server applies the same rule
         // (BookingEditDates::is_refused()), and the field checks below stay
         // advisory so they cannot block an Update the server accepts.

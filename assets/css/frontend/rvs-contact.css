@@ -1,8 +1,7 @@
 /**
  * Rentiva front-end standard -- contact form (`rentiva_contact`).
  *
- * Markup: templates/shortcodes/contact-form.php. Layout from the drawings
- * `Iletisim` and `Iletisim-Mobil`; colours, type and corners from rvs-tokens.css.
+ * Markup: templates/shortcodes/contact-form.php. Colours, type and corners from rvs-tokens.css.
  * The field primitives are rvs-primitives.css and rvs-forms.css. The script
  * toggles [hidden] on fields, on the form and on the file button; this block's
  * rule below keeps [hidden] above every display rule at any width.

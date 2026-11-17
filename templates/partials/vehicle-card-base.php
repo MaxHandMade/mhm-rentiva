@@ -49,7 +49,7 @@ $is_switched_on = static function ($val): bool {
 // "4.5 (12)": the review count beside the average. Off unless asked for.
 $show_rating_count = $is_switched_on($atts['show_rating_count'] ?? false);
 // The availability text ("Available" / "Out of Order"). Only this key is read:
-// the lists' show_availability is not (spec 3A §2.2 -- its defaults are on and
+// the lists' show_availability is not -- its defaults are on and
 // would change every untouched card).
 $show_availability_status = $is_switched_on($atts['show_availability_status'] ?? false);
 // The instance's booking button label (see $booking_text below).
@@ -240,7 +240,7 @@ $allowed_svg_tags = array(
 $allowed_svg = $allowed_svg_tags;
 $btn_url     = $booking_btn_url;
 
-// Booking button label (spec 3A §2.2 exception 3). An unavailable vehicle's
+// Booking button label. An unavailable vehicle's
 // button is disabled and always says so. Otherwise: the instance's button_text,
 // then booking_btn_text -- an internal carrier with no editor control, filled by
 // the grid/list shortcodes from the global mhmrentiva_text_book_now setting --

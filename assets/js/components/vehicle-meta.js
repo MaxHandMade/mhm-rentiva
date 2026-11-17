@@ -220,7 +220,7 @@
 
     /**
      * The sortable items of each grid. One map for both the sortable and the
-     * order it records, so the two can never disagree (PR 4: features and
+     * order it records, so the two can never disagree (features and
      * equipment were not draggable, and their order was never collected).
      */
     const GRID_ITEMS = {

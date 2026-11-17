@@ -1,6 +1,6 @@
 <?php
 /**
- * Results empty states (standard §9), each with its own message and action:
+ * Results empty states, each with its own message and action:
  * not_searched -- no dates yet (a notice above the catalogue),
  * no_results   -- nothing free in the window,
  * filtered_out -- the filters emptied the list,

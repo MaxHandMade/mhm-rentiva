@@ -12,8 +12,8 @@ use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 /**
  * Single entry guard shared by every booking-scoped AJAX write endpoint.
  *
- * Extracted verbatim from DepositManagementAjax::authorize_booking_action()
- * (Faz 2 Task 7), whose logic hard-coded a single nonce action. The nonce
+ * Extracted verbatim from DepositManagementAjax::authorize_booking_action(),
+ * whose logic hard-coded a single nonce action. The nonce
  * action now travels in as a parameter so a second, unrelated endpoint (the
  * bookings-list "Approve" row action) can reuse the exact same four checks
  * under its own nonce action instead of re-implementing them -- re-
@@ -39,8 +39,8 @@ use MHMRentiva\Admin\Core\Security\VerifiedRequest;
  *
  * ---
  *
- * On the nonce action NOT naming the booking (Slice 5, Minor debt M2 --
- * reviewed, and deliberately left as it is).
+ * On the nonce action NOT naming the booking (reviewed, and deliberately
+ * left as it is).
  *
  * All eight money endpoints in DepositManagementAjax share one action string,
  * so a nonce minted on booking A's meta box verifies on booking B. That is a
@@ -65,7 +65,7 @@ use MHMRentiva\Admin\Core\Security\VerifiedRequest;
  * edit rights on both objects.
  *
  * If this is revisited, revisit it together with per-endpoint actions: eight
- * handlers sharing one token is the more interesting half of the finding, and
+ * handlers sharing one token is the more interesting half of the problem, and
  * splitting those does not require reading the request body before the nonce.
  */
 final class BookingActionGuard {

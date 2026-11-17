@@ -17,7 +17,7 @@ if (! defined('ABSPATH')) {
  * its dates were filled in -- that is, always -- so changing only the status
  * of a paid booking priced it again at today's rates; the offline paid amount
  * being total minus remaining, the new total then read as paid (functional
- * sweep H2, 2026-11-04). The re-pricing now runs only when one of its inputs
+ * sweep, 2026-11-04). The re-pricing now runs only when one of its inputs
  * moved: vehicle, pickup/return date and time, add-ons and their quantities,
  * payment type.
  *
@@ -83,7 +83,7 @@ final class BookingPricingInputs {
 	 *
 	 * Called with only $booking_id it reads the stored booking; with posted
 	 * values it describes what the form would write. Two equal results mean
-	 * the form changes nothing that moves money (PR 3b-2: a cancellation
+	 * the form changes nothing that moves money (a cancellation
 	 * request tells the operator when it ignored such a change).
 	 *
 	 * @param array{vehicle?: int, pickup?: string, start?: string, dropoff?: string, end?: string, selection?: AddonSelection}|null $posted

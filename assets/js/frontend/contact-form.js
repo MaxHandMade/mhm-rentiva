@@ -1,5 +1,5 @@
 /**
- * Contact form (PR F): topic selector, field errors under their fields, the
+ * Contact form: topic selector, field errors under their fields, the
  * permanent success box. One instance per [data-rvs-contact]: nothing is looked
  * up outside its root, so two forms on a page stay separate.
  *

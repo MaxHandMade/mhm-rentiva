@@ -3,11 +3,11 @@ declare(strict_types=1);
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
- * My Account - Dashboard Template (PR D, Task 3)
+ * My Account - Dashboard Template
  *
  * Greeting and one line under it, the next-rental card, the upcoming list
  * (five rows, "View all"), and -- last -- the privacy controls. The KPI strip
- * and the quick actions are gone (R14).
+ * and the quick actions are gone.
  *
  * @var array $data AccountRenderer::get_dashboard_data()['data'].
  */

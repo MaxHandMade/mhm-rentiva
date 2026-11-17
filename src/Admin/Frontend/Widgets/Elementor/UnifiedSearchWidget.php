@@ -88,7 +88,7 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 			)
 		);
 
-		// Writes the live search_layout (spec 3A §2.3). As `layout` its value never
+		// Writes the live search_layout. As `layout` its value never
 		// won: the search_layout parity control always sent 'horizontal' first.
 		$this->add_control(
 			'search_layout',

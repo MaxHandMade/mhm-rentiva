@@ -72,7 +72,7 @@ final class BookingColumns {
 		'mhmrentiva_year',
 		'mhmrentiva_customer_email',
 		'mhmrentiva_customer_id',
-		// View engine (Faz 2): which face of the screen is active. Same
+		// View engine: which face of the screen is active. Same
 		// bookmarkable-display-parameter reasoning as the params above.
 		'mhmrentiva_view',
 	);
@@ -153,8 +153,8 @@ final class BookingColumns {
 		add_action( 'pre_get_posts', array( self::class, 'apply_custom_filters' ) );
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ) );
 		add_filter( 'the_title', array( self::class, 'modify_booking_title' ), 10, 2 );
-		// "Approve" row action (Faz 2 Task 7) -- the only per-row link
-		// surface this screen has (Faz 1a's in-place transform added no
+		// "Approve" row action -- the only per-row link
+		// surface this screen has (the in-place transform added no
 		// row-level links of its own), so it goes into the same native
 		// post_row_actions slot core's Edit/Quick Edit/Trash/View already
 		// use, rather than a second link location.
@@ -178,7 +178,7 @@ final class BookingColumns {
 		// answers the neutral seam, its actions — the flex row jQuery used to
 		// build with wrapAll() is server markup now.
 		add_action( ListScreenLayout::HEADER_ACTION, array( self::class, 'render_toolbar_row' ), 5 );
-		// Calendar face (Faz 2 view engine) — replaces the retired
+		// Calendar face (view engine) — replaces the retired
 		// add_booking_calendar(). Genuine always-on Lite functionality (a
 		// screen FACE, not a Pro teaser), so — like the toolbar row above —
 		// it is unconditional rather than gated behind the extras filter the
@@ -207,8 +207,8 @@ final class BookingColumns {
 
 	/**
 	 * `post_row_actions` filter callback -- adds the "Approve" link
-	 * (Faz 2 Task 7) for `pending` bookings only. Styling (green pill/button
-	 * look) lands in Task 8; this emits plain markup: `rv-bkl-approve` class
+	 * for `pending` bookings only. Styling (green pill/button
+	 * look) lives in the stylesheet; this emits plain markup: `rv-bkl-approve` class
 	 * + `data-booking-id`, consumed by assets/js/admin/booking-approve.js.
 	 *
 	 * Placed FIRST in the returned array (rather than appended) so it reads
@@ -320,7 +320,7 @@ final class BookingColumns {
 				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/admin/booking-calendar.css' )
 			);
 
-			// Faz 2 Task 8 skin: toggle + occupancy matrix + approve action.
+			// Screen skin: toggle + occupancy matrix + approve action.
 			// Declared as a dependency of booking-list.css below so it loads
 			// after the base calendar files but before the screen skin.
 			wp_enqueue_style(
@@ -331,8 +331,8 @@ final class BookingColumns {
 			);
 
 			// Refined skin — now declares its dependency chain explicitly
-			// (Faz 2 Task 8; it used to declare none, unlike vehicle-list.css's
-			// equivalent, so load order relied on call order alone).
+			// (it used to declare none, unlike vehicle-list.css's equivalent,
+			// so load order relied on call order alone).
 			wp_enqueue_style(
 				'mhm-rentiva-booking-list',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/booking-list.css',
@@ -340,8 +340,8 @@ final class BookingColumns {
 				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/admin/booking-list.css' )
 			);
 
-			// assets/js/admin/booking-calendar.js is NOT enqueued here (Faz 2
-			// Task 5 retirement): it drove the old aggregate grid's month-nav
+			// assets/js/admin/booking-calendar.js is NOT enqueued here
+			// (retired): it drove the old aggregate grid's month-nav
 			// by querying DOM ids (`monthYear`/`calendarDays`/`prevMonth`/
 			// `nextMonth`) that renderer never actually printed — the markup
 			// used `.calendar-nav-btn`/`.calendar-current` instead, so the
@@ -390,10 +390,10 @@ final class BookingColumns {
 				)
 			);
 
-			// "Approve" row action (Faz 2 Task 7). Own small script rather
+			// "Approve" row action. Own small script rather
 			// than folded into booking-list-filters.js: that file is layout/
 			// filter-submit plumbing with no AJAX writes in it anywhere, and
-			// this is the one new write endpoint in this round -- keeping it
+			// this is the one write endpoint on this screen -- keeping it
 			// in its own file keeps the guard-carrying network call isolated
 			// and easy to find/remove independently of the layout script.
 			wp_enqueue_script(
@@ -424,7 +424,7 @@ final class BookingColumns {
 	public static function add_body_class( string $classes ): string {
 		$classes .= ' mhm-booking-list';
 
-		// Faz 2 view engine: face-scoped visibility CSS keys off this class
+		// View engine: face-scoped visibility CSS keys off this class
 		// (booking-list.css); 'list' carries no face class at all.
 		$view = self::get_current_view();
 		if ( 'calendar' === $view ) {
@@ -661,7 +661,7 @@ final class BookingColumns {
 			);
 			$q->set( 'orderby', 'meta_value_num' );
 		} elseif ( $orderby === 'mhmrentiva_booking_payment' ) {
-			// A derived amount has no column to sort on. Spec §4.4: the sort
+			// A derived amount has no column to sort on. The sort
 			// moves to _mhmrentiva_total_price, which IS stored. Sorting by the
 			// retired key produced an empty result set on every site, so this
 			// is a repair, not a behaviour change.
@@ -789,7 +789,7 @@ final class BookingColumns {
 	}
 
 	/**
-	 * Segmented view-switch control (List | Calendar) — Faz 2 view engine.
+	 * Segmented view-switch control (List | Calendar) — view engine.
 	 *
 	 * Its own block rather than folded into toolbar_actions(): that method's
 	 * neutral-seam contract is a house rule pinned by BookingToolbarSeamTest
@@ -802,7 +802,7 @@ final class BookingColumns {
 	 * all, and the toggle simply stands alone.
 	 *
 	 * Markup only (`rv-view-toggle` / `rv-view-toggle__btn` / `is-active`);
-	 * styling lands in Task 8.
+	 * styling lives in the stylesheet.
 	 */
 	public static function render_view_toggle(): void {
 		global $pagenow, $post_type;
@@ -1352,13 +1352,13 @@ final class BookingColumns {
 	}
 
 	/**
-	 * Calendar face (Faz 2 view engine). Replaces the retired
+	 * Calendar face (view engine). Replaces the retired
 	 * add_booking_calendar()/get_booking_calendar_days() below-table
 	 * aggregate grid: rows are the vehicles with an "occupied" booking (see
 	 * OccupancyMapService's docblock for that definition) overlapping the
 	 * requested month, AFTER the screen's active filters (status chip,
 	 * gateway, search) are applied — painted through the same
-	 * FleetOccupancyMatrix renderer the Vehicles Calendar face (Task 4)
+	 * FleetOccupancyMatrix renderer the Vehicles Calendar face
 	 * uses.
 	 *
 	 * Prints from ListScreenLayout's face slot
@@ -1379,7 +1379,7 @@ final class BookingColumns {
 		}
 
 		// Month/year bounds: current year ± 10, same rule the old renderer
-		// used (and VehicleColumns' Calendar face converged on in Task 4).
+		// used (and VehicleColumns' Calendar face converged on).
 		// The site's month and year, not UTC's.
 		$today         = \MHMRentiva\Admin\Booking\Helpers\SiteTime::today();
 		$this_month    = (int) substr( $today, 5, 2 );
@@ -1457,7 +1457,7 @@ final class BookingColumns {
 
 		$status_filter = self::get_query_text( 'mhmrentiva_booking_status' );
 
-		// Fix round 1, Finding 2: an active status chip outside the
+		// An active status chip outside the
 		// occupied-status set (cancelled/refunded/no_show/draft/
 		// pending_payment) makes get_calendar_row_source()'s own HAVING
 		// unsatisfiable -- ANY status = that chip on top of the base
@@ -1543,8 +1543,7 @@ final class BookingColumns {
 	 *
 	 * That get_map() call is not reusable here: it aggregates rows into a
 	 * per-day-per-vehicle map with no row-level filter hook, so this
-	 * mirrors its SQL shape instead of calling it (the brief's fallback
-	 * option). Runs as ONE query returning every in-scope booking's
+	 * mirrors its SQL shape instead of calling it. Runs as ONE query returning every in-scope booking's
 	 * resolved vehicle id (0/empty included) rather than two, so the
 	 * vehicle-less count below is a by-product of the same result set the
 	 * row ids come from, not a second query.
@@ -1592,7 +1591,7 @@ final class BookingColumns {
 		// but it was still a shape -- Plugin Check's
 		// PluginCheck.Security.DirectDB.UnescapedDBParameter fires on the
 		// concatenation itself, and a documented suppression is input to a
-		// human WP.org reviewer. Eliminate the shape, not the finding.
+		// human WP.org reviewer. Eliminate the shape, not the warning.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT b.ID AS booking_id,
@@ -1719,8 +1718,7 @@ final class BookingColumns {
 		//
 		// The Customers screen's own queries count a booking toward a
 		// customer when it is linked by user ID OR by e-mail
-		// (CustomerIdentity's ownership predicate — Task 1 of the
-		// customer-booking-link tour). Matching on e-mail meta alone here
+		// (CustomerIdentity's ownership predicate). Matching on e-mail meta alone here
 		// would make this link disagree with that count: a booking linked
 		// only by user ID shows in the row's total but not behind "View
 		// Bookings". Resolving the e-mail to its account and reusing the
@@ -1822,7 +1820,7 @@ final class BookingColumns {
 	 * Build the admin Title column's text for a booking, unescaped.
 	 *
 	 * This used to escape its own return and was called get_booking_title_display().
-	 * WordPress.org's T8 review flagged the caller, modify_booking_title(), for
+	 * WordPress.org's review flagged the caller, modify_booking_title(), for
 	 * returning unescaped data into the `the_title` filter -- the escaping was
 	 * real, but it happened one call deep, where neither their scanner nor a
 	 * reader of the filter callback can see it. Escaping a callback's return has

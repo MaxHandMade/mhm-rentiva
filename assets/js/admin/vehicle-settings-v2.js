@@ -12,7 +12,7 @@
 	var MOUNT_ID = 'rv-vs-app';
 	var GROUP_ORDER = [ 'detail', 'feature', 'equipment' ];
 
-	// Client-side only; no preset concept exists server-side (spec §6, out of scope §11).
+	// Client-side only; no preset concept exists server-side.
 	var PRESETS = {
 		minimal: {
 			card: [ 'transmission', 'fuel_type', 'seats' ],
@@ -173,7 +173,7 @@
 		};
 
 		/**
-		 * ONE matrix order drives BOTH surfaces (spec §6 "one order, not two"). It is persisted
+		 * ONE matrix order drives BOTH surfaces. It is persisted
 		 * explicitly (mhmrentiva_vehicle_matrix_order) and hydrated back here, so the admin's
 		 * editing order round-trips exactly. When it is absent (pre-existing installs), fall back
 		 * to deriving it: stored card order, then detail-only ids, then the rest.
@@ -305,7 +305,7 @@
 			} );
 			body.append( 'mhmrentiva_vehicle_card_fields', JSON.stringify( p.card ) );
 			body.append( 'mhmrentiva_vehicle_detail_fields', JSON.stringify( p.detail ) );
-			// Persist the single editing order so it round-trips exactly (spec §6).
+			// Persist the single editing order so it round-trips exactly.
 			body.append( 'mhmrentiva_vehicle_matrix_order', JSON.stringify( state.matrixOrder ) );
 
 			window.fetch( window.ajaxurl, {

@@ -126,7 +126,7 @@
 }
 
 /* KPI strip (kit markup, `.mhmui-front` scope) — restores the gap the old
-   `.stats-grid` rules gave the strip before the Task 8 kit migration removed
+   `.stats-grid` rules gave the strip before the kit migration removed
    them (was `margin-bottom: 1.5rem` on `.mhm-rentiva-account-page.mhm-integrated
    .stats-grid`, commit 420225fd). Rentiva-owned class, not a rule on
    `.mhmui-front` itself, since that class is the kit's shared token scope. */

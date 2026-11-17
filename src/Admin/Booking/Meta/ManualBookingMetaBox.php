@@ -366,8 +366,8 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 	}
 
 	/**
-	 * The optional country and state fields of the new-customer card
-	 * (spec K6). The base country is preselected; the state starts empty so
+	 * The optional country and state fields of the new-customer card.
+	 * The base country is preselected; the state starts empty so
 	 * nothing the admin never chose is saved.
 	 */
 	private static function render_location_fields(): void
@@ -941,7 +941,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			$customer_name       = trim($customer_first_name . ' ' . $customer_last_name);
 			$customer_email      = isset($_POST['new_customer_email']) ? sanitize_email(wp_unslash( (string) $_POST['new_customer_email'])) : '';
 			$customer_phone      = isset($_POST['new_customer_phone']) ? sanitize_text_field(wp_unslash( (string) $_POST['new_customer_phone'])) : '';
-			// Optional (spec K6); checked against WooCommerce, never trusted.
+			// Optional; checked against WooCommerce, never trusted.
 			$customer_location = self::sanitize_location(
 				isset($_POST['new_customer_country']) ? sanitize_text_field(wp_unslash( (string) $_POST['new_customer_country'])) : '',
 				isset($_POST['new_customer_state']) ? sanitize_text_field(wp_unslash( (string) $_POST['new_customer_state'])) : ''
@@ -1074,7 +1074,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			// Non-fatal: log but don't abort booking creation. Routed to the plugin's
 			// own logger instead of the site's PHP error log.
 			//
-			// Task 14b item 3: promoted from warning() to error(). This runs
+			// Promoted from warning() to error(). This runs
 			// before the booking post itself exists (the customer account is
 			// created first), so no booking_id is available to link -- but
 			// the failure is real: the operator's manual booking form is
@@ -1170,7 +1170,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			),
 		);
 		// A booking paid outside the site has no payment window: no deadline,
-		// and the sweeps leave it alone (AutoCancel, admin lens tour #8).
+		// and the sweeps leave it alone (AutoCancel).
 		if ('offline' !== $payment_method) {
 			$booking_data['meta_input']['_mhmrentiva_payment_deadline'] = gmdate('Y-m-d H:i:s', strtotime('+' . apply_filters('mhmrentiva_payment_deadline_minutes', '30') . ' minutes'));
 		}
@@ -1275,8 +1275,8 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 
 		$message = esc_html__('Booking created successfully.', 'mhm-rentiva');
 		if ($create_customer) {
-			// The new account has a random password nobody knows (function scan
-			// H6): core's own set-password e-mail goes to the customer -- 'user'
+			// The new account has a random password nobody knows:
+			// core's own set-password e-mail goes to the customer -- 'user'
 			// sends that one only, no admin copy. Sent once the booking exists,
 			// so the customer is not invited to an account for a booking that
 			// failed.

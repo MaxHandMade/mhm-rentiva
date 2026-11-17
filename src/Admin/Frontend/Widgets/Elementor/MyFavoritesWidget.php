@@ -87,7 +87,7 @@ class MyFavoritesWidget extends ElementorWidgetBase {
 			array(
 				'label'   => __( 'Order By', 'mhm-rentiva' ),
 				'type'    => Controls_Manager::SELECT,
-				// Spec 3A Task 7b: the schema's values. A value saved before
+				// The schema's values. A value saved before
 				// ('date', 'title') keeps its meaning (MyFavorites::sort_mode()).
 				'default' => 'added',
 				'options' => array(
@@ -182,7 +182,7 @@ class MyFavoritesWidget extends ElementorWidgetBase {
 			)
 		);
 
-		// Spec 3A Task 7b: "Show Remove Button" (twin of Show Favorite Button, the
+		// "Show Remove Button" (twin of Show Favorite Button, the
 		// heart that removes) and "Show Date Added" (no per-favourite date) are gone.
 
 		$this->end_controls_section();

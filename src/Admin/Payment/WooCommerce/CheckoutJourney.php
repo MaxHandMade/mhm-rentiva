@@ -389,7 +389,7 @@ final class CheckoutJourney {
 		echo '<div class="rvs-shell rvs-journey">';
 		// The thank-you page's one "booking received" heading. The page title
 		// stays WooCommerce's: a theme that hides it leaves this, a theme that
-		// shows it reads "Order received" above (R14).
+		// shows it reads "Order received" above.
 		if ('' !== $headline) {
 			echo '<h2 class="rvs-journey__headline">' . esc_html($headline) . '</h2>';
 		}

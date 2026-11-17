@@ -1,7 +1,6 @@
 <?php
 /**
- * Under WooCommerce's bank details on a rental's thank-you page (R10, canvas
- * `Tesekkur`, "banka havalesi"): the reference to write, the amount to send,
+ * Under WooCommerce's bank details on a rental's thank-you page: the reference to write, the amount to send,
  * what is left for pickup, and where the receipt goes
  * (RentalCheckoutLook::render_bank_transfer()).
  *

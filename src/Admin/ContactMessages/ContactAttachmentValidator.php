@@ -8,7 +8,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * Content check for a contact-form attachment (spec §4).
+ * Content check for a contact-form attachment.
  *
  * The plugin's own extension map, never the site's upload_mimes: a site that
  * allows SVG or HTML uploads for its editors must not widen what an anonymous
@@ -42,9 +42,9 @@ final class ContactAttachmentValidator {
 		}
 
 		// A renamed image comes back with proper_filename set: core would
-		// "fix" the extension, this plugin refuses instead (spec §4). Core
+		// "fix" the extension, this plugin refuses instead. Core
 		// also applies the site's allowed-MIME list here: a site may narrow
-		// the seven types (a PDF-less site refuses PDFs), never widen them (R-17).
+		// the seven types (a PDF-less site refuses PDFs), never widen them.
 		$core = wp_check_filetype_and_ext($path, $name, self::TYPES);
 		if ( ( $core['type'] ?? false ) !== $mime || ! empty($core['proper_filename'])) {
 			return self::invalid();
@@ -76,7 +76,7 @@ final class ContactAttachmentValidator {
 		}
 		if (! class_exists('ZipArchive')) {
 			// Signature only. The file is still served as an attachment with
-			// nosniff, never rendered, so the remaining risk is low (spec §4).
+			// nosniff, never rendered, so the remaining risk is low.
 			return true;
 		}
 		$zip = new \ZipArchive();

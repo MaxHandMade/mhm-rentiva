@@ -143,7 +143,7 @@ class FeaturedVehiclesWidget extends ElementorWidgetBase {
 			)
 		);
 
-		// The card reads show_booking_button; this control writes it (spec 3A §2.3).
+		// The card reads show_booking_button; this control writes it.
 		$this->add_control(
 			'show_booking_button',
 			array(

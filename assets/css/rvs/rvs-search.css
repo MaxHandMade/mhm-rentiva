@@ -1,7 +1,7 @@
 /**
  * Rentiva front-end standard -- the search strip (`rentiva_unified_search`).
  *
- * Values from the approved canvas (`Arama-Sonuclari`, `Anasayfa`): one row --
+ * Values: one row --
  * pickup location (wider) · pickup · return · Search -- on a surface panel,
  * 52 px fields with visible labels; stacked at 768 px and below and in the
  * vertical layout.

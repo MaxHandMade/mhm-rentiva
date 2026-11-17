@@ -616,7 +616,7 @@ class BlockRegistry {
 
 		// minWidth/maxWidth used to be read here too; no block declared them (the
 		// unified-search attributes were lowercase and unexposed), and Elementor has
-		// its own width controls -- removed in spec 3A Task 5.
+		// its own width controls -- removed.
 		$tag    = $config['tag'];
 		$height = self::wrapper_height($attributes);
 
@@ -694,8 +694,8 @@ class BlockRegistry {
 	 * The wrapper's minimum height: the calendar's `calendarHeight`, else a raw `height`.
 	 *
 	 * The editor writes `calendarHeight`; this used to read only `height`, so the
-	 * control never applied (spec 3A Task 6). A calendar saved before Gutenberg slice
-	 * 1 still carries "height":"500px" and keeps working (spec §2.2 exception 4). WP
+	 * control never applied. A calendar saved by an earlier
+	 * version still carries "height":"500px" and keeps working. WP
 	 * fills a missing calendarHeight with its block.json default (''), so "set" means
 	 * non-empty here, not isset. 'auto' (the old default) writes no style: it is a
 	 * div's own height.

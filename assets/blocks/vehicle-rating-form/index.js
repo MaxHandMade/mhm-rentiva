@@ -19,7 +19,7 @@
 
             // Login, review length and the review fields come from the global
             // Comments settings, which the form and its AJAX handler apply; the
-            // block's own toggles for them were never read (spec 3A Task 8).
+            // block's own toggles for them were never read.
             return el('div', blockProps,
                 el(InspectorControls, {},
                     /* PANEL 1: GENERAL */

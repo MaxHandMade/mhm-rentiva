@@ -2,7 +2,7 @@
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
- * Search results -- the front-end standard page (Aşama 2 PR 3).
+ * Search results -- the front-end standard page.
  *
  * Variables:
  * - array  $atts

@@ -96,8 +96,7 @@ class SearchResultsWidget extends ElementorWidgetBase {
 		);
 
 		// The first request's order. Its options are the values the shortcode's sort
-		// switch applies; the former Order By / Order selects never reached it
-		// (spec 3A §2.5 E).
+		// switch applies; the former Order By / Order selects never reached it.
 		$this->add_control(
 			'default_sort',
 			array(

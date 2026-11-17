@@ -1,5 +1,5 @@
 /**
- * Search strip (front-end standard, Aşama 2 PR 3).
+ * Search strip (front-end standard).
  *
  * The date fields are jQuery UI datepickers (datepicker-init.js, `.js-datepicker`):
  * they show the site's date format and submit Y-m-d, so dates are read and

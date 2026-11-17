@@ -85,7 +85,7 @@ class MyBookingsWidget extends ElementorWidgetBase {
 			)
 		);
 
-		// Spec 3A Task 7a: the "Order By" control is gone; the list is ordered by
+		// The "Order By" control is gone; the list is ordered by
 		// date only (its 'id' option fell back to date in WP_Query). Automatic is
 		// each section's own pickup order.
 

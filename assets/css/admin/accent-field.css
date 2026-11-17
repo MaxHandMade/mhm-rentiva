@@ -3,7 +3,7 @@
    setup wizard's step 4), by FrontendColorsSection::enqueue_picker_assets(). */
 
 /* Edge against the admin background (#f0f0f1): #646970 keeps 3:1 there, where
-   the core input edge #8c8f94 gives 2.85 (plan R11, r2 M2). */
+   the core input edge #8c8f94 gives 2.85. */
 .mhm-rentiva-accent-swatch {
 	display: inline-block;
 	width: 16px;

@@ -7,8 +7,8 @@
  * buttons, form controls, labels), writes typography explicitly instead of
  * inheriting it -- that is what keeps Astra or a block theme from leaking in.
  *
- * Breakpoints of the standard: 480 / 768 / 1024 / 1280. The canvas lays out
- * with flex-wrap, auto-fill and clamp(); surfaces add media queries only where
+ * Breakpoints of the standard: 480 / 768 / 1024 / 1280. Layouts use
+ * flex-wrap, auto-fill and clamp(); surfaces add media queries only where
  * a layout genuinely changes.
  */
 

@@ -1,12 +1,12 @@
 /**
- * My Account -- page layout and navigation (PR D, R1).
+ * My Account -- page layout and navigation.
  *
  * The navigation is WooCommerce's own menu (myaccount/navigation.php), redrawn
  * here with CSS only: its items, their order and their markup are WooCommerce's
  * and any extension's (`mhmrentiva_account_nav_items`). Desktop: a 230px column
  * beside the content, the current item raised with a 3px accent edge.
  * At 782px and below: one row of tabs that scrolls sideways, the current tab
- * underlined (drawings Hesabim / Hesabim-Mobil).
+ * underlined.
  *
  * Loads on every My Account screen (AccountSurface: rvs, wc and legacy), so
  * the page keeps one layout whoever draws the content. WooCommerce marks the

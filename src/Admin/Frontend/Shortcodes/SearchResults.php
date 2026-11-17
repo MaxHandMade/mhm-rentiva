@@ -60,9 +60,9 @@ final class SearchResults extends AbstractShortcode {
 
 	/**
 	 * The facet cache (get_filter_options()); Plugin deletes it when a vehicle
-	 * changes. _v3: categories joined the facets (Aşama 2 PR 3) -- one constant,
+	 * changes. _v3: categories joined the facets -- one constant,
 	 * so the reader and the invalidation cannot name different keys again.
-	 * _v4: the rental locations left the cache (PR S); they are read fresh from
+	 * _v4: the rental locations left the cache; they are read fresh from
 	 * LocationContext, so the facet, the chips and the "single location" rule
 	 * cannot disagree for a day.
 	 */
@@ -292,7 +292,7 @@ final class SearchResults extends AbstractShortcode {
 	 * strip with the search in the query (change_url()). The search vars are
 	 * public query vars, and WP_Query shows `page_on_front` only for a home
 	 * request with no query vars -- so on a site whose strip lives on the front
-	 * page the customer got the blog index instead (PR S). Any other var
+	 * page the customer got the blog index instead. Any other var
 	 * (s, page_id, a feed, a 404 ...) keeps WordPress's own routing.
 	 *
 	 * @param array<string, mixed> $query_vars Parsed query vars.
@@ -530,7 +530,7 @@ final class SearchResults extends AbstractShortcode {
 	{
 		// The page is the front-end standard's (rvs-results.css on top of the
 		// shell, primitives and the card); the old search-results.css and the
-		// core vehicle-card sheet are not loaded here any more (Aşama 2 PR 3).
+		// core vehicle-card sheet are not loaded here any more.
 		\MHMRentiva\Admin\Core\AssetManager::enqueue_core_js();
 		\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_results_styles();
 		// The mobile filter drawer is a modal dialog (shared rvs-dialog module).
@@ -1043,7 +1043,7 @@ final class SearchResults extends AbstractShortcode {
 		// Vehicle category (term ids).
 		$category_ids = array_values(array_filter(array_map('intval', (array) ( $params['category'] ?? array() ))));
 		if (array() !== $category_ids) {
-			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- the category filter (K4) is a taxonomy filter.
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- the category filter is a taxonomy filter.
 			$args['tax_query'] = array(
 				array(
 					'taxonomy' => 'mhmrentiva_vehicle_category',
@@ -1383,7 +1383,7 @@ final class SearchResults extends AbstractShortcode {
 		$facets['transmissions'] = $label($transmissions, \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types());
 
 		// Categories that hold a published vehicle (WordPress counts published
-		// objects only); no counts on the page (K4).
+		// objects only); no counts on the page.
 		$categories = array();
 		$terms      = get_terms(
 			array(
@@ -2005,7 +2005,7 @@ final class SearchResults extends AbstractShortcode {
 	 *
 	 * The keys are exactly the values the sort switch in perform_search() applies
 	 * (relevance is its default branch). The editors' default sort controls offer
-	 * the same list (spec 3A §2.5 E).
+	 * the same list.
 	 *
 	 * @return array<string,string>
 	 */
@@ -2248,7 +2248,7 @@ final class SearchResults extends AbstractShortcode {
 				'show_features'        => true,
 				'show_rating'          => true,
 				'show_badges'          => true,
-				// The canvas card has no brand line (grid/list/featured default it off too).
+				// The card has no brand line (grid/list/featured default it off too).
 				'show_brand'           => false,
 				'booking_url'          => VehiclesList::get_booking_url(),
 			)

@@ -160,7 +160,7 @@ final class Mailer {
 
 	/**
 	 * An e-mail the operator wrote (or edited) for one customer, already
-	 * rendered (PR 3b-3). It is not an automatic notification: the template's
+	 * rendered. It is not an automatic notification: the template's
 	 * "Enabled" box and the customer's automatic-notification preference do not
 	 * stop it -- the operator chose to send it, and the booking screen says when
 	 * the customer turned notifications off. Every global rule still applies:
@@ -443,7 +443,7 @@ final class Mailer {
 				'payment_status'   => $payment_status,
 				'payment_gateway'  => $payment_gateway,
 				'total_price'      => $total_price,
-				// Printed in the site's date format, in the site language (PR 3b-3);
+				// Printed in the site's date format, in the site language;
 				// the stored value stays under *_raw for anything that compares.
 				'pickup_date'      => self::display_date( (string) ( $date_info['pickup_date'] ?? '' ) ),
 				'return_date'      => self::display_date( (string) ( $date_info['return_date'] ?? '' ) ),
@@ -468,7 +468,7 @@ final class Mailer {
 				// Kept as the name itself (admin templates print it in a table).
 				'name'            => $customer_name,
 				// What a greeting prints: the name, or a phrase when there is none,
-				// so a customer never reads "Dear ," (PR 3b-3).
+				// so a customer never reads "Dear ,".
 				'salutation_name' => '' !== $customer_name
 					? $customer_name
 					: \MHMRentiva\Admin\Core\Utilities\SiteLocaleString::resolve(
@@ -656,7 +656,7 @@ final class Mailer {
 
 	/**
 	 * The root of a message's thread, or the message itself when the thread
-	 * cannot be resolved (spec v2.4 §5, plan R-2/R-3).
+	 * cannot be resolved.
 	 *
 	 * The root is the record the message's `_mhmrentiva_thread_id` names, in
 	 * the canonical form every writer produces: digits only, no leading zero.
@@ -664,7 +664,7 @@ final class Mailer {
 	 * record 12. Anything that is not a live message -- a UUID thread id from
 	 * the legacy admin form, a deleted or trashed record, another post type --
 	 * falls back to the message itself, which is what this reader did before.
-	 * Every post_status except `trash` counts as a root (spec §6.1's admin
+	 * Every post_status except `trash` counts as a root (the admin
 	 * rule); the customer-side `publish` rule does not apply to e-mail context.
 	 *
 	 * @param int $message_id Message ID.

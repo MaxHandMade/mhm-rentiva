@@ -45,7 +45,7 @@ class MyFavorites extends AbstractShortcode {
 		return array(
 			'limit'                    => '12',
 			'columns'                  => '3',
-			// Spec 3A Task 7b: added (the saved order), name or price.
+			// Added (the saved order), name or price.
 			'orderby'                  => 'added',
 			'order'                    => 'DESC',
 			'show_image'               => '1',
@@ -57,7 +57,7 @@ class MyFavorites extends AbstractShortcode {
 			'show_favorite_button'     => '1',
 			'show_availability_status' => '0',
 			'layout'                   => 'grid',
-			// Empty: the grid template's own empty state, as today (Rule 1).
+			// Empty: the grid template's own empty state, as today.
 			'no_results_text'          => '',
 		);
 	}
@@ -65,7 +65,7 @@ class MyFavorites extends AbstractShortcode {
 	protected static function prepare_template_data(array $atts): array
 	{
 		// An editor preview always shows sample vehicles, never the editing
-		// user's own favourites (spec 3B-2a §2.1, account class).
+		// user's own favourites.
 		$is_preview = RenderContext::current()->allows_sample();
 
 		// 1. Get Favorite IDs
@@ -93,7 +93,7 @@ class MyFavorites extends AbstractShortcode {
 				$args['order']   = $order;
 			} elseif ('price' === $mode) {
 				// The saved list is small; sorted in PHP so a vehicle without a
-				// price is kept (Review Focus 1), then cut to the limit.
+				// price is kept, then cut to the limit.
 				$args['posts_per_page'] = -1;
 			}
 
@@ -152,8 +152,8 @@ class MyFavorites extends AbstractShortcode {
 
 	/**
 	 * The sort a saved `orderby` asks for: added (the saved order), name or price.
-	 * 'date' and 'title' are the values the Elementor control saved before
-	 * (spec 3A Task 7b); anything else is the saved order.
+	 * 'date' and 'title' are the values the Elementor control saved before;
+	 * anything else is the saved order.
 	 */
 	public static function sort_mode(string $orderby): string
 	{
@@ -202,7 +202,7 @@ class MyFavorites extends AbstractShortcode {
 	 * get_css_files(): that would enqueue a stylesheet under this shortcode's
 	 * base handle (mhm-rentiva-my-favorites), the handle the block once
 	 * registered with my-account.css. The block registers no stylesheet any
-	 * more (PR D); the card styles are all this shortcode needs.
+	 * more; the card styles are all this shortcode needs.
 	 *
 	 * No my-account.js either: the shortcode renders the vehicles-grid
 	 * template, which has neither "Clear all favorites" nor the account

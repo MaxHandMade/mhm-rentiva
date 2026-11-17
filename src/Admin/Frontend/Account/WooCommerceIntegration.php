@@ -34,7 +34,7 @@ final class WooCommerceIntegration {
 		// Add tabs to WooCommerce My Account
 		add_filter( 'woocommerce_account_menu_items', array( self::class, 'add_menu_items' ), 20 );
 
-		// Counts on Lite's own items, after they are in (PR D, R2).
+		// Counts on Lite's own items, after they are in.
 		add_filter( 'woocommerce_account_menu_items', array( self::class, 'add_menu_counts' ), 21 );
 
 		// Snapshot the query vars that already belong to someone else, before
@@ -76,7 +76,7 @@ final class WooCommerceIntegration {
 		add_action( 'woocommerce_account_dashboard', array( self::class, 'render_dashboard' ) );
 
 		// One greeting: WooCommerce's dashboard template prints its own "Hello"
-		// paragraphs above the Rentiva dashboard (PR D, R3).
+		// paragraphs above the Rentiva dashboard.
 		add_filter( 'woocommerce_locate_template', array( self::class, 'locate_dashboard_template' ), 10, 4 );
 
 		// The booking detail belongs to "My bookings" in the menu.
@@ -197,8 +197,8 @@ final class WooCommerceIntegration {
 
 	/**
 	 * `woocommerce_account_menu_items` callback (priority 21): "My bookings (2)"
-	 * with the upcoming bookings, "My favorites (5)" with the saved vehicles
-	 * (PR D, R2). Plain text -- WooCommerce prints the label with esc_html().
+	 * with the upcoming bookings, "My favorites (5)" with the saved vehicles.
+	 * Plain text -- WooCommerce prints the label with esc_html().
 	 * Nothing is added for 0. Items are matched by their (translated) slug;
 	 * every other item, the add-on's included, is left alone.
 	 *

@@ -15,12 +15,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  * request-scoped question answers for the wrong subject on any path where the
  * caller is acting on someone else's behalf.
  *
- * There is no $system leg. Since K6 no unattended path moves money at all, a
+ * There is no $system leg. No unattended path moves money at all, so a
  * bypass boolean would be a hole any future caller could open by passing true.
- * If system-initiated money movement is ever needed it earns its own spec
- * section and its own audit.
+ * If system-initiated money movement is ever needed it earns its own
+ * design and its own audit.
  *
- * This is the single home for the question (spec §5). Before this class, the
+ * This is the single home for the question. Before this class, the
  * predicate lived at each call site -- CancellationHandler had its own private
  * may_move_money(), duplicated rather than shared -- and a new caller had to
  * remember to ask. Actions::refund_booking() never did.
