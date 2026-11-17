@@ -84,6 +84,25 @@ final class AgreementText {
 	}
 
 	/**
+	 * A recorded acceptance as one plain line: the site date and time, and
+	 * the first eight characters of the text's version. Empty when nothing
+	 * well-formed was recorded.
+	 *
+	 * @param string $accepted_at UTC `Y-m-d H:i:s`.
+	 * @param string $version     sha256 of the accepted text.
+	 */
+	public static function acceptance_line( string $accepted_at, string $version ): string {
+		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $accepted_at ) || ! preg_match( '/^[0-9a-f]{64}$/', $version ) ) {
+			return '';
+		}
+
+		$when = get_date_from_gmt( $accepted_at, get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) );
+
+		/* translators: 1: date and time of acceptance, 2: short version code of the agreement text. */
+		return sprintf( __( '%1$s · version %2$s', 'mhm-rentiva' ), $when, substr( $version, 0, 8 ) );
+	}
+
+	/**
 	 * One escaped line with **bold** turned into <strong>.
 	 */
 	private static function inline( string $line ): string {

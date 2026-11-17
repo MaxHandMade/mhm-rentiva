@@ -106,7 +106,37 @@ final class BookingPortalMetaBox {
 			}
 		}
 
+		self::render_agreement( $booking_id );
+
 		echo '</div>';
+	}
+
+	/**
+	 * The rental agreement line: accepted (when and which text), or, on a
+	 * booking an admin entered, that the customer accepted nothing here. A
+	 * form booking made while the agreement was off shows no line.
+	 */
+	private static function render_agreement( int $booking_id ): void {
+		$line = \MHMRentiva\Helpers\AgreementText::acceptance_line(
+			(string) get_post_meta( $booking_id, '_mhmrentiva_terms_accepted_at', true ),
+			(string) get_post_meta( $booking_id, '_mhmrentiva_terms_version', true )
+		);
+
+		if ( '' !== $line ) {
+			$status = __( 'Accepted', 'mhm-rentiva' );
+		} elseif ( 'booking_form' !== (string) get_post_meta( $booking_id, '_mhmrentiva_booking_type', true ) ) {
+			$status = __( 'No acceptance (admin booking)', 'mhm-rentiva' );
+		} else {
+			return;
+		}
+
+		echo '<hr class="mhm-portal-divider">';
+		echo '<p class="mhm-portal-agreement" data-mhm-agreement><strong>' . esc_html__( 'Rental agreement', 'mhm-rentiva' ) . '</strong><br>';
+		echo esc_html( $status );
+		if ( '' !== $line ) {
+			echo '<br><span class="description">' . esc_html( $line ) . '</span>';
+		}
+		echo '</p>';
 	}
 
 	public static function ajax_create_customer_account(): void {
