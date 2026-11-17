@@ -1214,6 +1214,18 @@ final class BookingMeta extends AbstractMetaBox {
 				);
 			}
 			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', \MHMRentiva\Admin\Payment\Core\Money::toMajor(max(0, $owed)));
+		} elseif ('deposit' === $payment_type && $stored_deposit > 0 && $stored_total > 0
+			&& 'percentage' === (string) get_post_meta($booking_id, '_mhmrentiva_deposit_type', true)
+			&& 0 === \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id($booking_id)
+		) {
+			// Nothing collected and no order asking for the deposit: it is a
+			// quote, not money taken. It follows the new total at the rate the
+			// booking was made with (stored deposit / stored total) -- not
+			// today's site rate, which a routine save must not apply.
+			$total_minor   = \MHMRentiva\Admin\Payment\Core\Money::toMinor($total_price);
+			$deposit_minor = min($total_minor, (int) round($total_minor * $stored_deposit / $stored_total));
+			update_post_meta($booking_id, '_mhmrentiva_deposit_amount', \MHMRentiva\Admin\Payment\Core\Money::toMajor($deposit_minor));
+			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', \MHMRentiva\Admin\Payment\Core\Money::toMajor($total_minor - $deposit_minor));
 		} elseif ('deposit' === $payment_type && ( $stored_deposit > 0 || 'full' === ( $result['payment_type'] ?? '' ) )) {
 			// The deposit is what the order charged. Today's rate may differ (the
 			// site or the vehicle changed since, or it now resolves to full
