@@ -105,37 +105,20 @@ final class DashboardPaymentsSummaryTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * COVERAGE GAP -- reported, not silently accepted.
-	 *
-	 * `pending_total` is now sourced from get_pending_payments()'s shared
-	 * WC-order-status scan (Fix B): it only ever contributes an amount when
-	 * `wc_get_order()` exists AND resolves a real WC_Order in
-	 * ('pending','on-hold') status. This Docker/PHPUnit environment does not
-	 * load WooCommerce at all -- see
-	 * tests/Integrations/WooCommerce/RemainingPaymentLinkTest.php, which
-	 * `markTestSkipped()`s all 7 of its assertions via
-	 * `class_exists('WooCommerce')` for the same reason. Here,
-	 * `function_exists('wc_get_order')` is false, so no booking -- regardless
-	 * of its `_mhmrentiva_*_order_id` meta -- can ever contribute to `pending_total`.
-	 *
-	 * The assertion below documents what IS true in this environment (the
-	 * value is deterministically 0.0, and fixture data with attached
-	 * order-id meta does not crash or spuriously leak an amount into the
-	 * total). It does NOT exercise the actual WC-order-total arithmetic that
-	 * Fix B introduces -- that requires a WooCommerce-loaded test
-	 * environment, which does not currently exist for this plugin's suite.
+	 * `pending_total` no longer depends on WooCommerce order status
+	 * (manager-lens #2): it is what live bookings still owe, read through
+	 * PaymentView -- the cases are in DashboardFiguresTest. These two
+	 * bookings carry no payment status, which PaymentView reads as unpaid,
+	 * so each owes its whole price; an order id WooCommerce cannot resolve
+	 * changes nothing.
 	 */
-	public function test_pending_total_is_zero_without_a_loaded_woocommerce(): void {
+	public function test_pending_total_does_not_need_woocommerce(): void {
 		$this->deposit_booking( 'confirmed', 500.0, 1500.0 );
-
-		// Attach order-id meta the way RemainingPaymentHandler would, to prove
-		// the mere presence of an order id does not spuriously inflate the
-		// total when WooCommerce cannot resolve it.
 		$id = $this->deposit_booking( 'pending', 200.0, 800.0 );
 		update_post_meta( $id, '_mhmrentiva_woocommerce_order_id', 999999 );
 
 		$s = DashboardService::get_payments_summary();
 
-		$this->assertSame( 0.0, $s['pending_total'] );
+		$this->assertEqualsWithDelta( 2000.0 + 1000.0, $s['pending_total'], 0.01 );
 	}
 }

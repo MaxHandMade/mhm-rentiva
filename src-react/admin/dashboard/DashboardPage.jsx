@@ -31,17 +31,13 @@ export default function DashboardPage() {
 	return (
 		<div className="mhm-dashboard rv-dashboard mhmui-admin mhmui-admin-page">
 
-			{ /* Header strip: title + static range selector (visual only) */ }
+			{ /* Header strip: title. The cards show all time plus this month;
+			   the disabled "Last 30 days" selector that promised otherwise is
+			   gone (manager-lens #3a, product decision 2026-11-17). */ }
 			<div className="rv-dash-header">
 				<div className="rv-dash-header__titles">
 					<h1 className="rv-dash-header__h1">{ __( 'Dashboard', 'mhm-rentiva' ) }</h1>
 					<span className="rv-dash-header__sub">{ __( 'MHM Rentiva · Overview', 'mhm-rentiva' ) }</span>
-				</div>
-				<div className="rv-dash-header__controls">
-					{ /* Date range is visual only this round (deferred); disabled to signal non-functional */ }
-					<select className="rv-dash-header__range" defaultValue="30" disabled aria-label={ __( 'Date range', 'mhm-rentiva' ) }>
-						<option value="30">{ __( 'Last 30 days', 'mhm-rentiva' ) }</option>
-					</select>
 				</div>
 			</div>
 

@@ -100,7 +100,9 @@ export default function StatsCards( { metrics, deltas = {}, currency } ) {
 			sub: sprintf( _x( '%s this month', 'dashboard KPI delta line', 'mhm-rentiva' ), fmt( metrics?.bookings_this_month ) ),
 		},
 		{
-			label: __( 'Total Revenue', 'mhm-rentiva' ),
+			// The price of booked rentals (confirmed, in progress, completed),
+			// not cash collected; what is still owed is the Payments card.
+			label: __( 'Bookings Value', 'mhm-rentiva' ),
 			value: fmtMoney( metrics?.total_revenue ),
 			icon: 'revenue',
 			delta: toDelta( deltas.revenue, fmtMoney( metrics?.monthly_revenue ) ),

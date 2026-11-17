@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-16T20:38:57+00:00\n"
+"POT-Creation-Date: 2026-11-16T23:03:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -21,7 +21,7 @@ msgstr ""
 #: src/Admin/About/Tabs/GeneralTab.php:268
 #: src/Admin/Utilities/Menu/Menu.php:30
 #: src/Admin/Utilities/Menu/Menu.php:31
-#: src-react/admin/dashboard/DashboardPage.jsx:75
+#: src-react/admin/dashboard/DashboardPage.jsx:71
 msgid "MHM Rentiva"
 msgstr ""
 
@@ -824,11 +824,11 @@ msgstr ""
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
 #: src/Admin/Setup/SetupWizard.php:999
 #: src/Admin/Setup/SetupWizard.php:1059
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1038
+#: src/Admin/Utilities/Dashboard/DashboardService.php:995
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:460
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:763
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:497
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1776
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1758
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:39
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:165
 #: src-react/admin/customers/components/CustomerTable.jsx:29
@@ -1271,7 +1271,7 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountRenderer.php:934
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:339
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:79
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1036
+#: src/Admin/Utilities/Dashboard/DashboardService.php:993
 #: src/Frontend/PreviewSamples.php:208
 #: templates/emails/booking-created-customer.html.php:92
 #: templates/emails/refund-customer.html.php:32
@@ -1361,7 +1361,7 @@ msgstr ""
 #: src/Admin/Frontend/Account/BookingTimeline.php:70
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:80
 #: src/Admin/Settings/Groups/FrontendColorsSection.php:118
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1037
+#: src/Admin/Utilities/Dashboard/DashboardService.php:994
 #: assets/blocks/my-bookings/index.js:39
 #: src-react/admin/dashboard/components/RecentBookings.jsx:11
 msgid "Confirmed"
@@ -1748,7 +1748,7 @@ msgid "Customer"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:276
-#: src/Admin/Booking/ListTable/BookingColumns.php:1720
+#: src/Admin/Booking/ListTable/BookingColumns.php:1685
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:753
 msgid "Booking ID"
 msgstr ""
@@ -1975,7 +1975,8 @@ msgid "%s this week"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1199
-msgid "Monthly Revenue"
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1164
+msgid "Bookings Value This Month"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1209
@@ -2012,43 +2013,43 @@ msgid "vs last month"
 msgstr ""
 
 #. translators: %d: number of vehicle rows shown before the fleet is trimmed.
-#: src/Admin/Booking/ListTable/BookingColumns.php:1475
+#: src/Admin/Booking/ListTable/BookingColumns.php:1440
 #, php-format
 msgid "Showing first %d vehicles — narrow the filters to see the rest."
 msgstr ""
 
 #. translators: %s: the active status chip's label (e.g. "Cancelled").
-#: src/Admin/Booking/ListTable/BookingColumns.php:1515
+#: src/Admin/Booking/ListTable/BookingColumns.php:1480
 #, php-format
 msgid "The %s filter has no calendar view — cancelled and similar bookings do not occupy vehicles. Switch to the List view to see them."
 msgstr ""
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1523
+#: src/Admin/Booking/ListTable/BookingColumns.php:1488
 msgid "No bookings match the current filters in this month."
 msgstr ""
 
 #. translators: %s: number of bookings with no vehicle assigned (transfers etc.), formatted for display.
-#: src/Admin/Booking/ListTable/BookingColumns.php:1556
+#: src/Admin/Booking/ListTable/BookingColumns.php:1521
 #, php-format
 msgid "%s booking has no vehicle assigned and is not shown in this view — see the List view."
 msgid_plural "%s bookings have no vehicle assigned and are not shown in this view — see the List view."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1733
+#: src/Admin/Booking/ListTable/BookingColumns.php:1698
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:627
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1519
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1501
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:506
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:820
 msgid "License Plate"
 msgstr ""
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1949
+#: src/Admin/Booking/ListTable/BookingColumns.php:1914
 msgid "Auto Draft"
 msgstr ""
 
 #. translators: %d: booking ID
-#: src/Admin/Booking/ListTable/BookingColumns.php:1951
+#: src/Admin/Booking/ListTable/BookingColumns.php:1916
 #, php-format
 msgid "Booking #%d"
 msgstr ""
@@ -2127,8 +2128,8 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:75
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:136
 #: src/Admin/Payment/WooCommerce/RentalMoneyLabels.php:230
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1039
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1043
+#: src/Admin/Utilities/Dashboard/DashboardService.php:996
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1000
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:515
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:829
 #: templates/account/payment-history.php:150
@@ -3141,7 +3142,7 @@ msgid "Grand Total"
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:242
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1044
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1001
 msgid "Remaining"
 msgstr ""
 
@@ -3641,7 +3642,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:592
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:221
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:797
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1584
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1566
 #: templates/shortcodes/availability-calendar.php:74
 msgid "Available"
 msgstr ""
@@ -3707,14 +3708,14 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1122
 #: src/Admin/Core/AssetManager.php:1492
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1787
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1769
 msgid "Passive"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1123
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:462
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:765
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1777
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1759
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:40
 msgid "Maintenance"
 msgstr ""
@@ -6891,7 +6892,7 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountRenderer.php:772
 #: src/Admin/Utilities/Menu/Menu.php:55
 #: src/Admin/Utilities/Menu/Menu.php:56
-#: src-react/admin/dashboard/DashboardPage.jsx:37
+#: src-react/admin/dashboard/DashboardPage.jsx:39
 msgid "Dashboard"
 msgstr ""
 
@@ -7627,14 +7628,14 @@ msgid "Fuel Type"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:619
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1555
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1537
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:826
 #: templates/shortcodes/search-results.php:201
 msgid "Transmission"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/ComparisonView.php:620
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1545
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1527
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:824
 #: templates/shortcodes/search-results.php:210
 msgid "Seats"
@@ -8829,7 +8830,7 @@ msgstr ""
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:223
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:400
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:921
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1605
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1587
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:234
 msgid "Featured"
 msgstr ""
@@ -13916,39 +13917,39 @@ msgstr ""
 msgid "Duplicate Review"
 msgstr ""
 
-#. translators: %d: number of further bookings not linked in the list.
-#: src/Admin/Vehicle/Hooks/VehicleTrashWarning.php:134
-#, php-format
-msgid "and %d more"
-msgid_plural "and %d more"
-msgstr[0] ""
-msgstr[1] ""
-
 #. translators: 1: vehicle title, 2: number of upcoming bookings.
-#: src/Admin/Vehicle/Hooks/VehicleTrashWarning.php:144
+#: src/Admin/Vehicle/Hooks/VehicleTrashWarning.php:133
 #, php-format
 msgid "“%1$s” was moved to the Trash but still has %2$d upcoming booking. The booking keeps this vehicle, but customers can no longer open the vehicle’s page."
 msgid_plural "“%1$s” was moved to the Trash but still has %2$d upcoming bookings. The bookings keep this vehicle, but customers can no longer open the vehicle’s page."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Vehicle/Hooks/VehicleTrashWarning.php:157
+#: src/Admin/Vehicle/Hooks/VehicleTrashWarning.php:146
 msgid "Bookings:"
 msgstr ""
 
-#: src/Admin/Vehicle/Hooks/VehicleTrashWarning.php:158
+#. translators: %d: number of further bookings not linked in the list.
+#: src/Admin/Vehicle/Hooks/VehicleTrashWarning.php:152
+#, php-format
+msgid "and %d more"
+msgid_plural "and %d more"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Admin/Vehicle/Hooks/VehicleTrashWarning.php:154
 msgid "Restore vehicle"
 msgstr ""
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:213
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1621
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1603
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:50
 #: templates/account/booking-summary.php:81
 msgid "Location"
 msgstr ""
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:218
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1530
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1512
 msgid "Price/Day"
 msgstr ""
 
@@ -14064,16 +14065,12 @@ msgstr ""
 msgid "%s total vehicles"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1164
-msgid "This Month Revenue"
-msgstr ""
-
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1569
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1551
 #: templates/shortcodes/search-results.php:202
 msgid "Fuel"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1623
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1605
 msgid "— No Location —"
 msgstr ""
 
@@ -17086,7 +17083,6 @@ msgid "All dates"
 msgstr ""
 
 #: src-react/admin/contact-messages/components/ContactToolbar.jsx:39
-#: src-react/admin/dashboard/DashboardPage.jsx:43
 msgid "Last 30 days"
 msgstr ""
 
@@ -17466,7 +17462,8 @@ msgid "This Month"
 msgstr ""
 
 #: src-react/admin/dashboard/components/RecentBookings.jsx:45
-msgid "Revenue"
+#: src-react/admin/dashboard/components/StatsCards.jsx:105
+msgid "Bookings Value"
 msgstr ""
 
 #: src-react/admin/dashboard/components/RecentBookings.jsx:51
@@ -17503,7 +17500,7 @@ msgstr ""
 #: src-react/admin/dashboard/components/StatsCards.jsx:68
 #: src-react/admin/dashboard/components/StatsCards.jsx:81
 #: src-react/admin/dashboard/components/StatsCards.jsx:100
-#: src-react/admin/dashboard/components/StatsCards.jsx:108
+#: src-react/admin/dashboard/components/StatsCards.jsx:110
 #, js-format
 msgctxt "dashboard KPI delta line"
 msgid "%s this month"
@@ -17515,21 +17512,17 @@ msgstr ""
 msgid "%1$s%% · %2$s this month"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:103
-msgid "Total Revenue"
-msgstr ""
-
-#: src-react/admin/dashboard/components/StatsCards.jsx:111
+#: src-react/admin/dashboard/components/StatsCards.jsx:113
 msgid "Active Vehicles"
 msgstr ""
 
 #. translators: %s = total number of vehicles.
-#: src-react/admin/dashboard/components/StatsCards.jsx:115
+#: src-react/admin/dashboard/components/StatsCards.jsx:117
 #, js-format
 msgid "%s total"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:120
+#: src-react/admin/dashboard/components/StatsCards.jsx:122
 msgid "Renting this month"
 msgstr ""
 
@@ -17545,15 +17538,11 @@ msgstr ""
 msgid "No upcoming operations in the next 7 days."
 msgstr ""
 
-#: src-react/admin/dashboard/DashboardPage.jsx:38
+#: src-react/admin/dashboard/DashboardPage.jsx:40
 msgid "MHM Rentiva · Overview"
 msgstr ""
 
-#: src-react/admin/dashboard/DashboardPage.jsx:42
-msgid "Date range"
-msgstr ""
-
-#: src-react/admin/dashboard/DashboardPage.jsx:76
+#: src-react/admin/dashboard/DashboardPage.jsx:72
 msgid "Built with WordPress."
 msgstr ""
 

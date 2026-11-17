@@ -1196,7 +1196,7 @@ final class BookingColumns {
 				),
 			),
 			array(
-				'label' => __( 'Monthly Revenue', 'mhm-rentiva' ),
+				'label' => __( 'Bookings Value This Month', 'mhm-rentiva' ),
 				'value' => self::format_price( $stats['monthly_revenue'] ),
 				'icon'  => 'revenue',
 				'delta' => array(
@@ -1327,8 +1327,6 @@ final class BookingColumns {
 	 * Calculate revenue trend.
 	 */
 	private static function calculate_revenue_trend( int $trend_range_days ): float {
-		global $wpdb;
-
 		// Current period: full current calendar month
 		$current_period_start = gmdate( 'Y-m-01' );
 		$current_period_end   = gmdate( 'Y-m-t' ) . ' 23:59:59'; // last day of current month, end of day
@@ -1337,43 +1335,10 @@ final class BookingColumns {
 		$previous_period_start = gmdate( 'Y-m-01', strtotime( 'first day of last month' ) );
 		$previous_period_end   = gmdate( 'Y-m-t', strtotime( 'last day of last month' ) ) . ' 23:59:59'; // last day of previous month, end of day
 
-		// Current period revenue - ONLY COMPLETED AND CONFIRMED BOOKINGS
-		$current_revenue = (float) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2))) 
-             FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
-             WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
-             AND pm.meta_key = %s
-             AND pm_status.meta_key = '_mhmrentiva_status'
-             AND pm_status.meta_value IN ('completed', 'confirmed')
-             AND p.post_date >= %s AND p.post_date <= %s",
-				'mhmrentiva_booking',
-				'_mhmrentiva_total_price',
-				$current_period_start,
-				$current_period_end
-			)
-		);
-
-		// Previous period revenue - ONLY COMPLETED AND CONFIRMED BOOKINGS
-		$previous_revenue = (float) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2))) 
-             FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
-             WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
-             AND pm.meta_key = %s
-             AND pm_status.meta_key = '_mhmrentiva_status'
-             AND pm_status.meta_value IN ('completed', 'confirmed')
-             AND p.post_date >= %s AND p.post_date <= %s",
-				'mhmrentiva_booking',
-				'_mhmrentiva_total_price',
-				$previous_period_start,
-				$previous_period_end
-			)
-		);
+		// The canonical booking value (confirmed, in progress, completed) --
+		// the same figure the dashboard and the vehicles list show.
+		$current_revenue  = \MHMRentiva\Admin\Utilities\Dashboard\DashboardService::booking_value_between( $current_period_start . ' 00:00:00', $current_period_end );
+		$previous_revenue = \MHMRentiva\Admin\Utilities\Dashboard\DashboardService::booking_value_between( $previous_period_start . ' 00:00:00', $previous_period_end );
 
 		// Calculate revenue trend.
 		if ( $previous_revenue > 0 ) {

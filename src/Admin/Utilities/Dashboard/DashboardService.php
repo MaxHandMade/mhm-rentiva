@@ -34,66 +34,14 @@ final class DashboardService {
 		$current_month_start = gmdate( 'Y-m-01 00:00:00' );
 		$current_month_end   = gmdate( 'Y-m-t 23:59:59' );
 
-		// Total bookings - EXCLUDING TRASH
-		$total_bookings = (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status IN ('publish', 'private', 'pending') AND post_status != 'trash'",
-				'mhmrentiva_booking'
-			)
-		);
+		// Bookings that are not cancelled or refunded (product decision
+		// 2026-11-17): the status breakdown still shows the cancelled ones.
+		$total_bookings      = self::count_bookings_between( null, null );
+		$bookings_this_month = self::count_bookings_between( $current_month_start, $current_month_end );
 
-		// This month bookings - EXCLUDING TRASH
-		$bookings_this_month = (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts} 
-             WHERE post_type = %s AND post_status IN ('publish', 'private', 'pending') AND post_status != 'trash'
-             AND post_date >= %s AND post_date <= %s",
-				'mhmrentiva_booking',
-				$current_month_start,
-				$current_month_end
-			)
-		);
-
-		// Total revenue - ONLY COMPLETED AND CONFIRMED BOOKINGS
-		$total_revenue = (float) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2))) 
-             FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
-             WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
-             AND pm.meta_key = %s
-             AND pm_status.meta_key = %s
-             AND pm_status.meta_value IN (%s, %s)",
-				'mhmrentiva_booking',
-				'_mhmrentiva_total_price',
-				'_mhmrentiva_status',
-				'completed',
-				'confirmed'
-			)
-		);
-
-		// This month revenue - ONLY COMPLETED AND CONFIRMED BOOKINGS
-		$monthly_revenue = (float) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2))) 
-             FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
-             WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
-             AND p.post_date >= %s AND p.post_date <= %s
-             AND pm.meta_key = %s
-             AND pm_status.meta_key = %s
-             AND pm_status.meta_value IN (%s, %s)",
-				'mhmrentiva_booking',
-				$current_month_start,
-				$current_month_end,
-				'_mhmrentiva_total_price',
-				'_mhmrentiva_status',
-				'completed',
-				'confirmed'
-			)
-		);
+		// The value of booked rentals, all time and created this month.
+		$total_revenue   = self::booking_value_between( null, null );
+		$monthly_revenue = self::booking_value_between( $current_month_start, $current_month_end );
 
 		// Total vehicles - EXCLUDING TRASH
 		$total_vehicles = (int) $wpdb->get_var(
@@ -115,23 +63,8 @@ final class DashboardService {
 			)
 		);
 
-		// Customer statistics - From booking data (THIS MONTH ONLY)
-		$customer_stats = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT 
-                COUNT(DISTINCT pm_email.meta_value) as total_customers
-             FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id AND pm_email.meta_key = '_mhmrentiva_customer_email'
-             WHERE p.post_type = 'mhmrentiva_booking' 
-             AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
-             AND p.post_date >= %s AND p.post_date <= %s
-             AND pm_email.meta_value != '' AND pm_email.meta_value IS NOT NULL",
-				$current_month_start,
-				$current_month_end
-			)
-		);
-
-		$total_customers_this_month = (int) ( $customer_stats->total_customers ?? 0 );
+		// People who booked this month, a cancelled or refunded booking aside.
+		$total_customers_this_month = self::count_new_customers_between( $current_month_start, $current_month_end );
 
 		return array(
 			'total_bookings'             => $total_bookings,
@@ -161,8 +94,8 @@ final class DashboardService {
 				self::count_bookings_between( $previous_start, $previous_end )
 			),
 			'revenue'   => self::shape_delta(
-				(int) round( self::sum_revenue_between( $current_start, $current_end ) ),
-				(int) round( self::sum_revenue_between( $previous_start, $previous_end ) )
+				(int) round( self::booking_value_between( $current_start, $current_end ) ),
+				(int) round( self::booking_value_between( $previous_start, $previous_end ) )
 			),
 			'customers' => self::shape_delta(
 				self::count_new_customers_between( $current_start, $current_end ),
@@ -201,51 +134,111 @@ final class DashboardService {
 		);
 	}
 
-	private static function count_bookings_between( string $start, string $end ): int {
+	/**
+	 * Placeholder values for a creation window: `( %d = 1 OR p.post_date
+	 * BETWEEN %s AND %s )`. Both ends null is all time -- the flag switches the
+	 * date condition off, so no row is dropped by a bound (a zero post_date
+	 * included). The two ends stay valid DATETIME literals even then: MySQL 8
+	 * raises "Incorrect DATETIME value" on an empty string while preparing
+	 * the comparison, short-circuit or not (Codex audit 2026-11-17, rounds 1-2).
+	 *
+	 * Every query below reads each booking's meta through EXISTS or a scalar
+	 * subquery, never a JOIN, so a meta key stored twice cannot count a
+	 * booking twice (same audit).
+	 *
+	 * @return array{0:int,1:string,2:string}
+	 */
+	private static function window( ?string $start, ?string $end ): array {
+		if ( null === $start || null === $end ) {
+			return array( 1, '1000-01-01 00:00:00', '9999-12-31 23:59:59' );
+		}
+
+		return array( 0, $start, $end );
+	}
+
+	/**
+	 * Bookings that are not cancelled or refunded, created in the window.
+	 * A booking without a status counts (Status::get() reads it as pending).
+	 */
+	private static function count_bookings_between( ?string $start, ?string $end ): int {
 		global $wpdb;
+		list( $all_time, $from, $to ) = self::window( $start, $end );
+
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts}
-                 WHERE post_type = 'mhmrentiva_booking'
-                 AND post_status IN ('publish','private','pending') AND post_status != 'trash'
-                 AND post_date >= %s AND post_date <= %s",
-				$start,
-				$end
+				"SELECT COUNT(*) FROM {$wpdb->posts} p
+                 WHERE p.post_type = 'mhmrentiva_booking'
+                 AND p.post_status IN ('publish','private','pending')
+                 AND NOT EXISTS (
+                     SELECT 1 FROM {$wpdb->postmeta} s
+                     WHERE s.post_id = p.ID AND s.meta_key = '_mhmrentiva_status' AND s.meta_value IN ('cancelled','refunded')
+                 )
+                 AND ( %d = 1 OR ( p.post_date >= %s AND p.post_date <= %s ) )",
+				$all_time,
+				$from,
+				$to
 			)
 		);
 	}
 
-	private static function sum_revenue_between( string $start, string $end ): float {
+	/**
+	 * The value of booked rentals -- confirmed, in progress or completed --
+	 * created in the window; both ends null is all time. The price booked,
+	 * not cash collected: what is still owed is get_payments_summary()'s
+	 * `pending_total`. The dashboard, the bookings list and the vehicles list
+	 * all read this one figure.
+	 *
+	 * @param string|null $start `Y-m-d H:i:s`, inclusive.
+	 * @param string|null $end   `Y-m-d H:i:s`, inclusive.
+	 */
+	public static function booking_value_between( ?string $start, ?string $end ): float {
 		global $wpdb;
+		list( $all_time, $from, $to ) = self::window( $start, $end );
+
+		// The price is read once per booking (the first stored row, as
+		// get_post_meta() reads it), whatever else is stored twice.
 		return (float) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2)))
+				"SELECT SUM( (
+                     SELECT CAST(pm.meta_value AS DECIMAL(10,2)) FROM {$wpdb->postmeta} pm
+                     WHERE pm.post_id = p.ID AND pm.meta_key = '_mhmrentiva_total_price'
+                     ORDER BY pm.meta_id ASC LIMIT 1
+                 ) )
                  FROM {$wpdb->posts} p
-                 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-                 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
                  WHERE p.post_type = 'mhmrentiva_booking'
-                 AND p.post_status IN ('publish','private','pending') AND p.post_status != 'trash'
-                 AND p.post_date >= %s AND p.post_date <= %s
-                 AND pm.meta_key = '_mhmrentiva_total_price'
-                 AND pm_status.meta_key = '_mhmrentiva_status'
-                 AND pm_status.meta_value IN ('completed','confirmed')",
-				$start,
-				$end
+                 AND p.post_status IN ('publish','private','pending')
+                 AND EXISTS (
+                     SELECT 1 FROM {$wpdb->postmeta} s
+                     WHERE s.post_id = p.ID AND s.meta_key = '_mhmrentiva_status' AND s.meta_value IN ('confirmed','in_progress','completed')
+                 )
+                 AND ( %d = 1 OR ( p.post_date >= %s AND p.post_date <= %s ) )",
+				$all_time,
+				$from,
+				$to
 			)
 		);
 	}
 
+	/**
+	 * Distinct customer e-mails on bookings created in the window that are
+	 * not cancelled or refunded.
+	 */
 	private static function count_new_customers_between( string $start, string $end ): int {
 		global $wpdb;
+
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(DISTINCT pm_email.meta_value)
                  FROM {$wpdb->posts} p
                  INNER JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id AND pm_email.meta_key = '_mhmrentiva_customer_email'
                  WHERE p.post_type = 'mhmrentiva_booking'
-                 AND p.post_status IN ('publish','private','pending') AND p.post_status != 'trash'
-                 AND p.post_date >= %s AND p.post_date <= %s
-                 AND pm_email.meta_value != '' AND pm_email.meta_value IS NOT NULL",
+                 AND p.post_status IN ('publish','private','pending')
+                 AND NOT EXISTS (
+                     SELECT 1 FROM {$wpdb->postmeta} s
+                     WHERE s.post_id = p.ID AND s.meta_key = '_mhmrentiva_status' AND s.meta_value IN ('cancelled','refunded')
+                 )
+                 AND pm_email.meta_value != ''
+                 AND p.post_date >= %s AND p.post_date <= %s",
 				$start,
 				$end
 			)
@@ -481,7 +474,7 @@ final class DashboardService {
              LEFT JOIN {$wpdb->postmeta} pm_total   ON p.ID = pm_total.post_id  AND pm_total.meta_key  = '_mhmrentiva_total_price'
              LEFT JOIN %i loc_veh ON pm_veh_loc.meta_value = loc_veh.id
              WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending')
-             ORDER BY pm_pickup.meta_value DESC, p.post_date DESC
+             ORDER BY p.post_date DESC, p.ID DESC
              LIMIT %d OFFSET %d",
 					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
 					\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE,
@@ -527,7 +520,7 @@ final class DashboardService {
              LEFT JOIN {$wpdb->postmeta} pm_total   ON p.ID = pm_total.post_id  AND pm_total.meta_key  = '_mhmrentiva_total_price'
              
              WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending')
-             ORDER BY pm_pickup.meta_value DESC, p.post_date DESC
+             ORDER BY p.post_date DESC, p.ID DESC
              LIMIT %d OFFSET %d",
 					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
 					\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE,
@@ -1130,21 +1123,15 @@ final class DashboardService {
 	/**
 	 * Two aggregate payment figures for the dashboard Payments summary card.
 	 *
-	 * `this_month_collected` was removed — true cash
-	 * collected cannot be computed reliably; it depended on the same
-	 * drifting `_mhmrentiva_remaining_amount` field that `pending_total` no longer
-	 * uses (see below).
+	 * `this_month_collected` was removed — true cash collected cannot be
+	 * computed reliably once refunds and part-payments mix.
 	 *
 	 * @return array{pending_total:float,deposit_blocked:float}
 	 */
 	public static function get_payments_summary(): array {
 		global $wpdb;
 
-		// Authoritative: reuse get_pending_payments()'s WC-order-status scan
-		// instead of summing the drifting `_mhmrentiva_remaining_amount` meta in
-		// pure SQL. Bounded by that query's own LIMIT (see
-		// collect_pending_payments() docblock).
-		$pending_total = self::collect_pending_payments()['total'];
+		$pending_total = self::outstanding_total();
 
 		// Deposit-only: mirrors get_deposit_stats()'s `_mhmrentiva_payment_type` =
 		// 'deposit' filter. Without it, full-payment bookings (which also
@@ -1166,5 +1153,51 @@ final class DashboardService {
 			'pending_total'   => $pending_total,
 			'deposit_blocked' => $deposit_blocked,
 		);
+	}
+
+	/**
+	 * What bookings that are not cancelled or refunded still owe, read the
+	 * way the booking list's Payment column reads each one (PaymentView):
+	 * partially paid owes its remaining amount; paid, refunded, partially
+	 * refunded or cancelled owes nothing; anything else -- unpaid, pending,
+	 * awaiting verification, failed, or a status this reader does not know --
+	 * owes its whole price. An unknown status is shown, not hidden (Codex
+	 * audit 2026-11-17).
+	 *
+	 * Manager-lens #2: this used to count only bookings whose WooCommerce
+	 * order was still pending, so the balance after a deposit, or an offline
+	 * booking nobody had paid, read as 0.
+	 */
+	private static function outstanding_total(): float {
+		global $wpdb;
+
+		// IDs only, one row per booking; the amounts are read below through
+		// get_post_meta(), the same rows PaymentView reads.
+		$ids = array_map(
+			'intval',
+			(array) $wpdb->get_col(
+				"SELECT p.ID FROM {$wpdb->posts} p
+                 WHERE p.post_type = 'mhmrentiva_booking'
+                 AND p.post_status IN ('publish','private','pending')
+                 AND NOT EXISTS (
+                     SELECT 1 FROM {$wpdb->postmeta} s
+                     WHERE s.post_id = p.ID AND s.meta_key = '_mhmrentiva_status' AND s.meta_value IN ('cancelled','refunded')
+                 )"
+			)
+		);
+		update_postmeta_cache( $ids );
+
+		$owes_nothing = array( 'paid', 'refunded', 'partially_refunded', 'cancelled' );
+		$total        = 0.0;
+		foreach ( $ids as $id ) {
+			$status = \MHMRentiva\Admin\Booking\Core\PaymentView::status( $id );
+			if ( 'partially_paid' === $status ) {
+				$total += max( 0.0, (float) get_post_meta( $id, '_mhmrentiva_remaining_amount', true ) );
+			} elseif ( ! in_array( $status, $owes_nothing, true ) ) {
+				$total += max( 0.0, (float) get_post_meta( $id, '_mhmrentiva_total_price', true ) );
+			}
+		}
+
+		return round( $total, 2 );
 	}
 }

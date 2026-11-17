@@ -1161,7 +1161,7 @@ final class VehicleColumns {
 				),
 			),
 			array(
-				'label' => __( 'This Month Revenue', 'mhm-rentiva' ),
+				'label' => __( 'Bookings Value This Month', 'mhm-rentiva' ),
 				'value' => self::format_currency( (float) ( $stats['monthly_avg_revenue'] ?? 0 ) ),
 				'icon'  => 'revenue',
 				'delta' => array(
@@ -1311,38 +1311,20 @@ final class VehicleColumns {
 		// Debug: Log vehicle stats in detail
 		// Debug log removed
 
-		// Monthly revenue: CANONICAL value from DashboardService (same number
-		// the dashboard and the bookings-list band show — this used to be a
-		// third, publish-only copy of the SQL). The trend needs last month's
-		// revenue, which has no canonical method, so that one query stays
-		// local but uses the canonical post_status scope.
+		// Monthly booking value: the CANONICAL figure from DashboardService,
+		// this month and last (same number the dashboard and the bookings-list
+		// band show).
 		$monthly_avg_revenue = 0;
 		$revenue_trend       = 0;
 
 		if ($total_vehicles > 0) {
-			$metrics               = \MHMRentiva\Admin\Utilities\Dashboard\DashboardService::get_dashboard_metrics();
-			$current_month_revenue = (float) ( $metrics['monthly_revenue'] ?? 0 );
+			$current_month_revenue = \MHMRentiva\Admin\Utilities\Dashboard\DashboardService::booking_value_between(gmdate('Y-m-01 00:00:00'), gmdate('Y-m-t 23:59:59'));
 
-			// Last month's revenue (for trend calculation)
-			$last_month_start = gmdate('Y-m-01', strtotime('-1 month'));
-			$last_month_end   = gmdate('Y-m-t', strtotime('-1 month'));
-
-			$last_month_revenue = (float) $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2)))
-                 FROM {$wpdb->posts} p
-                 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-                 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
-                 WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending')
-                 AND pm.meta_key = %s
-                 AND pm_status.meta_key = '_mhmrentiva_status'
-                 AND pm_status.meta_value IN ('completed', 'confirmed')
-                 AND p.post_date >= %s AND p.post_date <= %s",
-					'mhmrentiva_booking',
-					'_mhmrentiva_total_price',
-					$last_month_start,
-					$last_month_end . ' 23:59:59'
-				)
+			// Last month (for the trend). 'first day of last month', not
+			// '-1 month': on the 31st the latter lands in this month.
+			$last_month_revenue = \MHMRentiva\Admin\Utilities\Dashboard\DashboardService::booking_value_between(
+				gmdate('Y-m-01 00:00:00', strtotime('first day of last month')),
+				gmdate('Y-m-t 23:59:59', strtotime('last day of last month'))
 			);
 
 			$monthly_avg_revenue = $current_month_revenue;
