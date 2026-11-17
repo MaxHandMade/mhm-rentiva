@@ -197,7 +197,7 @@ tests_add_filter(
 		$basedir   = str_replace('\\', '/', (string) $dir['basedir']);
 		// Keep a multisite site's "/sites/N" under the sandbox. A custom root
 		// (UPLOADS, ms-files' blogs.dir/N/files) gets a directory of its own,
-		// named from that root, so two sites never share one.
+		// named from that root (48-bit hash), so two sites do not share one.
 		$tail           = str_starts_with($basedir, $real_root)
 			? substr($basedir, strlen($real_root))
 			: '/root-' . substr(md5($basedir), 0, 12);
