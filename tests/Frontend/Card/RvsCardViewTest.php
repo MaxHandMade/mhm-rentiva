@@ -242,7 +242,7 @@ final class RvsCardViewTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex (K7): the amount and WooCommerce's suffix travel together.
+	 * The amount and WooCommerce's suffix travel together.
 	 *
 	 * @return array{0: array<string, mixed>, 1: array<string, mixed>}
 	 */

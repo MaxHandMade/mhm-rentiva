@@ -164,7 +164,7 @@ final class RecipientToken {
 			);
 		} catch (\SodiumException $e) {
 			// Wrong lengths throw rather than return false; the submit handler's own
-			// catch would turn that into a message that is never sent (Fable r3 I-1).
+			// catch would turn that into a message that is never sent.
 			unset($e);
 			return 'sodium_error';
 		}
@@ -202,7 +202,7 @@ final class RecipientToken {
 	 * mhm-rentiva/contact block, of a [rentiva_contact] shortcode in the content, or
 	 * of the Elementor contact widget / a [rentiva_contact] shortcode in a widget of
 	 * the post's `_elementor_data`. The address anywhere else on the page (a mailto
-	 * link, text, another block or widget) does not count (Codex P1, PR #92).
+	 * link, text, another block or widget) does not count.
 	 *
 	 * @param string   $email The address the payload carries.
 	 * @param \WP_Post $post  The source post.

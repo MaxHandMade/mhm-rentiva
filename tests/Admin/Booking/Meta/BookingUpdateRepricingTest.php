@@ -133,7 +133,7 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 	public function test_add_ons_posted_in_another_order_keep_the_price(): void
 	{
 		// The edit box lists add-ons by menu_order and appends unpublished ones,
-		// so the posted order can differ from the stored one (Fable Ö1, #171).
+		// so the posted order can differ from the stored one (#171).
 		$a = $this->addon();
 		$b = $this->addon();
 		update_post_meta($this->booking, '_mhmrentiva_selected_addons', array( $a, $b ));
@@ -227,7 +227,7 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 	public function test_a_legacy_booking_keeps_its_price_on_a_status_only_update(): void
 	{
 		// The edit box shows legacy-key values; the first Update writes them under
-		// the current keys -- not a change of price input (Codex #171 r1 bulgu 2).
+		// the current keys -- not a change of price input (#171).
 		$a = $this->addon();
 		delete_post_meta($this->booking, '_mhmrentiva_start_time');
 		delete_post_meta($this->booking, '_mhmrentiva_end_time');
@@ -245,7 +245,7 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 
 	public function test_a_legacy_vehicle_key_is_not_a_vehicle_change(): void
 	{
-		// Codex #171 r2 bulgu 3: the vehicle-change branch re-priced directly.
+		// The vehicle-change branch re-priced directly.
 		delete_post_meta($this->booking, '_mhmrentiva_vehicle_id');
 		update_post_meta($this->booking, '_mhmrentiva_booking_vehicle_id', (string) $this->vehicle);
 
@@ -257,7 +257,7 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 
 	public function test_a_legacy_add_on_keeps_its_quantity_under_a_lowered_maximum(): void
 	{
-		// Codex #171 r2 bulgu 2: the cap read the booked quantity through the
+		// The cap read the booked quantity through the
 		// current id list only, so a legacy list dropped 3 to the new maximum 1.
 		$a = $this->addon();
 		update_post_meta($a, \MHMRentiva\Admin\Core\MetaKeys::ADDON_MAX_QUANTITY, '1');
@@ -276,7 +276,7 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 
 	public function test_a_legacy_add_on_list_does_not_shadow_its_removal(): void
 	{
-		// Codex #171 r2 bulgu 1: the legacy list stayed behind and brought back,
+		// The legacy list stayed behind and brought back,
 		// on screen and in the fingerprint, an add-on the operator unticked.
 		$a = $this->addon();
 		update_post_meta($this->booking, '_mhmrentiva_selected_addons', array( $a ));
@@ -294,7 +294,7 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 	 */
 	public function test_a_zero_time_reads_as_the_empty_time_the_form_posts(string $key, string $field): void
 	{
-		// Codex #171 r3 bulgu 1: render() treats '0' as empty and posts ''.
+		// render() treats '0' as empty and posts ''.
 		update_post_meta($this->booking, $key, '0');
 
 		$this->update(array(
@@ -314,7 +314,7 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 
 	public function test_a_refused_copy_keeps_the_legacy_add_on_list(): void
 	{
-		// Codex #171 r3 bulgu 2: the legacy list was deleted even when the copy
+		// The legacy list was deleted even when the copy
 		// to the current key was refused -- the selection was lost.
 		$a = $this->addon();
 		update_post_meta($this->booking, 'mhmrentiva_selected_addons', array( $a ));
@@ -332,7 +332,7 @@ final class BookingUpdateRepricingTest extends WP_UnitTestCase
 
 	public function test_a_single_legacy_add_on_id_is_read_as_a_list(): void
 	{
-		// Codex #171 r2 bulgu 4: render() casts with (array); a scalar legacy
+		// render() casts with (array); a scalar legacy
 		// id must not read as "no add-ons" in the fingerprint.
 		$a = $this->addon();
 		update_post_meta($this->booking, 'mhmrentiva_selected_addons', (string) $a);

@@ -69,7 +69,7 @@ final class EmailLog {
 		$title = '[' . ( $ok ? __( 'Success', 'mhm-rentiva' ) : __( 'Failed', 'mhm-rentiva' ) ) . '] ' . $subject;
 
 		// The subject and context are unslashed; wp_insert_post() and the meta
-		// API unslash again, and the context is JSON (backslash class, Codex #177).
+		// API unslash again, and the context is JSON (backslash class).
 		$post_id = wp_insert_post(
 			wp_slash(
 				array(

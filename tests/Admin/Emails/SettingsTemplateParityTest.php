@@ -36,7 +36,7 @@ final class SettingsTemplateParityTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex #178 I2: with no saved subject the screen showed one default and
+	 * With no saved subject the screen showed one default and
 	 * the sender used another ("Booking Confirmed: #42" vs "Booking #42
 	 * Confirmed - Site"). Both read EmailSettings::default_subject() now.
 	 *

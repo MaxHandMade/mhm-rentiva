@@ -69,7 +69,7 @@ final class PaymentAmountMetaRetiredTest extends WP_UnitTestCase
     /**
      * PR 3b-3: the preview's total is the booking's total, as in the automatic
      * e-mail -- not the paid amount, a preview-only figure no customer ever
-     * received (Codex #178 M4: an independent expectation).
+     * received (an independent expectation).
      */
     public function test_the_preview_total_is_the_booking_total_not_the_paid_amount(): void
     {

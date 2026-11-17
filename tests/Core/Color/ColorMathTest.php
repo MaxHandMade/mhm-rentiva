@@ -132,7 +132,7 @@ final class ColorMathTest extends TestCase
 		$this->assertContains('accent-deep', $p['looped']);
 	}
 
-	/** Fable PR 2 M1, ruling R2: a near-black accent's link hover turns lighter. */
+	/** A near-black accent's link hover turns lighter. */
 	public function test_dark_text_hover_flips_toward_white(): void
 	{
 		foreach (array( '#111111' => '#414141', '#000000' => '#333333' ) as $accent => $expected) {

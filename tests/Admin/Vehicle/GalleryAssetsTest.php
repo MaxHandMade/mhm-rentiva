@@ -10,7 +10,7 @@ use WP_UnitTestCase;
 
 /**
  * The gallery script is localized once, with the nonce its AJAX handlers
- * verify, and only on the vehicle edit screens (PR 4 plan Task 5, Codex r2).
+ * verify, and only on the vehicle edit screens (PR 4 plan Task 5).
  * Before: AssetManager localized the same object a second time with another
  * nonce action, and VehicleGallery loaded on every vehicle screen, the list
  * included.

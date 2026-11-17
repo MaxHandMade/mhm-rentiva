@@ -13,7 +13,7 @@ namespace MHMRentiva\Tests\Support;
  * parse, SettingProbe::editor_options()) and from the Elementor controls as the
  * editor builds them. '' is the "not set" choice and always allowed.
  * SettingGates::ALIASES carries the live mappings that translate an option before the schema sees it
- * (spec G3, Fable I2): my-bookings `filterStatus` 'all' => ''
+ * (spec G3): my-bookings `filterStatus` 'all' => ''
  * (assets/blocks/my-bookings/index.js:40, AllowlistRegistry).
  *
  * Shared by Lite and Pro (gate_blocks(), gate_widgets(), gate_dir() as in

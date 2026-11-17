@@ -411,7 +411,7 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable B7: without the booking card there is nothing to suggest into, so
+	 * Without the booking card there is nothing to suggest into, so
 	 * the finder does not run.
 	 *
 	 * @return array<string, array{0: array<string, string>}>
@@ -451,7 +451,7 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable B2: a suggestion's title id carries the page's vehicle and the
+	 * A suggestion's title id carries the page's vehicle and the
 	 * suggested one, so two vehicle roots on one page cannot collide.
 	 */
 	public function test_suggestion_ids_carry_both_vehicles(): void

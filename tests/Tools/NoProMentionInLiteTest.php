@@ -110,7 +110,7 @@ final class NoProMentionInLiteTest extends TestCase
 
     /**
      * A shipped stylesheet must not describe itself as existing for the paid
-     * add-on. 6.2.0's pre-ZIP audit (Fable L2 I-1) found `user-dashboard.css`
+     * add-on. 6.2.0's pre-ZIP audit found `user-dashboard.css`
      * opening with "styles the vendor ledger table, which Pro renders" and two
      * vehicle-card comments naming "the add-on's transfer card" -- copy a reviewer's
      * grep of the free ZIP reads as an edition seam. The upsell patterns above

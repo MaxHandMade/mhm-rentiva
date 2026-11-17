@@ -116,7 +116,7 @@ final class BookingCustomerEmailTemplateTest extends WP_Ajax_UnitTestCase
 
 		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
 		$ctx = Mailer::getBookingContext($this->booking);
-		// Codex #178 M4: not empty on its own, not only equal to the helper.
+		// Not empty on its own, not only equal to the helper.
 		$this->assertNotSame('', trim((string) $response['data']['subject']));
 		$this->assertSame(Templates::compile_subject($type, $ctx), $response['data']['subject']);
 		$this->assertStringNotContainsString('<html', (string) $response['data']['message']);
@@ -171,7 +171,7 @@ final class BookingCustomerEmailTemplateTest extends WP_Ajax_UnitTestCase
 		$this->assertStringContainsString('Neden: Uçuş iptal', (string) $this->sent[0]['message']);
 	}
 
-	/** Fable #178 D2: a cancellation e-mail for a booking not cancelled yet still reads the reason. */
+	/** A cancellation e-mail for a booking not cancelled yet still reads the reason. */
 	public function test_a_cancellation_e_mail_for_a_confirmed_booking_reads_the_reason(): void
 	{
 		update_post_meta($this->booking, '_mhmrentiva_status', 'confirmed');
@@ -199,7 +199,7 @@ final class BookingCustomerEmailTemplateTest extends WP_Ajax_UnitTestCase
 		$this->assertSame('fonk@example.test', $this->sent[0]['to']);
 	}
 
-	/** Codex bot #178: the heading inside the e-mail is the subject that went out. */
+	/** The heading inside the e-mail is the subject that went out. */
 	public function test_an_edited_subject_is_also_the_heading_inside_the_e_mail(): void
 	{
 		$this->assertTrue($this->send('booking_created_customer', 'Elle yazılan konu', '')['success'] ?? false);

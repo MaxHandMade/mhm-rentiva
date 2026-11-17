@@ -220,7 +220,7 @@ final class StoreApiSafetyNetTest extends WP_UnitTestCase
 		$this->assertSame('', $second->get_meta('_mhmrentiva_booking_id'));
 		$this->assertSame(1, $this->bookings_of_vehicle());
 
-		// Fable PR K m4: the pending order says why, for the operator.
+		// The pending order says why, for the operator.
 		$notes = wc_get_order_notes(array( 'order_id' => $second->get_id() ));
 		$this->assertNotEmpty(array_filter($notes, static fn($n) => str_contains($n->content, 'Booking refused, no payment taken: Sorry, the vehicle "Fiat Egea"')));
 	}
@@ -418,7 +418,7 @@ final class StoreApiSafetyNetTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable PR K M2: "create an account" at checkout makes the user before the
+	 * "create an account" at checkout makes the user before the
 	 * order-placed hook (WC_Checkout::process_customer(), Store API
 	 * Checkout::process_customer()); the booking is that account's, so My
 	 * Account lists it.

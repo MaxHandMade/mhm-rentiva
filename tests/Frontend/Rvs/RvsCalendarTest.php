@@ -118,7 +118,7 @@ final class RvsCalendarTest extends WP_UnitTestCase
 		$this->assertStringContainsString('aria-labelledby="' . $cal['id'] . '-title"', $html);
 		$this->assertSame(7, substr_count($html, '<th scope="col"'));
 		// The visible number stays readable; the state is spoken text, not an
-		// attribute a `cell` may not carry (Fable PR A I2).
+		// attribute a `cell` may not carry.
 		$this->assertStringNotContainsString('aria-hidden', $html);
 		$this->assertStringNotContainsString('aria-disabled', $html);
 		$this->assertMatchesRegularExpression('/data-date="2027-07-20"[^>]*><span class="rvs-cal__num">20<\/span><span class="rvs-sr-only">, Booked<\/span>/', $html);

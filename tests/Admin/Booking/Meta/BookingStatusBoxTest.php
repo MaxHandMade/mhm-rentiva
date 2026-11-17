@@ -208,7 +208,7 @@ final class BookingStatusBoxTest extends WP_UnitTestCase
 
 		$this->assertSame('confirmed', get_post_meta($post->ID, '_mhmrentiva_status', true));
 	}
-	/** Codex plan audit r1: core's slug box is not on the canvas. */
+	/** Core's slug box is not on the canvas. */
 	public function test_slug_box_is_removed_and_the_slug_survives_an_update(): void
 	{
 		global $wp_meta_boxes;
@@ -245,7 +245,7 @@ final class BookingStatusBoxTest extends WP_UnitTestCase
 		$this->assertStringNotContainsString('mhm-cancel-hint', $html);
 	}
 	/**
-	 * Codex audit 3b-1. The Payment Management box always read the payment
+	 * The Payment Management box always read the payment
 	 * type with PHP truthiness, so '0' meant "old system" and no button was
 	 * drawn. Moved out of the box, the buttons must ask the same question.
 	 */

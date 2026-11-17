@@ -134,7 +134,7 @@ final class RemainingOrderIdempotencyTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable audit finding B-1: the lock alone does not close the race.
+	 * The lock alone does not close the race.
 	 *
 	 * ajax_create_remaining_order() reads _mhmrentiva_customer_user_id for its
 	 * ownership check BEFORE entering the lock. That read pulls the booking's

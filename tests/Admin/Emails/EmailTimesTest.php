@@ -15,7 +15,7 @@ use WP_UnitTestCase;
  * now carries the times in the site's time format and a date-and-time value
  * that prints the date alone when no time is stored, and the default bodies
  * print it. The reminder's "Pickup Time:" row printed the date; it gains the
- * return row (Fable #178 D1).
+ * return row (#178).
  */
 final class EmailTimesTest extends WP_UnitTestCase
 {
@@ -109,7 +109,7 @@ final class EmailTimesTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable #179 m-1: the time was printed in UTC, so a "T" in a custom time
+	 * The time was printed in UTC, so a "T" in a custom time
 	 * format named UTC while the date path used the site's zone.
 	 */
 	public function test_the_time_is_printed_in_the_site_zone(): void
@@ -123,7 +123,7 @@ final class EmailTimesTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable #179 m-3: anchored in 2000 the time printed Istanbul's old +02:00;
+	 * Anchored in 2000 the time printed Istanbul's old +02:00;
 	 * Turkey has been on +03 since 2016.
 	 */
 	public function test_the_zone_offset_is_todays(): void

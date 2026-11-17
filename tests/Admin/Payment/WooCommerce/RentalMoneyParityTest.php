@@ -339,7 +339,7 @@ final class RentalMoneyParityTest extends WP_UnitTestCase
 		$this->assertMatchesRegularExpression('/(To send|Deposit to send): ' . preg_quote($this->dollars($want['charged']), '/') . '/', $thanks, 'Overview figure.');
 		if ($is_split) {
 			// What the order charges, tax included -- the summary card and the
-			// bank card say the figure the bank must receive (Codex PR K 3).
+			// bank card say the figure the bank must receive.
 			$this->assertStringContainsString('Deposit to send (10%) ' . $this->dollars($want['charged']), $thanks);
 			$this->assertStringContainsString('Due at pickup ' . $this->dollars($want['remaining']), $thanks);
 		}

@@ -91,7 +91,7 @@ final class OfflineManualDeadlineRelease4100Test extends WP_UnitTestCase
 
 	public function test_4100_judges_on_timestamps_the_480_rebuild_has_already_corrected(): void
 	{
-		// Fable #196 r3: a real upgrade from 6.3.1 (DB 4.6.0) runs the 4.8.0
+		// #196: a real upgrade from 6.3.1 (DB 4.6.0) runs the 4.8.0
 		// timestamp rebuild and this step in one body. Before the rebuild a
 		// checkout booking's stored instants can be off by the site's UTC
 		// offset, so the conflict check must run after it. Here the dates

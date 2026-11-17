@@ -188,7 +188,7 @@ final class BookingEditPriceFloorTest extends WP_UnitTestCase
 		$order->delete(false);
 		$this->assertSame('trash', $order->get_status(), 'PREMISE: in the trash, not deleted');
 
-		$this->assertTrue(BookingEditPriceFloor::has_remaining_order($this->booking), 'any status, the trash included, as in the posts store (Codex r11 2)');
+		$this->assertTrue(BookingEditPriceFloor::has_remaining_order($this->booking), 'any status, the trash included, as in the posts store');
 	}
 
 	public function test_another_bookings_remaining_order_does_not_count(): void
@@ -294,7 +294,7 @@ final class BookingEditPriceFloorTest extends WP_UnitTestCase
 	public function test_a_shared_order_with_an_unchanged_total_does_not_reopen_a_paid_debt(): void
 	{
 		$this->require_woocommerce();
-		// Codex r10 3: deposit booking 3,000 (deposit 500), everything paid, the
+		// Deposit booking 3,000 (deposit 500), everything paid, the
 		// original order shared with another booking.
 		$other = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
 		$order = $this->create_paid_order_for_booking($this->booking, '500');
@@ -345,7 +345,7 @@ final class BookingEditPriceFloorTest extends WP_UnitTestCase
 		$this->assertTrue(BookingEditPriceFloor::remaining_order_in_posts($this->booking), 'its own remaining order');
 
 		wp_delete_post($orders[0], true);
-		$this->assertFalse(BookingEditPriceFloor::remaining_order_in_posts($this->booking), 'its plain order and another booking\'s remaining order do not count (Codex r10 2)');
+		$this->assertFalse(BookingEditPriceFloor::remaining_order_in_posts($this->booking), 'its plain order and another booking\'s remaining order do not count');
 	}
 
 	public function test_a_single_order_in_a_foreign_currency_keeps_the_price_inputs(): void
@@ -361,7 +361,7 @@ final class BookingEditPriceFloorTest extends WP_UnitTestCase
 		$this->update(array( 'mhmrentiva_edit_dropoff_date' => '2099-05-08' ));
 
 		$this->assert_price_inputs_kept();
-		$this->assertSame('0', $this->meta('_mhmrentiva_remaining_amount'), 'no TRY debt built from EUR money (Codex bot P1, 030d58a9)');
+		$this->assertSame('0', $this->meta('_mhmrentiva_remaining_amount'), 'no TRY debt built from EUR money');
 		$this->assertStringContainsString('other than the store currency', BookingEditNotice::peek($this->booking));
 	}
 

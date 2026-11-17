@@ -168,7 +168,7 @@ final class CustomerIdentityTest extends WP_UnitTestCase
 
     /**
      * A guest has no account: user ID 0 must not become a branch that matches
-     * every other guest booking (5a privacy spec T2, Codex r1 §1).
+     * every other guest booking (5a privacy spec T2).
      */
     public function test_zero_user_id_matches_only_the_email(): void
     {

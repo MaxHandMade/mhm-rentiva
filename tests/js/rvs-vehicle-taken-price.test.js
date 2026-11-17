@@ -7,7 +7,7 @@
  * quote's `taken`), the booking card and the phone bar show the car's daily
  * price instead of the period total, and the total block (total, deposit,
  * due at pickup, the breakdown link) is hidden. A free window brings it all
- * back. Fable B3: a failed answer for a window the visitor already left does
+ * back. A failed answer for a window the visitor already left does
  * not touch the card.
  */
 describe( 'rvs vehicle page: price while the car is taken', () => {
@@ -169,7 +169,7 @@ describe( 'rvs vehicle page: price while the car is taken', () => {
 		expect( $( '#card-bd' ).hidden ).toBe( false );
 	} );
 
-	// Fable B3: like the success branch, a failure for a window the visitor
+	// Like the success branch, a failure for a window the visitor
 	// already left writes nothing -- the queued request answers for the new one.
 	test( 'a failed answer while a newer change is queued leaves the message and the suggestions alone', async () => {
 		await boot();

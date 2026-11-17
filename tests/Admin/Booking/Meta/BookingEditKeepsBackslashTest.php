@@ -11,7 +11,7 @@ use WP_UnitTestCase;
 
 /**
  * The booking edit screen keeps a backslash the operator typed in the special
- * notes and the receipt note (Fable #175 delta M-A).
+ * notes and the receipt note (#175).
  *
  * A real request arrives slashed; VerifiedRequest::textarea() unslashes once,
  * and update_post_meta() unslashes AGAIN -- a value handed to it unslashed

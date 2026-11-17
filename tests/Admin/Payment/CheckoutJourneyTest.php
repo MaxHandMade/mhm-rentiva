@@ -224,7 +224,7 @@ final class CheckoutJourneyTest extends WP_UnitTestCase
 		$this->add_plain_product();
 		$this->assertSame('', $this->checkout_html(), 'A product cart has no journey.');
 
-		// A rental beside a product (Fable A1).
+		// A rental beside a product.
 		$this->add_rental($this->rental_data());
 		$this->assertNull(WooCommerceBridge::rental_cart_data());
 		$this->assertSame('', $this->checkout_html(), 'A mixed cart has no journey.');

@@ -169,8 +169,8 @@ final class BookingPricingInputs {
 	 * The edit box's render() falls back to legacy keys; the writers (this fingerprint, the
 	 * vehicle-change check, the add-on quantity cap via for_booking()) read
 	 * the current keys. On a booking with only legacy keys the first Update
-	 * therefore saw a change where the operator made none and re-priced it
-	 * (Codex review of #171). Adopting the legacy values makes every reader
+	 * therefore saw a change where the operator made none and re-priced it.
+	 * Adopting the legacy values makes every reader
 	 * agree. The legacy add-on list is then deleted: left behind, it would
 	 * shadow a selection cleared later (`?:` treats [] as missing). The
 	 * legacy date/time/vehicle keys stay -- list columns and queries still

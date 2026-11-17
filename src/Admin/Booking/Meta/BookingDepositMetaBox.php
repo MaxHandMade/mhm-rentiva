@@ -168,7 +168,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			return false;
 		}
 
-		// The Payment Management box's own rule (PR 3b-2, Fable N1): '0' is
+		// The Payment Management box's own rule (PR 3b-2): '0' is
 		// "old system" too, so the handler refuses what the button hides.
 		if ( ! self::uses_deposit_system( $booking_id ) ) {
 			return false;
@@ -499,8 +499,8 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 	 *
 	 * PHP truthiness, exactly as the box's early return always read it: an empty
 	 * value AND '0' mean "old system". Before PR 3b-1 the two buttons lived after
-	 * that return; moved out, they must keep asking the same question (Codex
-	 * audit 3b-1: a '0' payment type grew both buttons).
+	 * that return; moved out, they must keep asking the same question (a '0'
+	 * payment type grew both buttons).
 	 */
 	public static function uses_deposit_system( int $post_id ): bool {
 		return (bool) get_post_meta( $post_id, '_mhmrentiva_payment_type', true );

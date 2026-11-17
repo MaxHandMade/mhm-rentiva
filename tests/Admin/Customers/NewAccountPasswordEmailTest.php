@@ -11,7 +11,7 @@ use MHMRentiva\Tests\Support\UserManagementCapabilities;
 use WP_Ajax_UnitTestCase;
 
 /**
- * Function scan H6, the rest of the class (Fable #175 I-1): every screen that
+ * Function scan H6, the rest of the class (#175): every screen that
  * creates a customer account gives it a random password nobody knows, so the
  * customer gets core's own set-password e-mail -- and only the customer, no
  * copy to the site admin. The booking portal box was fixed in #175

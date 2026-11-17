@@ -262,7 +262,7 @@ SettingHasEffectTest: data-dependent rows not rendered here (" . count($unavaila
 
 	public function test_every_data_control_maps_to_schema(): void
 	{
-		// Fable I1: a control whose id maps to no key of its tag's schema never
+		// A control whose id maps to no key of its tag's schema never
 		// reaches the shortcode through the bridge. It may stay only when the widget
 		// maps it explicitly (it has an effect: the card widget's vehicle_id) or
 		// while it is a listed dead row.

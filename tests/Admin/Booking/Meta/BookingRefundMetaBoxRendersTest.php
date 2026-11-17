@@ -338,7 +338,7 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
         $this->assertStringNotContainsString('Remaining refundable', $html);
     }
     /**
-     * Fable K1 (plan audit). The box returns early for every booking with a
+     * The box returns early for every booking with a
      * WooCommerce order, and a cancelled, paid WooCommerce booking is exactly
      * the one whose gateway refund this button triggers. The button is drawn
      * before that return; drawn after it, the refund would have no button.

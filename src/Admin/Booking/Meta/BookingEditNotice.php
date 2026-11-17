@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * A free-text notice shown once, on the edit screen of the booking it is about.
  *
  * BookingMeta::queue_admin_notice() carries four fixed keys; a refusal from
- * CancellationHandler needs its own message (PR 3b-2, Fable plan audit I1).
+ * CancellationHandler needs its own message (PR 3b-2).
  * The notice lives in a per-user transient for one minute -- long enough to
  * survive the redirect after Update -- and holds the booking id, so a second
  * tab on another booking does not show it (r2-M5).
@@ -60,7 +60,7 @@ final class BookingEditNotice {
 
 		// The flag outlives WooCommerce: written while it ran, it is still on
 		// the booking if WooCommerce is deactivated later. The notice must not
-		// fatal the edit screen then (Fable code r1 Ş3), and it still says
+		// fatal the edit screen then, and it still says
 		// that the balance needs a look.
 		$has_wc    = function_exists( 'wc_get_order' ) && function_exists( 'wc_price' );
 		$order     = $has_wc ? wc_get_order( (int) $flag['order_id'] ) : false;
@@ -167,7 +167,7 @@ final class BookingEditNotice {
 	 * @param int    $post_id  Booking.
 	 */
 	public static function drop_updated_message( string $location, int $post_id = 0 ): string {
-		// Only the booking the error is about (Codex code audit 3b-2, Minor 5).
+		// Only the booking the error is about.
 		return isset( self::$drop_for[ $post_id ] ) ? remove_query_arg( 'message', $location ) : $location;
 	}
 
@@ -180,7 +180,7 @@ final class BookingEditNotice {
 
 	private static function key( int $user_id, int $booking_id ): string {
 		// Per user AND booking: two bookings' notices must not overwrite each
-		// other (Codex code audit 3b-2, Minor 5).
+		// other.
 		return 'mhmrentiva_booking_edit_notice_' . $user_id . '_' . $booking_id;
 	}
 }

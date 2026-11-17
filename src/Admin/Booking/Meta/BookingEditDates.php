@@ -22,12 +22,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  * and the booking timestamps run on: the return must come after the pickup
  * (an empty time is the default 10:00). An own copy of the rule let an equal
  * date and time through while those three refused it, so the dates were saved
- * and the price, days and occupancy stayed on the old range (Codex code audit
- * 3b-2, r2).
+ * and the price, days and occupancy stayed on the old range.
  *
  * Only a CHANGED range is refused: a booking whose stored range is already
- * equal (a transfer may carry one) saves its other fields without a warning
- * (Fable code audit M-2). Both savers ask this one rule; a refused range keeps
+ * equal (a transfer may carry one) saves its other fields without a warning.
+ * Both savers ask this one rule; a refused range keeps
  * the stored dates and the rest of the Update is saved. The browser check in
  * booking-edit-meta.js applies the same rule before the form is sent.
  */
@@ -50,7 +49,7 @@ final class BookingEditDates {
 	 * range is refused OR untouched (it equals what the form drew), the posted
 	 * values otherwise. An untouched form must not rewrite a stored value the
 	 * inputs cannot hold ('9:00' is drawn as '' but other readers still read
-	 * it) -- Codex r7.
+	 * it).
 	 *
 	 * @param array{0: string, 1: string, 2: string, 3: string} $posted pickup date, pickup time, return date, return time
 	 * @return array{0: string, 1: string, 2: string, 3: string}
@@ -68,7 +67,7 @@ final class BookingEditDates {
 	 * to_write() keeps, unless those cannot be parsed (a stored '9:00') --
 	 * then the range as the form shows it, which the check can read. Without
 	 * this an untouched booking with a malformed stored time skipped the
-	 * check on a vehicle change (Fable r8, M-1).
+	 * check on a vehicle change.
 	 *
 	 * @param array{0: string, 1: string, 2: string, 3: string} $posted
 	 * @return array{0: string, 1: string, 2: string, 3: string}
@@ -86,8 +85,7 @@ final class BookingEditDates {
 	 * fields from this, so an untouched form posts these very values back.
 	 * Current keys first, then the older ones; an empty or '0' value is "not
 	 * set" (a time input cannot hold '0', the browser posts '' for it). A
-	 * saver that keeps the stored range writes these values (Codex r3 Minor 1,
-	 * Fable M-D).
+	 * saver that keeps the stored range writes these values.
 	 *
 	 * @return array{0: string, 1: string, 2: string, 3: string} pickup date, pickup time, return date, return time
 	 */
@@ -96,9 +94,9 @@ final class BookingEditDates {
 
 		// As the date and time inputs hold them: a value those inputs cannot
 		// hold ('9:00', '24:00', '2099-13-01') is shown and posted as '', so it
-		// is '' here too -- otherwise an untouched form would look changed
-		// (Codex r5). For comparing and drawing only: a saver keeping the
-		// stored range writes raw(), never this (Codex r6).
+		// is '' here too -- otherwise an untouched form would look changed.
+		// For comparing and drawing only: a saver keeping the
+		// stored range writes raw(), never this.
 		return array(
 			self::as_date_input( $pickup_date ),
 			self::as_time_input( $pickup_time ),
@@ -111,7 +109,7 @@ final class BookingEditDates {
 	 * The stored range as it is in the database (current keys, then the older
 	 * ones; '0' as not set) -- what a saver writes back when it keeps the
 	 * stored range, so a refused change leaves the meta and the timestamps
-	 * exactly as they were (Codex r6).
+	 * exactly as they were.
 	 *
 	 * @return array{0: string, 1: string, 2: string, 3: string}
 	 */
@@ -143,9 +141,9 @@ final class BookingEditDates {
 			return '';
 		}
 		// The proleptic Gregorian calendar the date input uses, for any year
-		// (checkdate() stops at 32767 -- Codex r7). The year stays a string:
+		// (checkdate() stops at 32767). The year stays a string:
 		// leap years follow from its last four digits (10000 is a multiple of
-		// 400), so no integer limit applies (Codex r8).
+		// 400), so no integer limit applies.
 		$month = (int) $m[2];
 		$day   = (int) $m[3];
 		if ( '' === ltrim( $m[1], '0' ) || $month < 1 || $month > 12 || $day < 1 ) {
@@ -166,7 +164,7 @@ final class BookingEditDates {
 
 	/**
 	 * The empty-time defaults Util::parse_datetimes() applies, for the browser
-	 * check (Codex r3 Minor 2, Fable M-E).
+	 * check.
 	 *
 	 * @return array{pickup: string, dropoff: string}
 	 */

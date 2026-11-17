@@ -55,7 +55,7 @@ final class VehicleDetailsView {
 		$booking  = self::booking($vehicle_id, $atts, $window);
 		// A page opened with taken dates (from search) suggests free vehicles on
 		// first load, as the quote does after a change -- only into a booking
-		// card the page shows (Fable B7: no finder run for nothing).
+		// card the page shows (no finder run for nothing).
 		$booking['alternatives'] = self::shows_booking_card($vehicle_id, $atts)
 			? self::alternatives($vehicle_id, $booking, $window)
 			: array();

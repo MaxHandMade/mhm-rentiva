@@ -202,7 +202,7 @@ final class ColorMath {
 			}
 		}
 
-		// Fable PR 2 M1, ruling R2: a near-black accent leaves the darker hover
+		// A near-black accent leaves the darker hover
 		// indistinguishable from the text, so it turns lighter. A flipped fixed
 		// step is not a loop (same definition as accent-deep, R16).
 		if (self::contrast($text, $hover) < 1.3) {

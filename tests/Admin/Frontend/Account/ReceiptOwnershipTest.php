@@ -111,7 +111,7 @@ final class ReceiptOwnershipTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * Fable audit finding M-A: the receipt handlers checked ownership with
+	 * The receipt handlers checked ownership with
 	 * `current_user_can('edit_post', $booking_id)` without ever checking that the
 	 * id was a booking. On any other post type that capability resolves normally,
 	 * so a contributor passes the gate on their own draft -- reaching

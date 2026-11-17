@@ -164,7 +164,7 @@ final class AdvancedLogger {
 		// first post. Passing $wp_error = true is only half the contract; the
 		// other half is not destroying the error before testing for it.
 		// Message and context are unslashed; wp_insert_post() unslashes again
-		// (backslash class, Codex #177).
+		// (backslash class).
 		$inserted = wp_insert_post( wp_slash( $post_arr ), true );
 		if ( is_wp_error( $inserted ) ) {
 			return 0;

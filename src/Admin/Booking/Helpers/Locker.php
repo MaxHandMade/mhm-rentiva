@@ -20,7 +20,7 @@ final class Locker {
 	 *
 	 * A transaction that could not be opened, or a lock read that failed, is not
 	 * a lock: the callback does not run, the transaction is rolled back, null is
-	 * returned and $locked says false (PR K, Codex delta H2). Every caller reads
+	 * returned and $locked says false. Every caller reads
 	 * null as "could not decide", never as "free".
 	 *
 	 * @param bool $locked Set to whether the lock was held for the callback.

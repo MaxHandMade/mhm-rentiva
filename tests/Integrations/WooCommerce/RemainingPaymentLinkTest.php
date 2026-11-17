@@ -136,7 +136,7 @@ final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
 		$this->assertSame( 'remaining_payment_link_sent', end( $logs )['action'] );
 	}
 
-	/** Fable #175 delta M-B: the log row says whether the e-mail went out. */
+	/** #175: the log row says whether the e-mail went out. */
 	public function test_the_payment_link_log_row_records_the_email_result(): void {
 		DepositManagementAjax::register();
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
@@ -214,7 +214,7 @@ final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
 		$this->assertContains( 'Payment link for the remaining amount e-mailed to the customer.', $notes );
 	}
 
-	/** Codex code audit 3b-2, Minor 7: a link that was not e-mailed is not recorded as e-mailed. */
+	/** A link that was not e-mailed is not recorded as e-mailed. */
 	public function test_a_payment_link_whose_email_failed_says_so(): void {
 		DepositManagementAjax::register();
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );

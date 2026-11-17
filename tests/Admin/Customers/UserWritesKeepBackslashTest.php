@@ -20,7 +20,7 @@ use WP_Ajax_UnitTestCase;
  * A real request arrives slashed; each handler unslashes once before
  * sanitising, and wp_update_user() / update_user_meta() unslash AGAIN, so a
  * value handed to them unslashed loses its backslash ("North\West" →
- * "NorthWest"). Found by the Codex review of #166 on the manual booking
+ * "NorthWest"). Found in the review of #166 on the manual booking
  * screen; the class was then swept: the five Lite wp_update_user() writers and
  * the user meta writes beside them. (Pro's only writer, GDPR anonymisation,
  * writes constants.)

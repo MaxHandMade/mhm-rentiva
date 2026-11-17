@@ -11,7 +11,7 @@ use MHMRentiva\Admin\Utilities\Menu\Menu;
 use WP_UnitTestCase;
 
 /**
- * T8 Görev 11 Part 2 (independent nonce-behavior audit, Fable#2): before this
+ * T8 Görev 11 Part 2 (independent nonce-behavior audit): before this
  * fix, ShortcodePages::enqueue_assets()'s gate was
  *
  *   ( '' !== $this->page_hook && $hook_suffix === $this->page_hook )

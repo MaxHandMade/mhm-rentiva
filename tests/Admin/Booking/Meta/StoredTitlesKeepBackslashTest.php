@@ -50,7 +50,7 @@ final class StoredTitlesKeepBackslashTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable #177 M1: the third writer of the add-on lines,
+	 * The third writer of the add-on lines,
 	 * BookingMeta::recalculate_booking_costs(), on a date change saved by the
 	 * BookingMeta saver alone.
 	 */

@@ -1627,7 +1627,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * meta UPDATE still in flight; released after this check, it could not stop
 	 * an admin save landing between the check and the charge. Closing that
 	 * window takes the admin save and the payment holding the same lock, which
-	 * is PR-2 (plan option A, user decision 2026-11-09; Codex r12 2).
+	 * is PR-2 (plan option A, user decision 2026-11-09).
 	 *
 	 * @param array<int, int|string> $booking_ids
 	 */
@@ -1649,7 +1649,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			}
 			// From the database, not the object cache another request may have
 			// refilled: an admin may have re-priced it, or sent a new link, a
-			// moment ago (Codex r10 4).
+			// moment ago.
 			try {
 				$owed = RemainingPaymentHandler::debt_minor(self::read_booking_meta($booking_id, '_mhmrentiva_remaining_amount'));
 				$link = (int) self::read_booking_meta($booking_id, '_mhmrentiva_remaining_order_id');
@@ -1858,7 +1858,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 	/**
 	 * A count, a lock or a transaction that could not be read decides nothing:
-	 * the booking is refused, never taken as free (Codex PR K delta H2).
+	 * the booking is refused, never taken as free.
 	 */
 	private static function availability_unknown_notice(): string
 	{
@@ -1866,7 +1866,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
-	 * A booking write that did not hold: nothing was changed (Codex PR K delta2 H2).
+	 * A booking write that did not hold: nothing was changed.
 	 */
 	private static function write_failed_notice(): string
 	{
@@ -1878,13 +1878,13 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * deleted cache entry does not make the next get_post_meta() read the
 	 * database: on a shared object cache (Redis) another request can put a
 	 * value it read before a payment committed back in between, and a decision
-	 * taken on it overwrites that payment (Codex PR K delta3 H1). Inside a
+	 * taken on it overwrites that payment. Inside a
 	 * Locker transaction this is the locked connection, so it sees the
 	 * transaction's own writes.
 	 *
 	 * Every row of the key is read: rows that disagree (a duplicate key with
 	 * two values) are not a value, and a decision on the first of them would
-	 * leave the other for BookingConflicts' JOIN to see (Codex PR K delta4 3).
+	 * leave the other for BookingConflicts' JOIN to see.
 	 * They read as a failure, so the caller refuses. No row reads as ''.
 	 *
 	 * @throws \RuntimeException When the read failed or the rows disagree ('mhmrentiva_booking_read_failed').
@@ -1928,7 +1928,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * @param bool $lock A locking read (`FOR UPDATE`): the latest committed rows
 	 *                   (and this transaction's own writes), not the
 	 *                   transaction's snapshot, and the rows stay locked until
-	 *                   the transaction ends (Fable PR K delta6 F1).
+	 *                   the transaction ends.
 	 * @return list<string>
 	 * @throws \RuntimeException When the read failed ('mhmrentiva_booking_read_failed').
 	 */
@@ -1941,7 +1941,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			$booking_id,
 			$key
 		);
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- A locked decision must not trust the object cache (Codex PR K delta3 H1); $sql is prepared above.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- A locked decision must not trust the object cache; $sql is prepared above.
 		$values = $wpdb->get_col($lock ? $sql . ' FOR UPDATE' : $sql);
 		if ('' !== (string) $wpdb->last_error || ! is_array($values)) {
 			throw new \RuntimeException('mhmrentiva_booking_read_failed');
@@ -1958,7 +1958,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * Inside a transaction -- Locker::withLock()'s, or a caller's own -- they
 	 * stay locked until it ends, so no other writer can change an existing
 	 * row between the check and the write; that makes the write conditional
-	 * for every expected value, '' and '0' included (Codex PR K delta4 2).
+	 * for every expected value, '' and '0' included.
 	 * Outside a transaction (autocommit) the lock lasts one statement: the
 	 * check and the write are not covered against an unlocked writer that
 	 * lands in between -- the same pre-existing class as every other unlocked
@@ -1967,7 +1967,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * A missing row has no row to lock: the read takes a gap (next-key) lock,
 	 * and gap locks do not exclude each other. Two writers that both find the
 	 * row missing can both pass the check; their inserts then wait on each
-	 * other and InnoDB rolls one back as a deadlock (Fable PR K delta6 F3).
+	 * other and InnoDB rolls one back as a deadlock.
 	 * The locked booking paths do not meet there -- they serialize on the
 	 * vehicle's lock first -- and a write that fails in the database answers
 	 * "not held" at once (a deadlock victim's transaction is gone, so nothing
@@ -1975,17 +1975,16 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 *
 	 * The write itself is WordPress's own (update_post_meta() for an existing
 	 * row, add_post_meta(..., true) for a missing one): every core hook,
-	 * wp_unslash(), sanitize_meta() and the meta cache are core's (Codex PR K
-	 * delta5). Every row is then read back with a locking read, not a
+	 * wp_unslash(), sanitize_meta() and the meta cache are core's. Every row is then read back with a locking read, not a
 	 * snapshot read: inside a transaction a plain SELECT may answer from an
 	 * older snapshot than the locked check, and would report a write core
-	 * skipped as held (Fable delta6 F1). A value a sanitize filter changed is
+	 * skipped as held. A value a sanitize filter changed is
 	 * not held either.
 	 *
 	 * Order of the answers: rows that disagree, or a failed read, throw
 	 * (read failure); a value every row already holds is "already" -- whatever
-	 * was expected, it is what the caller wants and no hook should run twice
-	 * (Fable F2); a current value other than the expected one is "not held";
+	 * was expected, it is what the caller wants and no hook should run twice;
+	 * a current value other than the expected one is "not held";
 	 * else the write.
 	 *
 	 * @param string|null $expected The value the write replaces; null takes what
@@ -1997,7 +1996,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	{
 		global $wpdb;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A row lock from the check to the write (Codex PR K delta5).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A row lock from the check to the write.
 		$locked = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT meta_id, meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s ORDER BY meta_id ASC FOR UPDATE",
@@ -2063,7 +2062,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * The same as write_booking_meta(), outside a Locker transaction. It opens
 	 * no transaction of its own: on a connection where WooCommerce or another
 	 * plugin already has one open (wc_transaction_query()), a START TRANSACTION
-	 * would commit that one implicitly (Codex PR K delta6 H). The locking reads
+	 * would commit that one implicitly. The locking reads
 	 * (write_booking_meta()) still read the latest committed rows; inside the
 	 * caller's transaction they hold their locks until it ends, under
 	 * autocommit for one statement -- see write_booking_meta().
@@ -2103,7 +2102,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * verifies the booking from the database (read_booking_meta()), never from
 	 * the object cache. Locker rolls back on any Throwable; whatever the
 	 * request cache took in meanwhile is dropped then too, and once after a
-	 * COMMIT (Codex PR K delta3). A write that did not hold answers
+	 * COMMIT. A write that did not hold answers
 	 * 'write_failed', a read that failed 'unknown'; any other Throwable reaches
 	 * the caller.
 	 *
@@ -2136,7 +2135,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 	/**
 	 * Make sure a booking still holds its dates before money is taken for it
-	 * (Codex PR K 1: a failed payment cancels the booking, another customer
+	 * (a failed payment cancels the booking, another customer
 	 * books the dates, the first order is paid again).
 	 *
 	 * A booking that holds its dates passes untouched. One that let go of them
@@ -2151,7 +2150,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * What it revived is added to $revived (status and deadline before and
 	 * after, and which of the two this attempt wrote); the caller announces it
 	 * (announce_revivals()) or puts it back (undo_revivals()). A value that
-	 * already held is not this attempt's (Fable PR K delta6 F2): its status
+	 * already held is not this attempt's: its status
 	 * change is not announced a second time, and it is not undone -- undoing it
 	 * would put back a revival somebody else made and announced. Both already
 	 * holding is no revival at all.
@@ -2163,7 +2162,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	{
 		wp_cache_delete($booking_id, 'post_meta');
 		// From the database: a stale cached status must not pass a booking that
-		// let go of its dates (Codex PR K delta4 1, same class).
+		// let go of its dates.
 		try {
 			if (! self::booking_lost_its_dates($booking_id, true)) {
 				return '';
@@ -2269,7 +2268,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 *
 	 * Under the vehicle's lock, and only while the booking still carries what
 	 * this attempt wrote (status and deadline): a payment that landed meanwhile
-	 * (confirmed, paid) is kept, never overwritten (Codex PR K delta2 H1). A
+	 * (confirmed, paid) is kept, never overwritten. A
 	 * write that does not hold rolls that one booking's undo back; it stays
 	 * pending until its fresh deadline, which holds nothing longer than any
 	 * unpaid booking does.
@@ -2286,14 +2285,14 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				static function () use ($revival, $booking_id) {
 					// From the database, and only over what this attempt wrote: a
 					// payment that landed meanwhile -- confirmed, or only marked
-					// paid (Fable PR K delta3 m2) -- is kept.
+					// paid -- is kept.
 					$still_ours = self::read_booking_meta($booking_id, '_mhmrentiva_status') === $revival['wrote_status']
 						&& self::read_booking_meta($booking_id, '_mhmrentiva_payment_deadline') === $revival['wrote_deadline']
 						&& 'paid' !== self::read_booking_meta($booking_id, '_mhmrentiva_payment_status');
 					if (! $still_ours) {
 						return array( 'kept' );
 					}
-					// Only what this attempt wrote (Fable delta6 F2).
+					// Only what this attempt wrote.
 					if ($revival['status_written']) {
 						self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_status', $revival['status'], $revival['wrote_status']);
 					}
@@ -2328,19 +2327,19 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * lock (a booking that already holds its dates, or one closed for good).
 	 *
 	 * The transition is decided on the status the database holds -- never the
-	 * request cache, which a write that was not needed leaves stale (Codex PR K
-	 * delta4 1: a no-show booking read as confirmed from the cache was
-	 * completed) -- and written only over that status. The paid mark and the
-	 * status write are both verified: an allowed transition that does not hold
-	 * is a failure, not a success (delta3 3). A transition the table does not
+	 * request cache, which a write that was not needed leaves stale (a no-show
+	 * booking read as confirmed from the cache was completed) -- and written
+	 * only over that status. The paid mark and the status write are both
+	 * verified: an allowed transition that does not hold
+	 * is a failure, not a success. A transition the table does not
 	 * allow keeps the status, as before.
 	 *
 	 * Each write takes the key's row lock (write_booking_meta_alone(), no
 	 * transaction of its own). The status hook runs only for a status that was
-	 * written, never for one that already held (Fable F2). A write that does
+	 * written, never for one that already held. A write that does
 	 * not hold answers UNLOCKED_NOT_HELD with what the booking holds now
 	 * (unlocked_write_did_not_hold()), not a refusal: the payment is recorded on
-	 * the order (Fable F1, Codex delta7 3).
+	 * the order.
 	 *
 	 * @param string|null $from The status the caller read from the database; null reads it now.
 	 * @return string|null null when the payment stands; UNLOCKED_NOT_HELD; else why it was not recorded.
@@ -2378,7 +2377,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	/**
 	 * An unlocked write did not hold. Without a transaction that is not
 	 * "nothing changed": under autocommit a sanitize filter's value, or a
-	 * concurrent writer's, may be what persisted (Codex PR K delta7 3). So
+	 * concurrent writer's, may be what persisted. So
 	 * what the booking holds now is read back -- payment status and status --
 	 * and the operator note is built from those values
 	 * (unlocked_write_note()). No status hook runs.
@@ -2432,7 +2431,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	/**
 	 * The order note for an unlocked write that did not hold, from the values
 	 * read back -- never "nothing was changed" or "holds its dates" unless
-	 * those values say so (Codex PR K delta7 3).
+	 * those values say so.
 	 *
 	 * @param array{payment?: string|null, status?: string|null, from?: string, target?: string} $outcome
 	 */
@@ -2487,15 +2486,14 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 	/**
 	 * Confirm (or complete) a booking because its order was paid, deciding and
-	 * writing under the vehicle's lock in one transaction (Codex PR K delta
-	 * H1). A pending booking whose deadline runs out between the payment and
+	 * writing under the vehicle's lock in one transaction. A pending booking whose deadline runs out between the payment and
 	 * this write cannot be confirmed over someone who took the dates
 	 * meanwhile: whoever holds the lock first decides, and the other sees it.
 	 * Each write is read back; one that does not hold rolls the transaction
-	 * back and nothing is announced (delta2 H2).
+	 * back and nothing is announced.
 	 *
 	 * Only a revivable booking (cancelled, pending, pending payment) is asked
-	 * about its dates (Fable PR K delta M1); any other keeps the status table's
+	 * about its dates; any other keeps the status table's
 	 * old answer, unlocked -- a confirmed booking already holds its dates, and
 	 * a refunded or no-show booking is closed without a word to the operator.
 	 * The notification hooks run after COMMIT.
@@ -2569,7 +2567,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				}
 				$wrote = self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_status', $to, $from);
 
-				// Announced only for a write that happened (Fable F2).
+				// Announced only for a write that happened.
 				return array( self::META_WRITTEN === $wrote ? 'written' : 'kept', $from );
 			}
 		);
@@ -2633,7 +2631,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * payment started elsewhere (the add-on's commission reverses on the
 	 * order refund).
 	 *
-	 * Reason unlocked_write is the other case (Fable F1, Codex delta7 3): the
+	 * Reason unlocked_write is the other case: the
 	 * payment is recorded on the order, and an unlocked booking write did not
 	 * hold. The note says what the booking holds now (unlocked_write_note()).
 	 *
@@ -2693,10 +2691,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// /checkout and /checkout/{id}): the gateway list is left alone in REST
 		// (without_cash_on_delivery()), and the order actually paid decides
 		// here. A rental order paid with COD is stopped before any booking or
-		// payment (Codex PR K delta7).
+		// payment.
 		if ('cod' === $order->get_payment_method() && self::order_has_booking($order)) {
 			// Not left on the order: RentalMoneyLabels would read a refused
-			// order as "pay at pickup" (Fable PR K delta8 3).
+			// order as "pay at pickup".
 			$order->set_payment_method('');
 			$order->set_payment_method_title('');
 			$order->save();
@@ -2748,11 +2746,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * store_api_order_processed()). In any REST request (wp_is_rest_endpoint())
 	 * the list is left alone: the Store API builds it from the session's cart
 	 * even when it pays another order, and telling its routes apart from REST
-	 * state proved fragile (Codex PR K delta9: a caught inner exception, an
+	 * state proved fragile (a caught inner exception, an
 	 * upper-case route). There the order hook decides for the order actually
 	 * paid, on both routes, and a shop order is never touched.
 	 *
-	 * Accepted cost (ruling, delta9): with the classic cart and checkout swap
+	 * Accepted cost: with the classic cart and checkout swap
 	 * turned off, the Checkout block's REST refreshes list COD for a rental,
 	 * and choosing it is refused with the COD message. The product's own path
 	 * is the classic checkout, so this is a fallback only.
@@ -2763,7 +2761,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	public static function without_cash_on_delivery($gateways)
 	{
 		// A list without COD, or one left alone, must not keep an earlier
-		// rental's message (Fable PR K delta6 3, Codex delta7 note).
+		// rental's message.
 		self::$cod_was_the_only_gateway = false;
 		if (! is_array($gateways) || ! isset($gateways['cod'])) {
 			return $gateways;
@@ -2796,7 +2794,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	/**
 	 * Classic checkout, whatever the gateway list says: a rental cart paid
 	 * with cash on delivery is refused in validation, before WooCommerce calls
-	 * any gateway (Codex PR K delta8: the list is only what is shown; an
+	 * any gateway (the list is only what is shown; an
 	 * integration's caught REST exception can leave it with COD).
 	 *
 	 * @param mixed $data   The posted checkout data.
@@ -2809,8 +2807,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		}
 		if (self::cart_has_booking()) {
 			// WooCommerce's own "Invalid payment method." (COD not in the list)
-			// would stand next to ours: one error, the one that says why
-			// (Fable PR K delta9 2).
+			// would stand next to ours: one error, the one that says why.
 			$errors->remove('payment');
 			$errors->add('payment', __('Cash on delivery is not available for a booking. Please choose another payment method.', 'mhm-rentiva'));
 		}
@@ -2854,9 +2851,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * WC_Form_Handler::pay_action() reaches when no payment went through):
 	 * WooCommerce set the order's method to COD and saved it before it counted
 	 * the notices, and RentalMoneyLabels would read it as "pay at pickup". That
-	 * order only gets its method and title cleared (Codex PR K delta9 3), and
+	 * order only gets its method and title cleared, and
 	 * only while COD is what WooCommerce wrote: a tampered post it refused
-	 * before set_payment_method() keeps the order's own method (Fable delta10 1).
+	 * before set_payment_method() keeps the order's own method.
 	 *
 	 * @param mixed $order The order the form was for.
 	 */
@@ -2874,12 +2871,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 	/**
 	 * A rental whose only gateway was cash on delivery would read WooCommerce's
-	 * generic "no available payment methods" (Fable PR K delta6 F4). The classic
+	 * generic "no available payment methods". The classic
 	 * checkout and order-pay templates print this filter's answer through
 	 * wc_print_notice(); the Checkout block has its own message. On the classic
 	 * checkout, a customer with no billing country yet reads WooCommerce's
-	 * "fill in your details" (templates/checkout/payment.php), which stays
-	 * (Fable delta7 1).
+	 * "fill in your details" (templates/checkout/payment.php), which stays.
 	 *
 	 * @param mixed $message WooCommerce's message, escaped.
 	 * @return mixed
@@ -3269,7 +3265,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// can run another order's hook (Status::update_status ->
 		// sync_completed_to_wc) that changes a booking this loop has not
 		// reached yet; with its scope already open, that change and this
-		// loop's later one make one row, not two (Codex #170).
+		// loop's later one make one row, not two.
 		$scopes = array();
 		try {
 			foreach ($items as $item) {
@@ -3321,8 +3317,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			if (self::UNLOCKED_NOT_HELD === $refusal) {
 				// An unlocked write did not hold: the note says what the
 				// booking holds now. Only a paid mark that held reaches the
-				// mapping below, which may clear the remaining balance
-				// (Fable PR K delta8 2).
+				// mapping below, which may clear the remaining balance.
 				$outcome                = self::$unlocked_outcome;
 				self::$unlocked_outcome = array();
 				self::report_unclaimed_payment($order, $booking_id, '', (string) $new_status, 'unlocked_write', $outcome);
@@ -3418,7 +3413,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					// worse than the stale pointer this leaves instead.
 					//
 					// And the pointer goes only when the order is CANCELLED and
-					// NEVER PAID (PR-2 A1, Codex r4 B1). A failed order is
+					// NEVER PAID (PR-2 A1). A failed order is
 					// retried on the same order, so it stays the link. A paid
 					// order that is later cancelled still holds the money --
 					// cancelled is not a refund, and WooCommerce keeps its
@@ -3454,7 +3449,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					// The e-mail and its failure log say "a sibling order still
 					// holds paid money". A remaining order with no such sibling
 					// (nothing collected yet) says what did happen, on the order
-					// itself, instead (Codex code r1).
+					// itself, instead.
 					if ( ! $has_paid_sibling ) {
 						$order->add_order_note( __( 'The booking was kept: a remaining-payment order that fails or is cancelled does not cancel its booking. Send the customer a new payment link if one is needed.', 'mhm-rentiva' ) );
 						break;
@@ -3583,20 +3578,19 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 *  - Applied already (the order carries `_mhmrentiva_remaining_applied`):
 	 *    nothing to do. This is the only proof that the order's payment reached
 	 *    the booking: a paid previous status is not, because the handler can
-	 *    leave early on a failed read and the next transition must retry
-	 *    (Codex r5 R5-1, Fable r5 Ş1).
+	 *    leave early on a failed read and the next transition must retry.
 	 *  - An order from before the amount stamp (PR-1): today's behaviour,
 	 *    the balance is cleared. Kept apart from the shared rule on purpose:
 	 *    comparing such an order by its total would turn a tax difference into
-	 *    a false alarm (Fable r5 Ş2).
+	 *    a false alarm.
 	 *  - Found not to fit already (`_mhmrentiva_remaining_mismatch`): decided
 	 *    once, by a human; a later transition neither clears a balance they
-	 *    corrected nor flags it again (Fable/Codex code r1).
+	 *    corrected nor flags it again.
 	 *  - A previous paid status and nothing left to pay, without the applied
 	 *    mark: an order the old code already applied (processing before this
 	 *    release, completed after it). Nothing to do -- unless the order's own
 	 *    first settle could not read the balance (`_mhmrentiva_remaining_retry`):
-	 *    then it was never judged, and is judged now (Codex code r1).
+	 *    then it was never judged, and is judged now.
 	 *  - Otherwise the shared rule, for the booking's link only: the order asks
 	 *    for exactly what is owed now → cleared and marked applied. Any other
 	 *    order, or any other amount → the balance is left as it is, the order is
@@ -3612,7 +3606,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		}
 		// A payment already found not to fit is decided once, by a human: a
 		// later transition (processing -> completed) must not clear a balance
-		// the operator has corrected since, nor flag it again (Fable code r1 Ş1).
+		// the operator has corrected since, nor flag it again.
 		if ('' !== (string) $order->get_meta('_mhmrentiva_remaining_mismatch', true)) {
 			return;
 		}
@@ -3623,10 +3617,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		} catch (\RuntimeException $e) {
 			// Remember that this payment was never judged, so the
 			// pre-upgrade exception below cannot take it for one the old
-			// code applied (Codex code r1). Only on its first paid
+			// code applied. Only on its first paid
 			// transition: from a paid status it was judged already, by the
 			// old code or by an earlier run of this one, and a read failing
-			// now must not take that exception away (Codex code r2).
+			// now must not take that exception away.
 			if (! in_array($old_status, wc_get_is_paid_statuses(), true)) {
 				$order->update_meta_data('_mhmrentiva_remaining_retry', '1');
 				$order->save_meta_data();
@@ -3667,7 +3661,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// Only the booking's link settles it: PaymentState reads the link, so a
 		// balance cleared by any other order would hide where the money is. A
 		// late gateway return or a status set by hand does not pass
-		// claim_before_pay() (Fable code r1 Ş2).
+		// claim_before_pay().
 		$is_link = $link === (int) $order->get_id();
 		if ($is_link && RemainingPaymentHandler::VERDICT_MATCH === RemainingPaymentHandler::amount_verdict($order, $owed)) {
 			// The applied mark ends every later attempt, so it follows only a
@@ -3680,7 +3674,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			}
 			// The helper compares strings; a balance is a number. A zero a
 			// sanitize filter stored as '0.00', or a write whose read-back
-			// failed, is still a cleared balance (Codex code r4).
+			// failed, is still a cleared balance.
 			if (! $held) {
 				try {
 					$held = 0 === RemainingPaymentHandler::debt_minor(self::read_booking_meta($booking_id, '_mhmrentiva_remaining_amount'));

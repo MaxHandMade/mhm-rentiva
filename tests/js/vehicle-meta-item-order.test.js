@@ -5,8 +5,7 @@
  * PR 4 (Araç Düzenle): each item grid is sortable over its own items, and the
  * new order goes into that grid's hidden "<grid>_order" field, saved per
  * vehicle with the Update. Before: features and equipment matched no sortable
- * item, their order was never collected, and the AJAX saver failed its nonce
- * (Codex PR 4 plan Y2).
+ * item, their order was never collected, and the AJAX saver failed its nonce.
  */
 describe( 'vehicle edit: item order goes into the hidden order fields', () => {
 	let $;

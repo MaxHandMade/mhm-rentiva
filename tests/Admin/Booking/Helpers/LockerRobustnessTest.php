@@ -7,7 +7,7 @@ use MHMRentiva\Admin\Booking\Helpers\Locker;
 use WP_UnitTestCase;
 
 /**
- * Fable audit findings M-B and M-C on the 6.0.3 locking work.
+ * Two robustness gaps in the 6.0.3 locking work.
  *
  * M-B: withLock()/withBookingLock() caught \Exception only. A \TypeError or any
  * other \Error thrown inside the callback escaped WITHOUT rollback, leaving the

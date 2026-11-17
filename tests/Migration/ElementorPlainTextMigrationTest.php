@@ -390,7 +390,7 @@ final class ElementorPlainTextMigrationTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex P1 on #97: a page that fails once must be retried on a later run, and the
+	 * #97: a page that fails once must be retried on a later run, and the
 	 * job must not be DONE in between. Pages that were rebuilt are not rendered again.
 	 */
 	public function test_page_that_fails_once_is_retried_and_the_job_waits_for_it(): void

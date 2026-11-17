@@ -99,7 +99,7 @@ final class BookingEditPriceFloor {
 
 		// The posts store drops a caller's meta_query (WC_Data_Store_WP::
 		// get_wp_query_args() skips the key), which would answer with any order
-		// at all (Codex r10 2). There the orders are posts and are asked directly.
+		// at all. There the orders are posts and are asked directly.
 		if ( ! self::orders_in_custom_tables() ) {
 			return self::remaining_order_in_posts( $post_id );
 		}
@@ -109,7 +109,7 @@ final class BookingEditPriceFloor {
 				'limit'      => 1,
 				'return'     => 'ids',
 				// 'all', not 'any': 'any' still leaves trashed orders out
-				// (OrdersTableQuery), and the posts half counts them (Codex r11 2).
+				// (OrdersTableQuery), and the posts half counts them.
 				'status'     => 'all',
 				'type'       => 'shop_order',
 				'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one booking's orders, limit 1.
@@ -163,7 +163,7 @@ final class BookingEditPriceFloor {
 	 * the whole order total for each of them -- as it does for any other product
 	 * in the same cart. No per-booking share is recorded, so the amount this
 	 * booking collected is unknown: re-pricing keeps the payment fields as they
-	 * are and a total change is refused (Codex P1 on PR #183, r10 3).
+	 * are and a total change is refused.
 	 *
 	 * An order whose lines carry no booking id (the order-level id only, older
 	 * orders) counts as this booking's alone only when it has a single line.
@@ -202,8 +202,8 @@ final class BookingEditPriceFloor {
 	/**
 	 * Was the money taken in a currency other than the one the booking is
 	 * priced in? isMixedCurrency() compares the paid orders with one another
-	 * only, so a single EUR order on a TRY store reads as TRY money (Codex bot
-	 * P1 on PR #183, 030d58a9). No conversion is recorded: the amount collected
+	 * only, so a single EUR order on a TRY store reads as TRY money (PR #183,
+	 * 030d58a9). No conversion is recorded: the amount collected
 	 * is unknown in the booking's own currency.
 	 */
 	public static function paid_in_a_foreign_currency( PaymentState $state ): bool {

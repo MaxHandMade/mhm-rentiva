@@ -8,7 +8,7 @@ use MHMRentiva\Admin\Booking\Meta\BookingEditNotice;
 use WP_UnitTestCase;
 
 /**
- * Codex code audit 3b-2, Minor 5: one notice per user AND booking, and the
+ * One notice per user AND booking, and the
  * "Booking updated." drop only for the booking the error is about.
  *
  * @covers \MHMRentiva\Admin\Booking\Meta\BookingEditNotice

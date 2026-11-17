@@ -275,7 +275,7 @@ final class Templates {
 	 * wrapped once, with render_body()'s filter order for the template's branch.
 	 * The branch is worked out here again, never taken from the request.
 	 * $subject is the subject that goes out when the operator changed it: the
-	 * layout prints it as the e-mail's heading (Codex bot #178).
+	 * layout prints it as the e-mail's heading.
 	 */
 	public static function send_body( string $key, array $context, string $fragment, ?string $subject = null ): string {
 		$override = self::getBodyOverride( $key, $context );

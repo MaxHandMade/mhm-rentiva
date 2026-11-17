@@ -128,7 +128,7 @@ final class BookingEditFormMarkupTest extends WP_UnitTestCase
 
 		$this->assertSame('5', (string) get_post_meta($post->ID, '_mhmrentiva_guests', true));
 	}
-	/** Codex plan audit r1: the total line was a hidden "0,00" nothing filled. */
+	/** The total line was a hidden "0,00" nothing filled. */
 	public function test_addon_total_shows_the_stored_total(): void
 	{
 		$post  = $this->booking();

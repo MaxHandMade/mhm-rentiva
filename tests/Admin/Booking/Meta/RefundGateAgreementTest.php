@@ -249,7 +249,7 @@ final class RefundGateAgreementTest extends WP_UnitTestCase
     }
 
     /**
-     * PR 3b-2 (Fable N1). The button asks uses_deposit_system() -- PHP
+     * PR 3b-2. The button asks uses_deposit_system() -- PHP
      * truthiness, so '0' is "old system" -- and the AJAX handler's gate now
      * asks it too: a '0' payment type is refused by the handler, not only
      * hidden on the screen.

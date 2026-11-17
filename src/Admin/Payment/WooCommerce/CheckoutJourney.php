@@ -250,7 +250,7 @@ final class CheckoutJourney {
 
 			// The deposit row names what this order charges now, so its figure
 			// is the order's, in the order's currency -- tax, coupon and fees
-			// included -- not the snapshot's net deposit (Codex PR K 3; the bank
+			// included -- not the snapshot's net deposit (the bank
 			// card below says the same). With several rentals, each line's own
 			// total with its tax.
 			if (is_array($vars['summary']['breakdown']['deposit'] ?? null)) {
@@ -389,7 +389,7 @@ final class CheckoutJourney {
 		echo '<div class="rvs-shell rvs-journey">';
 		// The thank-you page's one "booking received" heading. The page title
 		// stays WooCommerce's: a theme that hides it leaves this, a theme that
-		// shows it reads "Order received" above (R14, Fable PR K M1).
+		// shows it reads "Order received" above (R14).
 		if ('' !== $headline) {
 			echo '<h2 class="rvs-journey__headline">' . esc_html($headline) . '</h2>';
 		}
@@ -514,7 +514,7 @@ final class CheckoutJourney {
 	/**
 	 * The order an order-received or order-pay URL names, only with its own key:
 	 * WooCommerce draws nothing for a wrong key, and neither does Rentiva -- a
-	 * guessed id must not tell whether that order is a rental (Fable PR K m2).
+	 * guessed id must not tell whether that order is a rental.
 	 */
 	private static function requested_order(string $endpoint): ?\WC_Order
 	{

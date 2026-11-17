@@ -140,7 +140,7 @@ final class DashboardService {
 	 * date condition off, so no row is dropped by a bound (a zero post_date
 	 * included). The two ends stay valid DATETIME literals even then: MySQL 8
 	 * raises "Incorrect DATETIME value" on an empty string while preparing
-	 * the comparison, short-circuit or not (Codex audit 2026-11-17, rounds 1-2).
+	 * the comparison, short-circuit or not.
 	 *
 	 * Every query below reads each booking's meta through EXISTS or a scalar
 	 * subquery, never a JOIN, so a meta key stored twice cannot count a
@@ -1161,8 +1161,7 @@ final class DashboardService {
 	 * partially paid owes its remaining amount; paid, refunded, partially
 	 * refunded or cancelled owes nothing; anything else -- unpaid, pending,
 	 * awaiting verification, failed, or a status this reader does not know --
-	 * owes its whole price. An unknown status is shown, not hidden (Codex
-	 * audit 2026-11-17).
+	 * owes its whole price. An unknown status is shown, not hidden.
 	 *
 	 * Manager-lens #2: this used to count only bookings whose WooCommerce
 	 * order was still pending, so the balance after a deposit, or an offline
@@ -1176,7 +1175,7 @@ final class DashboardService {
 		// current payment status already settles them -- refunded, partially
 		// refunded, cancelled, or paid (legacy 'completed') without a deposit
 		// balance -- are left out here, so a long booking history is not
-		// loaded on every dashboard view (Codex PR review, #203). What remains
+		// loaded on every dashboard view. What remains
 		// is a superset of the bookings that owe; PaymentView decides.
 		$ids = array_map(
 			'intval',

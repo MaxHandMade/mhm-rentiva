@@ -3,7 +3,7 @@
  *
  * PR 3b-3: the booking screen's "Send email to customer" box.
  * - H9: only the answer to the last template request fills the box.
- * - Codex #178: the send button is locked while a template loads or an
+ * - #178: the send button is locked while a template loads or an
  *   e-mail is being sent, whichever ends first; a failed load returns to the
  *   last type that actually loaded; "edited" means the operator typed (events),
  *   not that the editor's serialisation differs, so an untouched template is
@@ -208,7 +208,7 @@ describe( 'booking customer e-mail box', () => {
 		expect( alertSpy ).not.toHaveBeenCalled();
 	} );
 
-	test( 'Codex #178 r3: a Text-tab toolbar change (a non-bubbling change event) is an edit', () => {
+	test( 'a Text-tab toolbar change (a non-bubbling change event) is an edit', () => {
 		calls.length = 0;
 		change( 'booking_created_customer' );
 		answer( calls[ 0 ], 'A-subj', '<p>A</p>' );
@@ -222,7 +222,7 @@ describe( 'booking customer e-mail box', () => {
 		calls[ 0 ].complete();
 	} );
 
-	test( 'Codex #178 r3: the dirty state TinyMCE keeps counts (link edits, shortcuts) and is reset by a fill', () => {
+	test( 'the dirty state TinyMCE keeps counts (link edits, shortcuts) and is reset by a fill', () => {
 		let dirty = false;
 		const editor = {
 			id: 'email_message',
@@ -251,7 +251,7 @@ describe( 'booking customer e-mail box', () => {
 		delete window.tinymce;
 	} );
 
-	test( 'Fable #178 Δ5 / Codex r7: a fill takes the baseline in TinyMCE normal form, in the editor and the textarea', () => {
+	test( 'a fill takes the baseline in TinyMCE normal form, in the editor and the textarea', () => {
 		const order = [];
 		const editor = {
 			id: 'email_message',

@@ -97,7 +97,7 @@ final class EmailTemplateTestAction {
 	/**
 	 * The context the real e-mail is built from, so a test send prints what
 	 * the customer reads (site date and time format, salutation); this used to
-	 * be a copy with raw dates and no salutation (Fable #178 D3).
+	 * be a copy with raw dates and no salutation.
 	 */
 	private static function buildBookingContext( int $booking_id ): array {
 		return Mailer::getBookingContext( $booking_id ) ?? array();

@@ -84,7 +84,7 @@ final class RemainingPaymentHandler {
 	 * without the wc_get_price_decimals filter a currency switcher answers per
 	 * visitor. Money::toMinor() follows the filter, so an order built and a
 	 * payment checked under two different visitors would measure the same
-	 * debt in two scales (Codex r11 1).
+	 * debt in two scales.
 	 */
 	public static function debt_decimals(): int
 	{
@@ -297,9 +297,9 @@ final class RemainingPaymentHandler {
 		// -----------------------------------------------------------------------
 		// Priced and totalled at the store's own precision: a currency switcher
 		// answers wc_get_price_decimals() with the visitor's, and a 0-decimal
-		// visitor would round 2,050.40 owed to an order of 2,050 (Codex r11 1).
+		// visitor would round 2,050.40 owed to an order of 2,050.
 		// Every step of the build sits inside the try, so the pin is removed
-		// whatever throws (Codex r12 1).
+		// whatever throws.
 		$pin_precision = static function () {
 			return self::debt_decimals();
 		};
@@ -338,7 +338,7 @@ final class RemainingPaymentHandler {
 		// The remaining amount is a number in the store's own currency.
 		// wc_create_order() takes the filterable get_woocommerce_currency(), which
 		// a per-visitor currency switcher answers with the visitor's currency, and
-		// nothing converts the number (Codex r10 1).
+		// nothing converts the number.
 		$order->set_currency(self::debt_currency());
 
 		// Add line item: use the booking product but override name & price

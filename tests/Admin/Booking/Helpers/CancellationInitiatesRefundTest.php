@@ -381,7 +381,7 @@ final class CancellationInitiatesRefundTest extends WP_UnitTestCase
     }
 
     /**
-     * Fable audit finding H-1, the staleness half of the previous test.
+     * The staleness half of the previous test.
      *
      * test_a_lock_refusal_does_not_overwrite_a_status_already_settled_elsewhere()
      * plants its 'completed' status via update_post_meta(), which -- being a
@@ -450,7 +450,7 @@ final class CancellationInitiatesRefundTest extends WP_UnitTestCase
     }
 
     /**
-     * Fable audit finding H-1, the successful-acquire side: settle_refund()'s
+     * settle_refund()'s
      * OWN PaymentState resolution, right after RefundLock::acquire() succeeds,
      * is exposed the same way. mhmrentiva_process_refund fires -- and can read
      * booking meta, priming the cache -- BEFORE settle_refund() ever touches
@@ -513,7 +513,7 @@ final class CancellationInitiatesRefundTest extends WP_UnitTestCase
     }
 
     /**
-     * Fable audit finding H-1, the belt-and-braces half.
+     * The belt-and-braces half.
      *
      * The two 'failed' stamps in settle_refund() now pass $prev_value =
      * 'pending' to update_post_meta(), which update_metadata() puts in the

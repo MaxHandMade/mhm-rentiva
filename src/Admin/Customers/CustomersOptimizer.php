@@ -344,7 +344,7 @@ final class CustomersOptimizer {
 
 		$ids = array_map( static fn( $row ): int => (int) $row['id'], $rows );
 		// Users too, not only their meta: an add-on's badge check (Pro's
-		// VendorStatus) calls get_userdata() per row (Fable, slice 2, finding 2).
+		// VendorStatus) calls get_userdata() per row.
 		cache_users( $ids );
 		update_meta_cache( 'user', $ids );
 

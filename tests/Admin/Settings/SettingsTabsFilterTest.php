@@ -153,7 +153,7 @@ final class SettingsTabsFilterTest extends WP_UnitTestCase
 
     /**
      * SettingsService::reset_defaults() bypasses the sanitizer and has its own
-     * copy of the gate (Fable Y3): an unlicensed-shaped reset of a Pro tab must
+     * copy of the gate: an unlicensed-shaped reset of a Pro tab must
      * stay a no-op without a subscriber, re-pinning
      * SettingsSanitizerProTabGateTest's pre-inversion expectation against the
      * post-inversion filter-based gate.

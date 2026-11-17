@@ -186,8 +186,7 @@ final class PrivacyPrimitivesTest extends WP_UnitTestCase
 	/**
 	 * wp_delete_post() can drop the post and leave meta rows behind -- a
 	 * filter or a failed DELETE in delete_metadata_by_mid(). Nothing would
-	 * reach them again (the queues read posts), so they are deleted here
-	 * (Codex r6 on 5a B4).
+	 * reach them again (the queues read posts), so they are deleted here.
 	 */
 	public function test_meta_rows_left_by_wp_delete_post_are_deleted(): void
 	{

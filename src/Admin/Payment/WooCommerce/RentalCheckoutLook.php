@@ -58,7 +58,7 @@ final class RentalCheckoutLook {
 		// The page title stays WooCommerce's ("Order received"): the journey draws
 		// the one "Your booking is received" heading (CheckoutJourney::render_journey()),
 		// so a theme that prints its page title shows two different lines, never
-		// the same heading twice (Fable PR K M1).
+		// the same heading twice.
 		add_filter('woocommerce_thankyou_order_received_text', array( self::class, 'order_received_text' ), 10, 2);
 		// After WooCommerce's own bank details (WC_Gateway_BACS::thankyou_page, 10).
 		add_action('woocommerce_thankyou_bacs', array( self::class, 'render_bank_transfer' ), 20, 1);
@@ -255,7 +255,7 @@ final class RentalCheckoutLook {
 	 * What to send and how to send the receipt, under WooCommerce's bank
 	 * details (R10). The figure to send is the order's total in the order's
 	 * currency -- what the bank must receive, tax, coupons and fees included;
-	 * the snapshot's deposit is a net price and can differ (Codex PR K 3). Only
+	 * the snapshot's deposit is a net price and can differ. Only
 	 * the label says "deposit" when the order charges one. What is left for
 	 * pickup is the snapshot's. A logged-in customer uploads the receipt on the
 	 * booking in My Account; a guest has no account page, so the receipt goes

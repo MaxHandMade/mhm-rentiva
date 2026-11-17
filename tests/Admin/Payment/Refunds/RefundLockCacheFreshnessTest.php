@@ -9,7 +9,7 @@ use MHMRentiva\Admin\Payment\Refunds\Service;
 use WP_UnitTestCase;
 
 /**
- * Fable audit, H-1: "the lock serialises, but the reads inside it are served
+ * "the lock serialises, but the reads inside it are served
  * from a cache primed before it."
  *
  * get_post_meta() answers from the request-local post_meta cache.

@@ -261,7 +261,7 @@ final class BookingAnonymizerTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * wp_delete_attachment() can drop the post and leave the file (Codex r4 B4):
+	 * wp_delete_attachment() can drop the post and leave the file:
 	 * the receipt counts as erased only when the file is gone, and until then
 	 * the booking keeps matching its person.
 	 */
@@ -308,7 +308,7 @@ final class BookingAnonymizerTest extends WP_UnitTestCase
 	 * Writing by meta ID bypasses wc_update_order_item_meta(); the item's
 	 * WooCommerce object cache must still drop. It does through core's
 	 * updated_order_item_meta action (WC_Post_Data::flush_object_meta_cache).
-	 * This guards that path (Fable 5a-takip asked; measured, not assumed).
+	 * This guards that path (measured, not assumed).
 	 */
 	public function test_the_order_items_object_cache_is_invalidated(): void
 	{
@@ -322,7 +322,7 @@ final class BookingAnonymizerTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * A second row of the same key holds the real name (Codex r5): every row
+	 * A second row of the same key holds the real name: every row
 	 * is anonymised and checked, not only the first.
 	 */
 	public function test_every_row_of_a_name_key_is_anonymised(): void
@@ -340,8 +340,7 @@ final class BookingAnonymizerTest extends WP_UnitTestCase
 
 	/**
 	 * The erased mark is what takes a booking out of the queue for core's
-	 * fixed anonymous address; if it cannot be written the booking is not done
-	 * (Codex r5 B2).
+	 * fixed anonymous address; if it cannot be written the booking is not done.
 	 */
 	public function test_an_unwritable_erased_mark_is_a_target_left(): void
 	{
@@ -360,7 +359,7 @@ final class BookingAnonymizerTest extends WP_UnitTestCase
 
 	/**
 	 * Image receipts have generated sizes; every file must go before the link
-	 * does (Codex r5).
+	 * does.
 	 */
 	public function test_a_receipt_size_file_left_on_disk_keeps_the_link(): void
 	{
@@ -385,7 +384,7 @@ final class BookingAnonymizerTest extends WP_UnitTestCase
 
 	/**
 	 * A second meta row of the same key can hold the person's data while the
-	 * first is clean (Codex r6): every row is rewritten and checked.
+	 * first is clean: every row is rewritten and checked.
 	 */
 	public function test_every_row_of_history_cancellation_and_logs_is_cleaned(): void
 	{
@@ -427,7 +426,7 @@ final class BookingAnonymizerTest extends WP_UnitTestCase
 
 	/**
 	 * An edited image keeps its pre-edit files under _wp_attachment_backup_sizes;
-	 * they are the person's receipt too (Codex r6).
+	 * they are the person's receipt too.
 	 */
 	public function test_a_receipt_edit_backup_left_on_disk_keeps_the_link(): void
 	{
@@ -509,7 +508,7 @@ final class BookingAnonymizerTest extends WP_UnitTestCase
 
 	/**
 	 * Every order-ID spelling the resolver knows counts as a linked order, for
-	 * the booking and for the eraser's page-one note (Codex r6, 5a).
+	 * the booking and for the eraser's page-one note.
 	 *
 	 * @dataProvider order_id_keys
 	 */

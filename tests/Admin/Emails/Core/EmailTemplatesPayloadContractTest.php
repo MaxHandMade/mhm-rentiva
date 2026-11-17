@@ -8,7 +8,7 @@ use MHMRentiva\Admin\Emails\Core\EmailTemplates;
 use WP_UnitTestCase;
 
 /**
- * T8 Görev 11 Part 1 (independent nonce-behavior audit, Fable#2 Minor-1): the
+ * T8 Görev 11 Part 1 (independent nonce-behavior audit): the
  * LIVE localize payload EmailTemplates::enqueue_scripts() attaches for the
  * Settings -> Email Templates tab (the only reachable renderer since Görev
  * 10b deleted render_page()/render_standalone_page(); the survivor is

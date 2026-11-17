@@ -187,7 +187,7 @@ final class Util {
 	 * Atomic overlap check (with database lock)
 	 *
 	 * A query that could not run reads as "taken": nobody books, revives or pays
-	 * on an answer that was never read (PR K, Codex delta H2). Until then it read
+	 * on an answer that was never read. Until then it read
 	 * as "no overlap". A caller that must tell "taken" from "unknown" uses
 	 * count_overlaps_locked(), whose null is the unknown.
 	 *
