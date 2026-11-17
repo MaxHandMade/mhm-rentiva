@@ -142,6 +142,15 @@ final class RepriceUnpaidDepositTest extends WP_UnitTestCase
 				),
 			),
 			'awaiting verification'  => array( array( '_mhmrentiva_payment_status' => 'pending_verification' ) ),
+			'legacy processing'      => array( array( '_mhmrentiva_payment_status' => 'processing' ) ),
+			'legacy on-hold'         => array( array( '_mhmrentiva_payment_status' => 'on-hold' ) ),
+			'legacy key pending'     => array(
+				array(
+					'_mhmrentiva_payment_status'         => '',
+					'_mhmrentiva_booking_payment_status' => 'pending',
+				),
+			),
+			'balance order open'     => array( array( '_mhmrentiva_remaining_order_id' => '987655' ) ),
 		);
 	}
 
