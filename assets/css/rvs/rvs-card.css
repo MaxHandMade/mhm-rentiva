@@ -199,6 +199,7 @@
 	flex-direction: column;
 	gap: 8px;
 	padding: var(--rvs-card-pad);
+	container: rvs-card / inline-size;
 }
 
 .rvs-shell .rvs-card__head {
@@ -301,11 +302,16 @@
 
 /* Price and button share a row while they fit; a narrow card (slider, three
    columns) puts the button under the price instead of past the edge. */
+/*
+ * Price and button: the card's width decides the layout, not the price's, so
+ * every card in a row looks the same (a wrapping row broke on one card when
+ * its amount was 1px wider). Narrow cards stack; this is also what a browser
+ * without container queries shows.
+ */
 .rvs-shell .rvs-card__foot {
 	display: flex;
-	flex-wrap: wrap;
-	align-items: flex-end;
-	justify-content: space-between;
+	flex-direction: column;
+	align-items: flex-start;
 	gap: 10px;
 	margin-top: auto;
 	padding-top: 8px;
@@ -313,6 +319,32 @@
 
 .rvs-shell .rvs-card__price {
 	min-width: 0;
+}
+
+/*
+ * Side by side once the widest real amount (~150px), the gap and the button
+ * fit. The price column starts from zero and is never narrower than its
+ * min-content (the nowrap amount, or a longer unbreakable word in a note), so
+ * its long notes wrap inside it, and the row breaks only when that and the
+ * button cannot share it (a larger amount, a longer button label, bigger
+ * type): the button then drops below instead of overlapping the price.
+ */
+@container rvs-card (min-width: 330px) {
+	.rvs-shell .rvs-card__foot {
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		justify-content: space-between;
+	}
+
+	.rvs-shell .rvs-card__price {
+		flex: 1 1 0%;
+		min-width: min-content;
+	}
+
+	.rvs-shell .rvs-card__amount {
+		white-space: nowrap;
+	}
 }
 
 .rvs-shell .rvs-card__amount {

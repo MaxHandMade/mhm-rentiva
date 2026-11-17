@@ -712,7 +712,8 @@ final class VehicleFeatureHelper {
 				if ($numeric <= 0) {
 					return null;
 				}
-				$text = number_format($numeric, 0, ',', '.') . ' ' . __('km', 'mhm-rentiva');
+				// A plain number, not money: the page language's separators, like daily_km_limit.
+				$text = number_format_i18n($numeric) . ' ' . __('km', 'mhm-rentiva');
 				$icon = 'speedometer';
 				break;
 
@@ -755,7 +756,7 @@ final class VehicleFeatureHelper {
 				if ($engine <= 0) {
 					return null;
 				}
-				$text = number_format($engine, 1, '.', ',') . ' ' . __('L', 'mhm-rentiva');
+				$text = number_format_i18n($engine, 1) . ' ' . __('L', 'mhm-rentiva');
 				break;
 
 			case 'availability':
