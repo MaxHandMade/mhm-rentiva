@@ -134,7 +134,7 @@ final class PaymentView {
 		return "SELECT b.ID, CASE
                 WHEN ( CASE b.raw_status{$legacy} ELSE b.raw_status END ) = 'paid'
                     AND b.payment_type = 'deposit'
-                    AND CAST(COALESCE(NULLIF(b.remaining, ''), '0') AS DECIMAL(10,2)) > 0
+                    AND CAST(COALESCE(NULLIF(b.remaining, ''), '0') AS DECIMAL(20,6)) > 0
                 THEN 'partially_paid'
                 ELSE CASE b.raw_status{$legacy} ELSE b.raw_status END
             END AS payment_status

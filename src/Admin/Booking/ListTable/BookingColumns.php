@@ -931,7 +931,7 @@ final class BookingColumns {
 		// Payment status filter — offers the statuses the row badges show
 		// (PaymentView::status()), only those some booking actually has.
 		$pcur   = self::get_query_text( 'mhmrentiva_payment_status' );
-		$in_use = self::get_payment_statuses_in_use();
+		$in_use = self::get_payment_statuses_in_use( 'trash' === get_query_var( 'post_status' ) );
 		echo '<select name="mhmrentiva_payment_status" class="postform">';
 		echo '  <option value="">' . esc_html__( 'All payments', 'mhm-rentiva' ) . '</option>';
 		foreach ( \MHMRentiva\Admin\Booking\Core\PaymentView::statuses() as $s ) {
@@ -966,10 +966,10 @@ final class BookingColumns {
 	 *
 	 * @return array<int, string>
 	 */
-	private static function get_payment_statuses_in_use(): array {
+	private static function get_payment_statuses_in_use( bool $trash = false ): array {
 		global $wpdb;
 
-		$sql = \MHMRentiva\Admin\Booking\Core\PaymentView::status_sql();
+		$sql = \MHMRentiva\Admin\Booking\Core\PaymentView::status_sql( $trash );
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- status_sql() is built with prepare(); admin list screen, must reflect the current rows.
 		$values = $wpdb->get_col( "SELECT DISTINCT s.payment_status FROM ( {$sql} ) s" );
 

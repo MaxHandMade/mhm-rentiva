@@ -172,6 +172,32 @@ final class BookingPaymentFilterTest extends WP_UnitTestCase
         $this->assertSame('trash', get_post_status((int) $ids[0]));
     }
 
+    public function test_a_sub_cent_balance_is_still_partially_paid(): void
+    {
+        $id = $this->booking(array(
+            '_mhmrentiva_payment_status'   => 'paid',
+            '_mhmrentiva_payment_type'     => 'deposit',
+            '_mhmrentiva_remaining_amount' => '0.004',
+        ));
+
+        $this->assertSame('partially_paid', PaymentView::status($id));
+        $this->assertContains($id, $this->listed('partially_paid'));
+    }
+
+    public function test_the_trash_view_dropdown_offers_the_trashed_statuses(): void
+    {
+        $refunded = $this->booking(array('_mhmrentiva_payment_status' => 'refunded'));
+        wp_trash_post($refunded);
+
+        set_query_var('post_status', 'trash');
+        ob_start();
+        BookingColumns::status_filter('mhmrentiva_booking');
+        $html = (string) ob_get_clean();
+        set_query_var('post_status', '');
+
+        $this->assertStringContainsString('value="refunded"', $html);
+    }
+
     public function test_the_list_query_carries_no_postmeta_join(): void
     {
         global $wpdb;
