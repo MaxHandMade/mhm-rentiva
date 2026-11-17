@@ -182,6 +182,29 @@ tests_add_filter('mhmrentiva_contact_attachment_root', static function (): strin
 });
 
 /**
+ * The uploads directory, for the whole run. Core's remove_added_uploads()
+ * deletes every file under the uploads basedir that was not there when the run
+ * started; against the dev site's real uploads that removed photos uploaded to
+ * the site while a run was going (2026-11-15). Only basedir/path move: URLs
+ * stay as core computes them, so URL <-> attachment mapping and the goldens
+ * are unchanged. Priority 1, so a test's own SandboxesUploads filter still wins.
+ */
+$mhmrentiva_uploads_sandbox = rtrim(str_replace('\\', '/', sys_get_temp_dir()), '/') . '/mhm-rentiva-tests-uploads';
+tests_add_filter(
+	'upload_dir',
+	static function (array $dir) use ($mhmrentiva_uploads_sandbox): array {
+		$real_root = rtrim(str_replace('\\', '/', WP_CONTENT_DIR), '/') . '/uploads';
+		$basedir   = str_replace('\\', '/', (string) $dir['basedir']);
+		// Keep a multisite site's "/sites/N" under the sandbox.
+		$tail           = str_starts_with($basedir, $real_root) ? substr($basedir, strlen($real_root)) : '';
+		$dir['basedir'] = $mhmrentiva_uploads_sandbox . $tail;
+		$dir['path']    = $dir['basedir'] . $dir['subdir'];
+		return $dir;
+	},
+	1
+);
+
+/**
  * Allow activation hook dependency guard bypass in test runtime only.
  *
  * This keeps production dependency checks intact while permitting
@@ -562,3 +585,13 @@ if (! str_starts_with($mhmrentiva_contact_root, wp_normalize_path(sys_get_temp_d
 	exit(1);
 }
 unset($mhmrentiva_contact_root);
+
+/**
+ * Same hard stop for the uploads basedir: never run against real uploads.
+ */
+$mhmrentiva_uploads_basedir = wp_normalize_path((string) wp_upload_dir(null, false)['basedir']);
+if (! str_starts_with($mhmrentiva_uploads_basedir, wp_normalize_path(sys_get_temp_dir()) . '/')) {
+	fwrite(STDERR, "mhm-rentiva tests: the uploads directory is not sandboxed; refusing to run against real uploads.\n");
+	exit(1);
+}
+unset($mhmrentiva_uploads_basedir, $mhmrentiva_uploads_sandbox);
