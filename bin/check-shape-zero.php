@@ -137,7 +137,7 @@ $allowedByFile = [
     // sanitize edilmez, çünkü hiçbir yere yazılmaz veya basılmaz, yalnızca
     // bir yönlendirme hedefine karar vermek için okunur.
     'ContactMessagesPage.php'    => 2,
-    // CheckoutJourney.php'nin 1 kalıntısı 2026-11-02'de EKLENDİ (PR K, Fable m2):
+    // CheckoutJourney.php'nin 1 kalıntısı 2026-11-02'de EKLENDİ:
     // sipariş-alındı / sipariş-öde sayfasında URL'deki `key` okunur ve
     // hash_equals() ile siparişin anahtarına karşılaştırılır -- WooCommerce'in
     // kendi WC_Shortcode_Checkout'unun okuduğu parametre. Salt-okunur, yazılmaz,

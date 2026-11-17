@@ -36,7 +36,7 @@
  *     and cut three real entries in two;
  *   - splitting only on EMPTY lines merged an entry after a tab-only separator
  *     into the header, and column-0 anchors ignored indented entries entirely
- *     (both from Codex's review of Lite #48).
+ *     (both from the review of Lite #48).
  *
  * Not findings: the header entry, and obsolete (#~) entries, which WP-CLI does
  * not compile.

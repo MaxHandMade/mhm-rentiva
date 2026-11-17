@@ -128,7 +128,7 @@
 		<exclude name="WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude"/>
 
 		<!--
-		Codex-quality nuisances that are not real defects:
+		Code-quality nuisances that are not real defects:
 		- UnusedFunctionParameter.FoundAfterLastUsed: standard for hook callbacks
 		  receiving fixed signature parameters (e.g. filters with $value, $args).
 		- UnusedFunctionParameter.Found: same.

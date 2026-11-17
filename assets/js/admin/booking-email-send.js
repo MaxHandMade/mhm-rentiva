@@ -98,7 +98,7 @@
 
 	/* ---- Templates ---- */
 
-	// The box's state (Codex #178): the send button is locked while a template
+	// The box's state (#178): the send button is locked while a template
 	// loads OR an e-mail is being sent; `loadedType` is the type whose text the
 	// box holds. "Edited" is never a comparison of serialisations (TinyMCE
 	// normalises on its own): it is `dirty` -- the subject and the Text tab's
@@ -141,9 +141,9 @@
 		if ( editor && typeof editor.setDirty === 'function' ) {
 			// The baseline in TinyMCE's normal form: one parse/serialise round
 			// re-orders attributes, so a later round (a tab switch, a move)
-			// would otherwise look like an edit (Fable #178 Δ4).
+			// would otherwise look like an edit (#178).
 			editor.setContent( editor.getContent() );
-			// The textarea in the same form: the Visual tab re-reads it (Codex r7).
+			// The textarea in the same form: the Visual tab re-reads it.
 			$( '#' + EDITOR_ID ).val( editor.getContent() );
 			// The filled text is the new baseline: an empty undo history would
 			// make the operator's first change the "first level", which TinyMCE
@@ -325,7 +325,7 @@
 			editor.on( 'input paste cut drop', markDirty );
 			// save() -- also run by WordPress when switching to the Text tab
 			// (editor.hide()) -- clears TinyMCE's dirty state after firing
-			// SaveContent; carry it over first (Fable #178 Δ3-O1).
+			// SaveContent; carry it over first (#178).
 			editor.on( 'SaveContent', function () {
 				if ( typeof editor.isDirty === 'function' && editor.isDirty() ) {
 					markDirty();

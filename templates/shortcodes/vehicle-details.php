@@ -41,7 +41,7 @@ $uid           = (string) $view['uid'];
 $show_gallery  = $flag($atts['show_gallery'] ?? '1');
 $show_features = $flag($atts['show_features'] ?? '1');
 $show_price    = $flag($atts['show_pricing'] ?? '1') && $flag($atts['show_price'] ?? '1');
-// The same rule that decides whether the page looks for suggestions (Fable B7).
+// The same rule that decides whether the page looks for suggestions.
 $show_booking  = \MHMRentiva\Admin\Frontend\Shortcodes\Rvs\VehicleDetailsView::shows_booking_card($vehicle_id, $atts) && ! empty($rental_bookable);
 $show_calendar = $flag($atts['show_calendar'] ?? '1') && ! empty($rental_bookable);
 $show_terms    = $flag($atts['show_conditions'] ?? '1');

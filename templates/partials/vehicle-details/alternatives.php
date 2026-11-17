@@ -40,7 +40,7 @@ $mhmrentiva_alt_page = (int) ( $vehicle_id ?? 0 );
 	<?php foreach ($mhmrentiva_alts as $mhmrentiva_alt) : ?>
 		<?php
 		// Page vehicle + suggested vehicle: stable across the first render and the
-		// quote, and distinct between two vehicle roots on one page (Fable B2).
+		// quote, and distinct between two vehicle roots on one page.
 		$mhmrentiva_alt_title_id = 'rvs-vd-alt-' . $mhmrentiva_alt_page . '-' . (int) ( $mhmrentiva_alt['id'] ?? 0 );
 		$mhmrentiva_alt_image    = (string) ( $mhmrentiva_alt['image'] ?? '' );
 		$mhmrentiva_alt_specs    = (string) ( $mhmrentiva_alt['specs'] ?? '' );

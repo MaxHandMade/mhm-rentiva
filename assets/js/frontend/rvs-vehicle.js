@@ -248,8 +248,8 @@
 				}
 			},
 			function ( message ) {
-				// As above: a failure for a window already left is not shown
-				// (Fable B3); the queued request answers for the new one.
+				// As above: a failure for a window already left is not shown;
+				// the queued request answers for the new one.
 				if ( ! state.queued ) {
 					showMessage( $root, message || t( 'error', 'An error occurred' ) );
 					// Suggestions for an earlier window must not stay beside the error.
