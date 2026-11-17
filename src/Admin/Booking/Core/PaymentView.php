@@ -81,7 +81,71 @@ final class PaymentView {
 	 * Label of a derived status. An unknown one is "Other", never the raw key.
 	 */
 	public static function label(string $status): string {
-		$labels = array(
+		return self::labels()[ $status ] ?? __('Other', 'mhm-rentiva');
+	}
+
+	/**
+	 * Every derived status, in display order.
+	 *
+	 * @return list<string>
+	 */
+	public static function statuses(): array {
+		return array_keys(self::labels());
+	}
+
+	/**
+	 * SQL that resolves status() for every booking in one pass: one row per
+	 * booking, columns `ID` and `payment_status`. Each meta key is a
+	 * key-restricted LEFT JOIN (one row per key), so the cost is linear in the
+	 * number of bookings; a meta_query OR over the two status keys is not
+	 * (see BookingStatusFilterQueryShapeTest). Auto-drafts are always left
+	 * out, trash unless $trash (the Trash view lists only trashed bookings).
+	 * Mirrors status() and LEGACY -- BookingPaymentFilterTest pins that the
+	 * two agree.
+	 */
+	public static function status_sql(bool $trash = false): string {
+		global $wpdb;
+
+		$legacy = '';
+		foreach (self::LEGACY as $stored => $status) {
+			$legacy .= $wpdb->prepare(' WHEN %s THEN %s', $stored, $status);
+		}
+
+		$inner = $wpdb->prepare(
+			"SELECT p.ID,
+                COALESCE(NULLIF(ps1.meta_value, ''), NULLIF(ps2.meta_value, ''), 'unpaid') AS raw_status,
+                pt.meta_value AS payment_type,
+                pr.meta_value AS remaining
+            FROM {$wpdb->posts} p
+            LEFT JOIN {$wpdb->postmeta} ps1 ON ps1.post_id = p.ID AND ps1.meta_key = %s
+            LEFT JOIN {$wpdb->postmeta} ps2 ON ps2.post_id = p.ID AND ps2.meta_key = %s
+            LEFT JOIN {$wpdb->postmeta} pt ON pt.post_id = p.ID AND pt.meta_key = %s
+            LEFT JOIN {$wpdb->postmeta} pr ON pr.post_id = p.ID AND pr.meta_key = %s
+            WHERE p.post_type = %s AND p.post_status <> 'auto-draft' AND ( p.post_status = 'trash' ) = %d",
+			'_mhmrentiva_payment_status',
+			'_mhmrentiva_booking_payment_status',
+			'_mhmrentiva_payment_type',
+			'_mhmrentiva_remaining_amount',
+			'mhmrentiva_booking',
+			$trash ? 1 : 0
+		);
+
+		// $legacy and $inner are prepared above; the outer query has no input.
+		return "SELECT b.ID, CASE
+                WHEN ( CASE b.raw_status{$legacy} ELSE b.raw_status END ) = 'paid'
+                    AND b.payment_type = 'deposit'
+                    AND CAST(COALESCE(NULLIF(b.remaining, ''), '0') AS DECIMAL(10,2)) > 0
+                THEN 'partially_paid'
+                ELSE CASE b.raw_status{$legacy} ELSE b.raw_status END
+            END AS payment_status
+            FROM ( {$inner} ) b";
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	private static function labels(): array {
+		return array(
 			'unpaid'               => __('Unpaid', 'mhm-rentiva'),
 			'pending'              => __('Pending', 'mhm-rentiva'),
 			'pending_verification' => __('Pending Verification', 'mhm-rentiva'),
@@ -92,8 +156,6 @@ final class PaymentView {
 			'cancelled'            => __('Cancelled', 'mhm-rentiva'),
 			'failed'               => __('Failed', 'mhm-rentiva'),
 		);
-
-		return $labels[ $status ] ?? __('Other', 'mhm-rentiva');
 	}
 
 	/**

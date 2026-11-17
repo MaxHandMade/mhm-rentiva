@@ -928,11 +928,16 @@ final class BookingColumns {
 		// The status dropdown that used to render here became the chip strip
 		// (status_chips()) — same registered query var, one filter UI.
 
-		// Payment status filter
-		$pcur = self::get_query_text( 'mhmrentiva_payment_status' );
+		// Payment status filter — offers the statuses the row badges show
+		// (PaymentView::status()), only those some booking actually has.
+		$pcur   = self::get_query_text( 'mhmrentiva_payment_status' );
+		$in_use = self::get_payment_statuses_in_use();
 		echo '<select name="mhmrentiva_payment_status" class="postform">';
 		echo '  <option value="">' . esc_html__( 'All payments', 'mhm-rentiva' ) . '</option>';
-		foreach ( array( 'unpaid', 'paid', 'refunded', 'failed' ) as $s ) {
+		foreach ( \MHMRentiva\Admin\Booking\Core\PaymentView::statuses() as $s ) {
+			if ( ! in_array( $s, $in_use, true ) && $pcur !== $s ) {
+				continue;
+			}
 			$label = \MHMRentiva\Admin\Booking\Core\PaymentView::label( $s );
 			echo '  <option value="' . esc_attr( $s ) . '"' . selected( $pcur, $s, false ) . '>' . esc_html( $label ) . '</option>';
 		}
@@ -954,6 +959,21 @@ final class BookingColumns {
 			}
 			echo '</select>';
 		}
+	}
+
+	/**
+	 * Derived payment statuses (PaymentView::status()) some booking has.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function get_payment_statuses_in_use(): array {
+		global $wpdb;
+
+		$sql = \MHMRentiva\Admin\Booking\Core\PaymentView::status_sql();
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- status_sql() is built with prepare(); admin list screen, must reflect the current rows.
+		$values = $wpdb->get_col( "SELECT DISTINCT s.payment_status FROM ( {$sql} ) s" );
+
+		return array_values( array_map( 'strval', (array) $values ) );
 	}
 
 	/**
@@ -1022,10 +1042,12 @@ final class BookingColumns {
                     LEFT JOIN {$wpdb->postmeta} pm_s1 ON p.ID = pm_s1.post_id AND pm_s1.meta_key = %s
                     LEFT JOIN {$wpdb->postmeta} pm_s2 ON p.ID = pm_s2.post_id AND pm_s2.meta_key = %s
                     WHERE p.post_type = %s
+                    AND p.post_status <> 'auto-draft' AND ( p.post_status = 'trash' ) = %d
                     AND COALESCE(NULLIF(pm_s1.meta_value, ''), NULLIF(pm_s2.meta_value, ''), 'pending') = %s",
 					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
 					'_mhmrentiva_booking_status',
 					'mhmrentiva_booking',
+					'trash' === $q->get( 'post_status' ) ? 1 : 0,
 					$booking_status_filter
 				)
 			);
@@ -1036,24 +1058,23 @@ final class BookingColumns {
 			$q->set( 'post__in', ! empty( $status_ids ) ? $status_ids : array( 0 ) );
 		}
 		$payment_status_filter = self::get_query_text( 'mhmrentiva_payment_status' );
-		if ( '' !== $payment_status_filter ) {
-			$val = $payment_status_filter;
-			if ( in_array( $val, array( 'unpaid', 'paid', 'refunded', 'failed' ), true ) ) {
-				// Check both the old and the new meta keys
-				$meta[] = array(
-					'relation' => 'OR',
-					array(
-						'key'     => '_mhmrentiva_booking_payment_status',
-						'value'   => $val,
-						'compare' => '=',
-					),
-					array(
-						'key'     => '_mhmrentiva_payment_status',
-						'value'   => $val,
-						'compare' => '=',
-					),
-				);
+		if ( in_array( $payment_status_filter, \MHMRentiva\Admin\Booking\Core\PaymentView::statuses(), true ) ) {
+			// Same derivation as the row badge (PaymentView::status()), resolved
+			// to IDs in one pass. Not a meta_query: an OR over the two status
+			// keys compiles to unrestricted postmeta self-joins (see the status
+			// chip note above).
+			global $wpdb;
+			$sql = \MHMRentiva\Admin\Booking\Core\PaymentView::status_sql( 'trash' === $q->get( 'post_status' ) );
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- status_sql() is built with prepare(); the value is bound here.
+			$payment_ids = $wpdb->get_col( $wpdb->prepare( "SELECT s.ID FROM ( {$sql} ) s WHERE s.payment_status = %s", $payment_status_filter ) );
+			$payment_ids = array_values( array_unique( array_map( 'intval', $payment_ids ) ) );
+
+			// Narrow the status chip's set instead of replacing it.
+			$current = array_map( 'intval', (array) $q->get( 'post__in' ) );
+			if ( ! empty( $current ) ) {
+				$payment_ids = array_values( array_intersect( $current, $payment_ids ) );
 			}
+			$q->set( 'post__in', ! empty( $payment_ids ) ? $payment_ids : array( 0 ) );
 		}
 		$payment_gateway_filter = self::get_query_text( 'mhmrentiva_payment_gateway' );
 		if ( '' !== $payment_gateway_filter ) {
