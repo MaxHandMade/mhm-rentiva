@@ -432,27 +432,23 @@ final class VehiclesList extends AbstractShortcode {
 	}
 
 	/**
-	 * Gets vehicle price
+	 * Gets vehicle price. A vehicle without a daily price has none here
+	 * either: 0 and "Price on request", as the card shows (RvsCardView::price()),
+	 * never an invented figure.
 	 */
 	public static function get_vehicle_price(int $vehicle_id): array
 	{
-		// Check price meta keys in order using Helper
-		$daily_price = VehicleDataHelper::get_price_per_day($vehicle_id);
-
-		$currency        = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_currency', 'USD');
-		$currency_symbol = CurrencyHelper::get_currency_symbol();
-
-		// Use default value if price is 0
-		if (empty($daily_price) || floatval($daily_price) == 0) {
-			$daily_price = 1000; // Default price
-		}
+		$daily_price = max(0.0, (float) VehicleDataHelper::get_price_per_day($vehicle_id));
 
 		return array(
-			'raw'       => floatval($daily_price),
-			'daily'     => floatval($daily_price),
-			'currency'  => $currency,
-			'symbol'    => $currency_symbol,
-			'formatted' => self::format_price_with_position(floatval($daily_price)),
+			'raw'       => $daily_price,
+			'daily'     => $daily_price,
+			'has_price' => $daily_price > 0,
+			'currency'  => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_currency', 'USD'),
+			'symbol'    => CurrencyHelper::get_currency_symbol(),
+			'formatted' => $daily_price > 0
+				? self::format_price_with_position($daily_price)
+				: __('Price on request', 'mhm-rentiva'),
 		);
 	}
 
