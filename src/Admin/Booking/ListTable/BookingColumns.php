@@ -967,13 +967,71 @@ final class BookingColumns {
 	 * @return array<int, string>
 	 */
 	private static function get_payment_statuses_in_use( bool $trash = false ): array {
+		return array_values( array_unique( self::payment_status_by_booking( $trash ) ) );
+	}
+
+	/**
+	 * PaymentView::status() of every booking, resolved in one query:
+	 * booking ID => derived payment status.
+	 *
+	 * Mirrors status(): the current key wins over the legacy one, none is
+	 * 'unpaid', the legacy values completed / processing / on-hold read as
+	 * paid / pending / pending (PaymentView::LEGACY), and a paid deposit
+	 * booking with a balance is partially paid. BookingPaymentFilterTest pins
+	 * that the two agree. Each key is a key-restricted LEFT JOIN, so the cost
+	 * is linear in the number of bookings; a meta_query OR over the two
+	 * status keys is not (see the status chip note in apply_status_filter()).
+	 * Auto-drafts are left out, and trash unless $trash (the Trash view lists
+	 * only trashed bookings).
+	 *
+	 * @return array<int, string>
+	 */
+	private static function payment_status_by_booking( bool $trash ): array {
 		global $wpdb;
 
-		$sql = \MHMRentiva\Admin\Booking\Core\PaymentView::status_sql( $trash );
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- status_sql() is built with prepare(); admin list screen, must reflect the current rows.
-		$values = $wpdb->get_col( "SELECT DISTINCT s.payment_status FROM ( {$sql} ) s" );
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT b.ID, CASE
+                    WHEN b.status = 'paid'
+                        AND b.payment_type = 'deposit'
+                        AND CAST(COALESCE(NULLIF(b.remaining, ''), '0') AS DECIMAL(20,6)) > 0
+                    THEN 'partially_paid'
+                    ELSE b.status
+                END AS payment_status
+                FROM (
+                    SELECT p.ID,
+                        CASE COALESCE(NULLIF(ps1.meta_value, ''), NULLIF(ps2.meta_value, ''), 'unpaid')
+                            WHEN 'completed' THEN 'paid'
+                            WHEN 'processing' THEN 'pending'
+                            WHEN 'on-hold' THEN 'pending'
+                            ELSE COALESCE(NULLIF(ps1.meta_value, ''), NULLIF(ps2.meta_value, ''), 'unpaid')
+                        END AS status,
+                        pt.meta_value AS payment_type,
+                        pr.meta_value AS remaining
+                    FROM {$wpdb->posts} p
+                    LEFT JOIN {$wpdb->postmeta} ps1 ON ps1.post_id = p.ID AND ps1.meta_key = %s
+                    LEFT JOIN {$wpdb->postmeta} ps2 ON ps2.post_id = p.ID AND ps2.meta_key = %s
+                    LEFT JOIN {$wpdb->postmeta} pt ON pt.post_id = p.ID AND pt.meta_key = %s
+                    LEFT JOIN {$wpdb->postmeta} pr ON pr.post_id = p.ID AND pr.meta_key = %s
+                    WHERE p.post_type = %s
+                    AND p.post_status <> 'auto-draft' AND ( p.post_status = 'trash' ) = %d
+                ) b",
+				'_mhmrentiva_payment_status',
+				'_mhmrentiva_booking_payment_status',
+				'_mhmrentiva_payment_type',
+				'_mhmrentiva_remaining_amount',
+				'mhmrentiva_booking',
+				$trash ? 1 : 0
+			),
+			ARRAY_A
+		);
 
-		return array_values( array_map( 'strval', (array) $values ) );
+		$by_booking = array();
+		foreach ( (array) $rows as $row ) {
+			$by_booking[ (int) $row['ID'] ] = (string) $row['payment_status'];
+		}
+
+		return $by_booking;
 	}
 
 	/**
@@ -1063,11 +1121,12 @@ final class BookingColumns {
 			// to IDs in one pass. Not a meta_query: an OR over the two status
 			// keys compiles to unrestricted postmeta self-joins (see the status
 			// chip note above).
-			global $wpdb;
-			$sql = \MHMRentiva\Admin\Booking\Core\PaymentView::status_sql( 'trash' === $q->get( 'post_status' ) );
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- status_sql() is built with prepare(); the value is bound here.
-			$payment_ids = $wpdb->get_col( $wpdb->prepare( "SELECT s.ID FROM ( {$sql} ) s WHERE s.payment_status = %s", $payment_status_filter ) );
-			$payment_ids = array_values( array_unique( array_map( 'intval', $payment_ids ) ) );
+			$payment_ids = array_keys(
+				array_filter(
+					self::payment_status_by_booking( 'trash' === $q->get( 'post_status' ) ),
+					static fn ( string $status ): bool => $status === $payment_status_filter
+				)
+			);
 
 			// Narrow the status chip's set instead of replacing it.
 			$current = array_map( 'intval', (array) $q->get( 'post__in' ) );

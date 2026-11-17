@@ -47,6 +47,12 @@ final class BookingPaymentFilterTest extends WP_UnitTestCase
         $this->ids['no_meta']            = $this->booking(array());
         $this->ids['legacy_completed']   = $this->booking(array('_mhmrentiva_booking_payment_status' => 'completed'));
         $this->ids['legacy_on_hold']     = $this->booking(array('_mhmrentiva_payment_status' => 'on-hold'));
+        $this->ids['legacy_processing']  = $this->booking(array('_mhmrentiva_payment_status' => 'processing'));
+        $this->ids['legacy_deposit']     = $this->booking(array(
+            '_mhmrentiva_booking_payment_status' => 'completed',
+            '_mhmrentiva_payment_type'           => 'deposit',
+            '_mhmrentiva_remaining_amount'       => '75',
+        ));
         $this->ids['partially_refunded'] = $this->booking(array('_mhmrentiva_payment_status' => 'partially_refunded'));
         $this->ids['cancelled']          = $this->booking(array('_mhmrentiva_payment_status' => 'cancelled'));
 
@@ -119,9 +125,9 @@ final class BookingPaymentFilterTest extends WP_UnitTestCase
 
     public function test_each_payment_status_lists_the_bookings_whose_badge_shows_it(): void
     {
-        $this->assertSame($this->expected(array('pending', 'legacy_on_hold')), $this->listed('pending'));
+        $this->assertSame($this->expected(array('pending', 'legacy_on_hold', 'legacy_processing')), $this->listed('pending'));
         $this->assertSame($this->expected(array('paid_full', 'deposit_settled', 'legacy_completed')), $this->listed('paid'));
-        $this->assertSame($this->expected(array('deposit_balance')), $this->listed('partially_paid'));
+        $this->assertSame($this->expected(array('deposit_balance', 'legacy_deposit')), $this->listed('partially_paid'));
         $this->assertSame($this->expected(array('no_meta')), $this->listed('unpaid'));
         $this->assertSame($this->expected(array('partially_refunded')), $this->listed('partially_refunded'));
         $this->assertSame($this->expected(array('cancelled')), $this->listed('cancelled'));
