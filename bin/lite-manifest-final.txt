@@ -317,6 +317,7 @@ src/Core/Tenancy/TenantResolver.php
 src/Frontend/PreviewSamples.php
 src/Frontend/RenderContext.php
 src/Frontend/StateBox.php
+src/Helpers/AgreementText.php
 src/Helpers/Html.php
 src/Helpers/Icons.php
 src/Helpers/NotificationHelper.php
