@@ -132,6 +132,8 @@
                 this.autoCalculatePrice();
             });
 
+            this.bindAgreement();
+
             // The phone's band: open or close the full summary.
             this.container.on('click', '[data-rvs-summary-toggle]', (e) => {
                 this.toggleSummary($(e.currentTarget));
@@ -681,7 +683,27 @@
             if (isoPickup) data.pickup_date = isoPickup;
             if (isoDropoff) data.dropoff_date = isoDropoff;
 
+            // The rental agreement, when the form shows it and it is ticked.
+            if (this.hook('agreement-consent').is(':checked')) {
+                data.terms_accepted = '1';
+            }
+
             return data;
+        }
+
+        // Ticking the agreement after a refused submission clears the error.
+        bindAgreement() {
+            this.container.on('change', '[data-rvs-agreement-consent]', (e) => {
+                if (e.target.checked) {
+                    this.markAgreement(true);
+                }
+            });
+        }
+
+        // The consent box and its message: valid, or refused.
+        markAgreement(valid) {
+            this.hook('agreement-consent').attr('aria-invalid', valid ? 'false' : 'true');
+            this.hook('agreement-error').prop('hidden', valid);
         }
 
         /**
@@ -960,6 +982,18 @@
                 this.hook('dropoff-date').attr('aria-invalid', 'true');
                 this.showError(this.getMessage('invalid_dates'));
                 isValid = false;
+            }
+
+            // The rental agreement, when the site requires it (the server
+            // refuses the submission without it as well).
+            const $consent = this.hook('agreement-consent');
+            if ($consent.length) {
+                const accepted = $consent.is(':checked');
+                this.markAgreement(accepted);
+                if (!accepted) {
+                    this.showError(this.getMessage('agreement_required'));
+                    isValid = false;
+                }
             }
 
             // The payment type is chosen at the WooCommerce checkout (step 2):
