@@ -321,16 +321,25 @@
 	min-width: 0;
 }
 
-/* Side by side once the widest real amount (~150px), the gap and the button fit. */
+/*
+ * Side by side once the widest real amount (~150px), the gap and the button
+ * fit. The price column starts from zero and is never narrower than the amount
+ * (min-content), so its long notes wrap inside it, and the row breaks only when
+ * the amount itself and the button cannot share it (a larger amount, a longer
+ * button label, bigger type): the button then drops below instead of
+ * overlapping the price.
+ */
 @container rvs-card (min-width: 330px) {
 	.rvs-shell .rvs-card__foot {
 		flex-direction: row;
+		flex-wrap: wrap;
 		align-items: flex-end;
 		justify-content: space-between;
 	}
 
 	.rvs-shell .rvs-card__price {
-		flex: 1 1 auto;
+		flex: 1 1 0%;
+		min-width: min-content;
 	}
 
 	.rvs-shell .rvs-card__amount {
