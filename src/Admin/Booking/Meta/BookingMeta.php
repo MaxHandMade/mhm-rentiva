@@ -1214,6 +1214,27 @@ final class BookingMeta extends AbstractMetaBox {
 				);
 			}
 			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', \MHMRentiva\Admin\Payment\Core\Money::toMajor(max(0, $owed)));
+		} elseif ('deposit' === $payment_type && $stored_deposit > 0 && \MHMRentiva\Admin\Payment\Core\Money::toMinor($stored_total) > 0
+			&& 'percentage' === (string) get_post_meta($booking_id, '_mhmrentiva_deposit_type', true)
+			&& 0 === \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id($booking_id)
+			&& 0 === (int) get_post_meta($booking_id, '_mhmrentiva_remaining_order_id', true)
+			&& self::payment_status_is_unpaid($booking_id)
+		) {
+			// Nothing collected, no order asking for the deposit or the
+			// balance, and the stored payment status says unpaid too
+			// (PaymentState's offline gate does not read the legacy key or
+			// legacy values, so a booking the old writers marked paid can show
+			// nothing collected): the deposit is a quote, not money taken. It follows the new total at
+			// the rate the booking was made with (stored deposit / stored
+			// total) -- not today's site rate, which a routine save must not
+			// apply. Integer minor units, one division.
+			$total_minor   = \MHMRentiva\Admin\Payment\Core\Money::toMinor($total_price);
+			$deposit_minor = min(
+				$total_minor,
+				(int) round($total_minor * \MHMRentiva\Admin\Payment\Core\Money::toMinor($stored_deposit) / \MHMRentiva\Admin\Payment\Core\Money::toMinor($stored_total))
+			);
+			update_post_meta($booking_id, '_mhmrentiva_deposit_amount', \MHMRentiva\Admin\Payment\Core\Money::toMajor($deposit_minor));
+			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', \MHMRentiva\Admin\Payment\Core\Money::toMajor($total_minor - $deposit_minor));
 		} elseif ('deposit' === $payment_type && ( $stored_deposit > 0 || 'full' === ( $result['payment_type'] ?? '' ) )) {
 			// The deposit is what the order charged. Today's rate may differ (the
 			// site or the vehicle changed since, or it now resolves to full
@@ -1229,6 +1250,23 @@ final class BookingMeta extends AbstractMetaBox {
 		// Update old meta keys for compatibility
 		update_post_meta($booking_id, '_mhmrentiva_booking_rental_days', $days);
 		update_post_meta($booking_id, '_mhmrentiva_booking_total_price', $total_price);
+	}
+
+	/**
+	 * Whether the stored payment status says nothing was paid: the current
+	 * key is 'pending', or neither the current nor the legacy key holds a
+	 * value. Raw values on purpose -- PaymentView reads the legacy
+	 * 'processing' / 'on-hold' as pending, and WooCommerce's 'processing'
+	 * means the money was taken.
+	 */
+	private static function payment_status_is_unpaid(int $booking_id): bool
+	{
+		$current = (string) get_post_meta($booking_id, '_mhmrentiva_payment_status', true);
+		if ('' !== $current) {
+			return 'pending' === $current;
+		}
+
+		return '' === (string) get_post_meta($booking_id, '_mhmrentiva_booking_payment_status', true);
 	}
 
 	/**
