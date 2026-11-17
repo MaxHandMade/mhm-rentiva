@@ -1,14 +1,14 @@
 /**
  * Blocked Dates box (vehicle edit screen).
  *
- * Drawn after the canvas Yon-Arac-Duzenle v144 (PR 4): the flatpickr inline
+ * The flatpickr inline
  * calendar themed as a plain WP-admin month grid (no new calendar), blocked
  * days #fbe0e0 / #a02224, the count as a red pill, the day list as framed
  * rows, "Remove from all" as the red-outlined destructive button.
  *
  * Kept from the former file: the structural overrides that pin flatpickr as
  * an inline calendar of a fixed width and let six-row months show. Every id
- * and class the script binds is styled, never renamed (spec §Sözleşmeler).
+ * and class the script binds is styled, never renamed.
  * Box-level rules are scoped under body.mhmui-admin; the flatpickr rules stay
  * under .blocked-dates-calendar-col, the only place this calendar is drawn.
  */
@@ -48,7 +48,7 @@ body.mhmui-admin .blocked-dates-description .dashicons {
 	color: #50575e;
 }
 
-/* The count: a red pill (canvas). Shown and hidden by the script. */
+/* The count: a red pill. Shown and hidden by the script. */
 body.mhmui-admin .blocked-dates-count-badge {
 	display: inline-flex;
 	align-items: center;
@@ -118,7 +118,7 @@ body.mhmui-admin .blocked-dates-body {
 	padding: 2px 4px 4px;
 }
 
-/* --- flatpickr, themed (canvas) --- */
+/* --- flatpickr, themed --- */
 .blocked-dates-calendar-col .flatpickr-months {
 	padding: 0 10px 8px;
 	border-radius: 0;
@@ -172,7 +172,7 @@ body.mhmui-admin .blocked-dates-body {
 	fill: #50575e !important;
 }
 
-/* Month arrows: small framed buttons (canvas ‹ ›). */
+/* Month arrows: small framed buttons (‹ ›). */
 .blocked-dates-calendar-col .flatpickr-prev-month,
 .blocked-dates-calendar-col .flatpickr-next-month {
 	top: 12px !important;
@@ -340,7 +340,7 @@ body.mhmui-admin .blocked-dates-chips {
 	overflow-y: auto;
 }
 
-/* One blocked day: date, note, remove -- a framed row (canvas). */
+/* One blocked day: date, note, remove -- a framed row. */
 body.mhmui-admin .blocked-date-chip {
 	display: flex;
 	flex-wrap: wrap;

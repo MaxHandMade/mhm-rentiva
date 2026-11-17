@@ -19,7 +19,7 @@ use MHMRentiva\Admin\Core\MetaKeys;
  * joins narrow nothing: its only real filter is `u.ID > 1 AND u.user_login !=
  * 'admin'`. Everything else on the site -- editors, a second administrator whose
  * login happens not to be 'admin' -- is listed there as a customer, and the REST
- * endpoints behind that screen inherited the same reach. WordPress.org's T8
+ * endpoints behind that screen inherited the same reach. WordPress.org's
  * review found the consequence: /customers/bulk would delete any account handed
  * to it.
  *
@@ -435,8 +435,8 @@ final class CustomerIdentity {
 	 * AddCustomerPage assigns `mhmrentiva_customer_default_role` (falling back to
 	 * 'customer') to every account it creates, so the role is a marker this
 	 * plugin writes, not an assumption about the site's role setup. It is also
-	 * the marker three separate test files have encoded since earlier review
-	 * rounds -- they all build their target with role 'customer' -- which is what
+	 * the marker three separate test files have encoded
+	 * -- they all build their target with role 'customer' -- which is what
 	 * caught the first version of this guard: built on bookings and user meta
 	 * alone, it refused to delete a freshly created customer who had not booked
 	 * yet.

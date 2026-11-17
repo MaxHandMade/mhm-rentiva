@@ -80,7 +80,7 @@ final class RvsBreakdown {
 	}
 
 	/**
-	 * A stored booking's breakdown, same shape as from_quote() (R8).
+	 * A stored booking's breakdown, same shape as from_quote().
 	 *
 	 * Read from the booking record, never re-priced: the daily price and the
 	 * weekend difference are not stored, so the rental is one "Rental, N days"
@@ -88,7 +88,7 @@ final class RvsBreakdown {
 	 * `_mhmrentiva_addon_details` lines at the price the booking was made
 	 * with (a later price change or a deleted add-on does not touch them);
 	 * only a booking from before that record existed is priced again from its
-	 * selected add-ons. No tax row (K7).
+	 * selected add-ons. No tax row.
 	 *
 	 * The deposit row says "Deposit paid" once money arrived (any paid order
 	 * or offline payment), "Deposit" before. Due at pickup is the stored

@@ -1,13 +1,13 @@
 /**
  * Vehicle Gallery box (vehicle edit screen).
  *
- * Drawn after the canvas Yon-Arac-Duzenle v144 (PR 4): square-ish thumbnails,
+ * Square-ish thumbnails,
  * an always-visible round remove button in the corner, "Add image" under the
  * grid. Scoped under body.mhmui-admin (VehicleMeta::add_body_class), values
- * from the ui-core kit tokens with the canvas's WP core palette. Every state
+ * from the ui-core kit tokens with the WP core palette. Every state
  * the gallery script draws keeps a style: bulk selection, "not shown on the
  * site", sortable placeholder, empty and loading states, preview and
- * notifications (spec M4).
+ * notifications.
  */
 
 /* ===== CONTAINER ===== */
@@ -19,7 +19,7 @@ body.mhmui-admin .mhm-vehicle-gallery-container {
 }
 
 /* The box title already says "Vehicle Gallery": the inner heading is kept for
-   assistive tech, the add button moves under the grid (canvas). */
+   assistive tech, the add button moves under the grid. */
 body.mhmui-admin .mhm-gallery-header {
 	order: 3;
 	display: flex;
@@ -122,7 +122,7 @@ body.mhmui-admin .mhm-gallery-item-hidden {
 	text-align: center;
 }
 
-/* Remove button: always visible, round, in the corner (canvas). */
+/* Remove button: always visible, round, in the corner. */
 body.mhmui-admin .mhm-gallery-item-overlay {
 	position: absolute;
 	right: 3px;

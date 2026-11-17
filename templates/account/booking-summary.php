@@ -1,6 +1,6 @@
 <?php
 /**
- * The printable booking summary (PR D, K14, R12): a document of its own.
+ * The printable booking summary: a document of its own.
  *
  * Loaded by WordPress's template loader through BookingSummaryPage::
  * template_include(), so there is no theme header or footer and wp_head never

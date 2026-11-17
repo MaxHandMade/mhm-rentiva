@@ -97,7 +97,7 @@ final class Testimonials extends AbstractShortcode {
 			'columns'            => apply_filters('mhmrentiva_testimonials_columns', '3'),
 			'auto_rotate'        => apply_filters('mhmrentiva_testimonials_auto_rotate', '0'),
 			'class'              => apply_filters('mhmrentiva_testimonials_class', ''),
-			// The initial-letter avatar and the cards' quote icon (spec 3A Task 8);
+			// The initial-letter avatar and the cards' quote icon;
 			// both rendered unconditionally before, so both default on.
 			'show_author_avatar' => '1',
 			'show_quotes'        => '1',
@@ -369,7 +369,7 @@ final class Testimonials extends AbstractShortcode {
 	}
 
 	/**
-	 * Read one source in the list's order (spec 3A Task 10a item 7).
+	 * Read one source in the list's order.
 	 *
 	 * Date: by date in the requested direction. Rating: the rated rows (a
 	 * rating of 1 or more) by rating in the requested direction, newest first

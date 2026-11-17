@@ -121,9 +121,9 @@ final class AddCustomerPage {
 					// Clear cache
 					\MHMRentiva\Admin\Customers\CustomersOptimizer::clear_cache();
 
-					// The account has a random password nobody knows (function
-					// scan H6): core's own set-password e-mail goes to the
-					// customer -- 'user' sends that one only, no admin copy.
+					// The account has a random password nobody knows:
+					// core's own set-password e-mail goes to the customer --
+					// 'user' sends that one only, no admin copy.
 					wp_new_user_notification( $user_id, null, 'user' );
 
 					$profile_url = admin_url( 'admin.php?page=mhm-rentiva-customers&action=view&customer_id=' . (int) $user_id );

@@ -2,7 +2,7 @@
 /**
  * Vehicle page (`rentiva_vehicle_details`) on the front-end standard.
  *
- * Canvas `Arac-Detay` / `Arac-Detay-Mobil` (Aşama 2 PR B). Every value comes
+ * Every value comes
  * from VehicleDetailsView::build() ($view); this file only prints it. The
  * booking card, the months and the gallery are partials the page's AJAX
  * endpoints render too.
@@ -229,7 +229,7 @@ $rating        = $view['rating'];
 	if ($show_similar) :
 		// An empty (or non-positive) similar_vehicles_limit keeps the old branch:
 		// 6 in the mobile slider, 3 in the desktop grid; a set value replaces the
-		// limit on both, capped at 12 (spec 3A §2.2).
+		// limit on both, capped at 12.
 		$is_mobile_view = wp_is_mobile();
 		$similar_limit  = absint($atts['similar_vehicles_limit'] ?? 0);
 		if ($similar_limit < 1) {

@@ -376,8 +376,8 @@ final class Plugin {
 		if ($this->is_class_available('\MHMRentiva\Admin\Booking\Meta\BookingRefundMetaBox')) {
 			\MHMRentiva\Admin\Booking\Meta\BookingRefundMetaBox::register();
 		}
-		// Utilities\Actions\Actions::register() was deleted whole (Task 9, slice
-		// 5): its only registrations were the dead admin_post refund endpoint
+		// Utilities\Actions\Actions::register() was deleted whole:
+		// its only registrations were the dead admin_post refund endpoint
 		// (amount_kurus taken straight off the request, unreachable since
 		// a5c35a61 deleted its nonce producer) and the admin_notices callback
 		// that existed only to report that endpoint's result -- nothing was
@@ -973,7 +973,7 @@ final class Plugin {
 			\MHMRentiva\Admin\Booking\Actions\DepositManagementAjax::register();
 		}
 
-		// Bookings list "Approve" row action (Faz 2 Task 7) -- not a deposit
+		// Bookings list "Approve" row action -- not a deposit
 		// flow, but registered alongside it: same domain (Booking\Actions),
 		// same guard, same lifecycle point.
 		if ($this->is_class_available('MHMRentiva\Admin\Booking\Actions\BookingApproveAjax')) {
@@ -1178,7 +1178,7 @@ final class Plugin {
 
 		// Optional: Log if role creation failed (shouldn't happen if check above works)
 		//
-		// Task 14b item 3: promoted from warning() to error(). The guard
+		// Promoted from warning() to error(). The guard
 		// already re-checked get_role('customer') immediately above, so
 		// this branch means add_role() genuinely failed to create it, not
 		// merely that it already existed -- the parenthetical in the old

@@ -2,8 +2,7 @@
  * Rentiva front-end standard -- form primitives.
  *
  * Option card (a checkbox or radio row with its price), quantity stepper and
- * the booking journey's step bar. Values from the approved canvas
- * (`Rezervasyon`, `Rezervasyon-Mobil`). Every control is at least 44x44.
+ * the booking journey's step bar. Every control is at least 44x44.
  * Selectors are scoped to `.rvs-shell`; colours come from rvs-tokens.css.
  */
 

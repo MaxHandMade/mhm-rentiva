@@ -4,7 +4,7 @@ declare(strict_types=1);
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
- * Booking Detail Template (PR D, Task 4; drawing Rezervasyon-Detayi).
+ * Booking Detail Template.
  *
  * Reads the booking, builds the view values and hands them to
  * templates/partials/rvs/account-booking-detail.php. On a WooCommerce endpoint
@@ -113,7 +113,7 @@ if ('deposit' === $payment_type && $deposit_amount > 0
 		);
 }
 
-// Bank receipt (R13): upload only while no money arrived; a stored receipt's
+// Bank receipt: upload only while no money arrived; a stored receipt's
 // status and link always show.
 $receipt_id = (int) get_post_meta($booking_id, '_mhmrentiva_receipt_attachment_id', true);
 $receipt    = array(

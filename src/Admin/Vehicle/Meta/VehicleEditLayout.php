@@ -8,7 +8,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * The vehicle edit screen's box order (canvas Yon-Arac-Duzenle v144).
+ * The vehicle edit screen's box order.
  *
  * Core's do_meta_boxes() reads get_user_option( "meta-box-order_$page" ),
  * moves every listed id into the 'sorted' bucket in list order and draws

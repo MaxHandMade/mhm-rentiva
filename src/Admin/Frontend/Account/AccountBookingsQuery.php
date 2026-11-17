@@ -13,7 +13,7 @@ if (! defined('ABSPATH')) {
 // phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- the customer's bookings are found by their customer meta; there is no other index.
 
 /**
- * The customer's bookings, by section (PR D, R5 + r2 M1/M8 + r3 Y4).
+ * The customer's bookings, by section.
  *
  * Sections:
  *
@@ -59,7 +59,7 @@ final class AccountBookingsQuery {
 	public const PAST_STATUSES = array( Status::COMPLETED, Status::NO_SHOW );
 
 	/**
-	 * Date metas that name the return day, in reading order (r2 M1, r3 y7).
+	 * Date metas that name the return day, in reading order.
 	 * After them comes the local day of END_TS_KEY.
 	 *
 	 * @var list<string>
@@ -167,7 +167,7 @@ final class AccountBookingsQuery {
 	}
 
 	/**
-	 * The user's bookings that can be the next rental (r2 M6): every booking in
+	 * The user's bookings that can be the next rental: every booking in
 	 * progress, and every confirmed, pending or awaiting-payment one whose pickup
 	 * day is today or later. Unpaged.
 	 *

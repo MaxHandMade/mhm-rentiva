@@ -12,7 +12,7 @@ if (! defined('ABSPATH')) {
 
 /**
  * Where a booking's payment stands -- the one truth the booking detail's
- * payment line and the dashboard card both read (PR D, Task 3 fix round 1).
+ * payment line and the dashboard card both read.
  *
  * Money received means a paid amount or a paid order; the booking's status
  * does not decide it (a pending_payment booking with a paid order is paid).

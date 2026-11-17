@@ -1,6 +1,6 @@
 <?php
 /**
- * Cancel-booking dialog (PR D, Task 4; drawing Rezervasyon-Detayi, 460px).
+ * Cancel-booking dialog (460px).
  *
  * The shared rvs dialog (rvs-overlay.css + rvs-dialog.js), opened by
  * booking-cancellation.js with focus on "Keep booking". JS contract:
@@ -11,7 +11,7 @@
  * mhmrentiva_cancel_booking_nonce, booking_id, reason.
  *
  * @var int    $booking_id
- * @var string $number      Display number (R4).
+ * @var string $number      Display number.
  * @var string $dialog_html Refund sentence, escaped (CancellationView), may be ''.
  * @var string $dialog_id
  */

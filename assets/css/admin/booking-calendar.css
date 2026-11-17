@@ -4,7 +4,7 @@
  */
 
 /* Legend Styles — shared by both booking and vehicle calendars.
-   Faz 2 Task 8: `.booking-calendar-page` was the old aggregate grid's own
+   `.booking-calendar-page` was the old aggregate grid's own
    scope class (BookingColumns::add_booking_calendar(), retired) — it is
    never emitted by any current markup, so the dual selectors this section
    used to carry are reduced to the still-live `.mhm-calendars` half.
@@ -12,7 +12,7 @@
    never renders a "Cancelled" swatch, `status-in-progress` (hyphen) never
    matched the emitted `status-in_progress` (underscore) class, and the
    remaining pending/confirmed/completed values are superseded by
-   occupancy-matrix.css's single canonical legend (Task 8) — keeping both
+   occupancy-matrix.css's single canonical legend — keeping both
    would leave two different colours claiming to be the pending swatch. */
 .mhm-calendars .calendar-legend {
 	margin-top: var(--mhm-space-5);
@@ -234,7 +234,7 @@
 /* The old per-status !important background block that used to live here
    (status-pending/confirmed/completed/cancelled, plus a status-in-progress
    variant that never matched the emitted status-in_progress class) is gone
-   — Faz 2 Task 8's occupancy-matrix.css is now the single canonical source
+   — occupancy-matrix.css is now the single canonical source
    for cell status colours on both screens; keeping !important rules here
    would have beaten it regardless of selector specificity. */
 .mhm-calendars .calendar-table td.day-cell.booked {

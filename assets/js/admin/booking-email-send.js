@@ -28,12 +28,12 @@
 		$container.prepend( $notice );
 	}
 
-	// The history note's result (PR 3b-2: it used to be a browser alert()).
+	// The history note's result (it used to be a browser alert()).
 	function showNoteNotice( $container, type, message ) {
 		showNotice( $container, 'mhm-history-notice', type, message );
 	}
 
-	// The e-mail box's results (PR 3b-3: they used to be browser alerts).
+	// The e-mail box's results (they used to be browser alerts).
 	function showEmailNotice( $container, type, message ) {
 		showNotice( $container, 'mhm-email-notice', type, message );
 	}
@@ -159,7 +159,7 @@
 		state.loadedType = emailType;
 	}
 
-	// H9: only the answer to the LAST request fills the box -- a slower answer
+	// Only the answer to the LAST request fills the box -- a slower answer
 	// to an earlier choice no longer overwrites a later one. A failed load names
 	// the type whose text the box still holds.
 	function loadEmailTemplate( $box, emailType, bookingId ) {

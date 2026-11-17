@@ -208,7 +208,7 @@ final class CustomersRestController {
 			// Per target, not once for the batch. delete_users says the caller
 			// may delete users; it does not say which, and it was the only thing
 			// standing between this route and any account on the site -- an
-			// editor, a second administrator -- which is what WordPress.org's T8
+			// editor, a second administrator -- which is what WordPress.org's
 			// review found. WordPress models the per-target question as the meta
 			// cap delete_user( $id ), so ask it, and ask whether the account is
 			// this plugin's to delete at all. Neither check implies the other:

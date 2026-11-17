@@ -19,7 +19,7 @@ use Throwable;
  * Safe Rollback Engine
  *
  * Implements atomic one-step flip between current and previous layout states.
- * Follows the binding state machine spec (A-F) and Chief Engineer directives.
+ * Follows the layout state machine.
  *
  * @package MHMRentiva\Layout\Versioning
  * @since 4.18.0

@@ -1,10 +1,9 @@
 /*
- * Vehicle list screen — refined WP-admin skin (Faz 1b, admin redesign
- * recipe). Same token language as booking-list.css; everything scoped
+ * Vehicle list screen — refined WP-admin skin. Same token language as booking-list.css; everything scoped
  * under the .mhm-vehicle-list body class. Light-committed: text colors
  * are pinned explicitly so the dark-scheme token flip in
  * css-variables.css cannot wash them out (measured on the bookings
- * round).
+ * screen).
  */
 
 /* ── Table as a white rounded card ── */
@@ -558,15 +557,15 @@
 	margin-bottom: 20px;
 }
 
-/* ── View-switch toggle (Faz 2 view engine) ──
-   Refined skin now lives in occupancy-matrix.css (Faz 2 Task 8), shared
+/* ── View-switch toggle ──
+   Refined skin now lives in occupancy-matrix.css, shared
    with the Bookings screen's identical toggle — the minimal placeholder
    that used to be here is gone. */
 
-/* ── Face visibility (Faz 2 view engine) ──
-   The cards/calendar FACES themselves land in Tasks 4 and 6; today these
-   only hide the list chrome so the (currently empty) content area below
-   the toolbar doesn't show a stray list table alongside it. Both non-list
+/* ── Face visibility ──
+   These rules only hide the list chrome: on the cards and calendar faces the
+   content area below the toolbar must not show a stray list table alongside
+   them (their own rules are further down). Both non-list
    faces keep `.tablenav-pages` and `.search-box` visible on this screen
    (unlike Bookings' calendar face, which also hides pagination) — the TOP
    tablenav's pagination is still meaningful here (cards/calendar rows come

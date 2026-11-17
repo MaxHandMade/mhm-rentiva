@@ -192,8 +192,7 @@ final class BookingNotifications {
 	/**
 	 * What a status e-mail adds to the booking context: the change, and the
 	 * cancellation reason for a cancellation. Public so the booking screen's
-	 * e-mail box fills a cancellation e-mail exactly as the automatic one
-	 * (PR 3b-3).
+	 * e-mail box fills a cancellation e-mail exactly as the automatic one does.
 	 *
 	 * @return array<string, mixed>
 	 */

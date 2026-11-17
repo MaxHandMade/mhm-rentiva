@@ -1,7 +1,6 @@
 <?php
 /**
- * The next-rental card of the account dashboard (PR D, Task 3; drawings
- * Hesabim + Hesabim-Mobil): image beside the content on desktop, image on top
+ * The next-rental card of the account dashboard: image beside the content on desktop, image on top
  * on phones. Buttons: Details (primary) and the secondary "Booking summary".
  *
  * @var array{number:string, status:array{modifier:string,label:string}, in_progress:bool, kicker:string, vehicle:string, image:string, pickup:string, return:string, location:?string, payment:array{label:string,amount_html:?string,note:?string}, details_url:string, summary_url:string, free_cancel:?string} $card AccountDashboardView::next_card().

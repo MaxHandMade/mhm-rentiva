@@ -873,7 +873,7 @@ final class RetiredIndexes {
         // tools, as an unescaped parameter. Verified: the alternative shape
         // (prepare() at the call site, runner takes the built SQL string)
         // ships a real PluginCheck.Security.DirectDB.UnescapedDBParameter
-        // finding in WP.org's own tool for no behavioural difference.
+        // warning in WP.org's own tool for no behavioural difference.
         $runner ??= static fn (string $index, string $table): bool => false !== $wpdb->query($wpdb->prepare('DROP INDEX %i ON %i', $index, $table));
 
         $out = array(

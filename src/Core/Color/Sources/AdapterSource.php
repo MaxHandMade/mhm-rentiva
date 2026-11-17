@@ -25,7 +25,7 @@ final class AdapterSource implements AccentSource {
 		return 'adapter';
 	}
 
-	/** The theme's name (raw, untranslated; plan R8). */
+	/** The theme's name (raw, untranslated). */
 	public function label(): string
 	{
 		return $this->label;

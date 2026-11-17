@@ -1,7 +1,6 @@
 /**
  * Rentiva front-end standard -- WooCommerce's cart, checkout, thank-you and
- * order-pay pages (PR K, R10, R12-R16). Canvas: `Sepet`, `Sepet-Mobil`,
- * `Odeme`, `Odeme-Mobil`, `Tesekkur`, `Tesekkur-Mobil`.
+ * order-pay pages.
  *
  * Two reaches, never more:
  *
@@ -30,7 +29,7 @@
 /* 1 · Page frame ----------------------------------------------------------- */
 
 /*
- * The cart's page title (canvas `Sepet`). Measured on dev 2026-11-02: an
+ * The cart's page title. Measured on dev 2026-11-02: an
  * Elementor template's "hide title" writes `:root { --page-title-display: none }`
  * (post-3577.css, the header template) and Elementor's `h1.entry-title` reads
  * it, so every page loses its title. A rental's cart shows its own again: the
@@ -456,7 +455,7 @@ body.rvs-rental .woocommerce .tax_label {
 /* The empty cart (RentalCheckoutLook::render_empty_cart()). Astra widens
    every child of a wide group on a block page (`.ast-plain-container
    .entry-content .wp-block-group.alignwide:not(...) > *`, five classes); the
-   id-weight `:not(#rvs-none)` keeps the card at the canvas's 560 px. */
+   id-weight `:not(#rvs-none)` keeps the card at 560 px. */
 .rvs-shell.rvs-cart-empty:not(#rvs-none) {
 	display: flex;
 	flex-direction: column;
@@ -481,7 +480,7 @@ body.rvs-rental .woocommerce .tax_label {
 }
 
 /* The card carries the vehicles button; WooCommerce's own link below it
-   points to the same page (R13 filters) and is not drawn twice. */
+   points to the same page and is not drawn twice. */
 .rvs-cart-empty ~ .return-to-shop {
 	display: none;
 }
@@ -557,7 +556,7 @@ body.rvs-rental .woocommerce .tax_label {
 
 /* 3 · Cart ----------------------------------------------------------------- */
 
-/* The line table and the totals card side by side (canvas: 560 / 340-380,
+/* The line table and the totals card side by side (560 / 340-380,
    40 apart), notices across. Astra floats `.cart_totals` at 48%; reset. */
 body.rvs-rental.woocommerce-cart .woocommerce {
 	display: flex;
@@ -588,7 +587,7 @@ body.rvs-rental.woocommerce-cart .woocommerce > .cart-collaterals {
 }
 
 /* The line: image, facts, quantity, due now, remove (desktop). A grid on the
-   row, so the remove control sits at the end, as the canvas draws it. */
+   row, so the remove control sits at the end. */
 body.rvs-rental.woocommerce-cart table.cart thead tr,
 body.rvs-rental.woocommerce-cart table.cart tr.cart_item {
 	display: grid;
@@ -833,7 +832,7 @@ body.rvs-rental.woocommerce-checkout form.checkout_coupon .clear {
 	display: none;
 }
 
-/* Billing on the left, the order on the right (canvas: 520+ / 400-460, 60
+/* Billing on the left, the order on the right (520+ / 400-460, 60
    apart). Astra floats #customer_details and the review and frames the review
    (Astra's inline `form #order_review:not(.elementor-widget-woocommerce-
    checkout-page #order_review)`, two ids of weight, and the same for the
@@ -1320,7 +1319,7 @@ body.rvs-rental.woocommerce-order-pay #order_review table.shop_table tr > :last-
 	text-align: end;
 }
 
-/* 8 · Phone (the canvas at 390) ---------------------------------------------- */
+/* 8 · Phone (at 390) ---------------------------------------------- */
 
 @media (max-width: 900px) {
 	body.rvs-rental.woocommerce-checkout form.checkout {

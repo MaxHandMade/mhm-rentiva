@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Reads `mhmrentiva_addon_price` and `_mhmrentiva_addon_pricing_type` from post meta.
  *
  * Context shape: array{rental_days?:int, adults?:int, children?:int, quantity?:int}
- * (`quantity`: how many of the add-on were taken, default 1 -- Aşama 2 K12).
+ * (`quantity`: how many of the add-on were taken, default 1).
  */
 final class AddonPricingCalculator {
 

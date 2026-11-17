@@ -96,7 +96,7 @@ class BookingFormWidget extends ElementorWidgetBase {
 			array(
 				'label'   => __( 'Form Title', 'mhm-rentiva' ),
 				'type'    => 'text',
-				// Empty: the title is shown only when set (spec 3A Task 6), so an
+				// Empty: the title is shown only when set, so an
 				// untouched widget gains no heading.
 				'default' => '',
 			)

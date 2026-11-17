@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * `mhm-rentiva-email-log` exporter and eraser (5a spec T7).
+ * `mhm-rentiva-email-log` exporter and eraser.
  *
  * A log entry is found when it was sent to the address or when its stored
  * context carries the address -- the copy sent to the site's administrator

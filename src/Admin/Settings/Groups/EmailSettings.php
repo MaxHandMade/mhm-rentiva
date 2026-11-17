@@ -81,8 +81,6 @@ final class EmailSettings {
 			// the site administrator has opted in by a deliberate action, and a
 			// shipped default is the opposite of that: it appears in every
 			// customer's inbox on a fresh install without anyone choosing it.
-			// Found by the T8 review at this line.
-			//
 			// The field itself is untouched and still free text, so an
 			// administrator who wants to credit the plugin can write whatever
 			// they like there. The plugin just stops writing it for them.
@@ -450,7 +448,7 @@ final class EmailSettings {
 	/**
 	 * The subject a template goes out with when the operator saved none --
 	 * the one the Settings screen shows, so the screen and the sent e-mail
-	 * agree (PR 3b-3). Null for a template the screen has no subject field
+	 * agree. Null for a template the screen has no subject field
 	 * for (the registry's subject applies).
 	 */
 	public static function default_subject( string $key ): ?string {

@@ -10,7 +10,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * Source 3: theme.json (spec §2 item 3).
+ * Source 3: theme.json.
  *
  * (a) The global button background, variables resolved; core's own #32373c is
  *     skipped. (b) Palette slugs `primary`, then `accent`, in the `custom` origin
@@ -28,7 +28,7 @@ final class ThemeJsonSource implements AccentSource
 		return 'theme_json';
 	}
 
-	/** 'button' or the palette slug (raw; plan R8). */
+	/** 'button' or the palette slug (raw). */
 	public function label(): string
 	{
 		return $this->label;

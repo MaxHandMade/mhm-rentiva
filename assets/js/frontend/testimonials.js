@@ -1,5 +1,5 @@
 /**
- * Testimonials (PR F): "Load more" and the slider. One instance per
+ * Testimonials: "Load more" and the slider. One instance per
  * [data-rvs-testimonials]; nothing is looked up outside its root, so two lists on a
  * page stay separate.
  *

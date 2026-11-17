@@ -123,7 +123,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		return array(
 			'mhmrentiva_vehicle_details' => array(
 				'title'        => __('Vehicle Details', 'mhm-rentiva'),
-				// Main column under the gallery (canvas Yon-Arac-Duzenle); the
+				// Main column under the gallery; the
 				// order itself comes from VehicleEditLayout.
 				'context'      => 'normal',
 				'priority'     => 'default',
@@ -152,7 +152,7 @@ final class VehicleMeta extends AbstractMetaBox {
 	}
 
 	/**
-	 * Line under the core H1 (canvas Yon-Arac-Duzenle): back to the list, then
+	 * Line under the core H1: back to the list, then
 	 * the vehicle's name. Runs on edit_form_top, inside form#post: links and
 	 * text only, no fields. A new vehicle has no name yet, so only the link.
 	 */
@@ -177,8 +177,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		if ($post_type === 'mhmrentiva_vehicle' && ( $pagenow === 'post.php' || $pagenow === 'post-new.php' )) {
 			// The screen styles under the ui-core kit and body.mhmui-admin
-			// (spec §Ortak katman M2, the pattern of the setup wizard and the
-			// new-booking screen).
+			// (the pattern of the setup wizard and the new-booking screen).
 			\MHMRentiva\Admin\Core\AssetManager::enqueue_kit('admin');
 			add_filter('admin_body_class', array( self::class, 'add_body_class' ));
 
@@ -750,7 +749,7 @@ final class VehicleMeta extends AbstractMetaBox {
 	}
 
 	/**
-	 * Detail fields that hold an optional positive count (Aşama 2 K11).
+	 * Detail fields that hold an optional positive count.
 	 */
 	public const COUNT_DETAILS = array( 'daily_km_limit', 'min_driver_age', 'min_license_years', 'vehicle_max_big_luggage' );
 

@@ -1,8 +1,7 @@
 /**
  * Rentiva front-end standard -- the search results page.
  *
- * Values from the approved canvas (`Arama-Sonuclari`, `Arama-Sonuclari-Mobil`):
- * a 250 px filter column beside the results, a header line with the sort, the
+ * Values: a 250 px filter column beside the results, a header line with the sort, the
  * active-filter chips, the card grid (rvs-card.css), 44×44 page buttons and a
  * sticky comparison band. At 768 px and below the filter column becomes a
  * drawer (search-results.js gives it the dialog semantics while it is open).
@@ -228,7 +227,7 @@
 
 /* Results ------------------------------------------------------------------ */
 
-/* The canvas grid: 260 px minimum, as many as fit. */
+/* The card grid: 260 px minimum, as many as fit. */
 .rvs-shell .rvs-results__grid.rvs-card-grid {
 	--rvs-cols: 3;
 }

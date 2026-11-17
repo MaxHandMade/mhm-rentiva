@@ -14,10 +14,10 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * The look of WooCommerce's cart, checkout, thank-you and order-pay pages
- * (PR K, R10, R12-R16): which requests load rvs-checkout.css, the hooks the
+ * The look of WooCommerce's cart, checkout, thank-you and order-pay pages: which requests
+ * load rvs-checkout.css, the hooks the
  * stylesheet relies on, and the few words those pages need to match the
- * canvas (`Sepet`, `Odeme`, `Tesekkur`).
+ * rest of the booking flow.
  *
  * Two reaches. The whole page wears the Rentiva look only on a request of
  * exactly one rental, and on the thank-you page of an order of rentals only
@@ -35,7 +35,7 @@ final class RentalCheckoutLook {
 	public const LINE_CLASS = 'rvs-cart-line';
 
 	/**
-	 * The cart table's column heads for one rental, as the canvas names them.
+	 * The cart table's column heads for one rental, as the design names them.
 	 *
 	 * @var array<string, string>
 	 */
@@ -204,7 +204,7 @@ final class RentalCheckoutLook {
 	}
 
 	/**
-	 * The empty cart (canvas `Sepet`, "sepet boş"): a card that sends the
+	 * The empty cart ("sepet boş"): a card that sends the
 	 * customer to the vehicles, in place of WooCommerce's notice. It keeps the
 	 * `wc-empty-cart-message` wrapper: cart.js looks for it after the last line
 	 * is removed.
@@ -253,7 +253,7 @@ final class RentalCheckoutLook {
 
 	/**
 	 * What to send and how to send the receipt, under WooCommerce's bank
-	 * details (R10). The figure to send is the order's total in the order's
+	 * details. The figure to send is the order's total in the order's
 	 * currency -- what the bank must receive, tax, coupons and fees included;
 	 * the snapshot's deposit is a net price and can differ. Only
 	 * the label says "deposit" when the order charges one. What is left for

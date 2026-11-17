@@ -152,8 +152,8 @@ final class AccountRenderer {
 		);
 
 		// The next rental (card + line under the greeting) and the upcoming list
-		// (PR D, y16). `recent_bookings` stays filled for back-compat (Pro or a
-		// theme template may read it); the shipped template no longer does.
+		// `recent_bookings` stays filled for back-compat (Pro or a theme
+		// template may read it); the shipped template no longer does.
 		$now_ts  = time();
 		$next_id = AccountDashboardView::next_booking_id( (int) $user->ID, $now_ts);
 		$next    = null;
@@ -197,7 +197,7 @@ final class AccountRenderer {
 	/**
 	 * Get bookings data
 	 *
-	 * The list shows one section (PR D, R5/R6): `mhmrentiva_view` names it,
+	 * The list shows one section: `mhmrentiva_view` names it,
 	 * Upcoming by default. The shortcode's `status` attribute fixes the list to
 	 * one status: no section control, no section. The old filter vars
 	 * (mhmrentiva_status_filter, mhmrentiva_search_booking) still narrow the
@@ -210,7 +210,7 @@ final class AccountRenderer {
 
 		// Without an `order` each section keeps its own pickup order
 		// (AccountBookingsQuery::segment_ids()). An explicit Sort Order wins: by
-		// created date, the only `orderby` left (spec 3A Task 7a).
+		// created date, the only `orderby` left.
 		$args = array(
 			'limit'   => (int) ( $atts['limit'] ?? 10 ),
 			'status'  => self::sanitize_text_field_safe($atts['status'] ?? ''),
@@ -239,9 +239,8 @@ final class AccountRenderer {
 		$query       = self::query_user_bookings($user->ID, $args + array( 'page' => $page ));
 		$total_pages = $paginate ? max(1, (int) $query->max_num_pages) : 1;
 
-		// Past the last page (Review Focus 2), however large the number, shows the
-		// last page. WP_Query leaves found_posts at 0 for an empty page, so count
-		// on page 1.
+		// Past the last page, however large the number, shows the last page.
+		// WP_Query leaves found_posts at 0 for an empty page, so count on page 1.
 		if ($paginate && $page > 1 && ( array() === $query->posts || $page > $total_pages )) {
 			$total_pages = max(1, (int) self::query_user_bookings($user->ID, $args + array( 'page' => 1 ))->max_num_pages);
 			$page        = min($page, $total_pages);
@@ -255,7 +254,7 @@ final class AccountRenderer {
 			'bookings'           => $query->posts,
 			'navigation'         => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
 			'atts'               => $atts,
-			// Sections (PR D).
+			// Sections.
 			'segment'            => $args['segment'],
 			'show_segments'      => $show_segments,
 			'counts'             => $counts,
@@ -324,7 +323,7 @@ final class AccountRenderer {
 			'booking_rows'       => $rows,
 			'navigation'         => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
 			'atts'               => $atts,
-			// Every sample row is drawn, so all of them count as Upcoming (r2 m7).
+			// Every sample row is drawn, so all of them count as Upcoming.
 			'segment'            => AccountBookingsQuery::UPCOMING,
 			'show_segments'      => '' === self::sanitize_text_field_safe($atts['status'] ?? ''),
 			'counts'             => array(
@@ -535,9 +534,9 @@ final class AccountRenderer {
 	 */
 	public static function get_payment_history_data(array $atts = array()): array
 	{
-		// Spec 3A Task 7b. The page comes from its own public query var
-		// mhmrentiva_payments_page (exception 5; 3B-2a U5-2: it used to share
-		// mhmrentiva_page with the bookings list): core `paged` is moved into the path by
+		// The page comes from its own public query var
+		// mhmrentiva_payments_page (it used to share mhmrentiva_page with the
+		// bookings list): core `paged` is moved into the path by
 		// redirect_canonical() on a WooCommerce endpoint, so "Next" always showed
 		// page 1. Pagination off is today's first page, the page var ignored.
 		// A limit of 0, empty or negative is not a page size: today's 10.
@@ -837,7 +836,7 @@ final class AccountRenderer {
 	/**
 	 * The query behind get_user_bookings(), for callers that page through it
 	 * (`page`, 1-based; max_num_pages on the result). A thin wrapper: the one
-	 * bookings query path is AccountBookingsQuery (r3 y2); `segment` narrows to
+	 * bookings query path is AccountBookingsQuery; `segment` narrows to
 	 * a section of the list.
 	 */
 	private static function query_user_bookings(int $user_id, array $args = array()): \WP_Query
@@ -902,7 +901,7 @@ final class AccountRenderer {
 					$payment_status = ! empty($status_key) ? $status_key : 'pending';
 			}
 
-			// The truth about the row (R13, PR D). What the detail and the card call
+			// The truth about the row. What the detail and the card call
 			// refunded, or a stored cancelled / refunded / failed (a terminal state
 			// written on purpose), is cancelled and is not overruled by the money
 			// once received. A partial refund on a live rental stays completed. Otherwise money
@@ -966,7 +965,7 @@ final class AccountRenderer {
 
 				$receipt_attachment_id = (int) get_post_meta($booking->ID, '_mhmrentiva_receipt_attachment_id', true);
 
-				// The title is the car, the number the one every screen shows (R4).
+				// The title is the car, the number the one every screen shows.
 				$vehicle_post  = get_post( (int) get_post_meta($booking->ID, '_mhmrentiva_vehicle_id', true));
 				$vehicle_title = $vehicle_post instanceof \WP_Post && '' !== $vehicle_post->post_title ? $vehicle_post->post_title : __('N/A', 'mhm-rentiva');
 
@@ -1071,7 +1070,7 @@ final class AccountRenderer {
 
 		$total       = count($payments);
 		$total_pages = max(1, (int) ceil($total / max(1, $per_page)));
-		// Past the last page (Review Focus 2) shows the last page.
+		// Past the last page shows the last page.
 		$page   = min(max(1, $page), $total_pages);
 		$offset = ( $page - 1 ) * $per_page;
 

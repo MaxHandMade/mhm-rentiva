@@ -1,6 +1,6 @@
 <?php
 /**
- * Testimonials: grid, list or slider of the same card (PR F, drawing `Yorumlar`).
+ * Testimonials: grid, list or slider of the same card.
  *
  * The page's `.rvs-shell` wrapper comes from AbstractShortcode. Script hooks
  * (testimonials.js): [data-rvs-testimonials], [data-rvs-items], [data-rvs-card],

@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Why a marker and not a lock (5a spec r4, T4).
+ * Why a marker and not a lock.
  *
  * WordPress calls an eraser with only ($email, $page). An item the eraser
  * cannot erase keeps matching the e-mail, so without a marker every later page

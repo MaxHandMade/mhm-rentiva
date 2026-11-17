@@ -15,7 +15,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * View values of the account dashboard (PR D, Task 3): the greeting, the line
+ * View values of the account dashboard: the greeting, the line
  * under it and the next-rental card. No query of its own -- the candidates
  * come from AccountBookingsQuery::next_rental_candidates().
  *

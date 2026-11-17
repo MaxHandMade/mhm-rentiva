@@ -2,15 +2,15 @@
  * Vehicle edit screen (post.php / post-new.php, mhmrentiva_vehicle):
  * the Vehicle Details box and the line under the H1.
  *
- * Drawn after the canvas Yon-Arac-Duzenle v144 (PR 4). Scoped under
+ * Scoped under
  * body.mhmui-admin (VehicleMeta::add_body_class); values from the ui-core
- * kit tokens (--mhmui-*), with the canvas's WP core palette where the kit has
+ * kit tokens (--mhmui-*), with the WP core palette where the kit has
  * no token. Handle mhm-rentiva-vehicle-meta-css depends on mhmuicore-admin.
- * Classes and ids the scripts bind (spec §Sözleşmeler) are styled, never
+ * Classes and ids the scripts bind are styled, never
  * renamed: #details-grid, #features-grid, #equipment-grid, data-*-key.
  */
 
-/* Line under the core H1 (canvas Yon-Arac-Duzenle) ------------ */
+/* Line under the core H1 ------------ */
 
 body.mhmui-admin .mhm-screen-subline {
 	display: flex;
@@ -180,7 +180,7 @@ body.mhmui-admin #equipment-grid .mhm-equipment-item {
 
 /*
  * core.css's global .mhm-ui-checkbox (shared with other screens, left alone)
- * frames each label with !important; the canvas draws bare rows here, so this
+ * frames each label with !important; the design uses bare rows here, so this
  * scoped rule wins on specificity with !important of its own.
  */
 body.mhmui-admin #features-grid .mhm-ui-checkbox,

@@ -17,10 +17,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Shared fleet occupancy calendar matrix.
  *
- * Faz 2 Task 4: the renderer both the Vehicles Calendar face (this task)
- * and, from Task 5, the Bookings Calendar face paint through. Replaces the
- * two near-duplicate monthly-calendar renderers that used to live inline in
- * VehicleColumns and BookingColumns.
+ * The renderer both the Vehicles Calendar face and the Bookings Calendar face
+ * paint through. Replaces the two near-duplicate monthly-calendar renderers
+ * that used to live inline in VehicleColumns and BookingColumns.
  *
  * ONE `OccupancyMapService::get_map()` call per render, ONE
  * `update_meta_cache('post', ...)` call for the row vehicles' blocked-dates
@@ -38,7 +37,7 @@ final class FleetOccupancyMatrix {
 	 * `OccupancyMapService::reduce()` winners mapped to their cell class.
 	 * `in_progress` gets its OWN class instead of falling back to
 	 * `status-pending` the way the old vehicle calendar's color map did —
-	 * the CSS for it lands in Task 8.
+	 * it has its own CSS.
 	 */
 	private const STATUS_CLASSES = array(
 		'pending'     => 'status-pending',

@@ -365,7 +365,7 @@ final class EmailTemplates {
 		if ($booking_id > 0) {
 			$paymentState = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id );
 
-			// The context the automatic e-mail is built from (PR 3b-3), so the
+			// The context the automatic e-mail is built from, so the
 			// preview shows what the customer gets: formatted dates, the greeting
 			// name, the real total. A cancellation adds what its automatic
 			// e-mail adds (status change, reason).

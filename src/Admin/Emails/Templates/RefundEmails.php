@@ -25,7 +25,7 @@ final class RefundEmails {
 		echo '<p class="description">' . esc_html__( 'Manage email templates for refund operations.', 'mhm-rentiva' ) . '</p>';
 		echo '<p class="description">' . esc_html__( 'Available placeholders: {booking_id}, {vehicle_title}, {amount}, {currency}, {status}, {reason}, {contact_name}, {contact_email}, {site_name}', 'mhm-rentiva' ) . '</p>';
 
-		// The saved value as saved, else the default (PR 3b-3; see
+		// The saved value as saved, else the default (see
 		// BookingNotifications::render()).
 		$get_val = function ( $key, $default_callback ) {
 			$val = get_option( $key, '' );

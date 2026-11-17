@@ -31,7 +31,7 @@ abstract class AbstractShortcode {
 	 *
 	 * `query_vars` is a site-wide namespace shared with core and every other
 	 * plugin, so a bare `sort`/`brand`/`seats` registered there is a collision
-	 * waiting to happen (and a WP.org submission finding). The prefix keeps the
+	 * waiting to happen (and something a WP.org review flags). The prefix keeps the
 	 * plugin's names in its own corner of that namespace.
 	 */
 	public const QUERY_VAR_PREFIX = 'mhmrentiva_';
@@ -714,8 +714,8 @@ abstract class AbstractShortcode {
 	{
 		$factors = array( 'window' => self::request_window() );
 
-		// The account bookings list's section, page and old filter vars (PR D,
-		// m8): two requests for the same list that narrow it differently must
+		// The account bookings list's section, page and old filter vars: two
+		// requests for the same list that narrow it differently must
 		// not share an entry.
 		foreach (array( 'mhmrentiva_view', 'mhmrentiva_page', 'mhmrentiva_status_filter', 'mhmrentiva_search_booking' ) as $var) {
 			$value = get_query_var($var, '');

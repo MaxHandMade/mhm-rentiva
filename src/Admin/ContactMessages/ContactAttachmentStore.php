@@ -10,7 +10,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * Contact-form attachments, outside the media library (spec §4, R4).
+ * Contact-form attachments, outside the media library.
  *
  * NOT encrypted. The claim is "random name, no extension, direct access denied
  * on Apache"; on nginx only the unguessable name and index.php stand between a
@@ -34,7 +34,7 @@ final class ContactAttachmentStore {
 
 	/**
 	 * Wrapped on purpose: an unwrapped "Deny from all" is a 500 on Apache 2.4
-	 * without mod_access_compat (spec §4).
+	 * without mod_access_compat.
 	 */
 	private const HTACCESS = "<IfModule mod_authz_core.c>\nRequire all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\nOrder deny,allow\nDeny from all\n</IfModule>\nForceType application/octet-stream\n<IfModule mod_headers.c>\nHeader set X-Content-Type-Options nosniff\n</IfModule>\n";
 
@@ -136,7 +136,7 @@ final class ContactAttachmentStore {
 		$overrides = array(
 			'test_form'                => false,
 			// Re-check with OUR map: a site's own upload_mimes may narrow it
-			// further (R-17), but never widen it.
+			// further, but never widen it.
 			'test_type'                => true,
 			'mimes'                    => ContactAttachmentValidator::TYPES,
 			'unique_filename_callback' => static function () use ($token): string {
@@ -231,7 +231,7 @@ final class ContactAttachmentStore {
 		$file = bin2hex(random_bytes(16));
 		$dest = $root . '/' . $file;
 		// Plain copy(), not WP_Filesystem: that may need credentials on a
-		// non-direct host, and this must run wherever wp_handle_upload() did (R-11).
+		// non-direct host, and this must run wherever wp_handle_upload() did.
 		$ok = copy($src, $dest) && hash_file('sha256', $src) === hash_file('sha256', $dest);
 
 		return self::finish($ok, $dest, $file, self::clean_name($original_name), $mime, (int) filesize($src));
@@ -270,7 +270,7 @@ final class ContactAttachmentStore {
 		return is_string($v) ? $v : '';
 	}
 
-	/** R-10: a raw URL (no &amp;), usable verbatim as an href; the nonce is bound to this record. */
+	/** A raw URL (no &amp;), usable verbatim as an href; the nonce is bound to this record. */
 	public static function download_url(int $post_id): string
 	{
 		return add_query_arg(
@@ -330,7 +330,7 @@ final class ContactAttachmentStore {
 	}
 
 	/**
-	 * Uninstall (R-2): only files this class names, then the guards and the
+	 * Uninstall: only files this class names, then the guards and the
 	 * folder if nothing else is left. Never recursive, whatever the filter says.
 	 */
 	public static function purge(): void
@@ -350,7 +350,7 @@ final class ContactAttachmentStore {
 		}
 		wp_delete_file($root . '/index.php');
 		wp_delete_file($root . '/.htaccess');
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- R-11; the folder is empty at this point (checked above).
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- WP_Filesystem may need credentials on a non-direct host; the folder is empty at this point (checked above).
 		rmdir($root);
 	}
 
@@ -389,8 +389,8 @@ final class ContactAttachmentStore {
 			}
 			return self::unavailable();
 		}
-		// A failed chmod is not an upload failure (spec §4): the host decides.
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod,WordPress.PHP.NoSilencedErrors.Discouraged -- R-11.
+		// A failed chmod is not an upload failure: the host decides.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod,WordPress.PHP.NoSilencedErrors.Discouraged -- WP_Filesystem may need credentials on a non-direct host.
 		@chmod($dest, 0600);
 		clearstatcache(true, $dest);
 		if ( (int) filesize($dest) !== $size) {
@@ -415,7 +415,7 @@ final class ContactAttachmentStore {
 	private static function write_if_missing(string $path, string $contents): void
 	{
 		if (! file_exists($path)) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- R-11.
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- WP_Filesystem may need credentials on a non-direct host.
 			file_put_contents($path, $contents);
 		}
 	}

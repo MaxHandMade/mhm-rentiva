@@ -1,5 +1,5 @@
 /**
- * Booking form (`[rentiva_booking_form]`, Aşama 2 PR C).
+ * Booking form (`[rentiva_booking_form]`).
  *
  * Markup: templates/shortcodes/booking-form.php and
  * templates/partials/selected-vehicle-summary.php. Every lookup starts at the
@@ -474,7 +474,7 @@
                 requestData.append('pickup_time', formData.pickup_time);
             }
             requestData.append('payment_type', formData.payment_type);
-            // No pickup location: the server takes the car's own point (PR S).
+            // No pickup location: the server takes the car's own point.
             // Display only: a form with enable_deposit="0" names no deposit.
             requestData.append('enable_deposit', this.container.attr('data-rvs-deposit') === '0' ? '0' : '1');
 

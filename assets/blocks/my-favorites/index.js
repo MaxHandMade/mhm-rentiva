@@ -98,7 +98,7 @@
                             checked: showCategory,
                             onChange: function (val) { setAttributes({ showCategory: val }); }
                         }),
-                        // Spec 3A Task 7b (rule 2): on favourites the heart is the
+                        // On favourites the heart is the
                         // remove button; this control wrote a twin key nothing read.
                         el(ToggleControl, {
                             label: __('Show Remove Button', 'mhm-rentiva'),

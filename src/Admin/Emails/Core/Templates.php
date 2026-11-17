@@ -189,7 +189,7 @@ final class Templates {
 		// translatable). Re-wrapping either in __() here would be invalid i18n
 		// (variable first argument) — pass the value through as-is.
 		// The Settings screen's default first, so an unsaved subject goes out as
-		// the screen shows it (PR 3b-3); otherwise the registry's.
+		// the screen shows it; otherwise the registry's.
 		$tpl = EmailSettings::default_subject( $key ) ?? ( $reg[ $key ]['subject'] ?? ( 'Notification: ' . $key ) );
 		$sub = self::replace_placeholders( $tpl, $context );
 		$sub = apply_filters( 'mhmrentiva_email_subject', $sub, $key, $context );
@@ -250,7 +250,7 @@ final class Templates {
 
 	/**
 	 * The inner part of a template that the booking's e-mail box lets the
-	 * operator edit (PR 3b-3). Mirrors render_body()'s branches:
+	 * operator edit. Mirrors render_body()'s branches:
 	 * - a saved or default body (getBodyOverride): that body, raw context, no
 	 *   filters -- render_body() filters the WRAPPED document in this branch;
 	 *   a full document or a <body>-only one gives its <body> content;
@@ -692,7 +692,7 @@ final class Templates {
 			case 'booking_cancelled':
 				return EmailSettings::get_default_booking_cancelled_body();
 			// The body the Settings screen shows for the reminder; the sender
-			// used to fall back to the .html.php file instead (PR 3b-3 R3).
+			// used to fall back to the .html.php file instead.
 			case 'booking_reminder_customer':
 				return EmailSettings::get_default_booking_reminder_body();
 			case 'welcome_customer':
@@ -703,7 +703,7 @@ final class Templates {
 	}
 
 	public static function replace_placeholders( string $tpl, array $context ): string {
-		// A greeting reads customer.salutation_name (PR 3b-3); a context that
+		// A greeting reads customer.salutation_name; a context that
 		// does not carry it (Pro's message e-mails) greets by the name.
 		if ( isset( $context['customer'] ) && is_array( $context['customer'] ) && ! isset( $context['customer']['salutation_name'] ) ) {
 			$context['customer']['salutation_name'] = (string) ( $context['customer']['name'] ?? '' );

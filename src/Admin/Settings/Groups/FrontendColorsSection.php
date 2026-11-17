@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Settings > Frontend > Colors: the accent mode, the color picker, the source
  * line, the two readability notices, the page cache note and a small inert
- * .rvs-shell preview (spec §8).
+ * .rvs-shell preview.
  *
  * PHP decides, JavaScript only previews: every sentence is translated here and
  * printed into the markup (variable ones as a `data-template` holding `%s`), so
@@ -101,7 +101,7 @@ final class FrontendColorsSection {
 	}
 
 	/**
-	 * Small inert .rvs-shell sample (plan R9): primary button, link, three
+	 * Small inert .rvs-shell sample: primary button, link, three
 	 * calendar days (selected, today, plain) and a "Confirmed" tag. It wears the
 	 * saved palette from the rvs token sheet; JavaScript repaints it on change.
 	 */
@@ -120,7 +120,7 @@ final class FrontendColorsSection {
 	}
 
 	/**
-	 * Where the colour comes from, as the label of "Source: %s" (plan R10).
+	 * Where the colour comes from, as the label of "Source: %s".
 	 * Translated plain text, not escaped: the caller escapes.
 	 *
 	 * @param array{source:string,label:string,is_default:bool} $resolved

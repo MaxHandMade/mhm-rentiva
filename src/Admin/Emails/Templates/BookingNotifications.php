@@ -31,7 +31,7 @@ final class BookingNotifications {
 		 */
 		// The saved value as saved, else the default the sender also falls back
 		// to. A saved body without a style marker used to be swapped for the
-		// default on this screen while the sender used it (PR 3b-3).
+		// default on this screen while the sender used it.
 		$get_val = function ( string $key, callable $default_callback ): string {
 			$val = (string) get_option( $key, '' );
 			// An old shipped default counts as not saved, as the sender reads it.

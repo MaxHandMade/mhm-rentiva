@@ -441,7 +441,7 @@ final class AddonManager {
 	 * TransferCartIntegration::validate_required_addons()). The rental form did
 	 * not: its check sat on the `mhmrentiva_booking_validation` filter, which
 	 * nothing ever applied, so a rental went through without the service and
-	 * without its price (audit 2026-10-20, F-2). The booking form's submission
+	 * without its price. The booking form's submission
 	 * and its price quote both ask here now.
 	 *
 	 * Only services that may be sold count: a required service that is switched
@@ -731,7 +731,7 @@ final class AddonManager {
 			// ran wp_delete_post( $id, true ) on them -- a permanent delete of
 			// any post on the site, pages and other plugins' content included,
 			// behind a capability (manage_options) that says nothing about the
-			// object. This is the same shape WordPress.org's T8 review found on
+			// object. This is the same shape WordPress.org's review found on
 			// /customers/bulk, and the price handler further down this very file
 			// already guards it correctly; only the bulk path was missing it.
 			$addon = get_post( $addon_id );

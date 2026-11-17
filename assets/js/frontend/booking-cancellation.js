@@ -1,5 +1,5 @@
 /**
- * Booking cancellation -- My Account > booking detail (PR D, Task 4).
+ * Booking cancellation -- My Account > booking detail.
  *
  * The cancel button ([data-rvs-cancel-open], aria-controls = the dialog's id)
  * opens the shared rvs dialog (window.mhmRentivaRvsDialog) with focus on

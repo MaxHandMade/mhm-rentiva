@@ -241,7 +241,7 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-rvs-booking', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-booking', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-booking.css', array( 'mhm-rentiva-rvs-forms', 'mhm-rentiva-rvs-breakdown', 'mhm-rentiva-rvs-card', 'mhm-rentiva-rvs-datepicker' ), self::get_file_version('assets/css/frontend/rvs-booking.css'));
 		}
-		// WooCommerce's cart, checkout, thank-you and order-pay pages (PR K): on
+		// WooCommerce's cart, checkout, thank-you and order-pay pages: on
 		// the journey's styles, which bring the form primitives and the breakdown.
 		if (! wp_style_is('mhm-rentiva-rvs-checkout', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-checkout', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-checkout.css', array( 'mhm-rentiva-rvs-booking' ), self::get_file_version('assets/css/frontend/rvs-checkout.css'));
@@ -249,7 +249,7 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-rvs-overlay', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-overlay', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-overlay.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-overlay.css'));
 		}
-		// My Account (PR D). The navigation and page layout layer stands alone:
+		// My Account. The navigation and page layout layer stands alone:
 		// WooCommerce's own endpoints load only it (AccountSurface::WC).
 		if (! wp_style_is('mhm-rentiva-rvs-account-nav', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-account-nav', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-account-nav.css', array( 'mhm-rentiva-rvs-shell' ), self::get_file_version('assets/css/frontend/rvs-account-nav.css'));
@@ -648,7 +648,7 @@ final class AssetManager {
 				'compare_nonce'      => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_toggle_compare'),
 				'compare_page_url'   => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'),
 				'favorites_page_url' => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_favorites'),
-				// The rental window's query vars: the script adds them to the comparison links (R3).
+				// The rental window's query vars: the script adds them to the comparison links.
 				'forward_keys'       => array_map(
 					array( \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::class, 'query_var' ),
 					\MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::FORWARD_KEYS
@@ -1079,7 +1079,7 @@ final class AssetManager {
 					'mhmVehicleMeta',
 					array(
 						// No ajaxUrl / nonce: the item order is saved with the
-						// Update (hidden <grid>_order fields), not over AJAX (PR 4).
+						// Update (hidden <grid>_order fields), not over AJAX.
 						'strings' => array(
 							'enterNewFeature'        => __('Enter new feature name:', 'mhm-rentiva'),
 							'enterNewEquipment'      => __('Enter new equipment name:', 'mhm-rentiva'),
@@ -1242,7 +1242,7 @@ final class AssetManager {
 			// The gallery script and its mhmVehicleGallery data are VehicleGallery's
 			// (VehicleGallery::enqueue_scripts()). A second enqueue + localize here
 			// carried another nonce action than the gallery handlers verify; the
-			// later localize won, so it only ever risked the wrong one (PR 4).
+			// later localize won, so it only ever risked the wrong one.
 
 			// Vehicle Meta Component
 			self::enqueue_component_js('vehicle-meta');

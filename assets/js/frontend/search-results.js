@@ -1,5 +1,5 @@
 /**
- * Search results (front-end standard, Aşama 2 PR 3).
+ * Search results (front-end standard).
  *
  * One instance per [data-rvs-results] root: filters, chips, sort, the grid/list
  * switch and the page buttons reload the results over AJAX, keeping the search
@@ -148,7 +148,7 @@
 	}
 
 	/**
-	 * Skeleton cards (drawing Bos-Hata) hold the grid's place while a reload is
+	 * Skeleton cards hold the grid's place while a reload is
 	 * in flight; the grid is `aria-busy` through the root, and the page's
 	 * pre-rendered status region names what is loading.
 	 */

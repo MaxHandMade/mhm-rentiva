@@ -10,7 +10,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * Streams a contact attachment to an administrator (spec §4).
+ * Streams a contact attachment to an administrator.
  *
  * Uses admin-post.php, not REST: a REST response JSON-encodes the body. The
  * decision (resolve) and the output (serve) are separate from handle(),
@@ -106,7 +106,7 @@ final class ContactAttachmentDownload {
 		}
 
 		// Streams without holding the file in memory. WPCS warns on readfile();
-		// WP_Filesystem has no streaming read (R-11).
+		// WP_Filesystem has no streaming read.
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile -- See the note above.
 		readfile($file['path']);
 	}

@@ -851,7 +851,7 @@ final class Util {
 	// check_availability_locked() lived here until 6.0.3: a correctly built locked
 	// availability check that nothing ever called, in either edition. It was the
 	// only caller of Locker::withLock(), which is how the locking layer came to be
-	// entirely dead while the live booking path ran unprotected (finding C-01).
+	// entirely dead while the live booking path ran unprotected.
 	// The live path now locks for itself in
 	// WooCommerceBridge::create_booking_from_data(); this scaffolding is removed
 	// rather than left as a second, unexercised way to do the same thing.

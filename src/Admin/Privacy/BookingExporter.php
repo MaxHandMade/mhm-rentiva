@@ -18,11 +18,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Exporter callback for `mhm-rentiva-bookings` (5a spec T6).
+ * Exporter callback for `mhm-rentiva-bookings`.
  *
  * Every booking that matches, active or closed: the right of access covers
  * all of them. The History box's entries go out in full, staff notes included
- * (decision K4, 2026-11-03: the box itself tells staff so). Left out: who
+ * (the box itself tells staff so). Left out: who
  * cancelled and with which roles (the operator's data), the internal action
  * log, internal IDs.
  */

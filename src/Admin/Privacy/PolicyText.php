@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Settings → Privacy → Policy guide entry (5a spec T8). The site owner copies
+ * Settings → Privacy → Policy guide entry. The site owner copies
  * what applies; the `privacy-policy-tutorial` paragraph is guidance for them
  * and is left out when copied.
  */

@@ -1,7 +1,7 @@
 /**
  * Rentiva front-end standard -- vehicle card and the card grid.
  *
- * Values from the approved canvas (`Arama-Sonuclari`, `Anasayfa`). Colours,
+ * Colours,
  * paddings and radii read --rvs-card-* tokens (defaults in rvs-tokens.css), so
  * the Elementor card controls restyle the card by writing those tokens on the
  * widget's .rvs-shell.
@@ -366,7 +366,7 @@
 	font-size: 13px;
 }
 
-/* Ç6: the required services a dated total includes (body color, not muted). */
+/* The required services a dated total includes (body color, not muted). */
 .rvs-shell .rvs-card__required {
 	margin-top: 2px;
 	color: var(--rvs-text);

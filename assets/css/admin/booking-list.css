@@ -397,7 +397,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   Refined WP-admin skin (Faz 1a list transform — admin redesign recipe).
+   Refined WP-admin skin.
    Joins the existing .mhm-booking-list scope and class names; only the
    NEW chip strip uses the rv-bkl- prefix. Soft pill palette per mockup.
    ═══════════════════════════════════════════════════════════════════════ */
@@ -686,8 +686,8 @@
 	margin-bottom: 20px;
 }
 
-/* ── View-switch toggle (Faz 2 view engine) ──
-   Refined skin now lives in occupancy-matrix.css (Faz 2 Task 8), shared
+/* ── View-switch toggle ──
+   Refined skin now lives in occupancy-matrix.css, shared
    with the Vehicles screen's identical toggle — the minimal placeholder
    that used to be here is gone. `.rv-bkl-toolbar-row` only exists when a
    toolbar subscriber is present (JS wraps toggle + toolbar together
@@ -705,10 +705,10 @@
 	margin: 0;
 }
 
-/* ── Face visibility (Faz 2 view engine) ──
-   The calendar FACE itself lands in Task 5; today `view=calendar` only
-   hides the list chrome so the (currently empty) content area below the
-   toolbar doesn't show a stray list table alongside it. Bookings has no
+/* ── Face visibility ──
+   This section only hides the list chrome: under `view=calendar` the content
+   area below the toolbar must not show a stray list table alongside the
+   calendar (its own rules are further down). Bookings has no
    cards face. Unlike Vehicles, pagination is not meaningful on this face,
    so `.tablenav-pages` stays hidden on the TOP row too. The BOTTOM row is
    emptied instead of hidden (see the next rule): with the list table gone

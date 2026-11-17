@@ -1,5 +1,5 @@
 /**
- * Rating form (PR F): field errors under their fields, a lasting answer, edit in
+ * Rating form: field errors under their fields, a lasting answer, edit in
  * place, delete through the shared rvs dialog. One instance per [data-rvs-rating]:
  * nothing is looked up outside its root, so two forms on a page stay separate.
  *

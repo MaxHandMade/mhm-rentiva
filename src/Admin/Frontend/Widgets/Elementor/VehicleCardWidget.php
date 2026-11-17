@@ -367,7 +367,7 @@ class VehicleCardWidget extends ElementorWidgetBase {
 				'label_on'     => __( 'Yes', 'mhm-rentiva' ),
 				'label_off'    => __( 'No', 'mhm-rentiva' ),
 				'return_value' => '1',
-				// Off: the card has always shown the average alone (spec 3A §2.2).
+				// Off: the card has always shown the average alone.
 				'default'      => '0',
 				'condition'    => array(
 					'show_rating' => 'yes',

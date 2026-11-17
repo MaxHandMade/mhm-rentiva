@@ -2,8 +2,7 @@
  * Rentiva front-end standard -- the review component.
  *
  * Markup: templates/partials/rvs/review-*.php and
- * templates/shortcodes/vehicle-rating-form.php. Layout from the drawings
- * `Puan-Formu` and `Puan-Formu-Mobil`; colours, type and corners from
+ * templates/shortcodes/vehicle-rating-form.php. Colours, type and corners from
  * rvs-tokens.css. `.rvs-review` knows no layout: a list or a grid places it.
  * The script toggles [hidden]; the rule below keeps it above every display rule
  * at any width.
@@ -404,7 +403,7 @@
 
 /* Testimonials -------------------------------------------------------------- */
 
-/* Layout from the drawings `Yorumlar` and `Yorumlar-Mobil`. The card knows no
+/* The card knows no
    layout: the grid, the list and the slider below place it. */
 
 .rvs-shell .rvs-testimonials [hidden] {

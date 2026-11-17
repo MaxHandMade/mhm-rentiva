@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * What the availability calendar shows, as plain data (Aşama 2 PR E).
+ * What the availability calendar shows, as plain data.
  *
  * The template only prints this and the two endpoints answer from the same
  * methods, so the first render and a later month or date change cannot
@@ -223,7 +223,7 @@ final class CalendarView {
 		$count = max( 1, min( $count, self::MAX_MONTH_SPAN ) );
 		$last  = $start->modify( '+' . ( $count - 1 ) . ' months' );
 
-		// Ç6: per-day states (partial from/until, closed), not only "taken".
+		// Per-day states (partial from/until, closed), not only "taken".
 		$booked = BookingConflicts::calendar_day_states( $vehicle_id, $start->format( 'Y-m-d' ), $last->format( 'Y-m-t' ) );
 		$today  = SiteTime::today( $now );
 
@@ -263,7 +263,7 @@ final class CalendarView {
 			)
 		);
 
-		// Ç6: a start day a booking returns on is free from return + buffer --
+		// A start day a booking returns on is free from return + buffer --
 		// the pickup moves there (never earlier than the default time).
 		$states = BookingConflicts::calendar_day_states( $vehicle_id, $window['pickup_date'], $window['return_date'] );
 		$first  = $states[ $window['pickup_date'] ] ?? null;
@@ -367,7 +367,7 @@ final class CalendarView {
 	}
 
 	/**
-	 * The month a calendar opens on: never one that has passed (R9).
+	 * The month a calendar opens on: never one that has passed.
 	 */
 	public static function opening_month( string $month, ?int $now = null ): string {
 		$current = self::current_month( $now );
@@ -385,7 +385,7 @@ final class CalendarView {
 	}
 
 	/**
-	 * Can the visitor step back from this month? Past months stay closed (R9).
+	 * Can the visitor step back from this month? Past months stay closed.
 	 */
 	public static function prev_allowed( string $first, ?int $now = null ): bool {
 		return $first > self::current_month( $now );
@@ -425,7 +425,7 @@ final class CalendarView {
 
 	/**
 	 * Daily price with WooCommerce's suffix, or the card's wording without a price.
-	 * Reads "amount · per day · suffix" (canvas Takvim, Ç5): the suffix used to sit
+	 * Reads "amount · per day · suffix" the suffix used to sit
 	 * between the amount and "per day".
 	 */
 	private static function price_html( int $vehicle_id ): string {

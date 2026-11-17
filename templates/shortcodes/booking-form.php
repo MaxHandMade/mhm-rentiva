@@ -2,7 +2,7 @@
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
- * Booking form (front-end standard, Aşama 2 PR C).
+ * Booking form (front-end standard).
  *
  * Root `.rvs-booking`; the outer `.rvs-shell` comes from AbstractShortcode.
  * Heading, journey steps (step 1 of 3), then two columns: the form and the

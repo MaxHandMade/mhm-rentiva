@@ -67,7 +67,7 @@ final class UnifiedSearch extends AbstractShortcode {
 			// 'horizontal' is the base layout; 'vertical' stacks the fields. A third
 			// value, 'compact', was documented for years but never had a stylesheet
 			// behind it, so it rendered as plain horizontal -- it is no longer offered.
-			// A `layout` twin was removed (spec 3A): search_layout always won it on the
+			// A `layout` twin was removed: search_layout always won it on the
 			// block and Elementor surfaces.
 			'search_layout'         => 'horizontal', // 'horizontal', 'vertical'
 			'class'                 => '',
@@ -79,7 +79,7 @@ final class UnifiedSearch extends AbstractShortcode {
 	 */
 	protected static function prepare_template_data(array $atts): array
 	{
-		// One source for every customer surface (PR S): 0 rental locations = no
+		// One source for every customer surface: 0 rental locations = no
 		// location UI, 1 = an info line instead of a select, 2+ = the select.
 		$locations = LocationContext::rental_locations();
 		$single    = LocationContext::single();
@@ -214,7 +214,7 @@ final class UnifiedSearch extends AbstractShortcode {
 	protected static function enqueue_assets(array $atts = array()): void
 	{
 		// The strip is the front-end standard's (rvs-search.css); the old
-		// unified-search.css is not loaded any more (Aşama 2 PR 3).
+		// unified-search.css is not loaded any more.
 		\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_search_styles();
 
 		$search_deps = array( 'jquery', 'jquery-ui-datepicker' );

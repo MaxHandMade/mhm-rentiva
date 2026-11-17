@@ -11,7 +11,7 @@ if (! defined('ABSPATH')) {
 
 /**
  * Source 2: Elementor Site Settings global colour, Accent first, then Primary;
- * Elementor's untouched factory values are skipped (spec §2 item 2, plan R3).
+ * Elementor's untouched factory values are skipped.
  */
 final class ElementorKitSource implements AccentSource {
 
@@ -28,7 +28,7 @@ final class ElementorKitSource implements AccentSource {
 		return 'elementor';
 	}
 
-	/** 'accent' or 'primary' (raw; plan R8). */
+	/** 'accent' or 'primary' (raw). */
 	public function label(): string
 	{
 		return $this->label;

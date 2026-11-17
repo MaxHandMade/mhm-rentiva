@@ -2,7 +2,7 @@
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
- * Rating form and review list (PR F; drawings Puan-Formu, Puan-Formu-Mobil).
+ * Rating form and review list.
  *
  * Standalone: title, summary, list, form. Inside the vehicle page the page draws the
  * title and the summary: here only the list and the form, under no heading of its own.

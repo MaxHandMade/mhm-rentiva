@@ -12,7 +12,7 @@ if (! defined('ABSPATH')) {
  *
  * Three steps: dates and extras (the booking form), details and payment
  * (WooCommerce checkout), confirmation (the order-received page). The driver
- * and payment sections of the canvas stay in WooCommerce. The booking form,
+ * and payment sections stay in WooCommerce. The booking form,
  * the checkout and the thank-you page all print templates/partials/rvs/steps.php
  * with these items, so a step reads the same on every page.
  */

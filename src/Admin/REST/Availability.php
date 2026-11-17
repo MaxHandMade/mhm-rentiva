@@ -39,7 +39,7 @@ final class Availability {
 	 * same-origin-scoped and rate-limited against blind scripted/bulk
 	 * scraping without turning it into an authorization gate.
 	 *
-	 * Caller note (re-measured 2026-10-27, PR D). Until then a `wp_rest`
+	 * Caller note (re-measured 2026-10-27). Until then a `wp_rest`
 	 * nonce for this route was printed on every front-end page: the
 	 * `mhmRentivaAccount` payload of my-account.js carries `restNonce`, and
 	 * `AccountController::enqueue_assets()` enqueued and localized that script

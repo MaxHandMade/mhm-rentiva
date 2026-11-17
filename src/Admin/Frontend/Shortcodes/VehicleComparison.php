@@ -141,7 +141,7 @@ final class VehicleComparison extends AbstractShortcode {
 		$fixed       = array() !== $vehicle_ids;
 
 		// An editor preview without explicit vehicle_ids shows sample vehicles,
-		// never the editing user's own comparison list (spec 3B-2a §2.1). Explicit
+		// never the editing user's own comparison list. Explicit
 		// ids are the editor's choice: those vehicles, no badge.
 		$sample = ! $fixed && \MHMRentiva\Frontend\RenderContext::current()->allows_sample();
 		if ($sample) {

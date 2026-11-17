@@ -12,7 +12,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * View values of the "My bookings" list (PR D, Task 2): the section rule and
+ * View values of the "My bookings" list: the section rule and
  * the table rows. No query here -- AccountBookingsQuery finds the bookings.
  *
  * @since 6.4.0
@@ -20,9 +20,9 @@ if (! defined('ABSPATH')) {
 final class AccountBookingsView {
 
 	/**
-	 * The section of a booking (R5): Cancelled for cancelled/refunded; Past for
+	 * The section of a booking: Cancelled for cancelled/refunded; Past for
 	 * completed, no-show, or a return day before today; Upcoming otherwise. A
-	 * missing, empty or malformed return day is no return day: Upcoming (r3 Y4).
+	 * missing, empty or malformed return day is no return day: Upcoming.
 	 *
 	 * @param string $status       Booking status.
 	 * @param string $dropoff_date Return day, local `Y-m-d` (AccountBookingsQuery::return_day()).
@@ -77,7 +77,7 @@ final class AccountBookingsView {
 
 			$rows[] = array(
 				'id'          => $id,
-				// R4: the number every other screen and email shows.
+				// The number every other screen and email shows.
 				'number'      => (string) ( $row['display_id'] ?? $id ),
 				'vehicle'     => is_string($vehicle) && '' !== $vehicle ? $vehicle : __('N/A', 'mhm-rentiva'),
 				'image'       => (string) ( $row['vehicle_image'] ?? '' ),
@@ -93,7 +93,7 @@ final class AccountBookingsView {
 
 	/**
 	 * The rental's two days, each a full date in the site's date format and
-	 * timezone (r3 Y2: no "21–24 Oct" shortening). One day when the other is
+	 * timezone (no "21–24 Oct" shortening). One day when the other is
 	 * missing, '' when neither parses.
 	 *
 	 * @param string $start Local `Y-m-d` (a time after it is ignored).

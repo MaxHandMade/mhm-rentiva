@@ -107,7 +107,7 @@ final class RemainingPaymentHandler {
 	 * Does this remaining-payment order ask for what the booking owes?
 	 *
 	 * The one rule, used where an order is reused, where it is about to take
-	 * money and where its payment lands (PR-2 r5): it had two copies that had
+	 * money and where its payment lands: it had two copies that had
 	 * already drifted apart, and a third would have drifted too. The order
 	 * carries the gross amount it was built for (`_mhmrentiva_remaining_due_minor`,
 	 * stamped at build time); its own total can differ through tax for the
@@ -248,14 +248,14 @@ final class RemainingPaymentHandler {
 
 		// Reuse an existing pending remaining-payment order to avoid duplicates --
 		// only while it asks for what the booking owes now. An admin re-price
-		// moves the remaining amount (H2 face 2); an order built for the old
+		// moves the remaining amount; an order built for the old
 		// amount is not handed out again. It is not cancelled either: cancelling
 		// an order runs the booking's cancellation hooks, and a payment started
 		// on it could still complete. It simply cannot take money any more:
 		// WooCommerceBridge::stale_remaining_order_notice() refuses it before the
 		// gateway.
 		//
-		// A failed order is reused too (PR-2 A2): the customer retries a declined
+		// A failed order is reused too: the customer retries a declined
 		// card on the same order, and building a new one beside it would turn
 		// the order they are retrying into one that is no longer the link.
 		$due_minor                   = self::debt_minor($remaining_amount);

@@ -62,7 +62,7 @@ final class AddonStats {
 		// Core's own counter, not a hand-written COUNT(*). It answers exactly
 		// this question, caches per post type in the `counts` group, and is
 		// invalidated by core on every status transition -- and it costs the
-		// plugin one DirectDatabaseQuery finding fewer at WP.org review. The
+		// plugin one DirectDatabaseQuery warning fewer at WP.org review. The
 		// three queries below have no core equivalent (a LEFT JOIN counting
 		// rows that may not exist, an AVG and a SUM), which is why they stay.
 		$total_addons = (int) wp_count_posts( AddonPostType::POST_TYPE )->publish;

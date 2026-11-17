@@ -16,7 +16,7 @@ use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 /**
  * Availability calendar (`rentiva_availability_calendar`) on the front-end standard.
  *
- * Aşama 2 PR E: the data is CalendarView, the template prints it inside
+ * The data is CalendarView, the template prints it inside
  * `.rvs-shell`, and the endpoints answer with the same partials. The first
  * paint is server-rendered; the HTML can be cached for minutes, so the script
  * refreshes the months through `mhmrentiva_calendar_months` on load.

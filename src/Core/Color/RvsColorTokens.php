@@ -10,7 +10,7 @@ if (! defined('ABSPATH')) {
 /**
  * Prints the resolved accent palette as one inline rule on the rvs token
  * stylesheet, so the eight literal tokens of rvs-tokens.css follow the site
- * colour (spec §3, §4).
+ * colour.
  *
  * - The only place a colour is interpolated into CSS: build() accepts a token
  *   only from the fixed TOKENS list and only a value matching /^#[0-9a-f]{6}$/.
@@ -64,7 +64,7 @@ final class RvsColorTokens {
 	}
 
 	/**
-	 * Adds the rule once per stylesheet registry (plan R9: the check reads the
+	 * Adds the rule once per stylesheet registry (the check reads the
 	 * handle's own `after` data, so a rebuilt WP_Styles gets it again).
 	 */
 	public static function attach(): void

@@ -193,7 +193,7 @@ final class BookingPortalMetaBox {
 		// Link the new user to the booking
 		update_post_meta( $booking_id, '_mhmrentiva_customer_user_id', $user_id );
 
-		// The account has a random password nobody knows (function scan H6):
+		// The account has a random password nobody knows:
 		// core's own set-password e-mail goes to the customer -- 'user' sends
 		// that one only, no copy to the site admin.
 		wp_new_user_notification( $user_id, null, 'user' );

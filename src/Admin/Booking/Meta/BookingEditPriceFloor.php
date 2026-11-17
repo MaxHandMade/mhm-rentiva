@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *       record (user decision 2026-11-09: refuse and point to cancel + refund);
  * (ii)  a remaining-payment order exists for the booking, whatever its status,
  *       and the total changes -- that order was built for the old amount
- *       (WooCommerce remaining-order races, plan r4-r9; lifted by PR-2);
+ *       (WooCommerce remaining-order races);
  * (iii) the payments are in more than one currency and the total changes --
  *       the collected amount cannot be known (PaymentState::paid() is 0);
  * (iv)  the booking is in a refund status and the total rises -- "Process
@@ -40,8 +40,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Asked once per booking per request: both savers (BookingEditMetaBox at 5,
  * BookingMeta::save_meta at 10) and a nested save_post (the title update) see
  * the same answer, read before anything was written.
- *
- * Plan: docs/superpowers/plans/2026-11-09-h2-yuz-2-fark-kalan.md (r7-r10).
  */
 final class BookingEditPriceFloor {
 

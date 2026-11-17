@@ -96,7 +96,7 @@ class TestimonialsWidget extends ElementorWidgetBase {
 				'label'   => __( 'Order By', 'mhm-rentiva' ),
 				'type'    => Controls_Manager::SELECT,
 				'default' => 'date',
-				// The orders the list applies (spec 3A Task 8). A saved 'title' or
+				// The orders the list applies. A saved 'title' or
 				// 'modified' falls back to the date order, the order it always gave.
 				'options' => array(
 					'date'   => __( 'Date', 'mhm-rentiva' ),

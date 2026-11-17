@@ -159,8 +159,8 @@ if (! $is_available) {
                     <?php endif; ?>
                 </h3>
                 <?php
-                // Compact rating beside the title ("★ 4,5"), as the Broadsheet
-                // artboard draws it. A vehicle nobody has rated shows nothing:
+                // Compact rating beside the title ("★ 4,5"), as designed.
+                // A vehicle nobody has rated shows nothing:
                 // five empty stars and "(0)" read as a bad score.
                 if ($show_rating && ! empty($vehicle['rating']['count'])) :
                     $rating_average = (float) ( $vehicle['rating']['average'] ?? 0 );

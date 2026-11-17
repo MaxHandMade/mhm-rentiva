@@ -89,7 +89,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				// without a saved order used to hard-code other input limits
 				// (engine size min 0.8, seats max 20, doors 2-8) and fixed
 				// transmission/fuel lists; a stored 0 then failed the browser's
-				// validation and Update would not submit (PR 4).
+				// validation and Update would not submit.
 				$render_keys = ( $saved_order && is_array( $saved_order ) ) ? $saved_order : array_keys( $available_details ?? array() );
 				foreach ( $render_keys as $key ) {
 					if ( ! isset( $available_details[ $key ] ) ) {

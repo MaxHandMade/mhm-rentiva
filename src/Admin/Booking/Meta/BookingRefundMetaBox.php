@@ -62,12 +62,12 @@ final class BookingRefundMetaBox {
 
 		// Same placement, same reason: needs_review is produced by
 		// cancel_booking_with_orders() finding a paid WooCommerce order
-		// (Task 4's K6 guard), which is exactly the shape that zeroes
+		// (the guard), which is exactly the shape that zeroes
 		// $remaining below. A control gated only on status would never reach
 		// the page if it sat after the early return.
 		self::render_needs_review_controls( $bid );
 
-		// The refund action itself (canvas v135: it lives in this box, not in
+		// The refund action itself (it lives in this box, not in
 		// Payment Management). Same placement as the controls above and for a
 		// sharper reason: the early return below fires for EVERY booking with a
 		// WooCommerce order, and the gateway refund of a cancelled, paid
@@ -128,10 +128,10 @@ final class BookingRefundMetaBox {
 	 *
 	 * Kept separate from render_status_row() rather than folded into it:
 	 * that method is deliberately a pure information line, visible to
-	 * anyone who can open this box at all (Task 10's own docblock). This one
+	 * anyone who can open this box at all. This one
 	 * is a money action -- gated on MoneyAuthorization::mayMoveMoney(), the
-	 * same predicate Task 9 put on the deposit-screen's button and this
-	 * box's own link, asked with the same $surface convention
+	 * same predicate the deposit-screen's button and this
+	 * box's own link use, asked with the same $surface convention
 	 * ('manual_close', matching DepositManagementAjax::close_manual_refund()'s
 	 * own call) so the two halves of this feature cannot drift apart the way
 	 * the button and the link once did (see RefundGateAgreementTest).
@@ -160,7 +160,7 @@ final class BookingRefundMetaBox {
 	}
 
 	/**
-	 * Task 12 (slice 5): needs_review's two operator exits.
+	 * The two operator exits from needs_review.
 	 *
 	 * Kept as its own method for the same reason render_manual_close_control()
 	 * is: render_status_row() is deliberately a pure information line, visible
@@ -190,7 +190,7 @@ final class BookingRefundMetaBox {
 			return;
 		}
 
-		// Whole-branch review, F1: "Cancel and start the refund" delegates to
+		// "Cancel and start the refund" delegates to
 		// CancellationHandler::cancel_booking(), which refuses outright --
 		// WP_Error( 'already_cancelled' ) at CancellationHandler.php:115 --
 		// the moment this booking's OWN status is already CANCELLED. Both of

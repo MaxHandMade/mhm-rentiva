@@ -17,10 +17,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * A free-text notice shown once, on the edit screen of the booking it is about.
  *
  * BookingMeta::queue_admin_notice() carries four fixed keys; a refusal from
- * CancellationHandler needs its own message (PR 3b-2).
+ * CancellationHandler needs its own message.
  * The notice lives in a per-user transient for one minute -- long enough to
  * survive the redirect after Update -- and holds the booking id, so a second
- * tab on another booking does not show it (r2-M5).
+ * tab on another booking does not show it.
  *
  * An error also drops core's "Booking updated." (`?message=1`) from the
  * redirect, the way BookingMeta's availability refusal does: a refusal next to
@@ -41,8 +41,8 @@ final class BookingEditNotice {
 	public const DISMISS_MISMATCH_ACTION = 'mhmrentiva_dismiss_payment_mismatch';
 
 	/**
-	 * A payment that arrived for an amount that was no longer current (PR-2 A3,
-	 * WooCommerceBridge::settle_remaining_from_order()). Unlike the one-shot
+	 * A payment that arrived for an amount that was no longer current
+	 * (WooCommerceBridge::settle_remaining_from_order()). Unlike the one-shot
 	 * notice above it stays on the booking's edit screen until someone has
 	 * looked at it: the balance was deliberately left unchanged, and only a
 	 * human can decide what it should be.

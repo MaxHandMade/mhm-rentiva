@@ -53,7 +53,7 @@
                             ],
                             onChange: function (val) { setAttributes({ sortOrder: val }); }
                         }),
-                        // Spec 3A Task 7a (rule 2): this control wrote a twin key
+                        // This control wrote a twin key
                         // which nothing read; it now writes the live page size.
                         el(TextControl, {
                             label: __('Limit Results', 'mhm-rentiva'),

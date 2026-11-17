@@ -41,7 +41,7 @@ $mhmrentiva_cal_title       = (string) $mhmrentiva_cal['id'] . '-title';
 							<?php
 							$mhmrentiva_state   = (string) $mhmrentiva_cell['state'];
 							$mhmrentiva_classes = 'rvs-cal__day is-' . $mhmrentiva_state . ( ! empty($mhmrentiva_cell['today']) ? ' is-today' : '' );
-							// Ç6: a partly taken day says which half is free, also while selected,
+							// A partly taken day says which half is free, also while selected,
 							// and prints its time (full; short for a narrow screen) under the number.
 							if ('' !== (string) ( $mhmrentiva_cell['partial_from'] ?? '' )) {
 								$mhmrentiva_classes .= ' is-partial-from';

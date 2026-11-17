@@ -26,7 +26,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * What the vehicle page shows, as plain data (Aşama 2 PR B).
+ * What the vehicle page shows, as plain data.
  *
  * The template (templates/shortcodes/vehicle-details.php) only prints this, and the page's
  * two AJAX endpoints return partials built from the same arrays, so the first
@@ -42,7 +42,7 @@ final class VehicleDetailsView {
 
 	/**
 	 * @param array<string, mixed>  $atts   Shortcode attributes.
-	 * @param array<string, string> $window pickup_date, pickup_time, return_date; missing values fall back to the search strip's. A pickup location in it is not read: the car has its own (PR S).
+	 * @param array<string, string> $window pickup_date, pickup_time, return_date; missing values fall back to the search strip's. A pickup location in it is not read: the car has its own.
 	 * @return array<string, mixed>
 	 */
 	public static function build(int $vehicle_id, array $atts, array $window): array
@@ -125,7 +125,7 @@ final class VehicleDetailsView {
 	 *
 	 * No pickup location: the car is picked up and returned at its own point
 	 * (LocationContext::for_vehicle), so a location in the request -- the URL,
-	 * the search strip or a posted field -- is never read here (PR S).
+	 * the search strip or a posted field -- is never read here.
 	 *
 	 * @param array<string, string> $window
 	 * @return array{pickup_date: string, pickup_time: string, return_date: string}
@@ -177,7 +177,7 @@ final class VehicleDetailsView {
 		}
 		$first  = $first->modify('first day of this month');
 		$second = $first->modify('+1 month');
-		// Ç6: per-day states, so a return day reads "free from 11:00" here too.
+		// Per-day states, so a return day reads "free from 11:00" here too.
 		$booked = \MHMRentiva\Admin\Booking\Helpers\BookingConflicts::calendar_day_states($vehicle_id, $first->format('Y-m-d'), $second->format('Y-m-t'));
 		$today  = wp_date('Y-m-d');
 		$range  = array( (string) ( $window['pickup_date'] ?? '' ), (string) ( $window['return_date'] ?? '' ) );
@@ -220,7 +220,7 @@ final class VehicleDetailsView {
 		}
 		$available = ! empty($check['ok']);
 		// Booked on those dates (not a rule refusal): the card's one switch for
-		// the daily price instead of the period total (owner decision 2026-11-03).
+		// the daily price instead of the period total.
 		$taken = ! $available && 'unavailable' === (string) ( $check['code'] ?? '' );
 
 		$hours = (int) SettingsCore::get('mhmrentiva_booking_cancellation_deadline_hours', 24);
@@ -437,7 +437,7 @@ final class VehicleDetailsView {
 	/**
 	 * Exactly the admin's "Vehicle Detail Highlighted Features" selection
 	 * (Vehicle Settings), in its order: details with their value, features as
-	 * "Yes". Nothing is added unasked (owner decision, PR B review); a selected
+	 * "Yes". Nothing is added unasked; a selected
 	 * field without a value, or a Passive feature, is left out.
 	 *
 	 * @return list<array{key: string, label: string, value: string}>

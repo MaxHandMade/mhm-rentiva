@@ -19,8 +19,8 @@ use MHMRentiva\Core\Attribute\KeyNormalizer;
  * sodium secretbox payload {email, post_id, types, auto_reply} (encrypted and
  * authenticated, nonce in front, base64) and comes back as an opaque hidden field.
  * `email` is '' for a form with no custom recipient. `types` is every type the form
- * may submit: one for a fixed form, the topics when the visitor chooses (PR F r2 M1).
- * `auto_reply` is the form's own setting, so the request cannot switch it on (R8).
+ * may submit: one for a fixed form, the topics when the visitor chooses.
+ * `auto_reply` is the form's own setting, so the request cannot switch it on.
  *
  * The nonce is derived from the payload (a keyed hash), not random: the same form
  * renders the same token, so comparing two renders still tells whether a setting
@@ -42,8 +42,6 @@ use MHMRentiva\Core\Attribute\KeyNormalizer;
  * Every refusal falls back to the global recipient and says so: the
  * `mhmrentiva_contact_recipient_fallback` action, plus an error log line when
  * WP_DEBUG_LOG is on (the AJAX nonce is public, so the log must not be floodable).
- *
- * Spec 2026-10-10-elementor-kopru-dilim-3a §2.5 (a)-(d), R3.
  */
 final class RecipientToken {
 
@@ -128,7 +126,7 @@ final class RecipientToken {
 
 	/**
 	 * Whether the form that issued this token has the auto reply on. No token, a
-	 * refused token or a type outside the form's set: no reply (m3, fail closed).
+	 * refused token or a type outside the form's set: no reply (fail closed).
 	 * No post check: no address of the site's is at stake, only the form's own setting.
 	 *
 	 * @param string $token           The posted hidden field.
@@ -177,7 +175,7 @@ final class RecipientToken {
 			return 'malformed';
 		}
 
-		// A page cached before PR F still carries the one `type` of the old payload.
+		// A page cached by an earlier version still carries the one `type` of the old payload.
 		if (! isset($payload['types']) && is_string($payload['type'] ?? null)) {
 			$payload['types'] = array( $payload['type'] );
 		}

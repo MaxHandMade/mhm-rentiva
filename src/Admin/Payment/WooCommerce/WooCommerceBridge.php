@@ -1248,7 +1248,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				$item->add_meta_data($line['title'], self::order_meta_price($line['line_total']));
 			}
 		} else {
-			// Task 14b item 3: left at warning() deliberately. This hook
+			// Left at warning() deliberately. This hook
 			// (woocommerce_add_order_item_meta) runs for EVERY order item on
 			// EVERY checkout, including ordinary non-rental WooCommerce
 			// products a site may sell alongside bookings -- the "no booking
@@ -1292,7 +1292,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		$items = $order->get_items();
 
 		if (empty($items)) {
-			// Task 14b item 3: promoted from warning() to error(). This
+			// Promoted from warning() to error(). This
 			// runs on order-placed for every WooCommerce checkout that
 			// carries a pending booking; if it fires, create_booking_from_order()
 			// returns having created nothing, and the paid order is left
@@ -1613,7 +1613,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * it is; otherwise the customer-facing reason, and no payment is taken.
 	 *
 	 * The booking's remaining amount moves when an admin re-prices it (the
-	 * difference becomes owed, H2 face 2) -- and an order built before that, or
+	 * difference becomes owed) -- and an order built before that, or
 	 * between the admin's check and the write, still asks for the old amount.
 	 * Checked here, before the gateway, on both the order-pay form and the
 	 * Store API path, so a stale order can never take money, whenever it was
@@ -1627,7 +1627,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * meta UPDATE still in flight; released after this check, it could not stop
 	 * an admin save landing between the check and the charge. Closing that
 	 * window takes the admin save and the payment holding the same lock, which
-	 * is PR-2 (plan option A, user decision 2026-11-09).
+	 * is a separate, later change.
 	 *
 	 * @param array<int, int|string> $booking_ids
 	 */
@@ -1635,7 +1635,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	{
 		$stale = __('The amount on this payment link is no longer current. Please ask us for a new payment link.', 'mhm-rentiva');
 
-		// A cancelled order takes no money (PR-2 A2). WooCommerce's own pay form
+		// A cancelled order takes no money. WooCommerce's own pay form
 		// refuses it as well, but its needs_payment() set is filterable, and the
 		// claim must not depend on that.
 		if ($order->has_status('cancelled')) {
@@ -1656,7 +1656,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			} catch (\RuntimeException $e) {
 				return $stale;
 			}
-			// Only the link the business sent last can take money (PR-2 A2). An
+			// Only the link the business sent last can take money. An
 			// order that is no longer it -- a new link was sent, or a cancelled
 			// one cleared it -- could otherwise be paid from an old e-mail and
 			// collect the balance twice. An order whose pointer was never
@@ -3260,7 +3260,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	{
 		$items = $order->get_items();
 
-		// One payment-history scope per booking on the order (plan r4 R9),
+		// One payment-history scope per booking on the order,
 		// all opened BEFORE the loop and closed after it: handling one booking
 		// can run another order's hook (Status::update_status ->
 		// sync_completed_to_wc) that changes a booking this loop has not
@@ -3361,7 +3361,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				// Payment confirmed - paid and confirmed above, under the lock
 				// (confirm_paid_booking()). Full payment: nothing is left to
 				// pay. The remaining payment's own order settles the balance
-				// only when it was paid against it (PR-2 A3).
+				// only when it was paid against it.
 				if ($is_remaining) {
 					self::settle_remaining_from_order($booking_id, $order, (string) $old_status);
 				} elseif (get_post_meta($booking_id, '_mhmrentiva_payment_type', true) === 'full') {
@@ -3391,7 +3391,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			case 'cancelled':
 			case 'failed':
 				// A remaining-payment order is the collection instrument for
-				// the balance, never the booking itself (PR-2 A1). Its failure
+				// the balance, never the booking itself. Its failure
 				// or cancellation used to cancel the whole booking when no
 				// other WooCommerce payment existed -- a manual booking whose
 				// link was sent before anything was collected lost its dates to
@@ -3413,7 +3413,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					// worse than the stale pointer this leaves instead.
 					//
 					// And the pointer goes only when the order is CANCELLED and
-					// NEVER PAID (PR-2 A1). A failed order is
+					// NEVER PAID. A failed order is
 					// retried on the same order, so it stays the link. A paid
 					// order that is later cancelled still holds the money --
 					// cancelled is not a refund, and WooCommerce keeps its
@@ -3473,12 +3473,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 						&& \MHMRentiva\Helpers\NotificationHelper::send_order_cancelled_on_live_booking_email( $booking_id, (int) $order_id );
 
 					if ( ! $notified ) {
-						// Task 14b item 1: was error() + add(), the
+						// Was error() + add(), the
 						// same pair and same reasons as AutoCancel.php's
 						// lock-refusal/notify-failure branches; one call
 						// now covers both.
 						//
-						// Task 14b item 7: the reason used to read
+						// The reason used to read
 						// 'notification_failed' even when
 						// $helper_exists was false -- practically
 						// unreachable (NotificationHelper ships in the
@@ -3518,7 +3518,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				// order's own status (WC 11.0.1 wc-order-functions.php :731)
 				// before it fires woocommerce_refund_created (:742).
 				// Blindly mirroring the per-order flip here is the exact
-				// terminal mid-walk defect Task 8 removed from that hook,
+				// terminal mid-walk defect already removed from that hook,
 				// one hop earlier -- so this asks PaymentState the same
 				// booking-level question before touching the booking.
 				//
@@ -3553,8 +3553,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 	/**
 	 * May the checkout's payment-type switch rewrite this booking's payment
-	 * type and remaining amount? Only while nothing has been collected on it
-	 * (PR-2 A4): no paid WooCommerce order, and a payment status that is still
+	 * type and remaining amount? Only while nothing has been collected on it:
+	 * no paid WooCommerce order, and a payment status that is still
 	 * waiting for one.
 	 */
 	public static function may_retype_booking(int $booking_id): bool
@@ -3568,9 +3568,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 	/**
 	 * A paid remaining-payment order settles the balance only when it was paid
-	 * against it (PR-2 A3, plan r4-r5).
+	 * against it.
 	 *
-	 * Until PR-2 both paid branches zeroed the remaining amount whatever it had
+	 * Previously both paid branches zeroed the remaining amount whatever it had
 	 * been paid against: an amount that moved after the customer started paying,
 	 * or a balance the operator had already settled by hand, was silently
 	 * written off or silently collected twice. Now:
@@ -3579,7 +3579,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 *    nothing to do. This is the only proof that the order's payment reached
 	 *    the booking: a paid previous status is not, because the handler can
 	 *    leave early on a failed read and the next transition must retry.
-	 *  - An order from before the amount stamp (PR-1): today's behaviour,
+	 *  - An order from before the amount stamp: today's behaviour,
 	 *    the balance is cleared. Kept apart from the shared rule on purpose:
 	 *    comparing such an order by its total would turn a tax difference into
 	 *    a false alarm.
@@ -3833,12 +3833,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			// The fourth order-cancelling caller in this class, and the one a
 			// single-line grep for update_status('cancelled' cannot see
 			// because the call spans lines. It fires on ANY surface's
-			// cancellation, so without this it undid Task 6 one hop later.
+			// cancellation, so without this it undid the sibling-order guard one hop later.
 			//
 			// The membership question has one home: PaymentState::orders() is
 			// the set of this booking's orders whose money actually arrived
 			// (get_date_paid() !== null -- PaymentState.php:153-155 says why
-			// that and not is_paid()). Task 6's has_paid_sibling_order() asks
+			// that and not is_paid()). has_paid_sibling_order() asks
 			// the booking-level question against the same list; this asks the
 			// order-level one.
 			if ( in_array( $order_id, PaymentState::forBooking( $booking_id )->orders(), true ) ) {
@@ -4250,7 +4250,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				$booking_id      = (int) $cart_item['mhmrentiva_booking_id'];
 
 				// A booking that already holds money keeps its payment type, its
-				// remaining amount and its cart price (PR-2 A4). This branch
+				// remaining amount and its cart price. This branch
 				// rewrote all three from total - deposit, so a paid booking left
 				// in a cart had its settled balance reopened and a second payment
 				// link could collect it again.
@@ -4523,7 +4523,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// (validate_checkout_availability(), which already refused the line and
 		// stops the order) and then check_cart_items(). Checking again here
 		// printed a second sentence for the same refusal and emptied the cart
-		// behind the page without a word (customer lens r2 #3). The cart page,
+		// behind the page without a word. The cart page,
 		// a later request, removes the line and says why.
 		if (did_action('woocommerce_checkout_process') > 0) {
 			return;
@@ -4709,7 +4709,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					// ⭐ This error will STOP checkout process - NO PAYMENT WILL BE PROCESSED
 					\wc_add_notice(self::booked_meanwhile_notice($vehicle_id, $start_ts, $end_ts), 'error');
 
-					// Task 14b item 3: left at warning() deliberately -- the
+					// Left at warning() deliberately -- the
 					// customer already sees the wc_add_notice() error above,
 					// on the checkout page, before checkout can even
 					// complete. This entry is a supplementary debug trace
@@ -4865,7 +4865,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			// contributes to $state->refunded(). Substituting this order's
 			// own figure for $state->refunded() (as an earlier version of
 			// this fallback did) discarded every OTHER order's refund --
-			// N-01, recreated inside the branch meant to guard against it.
+			// the very defect this branch is meant to guard against, recreated inside it.
 			// Adding this order's own total on top instead keeps the
 			// resolvable legs' contribution alongside this one -- for a
 			// SINGLE invisible leg. With two or more invisible orders this
@@ -4892,8 +4892,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			// without bound (three successive partial refunds of one
 			// invisible 40 order would record 1500, then 4500, then 8500,
 			// against a true 4000) -- the exact double-write shape this
-			// slice exists to remove. So the pure case uses this order's own
-			// total alone, same as the pre-round-3 fallback.
+			// logic exists to remove. So the pure case uses this order's own
+			// total alone, same as the earlier fallback.
 			//
 			// Trade-off, stated rather than left implicit: if this same
 			// booking ALSO carries an offline refund in that same meta key
@@ -4915,7 +4915,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			// RefundUnresolvableOrderFallbackTest covers. A mixed booking,
 			// with one resolvable leg and one invisible, must not let this
 			// order's own totals decide 'refunded' for the whole booking:
-			// that is the same terminal mid-walk shape Task 8 removed from
+			// that is the same terminal mid-walk shape already removed from
 			// handle_order_status_change() and this hook's main branch,
 			// re-created one level down inside this fallback.
 			//
@@ -5222,7 +5222,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
-	 * The billing grid of a booking's checkout (canvas `Odeme`): name, country
+	 * The billing grid of a booking's checkout (`Odeme`): name, country
 	 * and city, district and postcode, street, phone and email. Priority and
 	 * column of each field; reorder_checkout_fields() writes the same values.
 	 */

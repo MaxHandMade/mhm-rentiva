@@ -140,7 +140,7 @@
 			}
 		}
 
-		// 2. Hover fill (R16).
+		// 2. Hover fill.
 		var deepOk = function ( d ) {
 			return contrast( on, d ) >= 4.5 && contrast( a, d ) >= 1.3;
 		};
@@ -186,7 +186,7 @@
 			}
 		}
 
-		// 6. Text hover (R5), then the near-black turn (R2).
+		// 6. Text hover, then the near-black turn.
 		var hoverOk = function ( h ) {
 			return contrast( h, accent100 ) >= 4.5 && contrast( h, WHITE ) >= 4.5 && contrast( h, bg ) >= 4.5;
 		};

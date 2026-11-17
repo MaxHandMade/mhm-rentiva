@@ -4,7 +4,7 @@
  * Markup: templates/partials/rvs/calendar-month.php (RvsCalendar::month()).
  * Day states are told by more than colour: a booked day's number is struck
  * through, a past day is faded, the selected range is filled, today has a ring.
- * Cells are 36 px on desktop and 44 px on a phone (the canvas, `Arac-Detay`).
+ * Cells are 36 px on desktop and 44 px on a phone.
  */
 
 .rvs-shell .rvs-cal {
@@ -130,7 +130,7 @@
 	border-radius: 0 var(--rvs-r) var(--rvs-r) 0;
 }
 
-/* Ç6: a partly taken day is split on the diagonal -- the taken half shaded,
+/* A partly taken day is split on the diagonal -- the taken half shaded,
    the time it turns free (or stops being free) printed under the number.
    A closed day (blocked by hand) is hatched and says "Closed". Both read by
    more than colour: the time / the word, and the cell's label. */

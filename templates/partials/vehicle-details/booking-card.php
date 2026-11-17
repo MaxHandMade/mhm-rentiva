@@ -1,10 +1,10 @@
 <?php
 /**
  * Vehicle page booking card: period total, pickup / return, the car's own
- * pickup point ("Pickup and return: X", PR S -- no select of every branch),
+ * pickup point ("Pickup and return: X", no select of every branch),
  * price breakdown, "Continue" (to the booking form with the window), deposit
  * and cancellation lines. On a phone the card sits in the page and a fixed bar
- * repeats the total with the breakdown in a dialog (canvas `Arac-Detay-Mobil`).
+ * repeats the total with the breakdown in a dialog.
  *
  * Date fields: the visible input shows the site's date format from the first
  * paint, the hidden one after it posts Y-m-d (datepicker-init.js adopts the pair).
@@ -36,7 +36,7 @@ $mhmrentiva_label   = trim( (string) ( ( $atts ?? array() )['booking_btn_text'] 
 $mhmrentiva_label   = '' !== $mhmrentiva_label ? $mhmrentiva_label : __('Continue', 'mhm-rentiva');
 $mhmrentiva_ok      = ! empty($mhmrentiva_booking['available']);
 $mhmrentiva_priced  = ! empty($mhmrentiva_booking['priced']); // Wrong-order dates: the message alone, no total beside it.
-// Taken for the window (owner decision 2026-11-03): no total block at all; the
+// Taken for the window: no total block at all; the
 // header and the phone bar show the car's daily price. rvs-vehicle.js flips
 // the same parts from the quote's `taken`.
 $mhmrentiva_taken   = ! empty($mhmrentiva_booking['taken']);

@@ -16,13 +16,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * `mhm-rentiva-contact` exporter and eraser (5a spec T7).
+ * `mhm-rentiva-contact` exporter and eraser.
  *
  * A contact message holds the sender's name, address, phone, company, the
  * message itself, the raw IP address and browser string, and maybe a private
  * attachment. Erasing deletes the message -- it is not a business record --
  * attachment first: the message is the only thing that points at the file, so
- * while the file stays the message stays too, marked (spec r5 #3).
+ * while the file stays the message stays too, marked.
  */
 final class ContactPersonalData {
 

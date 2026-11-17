@@ -90,7 +90,7 @@ class AvailabilityCalendarWidget extends ElementorWidgetBase {
 
 	/**
 	 * The block's calendarHeight sizes BlockRegistry's wrapper, which a widget does
-	 * not have; Elementor has its own sizing (spec 3A Task 6).
+	 * not have; Elementor has its own sizing.
 	 *
 	 * @return string[]
 	 */

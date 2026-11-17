@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Which asset class a My Account screen belongs to (PR D, r3 Y1).
+ * Which asset class a My Account screen belongs to.
  *
  * Three classes:
  *

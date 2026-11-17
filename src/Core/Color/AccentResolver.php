@@ -48,7 +48,7 @@ final class AccentResolver {
 			return self::$memo;
 		}
 
-		// Plan R13: a stored colour is normalised on read too; a bad one means Automatic.
+		// A stored colour is normalised on read too; a bad one means Automatic.
 		$custom = ColorMath::normalize(SettingsCore::get(self::COLOR_KEY, ''));
 		if ('custom' === SettingsCore::get(self::MODE_KEY, 'auto') && null !== $custom) {
 			self::$memo = self::finish($custom, 'custom', '', false);
@@ -106,7 +106,7 @@ final class AccentResolver {
 
 	/**
 	 * Apply the colour filter (last word, Custom included) and build the result.
-	 * A filter that changes the colour is the source (plan R5).
+	 * A filter that changes the colour is the source.
 	 *
 	 * @return array{hex: string, source: string, label: string, is_default: bool, flags: array{text_darkened: bool, fill_low: bool}, tokens: array<string,string>}
 	 */

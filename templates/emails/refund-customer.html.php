@@ -46,8 +46,8 @@
 	</table>
 
 	<?php
-	// This is the exact claim Task 8 removed from the cancellation e-mail
-	// because it is false for a manual refund (wc-refunds.md, fact 2). This
+	// This is the exact claim removed from the cancellation e-mail
+	// because it is false for a manual refund. This
 	// file's rendering path never runs replace_placeholders() -- it is
 	// included with `$data = $ctx` and reads the context directly, the way
 	// every other value on this page does ($data['booking']['id'],

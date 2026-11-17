@@ -67,7 +67,7 @@ $mhmrentiva_sum_change  = (string) ( $mhmrentiva_sum['change_url'] ?? '' );
 
 	<div class="rvs-booking__when">
 		<?php
-		// The car's own pickup point (PR S). Case B on a site with locations:
+		// The car's own pickup point. Case B on a site with locations:
 		// an empty, hidden line the quote answer fills (booking-form.js).
 		$mhmrentiva_sum_where = (string) ( $mhmrentiva_sum['location'] ?? '' );
 		if ('' !== $mhmrentiva_sum_where || ! empty($mhmrentiva_sum['location_slot'])) :

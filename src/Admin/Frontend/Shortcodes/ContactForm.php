@@ -65,7 +65,7 @@ final class ContactForm extends AbstractShortcode {
 
 	/**
 	 * The form carries a nonce and a sealed token: it stays out of the HTML cache
-	 * (PR F R9, as the booking form). Standalone only: inside a cached parent such
+	 * (as the booking form). Standalone only: inside a cached parent such
 	 * as the vehicle page the parent's cache decides.
 	 */
 	protected static function is_caching_enabled(): bool
@@ -204,7 +204,8 @@ final class ContactForm extends AbstractShortcode {
 					// Never cached (is_caching_enabled()), so the counter cannot freeze.
 					'uid'              => wp_unique_id('rvs-contact-'),
 					'logged_in'        => is_user_logged_in(),
-					// Only when a list could be drawn (R3): a guest, or a fixed form without the field, runs no query.
+					// Only when a list could be drawn: a guest, or a fixed form
+					// without the field, runs no query.
 					'own_bookings'     => ( $selector || '1' === (string) ( $atts['show_booking_id_field'] ?? '0' ) ) ? self::own_booking_rows() : array(),
 					'has_vehicles'     => array() !== $vehicles,
 					'required'         => self::required_by_type(),
@@ -241,7 +242,7 @@ final class ContactForm extends AbstractShortcode {
 	}
 
 	/**
-	 * The signed-in visitor's own newest bookings for the booking list (R3, m5):
+	 * The signed-in visitor's own newest bookings for the booking list:
 	 * by user ID, newest created first, cancelled ones included. A booking owned
 	 * only through the account e-mail is not listed; own_booking_id() still takes
 	 * its number when typed.
@@ -281,7 +282,7 @@ final class ContactForm extends AbstractShortcode {
 	}
 
 	/**
-	 * The rental's days in the site's format (m6), '' when none is recorded.
+	 * The rental's days in the site's format, '' when none is recorded.
 	 */
 	public static function booking_dates(int $booking_id): string
 	{
@@ -556,7 +557,7 @@ final class ContactForm extends AbstractShortcode {
 	}
 
 	/**
-	 * Validate, store the file, save, mail -- in that order (R-4). The file is
+	 * Validate, store the file, save, mail -- in that order. The file is
 	 * written only after the form itself passed, and removed again if the
 	 * record cannot be saved, so a refused submission never leaves a file.
 	 *
@@ -571,7 +572,7 @@ final class ContactForm extends AbstractShortcode {
 		$form_data  = self::sanitize_contact_form_data($post_data);
 		$validation = self::validate_form_data($form_data);
 		if (! $validation['valid']) {
-			// A filled trap field: answer as if it worked, so the bot learns nothing (R10).
+			// A filled trap field: answer as if it worked, so the bot learns nothing.
 			// Nothing to keep either: such a record could not be read.
 			if ('' !== $honeypot) {
 				return array(
@@ -730,7 +731,7 @@ final class ContactForm extends AbstractShortcode {
 	 */
 	public const MAX_ATTACHMENT_BYTES = 5242880; // 5 MB
 
-	/** How many of the visitor's own bookings the list offers (R3). */
+	/** How many of the visitor's own bookings the list offers. */
 	private const OWN_BOOKINGS_LIMIT = 20;
 
 	/** The visitor's name in the auto reply: a greeting, not room for a pitch. */
@@ -990,7 +991,7 @@ final class ContactForm extends AbstractShortcode {
 		if (is_array($data['attachment'] ?? null) && array() !== $data['attachment']) {
 			$path = ContactAttachmentStore::path($data['attachment']);
 			if (null !== $path) {
-				// Keyed by the visitor's own file name; the stored name is random (spec §4).
+				// Keyed by the visitor's own file name; the stored name is random.
 				$attachments[ (string) $data['attachment']['name'] ] = $path;
 			}
 		}

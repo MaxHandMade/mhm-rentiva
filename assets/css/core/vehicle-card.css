@@ -912,8 +912,7 @@
 	color: var(--rv-ink);
 }
 
-/* Image at 3:2, as both the listing and the home-page artboards draw the card
-   (claude.ai/design "WordPress Araç Pazarı Teması": Kiralik-Araclar, Anasayfa).
+/* Image at 3:2, on both the listing and the home page.
    :where() keeps this at the base rule's weight, so the list layout's own
    image rules (.mhm-card--list …, .rv-layout-list …) still win. */
 :where(.mhm-vehicle-card) .mhm-card-image {
@@ -921,7 +920,7 @@
 }
 
 /* Title row: title on the left, compact rating ("★ 4,5") on the right,
-   baseline-aligned, as the artboard draws it. */
+   baseline-aligned. */
 .mhm-vehicle-card .mhm-card-title-row {
 	display: flex;
 	justify-content: space-between;

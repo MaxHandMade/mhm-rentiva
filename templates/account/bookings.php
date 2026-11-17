@@ -4,7 +4,7 @@ declare(strict_types=1);
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
- * My Account - Bookings (PR D, Task 2).
+ * My Account - Bookings.
  *
  * The list itself is templates/partials/rvs/account-bookings.php. On a
  * WooCommerce endpoint this template writes the `rvs-` shell; inside the

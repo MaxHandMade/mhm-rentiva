@@ -70,7 +70,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 	}
 
 	/**
-	 * The form carries a nonce: it stays out of the HTML cache (PR F R9). Standalone
+	 * The form carries a nonce: it stays out of the HTML cache. Standalone
 	 * only: inside a cached parent such as the vehicle page the parent's cache decides.
 	 */
 	protected static function is_caching_enabled(): bool
@@ -198,7 +198,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 	}
 
 	/**
-	 * The list: the visitor's own review first, approved or waiting (R12), then the
+	 * The list: the visitor's own review first, approved or waiting, then the
 	 * public reviews. Nobody else's waiting review, ever; a guest has no "own".
 	 *
 	 * @param array<string, mixed> $display  Comment display settings.

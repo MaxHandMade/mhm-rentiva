@@ -9,7 +9,7 @@ if (! defined('ABSPATH')) {
 
 /**
  * Registry of known themes that keep their accent colour somewhere a CSS
- * variable chain cannot reach (spec §2.1). Each adapter returns the theme's
+ * variable chain cannot reach. Each adapter returns the theme's
  * *effective* colour: the saved value, else the theme's own default.
  *
  * Detection reads get_template(), so child themes are covered. A theme in an
@@ -20,7 +20,7 @@ if (! defined('ABSPATH')) {
  */
 final class ThemeAdapters {
 
-	/** Avanam's palette1 default (Base\Options\Component::palette_defaults(), measured; plan R7). */
+	/** Avanam's palette1 default (Base\Options\Component::palette_defaults(), measured). */
 	private const AVANAM_DEFAULT = '#2b6cb0';
 
 	/** The fallback listeo's own CSS uses (inc/customizer.php:55). */
@@ -130,7 +130,7 @@ final class ThemeAdapters {
 	/**
 	 * Thembay (lasa, ruza, zota): Redux `{tpl}_tbay_theme_options['main_color']`,
 	 * else the theme's `{tpl}_tbay_default_theme_primary_color()['main_color']`
-	 * when that function takes no required argument (plan R7).
+	 * when that function takes no required argument.
 	 *
 	 * @return array{hex: string, is_default: bool}|null
 	 */

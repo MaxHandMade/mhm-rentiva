@@ -14,10 +14,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * The one place a booking loses its personal data (5a spec T5; user decision
- * U1: the booking, its dates, vehicle and amounts stay for the accounts).
+ * The one place a booking loses its personal data (the booking, its dates,
+ * vehicle and amounts stay for the accounts).
  *
- * ORDER MATTERS (spec T4). Everything except the match keys is written first
+ * ORDER MATTERS. Everything except the match keys is written first
  * and read back; only when all of it held are the match keys (the e-mail keys
  * and the customer user ID) anonymised. A booking that fails half-way therefore
  * still matches its person, so the eraser can mark it and a later run finds it

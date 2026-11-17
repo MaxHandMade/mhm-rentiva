@@ -2,7 +2,6 @@
  * Rentiva front-end standard -- data primitives.
  *
  * Table (a card per row under 390 px), status tag, label/value row, timeline.
- * Values from the approved canvas (`Hesabim`, `Rezervasyon-Detayi`).
  * Selectors are scoped to `.rvs-shell`; colours come from rvs-tokens.css.
  */
 

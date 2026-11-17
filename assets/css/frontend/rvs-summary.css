@@ -1,5 +1,5 @@
 /**
- * Printable booking summary (PR D, K14): the page BookingSummaryPage prints as
+ * Printable booking summary: the page BookingSummaryPage prints as
  * a document of its own (`<body class="rvs-shell rvs-summary">`). Depends on
  * rvs-data.css (status tag, rows) and rvs-breakdown.css. One narrow column on
  * screen, the same column on paper; the print button is hidden on paper.
@@ -84,8 +84,8 @@ body.rvs-shell.rvs-summary {
 }
 
 /*
- * A paid deposit is money received, not the amount to pay now (canvas
- * Rezervasyon-Ozeti, Ç5): rvs-breakdown.css draws the deposit as "pay now",
+ * A paid deposit is money received, not the amount to pay now:
+ * rvs-breakdown.css draws the deposit as "pay now",
  * which the booking detail page corrects in rvs-account.css -- not loaded here.
  * "Due at pickup" carries the weight only once the deposit is paid; an unpaid
  * deposit keeps the breakdown's own look.

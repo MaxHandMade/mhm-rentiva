@@ -1,6 +1,6 @@
 <?php
 /**
- * The empty cart of a rental site (canvas `Sepet`, "sepet boş"), in place of
+ * The empty cart of a rental site, in place of
  * WooCommerce's notice (RentalCheckoutLook::render_empty_cart()).
  *
  * The outer element keeps WooCommerce's `wc-empty-cart-message` class: after the

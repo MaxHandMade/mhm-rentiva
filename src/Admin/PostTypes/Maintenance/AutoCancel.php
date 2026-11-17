@@ -46,7 +46,7 @@ final class AutoCancel {
 	 * disqualifies the booking forever and the sweep quietly shrinks. A
 	 * hand-maintained denylist fails the other way -- an unnamed value is
 	 * swept, which for the question this clause asks ("was this booking never
-	 * paid?") is the sweep doing its job. Spec v3 §7.2.3 narrows this key by
+	 * paid?") is the sweep doing its job. The key is narrowed by
 	 * naming an addition (`partially_refunded`), not by inverting the compare.
 	 *
 	 * `partially_refunded` is that addition: the operator refunded part of the
@@ -109,7 +109,7 @@ final class AutoCancel {
 		$schedules = wp_get_schedules();
 
 		if (! isset($schedules[ self::SCHEDULE ])) {
-			// Task 14b item 3: promoted from warning() to error() -- this
+			// Promoted from warning() to error() -- this
 			// runs on every 'init' (priority 100), so if it ever fires for
 			// real, the auto-cancel deadline sweep and the auto-complete
 			// sweep never get scheduled at all, on every page load, with no
@@ -139,7 +139,7 @@ final class AutoCancel {
 			// If the event is scheduled far in the future (> 10 mins), it's likely using Local Time (UTC+3)
 			// WP-Cron runs on UTC, so this would delay execution by 3 hours.
 			if ($next_scheduled > ( time() + 600 )) {
-				// Task 14b item 3: left at warning() deliberately -- this is
+				// Left at warning() deliberately -- this is
 				// a detected-and-corrected drift, not a failure (the very
 				// next lines unschedule and let the code below reschedule
 				// correctly), so dropping it under the default log level is
@@ -349,8 +349,8 @@ final class AutoCancel {
 	 * cannot be added to or taken out of the matrix without this query
 	 * following.
 	 *
-	 * An ALLOWLIST, per spec v3 §7.2.3 ("booking durumu seçimi CANCELLED
-	 * kenarı olanlarla sınırlanır"). The consequence is deliberate: a booking
+	 * An ALLOWLIST: the booking status selection is limited to those with a
+	 * CANCELLED edge. The consequence is deliberate: a booking
 	 * whose `_mhmrentiva_status` holds a value this plugin does not recognise
 	 * is no longer swept. A denylist read every unknown value as "safe to
 	 * cancel", and the damage was not hypothetical -- `Status::get()` coerces
@@ -436,7 +436,7 @@ final class AutoCancel {
 	 * A park writes only `_mhmrentiva_refund_status`; the booking status and
 	 * payment status stay exactly as they were, which is precisely what keeps
 	 * both sweep queries selecting the booking on every following tick while
-	 * somebody works on it (spec v3 §7.2.2). The transition matrix already
+	 * somebody works on it. The transition matrix already
 	 * makes the second visit harmless -- `needs_review -> needs_review`
 	 * returns false, so no notification and no event -- but harmless is not
 	 * the same as absent: a re-selection that cannot take the booking's refund
@@ -469,10 +469,10 @@ final class AutoCancel {
 	 * that shape: a string-keyed `relation` alongside numerically indexed
 	 * sub-clauses.
 	 *
-	 * Task 12 correction #3 (slice 5) widened the second half from `!=
+	 * The second half was widened the second half from `!=
 	 * needs_review` to `NOT IN (parked_refund_statuses())`. Measured: a
 	 * booking this sweep excludes because it is `needs_review` can be closed
-	 * by an operator to `not_required` (Task 12's own review_dismiss()) and
+	 * by an operator to `not_required` (review_dismiss()) and
 	 * fall right back into an ordinary unpaid, past-deadline selection on the
 	 * very next tick -- `not_required` is a plain string to this clause, not
 	 * a status the matrix still has an edge for. What happened next, also
@@ -497,7 +497,7 @@ final class AutoCancel {
 	 * refund_status is terminal, unpaid, and past its pickup date or payment
 	 * deadline is no longer auto-cancelled by either sweep. A terminal
 	 * refund_status only exists once a human or a flow has already closed
-	 * that booking's money question -- and Task 12 hands the operator the
+	 * that booking's money question -- and the operator is handed the
 	 * cancel button for exactly this shape (review_cancel_and_refund()), so
 	 * the booking is not stranded, only no longer unattended. See
 	 * AutoCancelSweepSelectionTest for the negative control that pins this
@@ -587,7 +587,7 @@ final class AutoCancel {
 				(int) get_post_meta($bid, '_mhmrentiva_remaining_order_id', true),
 			));
 
-			// K6: no unattended path moves money. A paid order inside the cancel
+			// No unattended path moves money. A paid order inside the cancel
 			// set is either a data inconsistency or a real refund obligation, and
 			// neither may be settled by a sweep whose trigger can itself be a bug
 			// (the on-hold chain was exactly that). Park it for a human instead.
@@ -609,11 +609,11 @@ final class AutoCancel {
 								&& \MHMRentiva\Helpers\NotificationHelper::send_refund_needs_review_email($bid);
 
 							if (! $notified) {
-								// Task 14b item 1: was error() + add(), same
+								// Was error() + add(), same
 								// pair and same reasons as the lock-refusal
 								// branch below; one call now covers both.
 								//
-								// Task 14b item 7: the reason used to read
+								// The reason used to read
 								// 'notification_failed' even when $helper_exists
 								// was false -- the same operator-visible
 								// silence, but a different, misstated cause.
@@ -645,16 +645,16 @@ final class AutoCancel {
 					// in silence: no status, no email, no trace. A lock left
 					// behind by a request that died blocks both the
 					// notification and the cancellation until its TTL expires
-					// and tells the operator nothing (ruling T2-R3). The
+					// and tells the operator nothing. The
 					// sibling Status::update_status() refusal below used to
 					// be a counter-example -- it called warning(), which the
-					// default log level drops -- until Task 14b item 3
-					// promoted it too, below.
+					// default log level drops -- until it was
+					// promoted too, below.
 					//
-					// Task 14b item 1: was error() + add(); merged into one
+					// Was error() + add(); merged into one
 					// call. The message still names both possibilities
-					// rather than asserting one (item 2's own fix elsewhere
-					// in this slice): acquire() returns false identically
+					// rather than asserting one (as elsewhere in this
+					// class): acquire() returns false identically
 					// for a row genuinely still held and one it refuses to
 					// steal because it has not hit RefundLock's TTL yet
 					// (RefundLock.php:198-221).
@@ -694,7 +694,7 @@ final class AutoCancel {
 				// mhmrentiva_booking_status_changed, so the rest of the plugin
 				// would never learn about it.
 				//
-				// Task 14b item 3: promoted from warning() to error(). Both
+				// Promoted from warning() to error(). Both
 				// sweeps' own queries are built to exclude anything without a
 				// CANCELLED edge (selectable_status_values()), so this branch
 				// firing at all means a booking was selected AND refused --
@@ -755,7 +755,7 @@ final class AutoCancel {
 			// log, so the record is visible in the admin Logs screen and a
 			// distributed plugin does not write to a file the owner never opted into.
 			//
-			// Task 14b item 3: promoted from warning() to error(). A
+			// Promoted from warning() to error(). A
 			// per-booking exception here means the sweep silently never
 			// cancelled a booking it selected -- the same shape as
 			// AutoComplete.php's sibling catch (a separate file, same
@@ -790,7 +790,7 @@ final class AutoCancel {
 	 * One predicate, one home: sync_orphan_wc_orders() asks the same question
 	 * about an order object it is already holding, and has_paid_order() asks
 	 * it about a set of ids. Two copies of the get_date_paid() rule is the
-	 * defect class this slice exists to remove, so both callers come here.
+	 * defect class this helper exists to remove, so both callers come here.
 	 *
 	 * Strictly `WC_Order`, and both callers step past anything else with a
 	 * `continue` before they reach here. That is not defensive style, it is
@@ -846,7 +846,7 @@ final class AutoCancel {
 	 * Idempotent — re-running is safe; only touches orders still in pending
 	 * statuses.
 	 *
-	 * Task 16 minor 3 (fix round 1, C1): a booking whose refund_status is
+	 * A booking whose refund_status is
 	 * already needs_review or terminal is still SELECTED and still walked --
 	 * its `checked` and `cancelled` counts are unaffected -- because an
 	 * unpaid candidate order (e.g. a remaining-payment order that was never
@@ -869,17 +869,17 @@ final class AutoCancel {
 	 * Usage:
 	 *   wp eval 'echo MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::sync_orphan_wc_orders();'
 	 *
-	 * Task 14b item 5: a booking with AT LEAST ONE paid candidate order --
-	 * not only when every candidate is paid; fix round 1 F3 closed exactly
+	 * A booking with AT LEAST ONE paid candidate order --
+	 * not only when every candidate is paid, which includes exactly
 	 * the mixed deposit-plus-remaining pair, one paid and one not -- is no
 	 * longer just $skipped -- it is parked in needs_review and a human is
-	 * notified, the same K6 guard cancel_booking_with_orders() uses, via
+	 * notified, the same guard cancel_booking_with_orders() uses, via
 	 * park_paid_booking_for_review(). `$skipped` now covers three shapes:
 	 * the genuinely nothing-to-do cases (no candidate order ids at all, or
 	 * every candidate already in a settled status this backfill has no
 	 * reason to touch); a paid-order booking whose park attempt was refused
 	 * (RefundLock held, or the status matrix refused NEEDS_REVIEW for a
-	 * reason other than already owning it); and, since Task 16 minor 3, a
+	 * reason other than already owning it); and a
 	 * paid-order booking whose refund_status already reads needs_review or
 	 * terminal, where re-parking is deliberately not attempted. All three
 	 * are indistinguishable in this one counter.
@@ -897,7 +897,7 @@ final class AutoCancel {
 			return compact('checked', 'cancelled', 'skipped', 'parked');
 		}
 
-		// Fix round 1, C1: this query deliberately does NOT exclude a booking
+		// This query deliberately does NOT exclude a booking
 		// whose refund_status is already needs_review or terminal (an earlier
 		// version of this fix ANDed in not_parked_for_review() here, which
 		// also hid the booking from the order-cancelling loop below -- a
@@ -945,11 +945,11 @@ final class AutoCancel {
 			// check & cancel them independently so a deposit already cancelled
 			// in a previous pass doesn't cause the remaining order to be missed.
 			$booking_touched = false;
-			// Task 14b item 5: tracked separately from $booking_touched so a
+			// Tracked separately from $booking_touched so a
 			// paid candidate can be told apart from "nothing here needed
 			// touching at all" (an already-cancelled/refunded/completed
 			// order, or an id that no longer resolves) -- only the paid case
-			// is the K6 money question this park exists for.
+			// is the money question this park exists for.
 			$has_paid_order = false;
 			foreach (array_unique($candidate_ids) as $oid) {
 				$order = call_user_func('\wc_get_order', $oid);
@@ -969,7 +969,7 @@ final class AutoCancel {
 				if (! $order instanceof \WC_Order) {
 					continue;
 				}
-				// K6, restated here because this body never passes through
+				// The paid-order guard, restated here because this body never passes through
 				// cancel_booking_with_orders() and so never meets its guard.
 				// The has_status() gate below is not one: `processing` is the
 				// status of a typical PAID order, so without this line an
@@ -987,7 +987,7 @@ final class AutoCancel {
 				$booking_touched = true;
 			}
 
-			// Fix round 1, F3: checked independently of $booking_touched.
+			// Checked independently of $booking_touched.
 			// Before this fix, a booking with ONE paid and ONE unpaid
 			// candidate order (a deposit-plus-remaining pair, the exact
 			// shape the comment above this loop names) was never parked
@@ -1005,7 +1005,7 @@ final class AutoCancel {
 			// cancellation the unpaid sibling's own order status already
 			// reflects.
 			if ($has_paid_order) {
-				// Task 16 minor 3 (fix round 1, C1): a booking whose
+				// A booking whose
 				// refund_status is already needs_review or terminal is a
 				// human's or a closed flow's own decision -- re-attempting
 				// park_paid_booking_for_review() here would only re-trip
@@ -1018,14 +1018,13 @@ final class AutoCancel {
 				if (in_array(RefundStatus::get($bid), self::parked_refund_statuses(), true)) {
 					++$skipped;
 				} elseif (self::park_paid_booking_for_review($bid, 'auto_cancel')) {
-					// Task 14b item 5 (T5-R4): this used to fall straight into
-					// $skipped with nothing an operator could see -- K6 was
-					// upheld (no money moved) but the asymmetry with
+					// This used to fall straight into
+					// $skipped with nothing an operator could see -- the paid-order
+					// rule was upheld (no money moved) but the asymmetry with
 					// cancel_booking_with_orders()'s own paid-order guard,
-					// which parks and notifies, was exactly this task's own
-					// subject. Applying the sibling's pattern here too.
+					// which parks and notifies, was the gap. Applying the sibling's pattern here too.
 					//
-					// Fix round 1, F2: only counted as $parked when the
+					// Only counted as $parked when the
 					// booking was ACTUALLY parked. park_paid_booking_for_review()
 					// used to be void and this incremented unconditionally,
 					// so a lock refusal or a matrix refusal both still
@@ -1054,24 +1053,24 @@ final class AutoCancel {
 
 	/**
 	 * Parks a booking for manual review because a sweep found paid money it
-	 * may not touch on its own (K6) -- mirrors cancel_booking_with_orders()'s
-	 * own guard for the exact same reason (see its docblock, above). Task
-	 * 14b item 5: sync_orphan_wc_orders() used to fall straight into its
+	 * may not touch on its own -- mirrors cancel_booking_with_orders()'s
+	 * own guard for the exact same reason (see its docblock, above).
+	 * sync_orphan_wc_orders() used to fall straight into its
 	 * $skipped counter on exactly this path, with no status change, no
 	 * notification, and no log -- the asymmetry with the cron sweep this
 	 * method now closes.
 	 *
 	 * Deliberately its own method rather than a refactor of
 	 * cancel_booking_with_orders()'s inline block: that block is exercised by
-	 * this slice's own K6 tests (AutoCancelLeavesPaidMoneyAloneTest) and this
-	 * task's scope is visibility, not restructuring code that already works.
+	 * its own tests (AutoCancelLeavesPaidMoneyAloneTest) and the aim here is visibility,
+	 * not restructuring code that already works.
 	 *
 	 * @param int    $bid     Booking post ID.
 	 * @param string $surface Recorded on the transition and used in the
 	 *                        notification-failure log, so an operator reading
 	 *                        either can tell which caller parked the booking.
-	 * @return bool True only when this call actually recorded NEEDS_REVIEW
-	 *              -- fix round 1, F2. The caller uses this, not "did we
+	 * @return bool True only when this call actually recorded NEEDS_REVIEW.
+	 *              The caller uses this, not "did we
 	 *              attempt it", to decide whether to count the booking as
 	 *              parked: a lock refusal or a matrix refusal both mean
 	 *              nothing was parked, and a $parked counter that could not
@@ -1098,7 +1097,7 @@ final class AutoCancel {
 
 		try {
 			if (! RefundStatus::transition($bid, RefundStatus::NEEDS_REVIEW, array( 'surface' => $surface ))) {
-				// Fix round 1, F2: this used to return silently. The matrix
+				// This used to return silently. The matrix
 				// refusing NEEDS_REVIEW means this booking's refund_status is
 				// already something the matrix has no edge from to it here --
 				// e.g. a concurrent pass, or an operator action, already
@@ -1128,7 +1127,7 @@ final class AutoCancel {
 				&& \MHMRentiva\Helpers\NotificationHelper::send_refund_needs_review_email($bid);
 
 			if (! $notified) {
-				// Task 14b item 7: the reason is not the same fact in both
+				// The reason is not the same fact in both
 				// branches -- the helper class being entirely absent
 				// (helper_missing) is a different problem than the helper
 				// running and failing (notification_failed), even though the

@@ -3,7 +3,7 @@
  * Vehicle comparison (rentiva_vehicle_comparison), inside `.rvs-shell`.
  *
  * Prints ComparisonView::build(). One table for every width: under 782 px the
- * CSS lays it out as the drawing's sticky vehicle header and labelled rows, so
+ * CSS lays it out as a sticky vehicle header and labelled rows, so
  * every table element names its role (a changed `display` would drop it).
  * The script (vehicle-comparison.js) works from the `data-rvs-cmp-*` hooks and
  * each comparison's root carries its own state.

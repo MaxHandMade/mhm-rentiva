@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Tools → Export / Erase Personal Data, and Settings → Privacy's policy guide
- * (5a spec T1, T8). Every key starts with `mhm-rentiva-`; Pro registers its
+ * Tools → Export / Erase Personal Data, and Settings → Privacy's policy guide.
+ * Every key starts with `mhm-rentiva-`; Pro registers its
  * own under `mhm-rentiva-pro-`.
  */
 final class PrivacyRegistry {

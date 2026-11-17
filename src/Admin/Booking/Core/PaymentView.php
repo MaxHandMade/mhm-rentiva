@@ -12,7 +12,7 @@ if (! defined('ABSPATH')) {
 /**
  * A booking's payment view: one status derived from the stored payment
  * status, the payment type and the remaining amount, and the history row
- * that records when it changes (spec PR 3a).
+ * that records when it changes.
  *
  * The writers of those three meta keys are not touched. Each payment entry
  * point opens a scope around its work instead:

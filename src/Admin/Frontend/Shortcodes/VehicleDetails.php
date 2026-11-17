@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Vehicle page (`rentiva_vehicle_details`) on the front-end standard.
  *
- * Aşama 2 PR B: the page's data is VehicleDetailsView; the template prints it
+ * The page's data is VehicleDetailsView; the template prints it
  * inside `.rvs-shell`. Two endpoints (months, booking-card quote) answer with
  * the same partials.
  */
@@ -38,7 +38,7 @@ final class VehicleDetails extends AbstractShortcode {
 
 	public static function register(): void {
 		parent::register();
-		// Aşama 2 PR B: the rvs page's months and live booking-card quote.
+		// The rvs page's months and live booking-card quote.
 		add_action( 'wp_ajax_mhmrentiva_vd_months', array( self::class, 'ajax_months' ) );
 		add_action( 'wp_ajax_nopriv_mhmrentiva_vd_months', array( self::class, 'ajax_months' ) );
 		add_action( 'wp_ajax_mhmrentiva_vd_quote', array( self::class, 'ajax_quote' ) );
@@ -123,7 +123,7 @@ final class VehicleDetails extends AbstractShortcode {
 
 		// Dates the server cannot price (wrong order) carry no total, days or
 		// breakdown: the card shows the message alone. A taken car carries none
-		// either, but its daily price (owner decision 2026-11-03).
+		// either, but its daily price.
 		$priced  = ! empty( $booking['priced'] );
 		$taken   = ! empty( $booking['taken'] );
 		$totaled = $priced && ! $taken;
@@ -179,7 +179,7 @@ final class VehicleDetails extends AbstractShortcode {
 
 	/**
 	 * The posted window; VehicleDetailsView::window() validates each value.
-	 * No pickup location: the car has its own (PR S).
+	 * No pickup location: the car has its own.
 	 *
 	 * @return array<string, string>
 	 */
@@ -207,13 +207,13 @@ final class VehicleDetails extends AbstractShortcode {
 			'show_pricing'           => '1',
 			'show_booking'           => '1',
 			'show_calendar'          => '1',
-			// Aşama 2 PR B (owner request): the Rental conditions section.
+			// The Rental conditions section.
 			'show_conditions'        => '1',
 			'show_price'             => '1',
 			'show_booking_button'    => '1',
 			'show_favorite_button'   => '1',
 			'show_compare_button'    => '1',
-			// Spec 3A Task 4: the rating line, the reviews section (exception 2) and the
+			// The rating line, the reviews section and the
 			// similar section; an empty limit keeps the template's mobile 6 / desktop 3.
 			'show_rating'            => '1',
 			'show_reviews'           => '1',

@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * `mhm-rentiva-bookings` eraser (5a spec T4, T5; user decision U1).
+ * `mhm-rentiva-bookings` eraser.
  *
  * Closed bookings are anonymised, active ones are kept and named once. The
  * queue never shifts by $page: an anonymised booking stops matching, so each
