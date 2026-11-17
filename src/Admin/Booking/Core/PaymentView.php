@@ -81,7 +81,23 @@ final class PaymentView {
 	 * Label of a derived status. An unknown one is "Other", never the raw key.
 	 */
 	public static function label(string $status): string {
-		$labels = array(
+		return self::labels()[ $status ] ?? __('Other', 'mhm-rentiva');
+	}
+
+	/**
+	 * Every derived status, in display order.
+	 *
+	 * @return list<string>
+	 */
+	public static function statuses(): array {
+		return array_keys(self::labels());
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	private static function labels(): array {
+		return array(
 			'unpaid'               => __('Unpaid', 'mhm-rentiva'),
 			'pending'              => __('Pending', 'mhm-rentiva'),
 			'pending_verification' => __('Pending Verification', 'mhm-rentiva'),
@@ -92,8 +108,6 @@ final class PaymentView {
 			'cancelled'            => __('Cancelled', 'mhm-rentiva'),
 			'failed'               => __('Failed', 'mhm-rentiva'),
 		);
-
-		return $labels[ $status ] ?? __('Other', 'mhm-rentiva');
 	}
 
 	/**

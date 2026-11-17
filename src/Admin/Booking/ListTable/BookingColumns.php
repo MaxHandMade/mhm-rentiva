@@ -928,11 +928,16 @@ final class BookingColumns {
 		// The status dropdown that used to render here became the chip strip
 		// (status_chips()) — same registered query var, one filter UI.
 
-		// Payment status filter
-		$pcur = self::get_query_text( 'mhmrentiva_payment_status' );
+		// Payment status filter — offers the statuses the row badges show
+		// (PaymentView::status()), only those some booking actually has.
+		$pcur   = self::get_query_text( 'mhmrentiva_payment_status' );
+		$in_use = self::get_payment_statuses_in_use( 'trash' === get_query_var( 'post_status' ) );
 		echo '<select name="mhmrentiva_payment_status" class="postform">';
 		echo '  <option value="">' . esc_html__( 'All payments', 'mhm-rentiva' ) . '</option>';
-		foreach ( array( 'unpaid', 'paid', 'refunded', 'failed' ) as $s ) {
+		foreach ( \MHMRentiva\Admin\Booking\Core\PaymentView::statuses() as $s ) {
+			if ( ! in_array( $s, $in_use, true ) && $pcur !== $s ) {
+				continue;
+			}
 			$label = \MHMRentiva\Admin\Booking\Core\PaymentView::label( $s );
 			echo '  <option value="' . esc_attr( $s ) . '"' . selected( $pcur, $s, false ) . '>' . esc_html( $label ) . '</option>';
 		}
@@ -954,6 +959,79 @@ final class BookingColumns {
 			}
 			echo '</select>';
 		}
+	}
+
+	/**
+	 * Derived payment statuses (PaymentView::status()) some booking has.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function get_payment_statuses_in_use( bool $trash = false ): array {
+		return array_values( array_unique( self::payment_status_by_booking( $trash ) ) );
+	}
+
+	/**
+	 * PaymentView::status() of every booking, resolved in one query:
+	 * booking ID => derived payment status.
+	 *
+	 * Mirrors status(): the current key wins over the legacy one, none is
+	 * 'unpaid', the legacy values completed / processing / on-hold read as
+	 * paid / pending / pending (PaymentView::LEGACY), and a paid deposit
+	 * booking with a balance is partially paid. BookingPaymentFilterTest pins
+	 * that the two agree. Each key is a key-restricted LEFT JOIN, so the cost
+	 * is linear in the number of bookings; a meta_query OR over the two
+	 * status keys is not (see the status chip note in apply_status_filter()).
+	 * Auto-drafts are left out, and trash unless $trash (the Trash view lists
+	 * only trashed bookings).
+	 *
+	 * @return array<int, string>
+	 */
+	private static function payment_status_by_booking( bool $trash ): array {
+		global $wpdb;
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT b.ID, CASE
+                    WHEN b.status = 'paid'
+                        AND b.payment_type = 'deposit'
+                        AND CAST(COALESCE(NULLIF(b.remaining, ''), '0') AS DECIMAL(20,6)) > 0
+                    THEN 'partially_paid'
+                    ELSE b.status
+                END AS payment_status
+                FROM (
+                    SELECT p.ID,
+                        CASE COALESCE(NULLIF(ps1.meta_value, ''), NULLIF(ps2.meta_value, ''), 'unpaid')
+                            WHEN 'completed' THEN 'paid'
+                            WHEN 'processing' THEN 'pending'
+                            WHEN 'on-hold' THEN 'pending'
+                            ELSE COALESCE(NULLIF(ps1.meta_value, ''), NULLIF(ps2.meta_value, ''), 'unpaid')
+                        END AS status,
+                        pt.meta_value AS payment_type,
+                        pr.meta_value AS remaining
+                    FROM {$wpdb->posts} p
+                    LEFT JOIN {$wpdb->postmeta} ps1 ON ps1.post_id = p.ID AND ps1.meta_key = %s
+                    LEFT JOIN {$wpdb->postmeta} ps2 ON ps2.post_id = p.ID AND ps2.meta_key = %s
+                    LEFT JOIN {$wpdb->postmeta} pt ON pt.post_id = p.ID AND pt.meta_key = %s
+                    LEFT JOIN {$wpdb->postmeta} pr ON pr.post_id = p.ID AND pr.meta_key = %s
+                    WHERE p.post_type = %s
+                    AND p.post_status <> 'auto-draft' AND ( p.post_status = 'trash' ) = %d
+                ) b",
+				'_mhmrentiva_payment_status',
+				'_mhmrentiva_booking_payment_status',
+				'_mhmrentiva_payment_type',
+				'_mhmrentiva_remaining_amount',
+				'mhmrentiva_booking',
+				$trash ? 1 : 0
+			),
+			ARRAY_A
+		);
+
+		$by_booking = array();
+		foreach ( (array) $rows as $row ) {
+			$by_booking[ (int) $row['ID'] ] = (string) $row['payment_status'];
+		}
+
+		return $by_booking;
 	}
 
 	/**
@@ -1022,10 +1100,12 @@ final class BookingColumns {
                     LEFT JOIN {$wpdb->postmeta} pm_s1 ON p.ID = pm_s1.post_id AND pm_s1.meta_key = %s
                     LEFT JOIN {$wpdb->postmeta} pm_s2 ON p.ID = pm_s2.post_id AND pm_s2.meta_key = %s
                     WHERE p.post_type = %s
+                    AND p.post_status <> 'auto-draft' AND ( p.post_status = 'trash' ) = %d
                     AND COALESCE(NULLIF(pm_s1.meta_value, ''), NULLIF(pm_s2.meta_value, ''), 'pending') = %s",
 					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
 					'_mhmrentiva_booking_status',
 					'mhmrentiva_booking',
+					'trash' === $q->get( 'post_status' ) ? 1 : 0,
 					$booking_status_filter
 				)
 			);
@@ -1036,24 +1116,24 @@ final class BookingColumns {
 			$q->set( 'post__in', ! empty( $status_ids ) ? $status_ids : array( 0 ) );
 		}
 		$payment_status_filter = self::get_query_text( 'mhmrentiva_payment_status' );
-		if ( '' !== $payment_status_filter ) {
-			$val = $payment_status_filter;
-			if ( in_array( $val, array( 'unpaid', 'paid', 'refunded', 'failed' ), true ) ) {
-				// Check both the old and the new meta keys
-				$meta[] = array(
-					'relation' => 'OR',
-					array(
-						'key'     => '_mhmrentiva_booking_payment_status',
-						'value'   => $val,
-						'compare' => '=',
-					),
-					array(
-						'key'     => '_mhmrentiva_payment_status',
-						'value'   => $val,
-						'compare' => '=',
-					),
-				);
+		if ( in_array( $payment_status_filter, \MHMRentiva\Admin\Booking\Core\PaymentView::statuses(), true ) ) {
+			// Same derivation as the row badge (PaymentView::status()), resolved
+			// to IDs in one pass. Not a meta_query: an OR over the two status
+			// keys compiles to unrestricted postmeta self-joins (see the status
+			// chip note above).
+			$payment_ids = array_keys(
+				array_filter(
+					self::payment_status_by_booking( 'trash' === $q->get( 'post_status' ) ),
+					static fn ( string $status ): bool => $status === $payment_status_filter
+				)
+			);
+
+			// Narrow the status chip's set instead of replacing it.
+			$current = array_map( 'intval', (array) $q->get( 'post__in' ) );
+			if ( ! empty( $current ) ) {
+				$payment_ids = array_values( array_intersect( $current, $payment_ids ) );
 			}
+			$q->set( 'post__in', ! empty( $payment_ids ) ? $payment_ids : array( 0 ) );
 		}
 		$payment_gateway_filter = self::get_query_text( 'mhmrentiva_payment_gateway' );
 		if ( '' !== $payment_gateway_filter ) {
