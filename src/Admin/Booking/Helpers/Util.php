@@ -378,7 +378,7 @@ final class Util {
 		return array(
 			'ok'            => true,
 			'code'          => 'ok',
-			'message'       => __('✅ Great! This vehicle is available for your selected dates.', 'mhm-rentiva'),
+			'message'       => (string) self::availability_message('ok'),
 			'days'          => $days,
 			'price_per_day' => \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id),
 			'total_price'   => self::total_price($vehicle_id, $days, $start_ts),
@@ -408,11 +408,7 @@ final class Util {
 		$end_ts   = $precheck['window']['end_ts'];
 
 		if (BookingConflicts::bookings_overlap($vehicle_id, $start_ts, $end_ts)) {
-			return array(
-				'ok'      => false,
-				'code'    => 'unavailable',
-				'message' => __('This vehicle is already booked for the selected dates. Please choose different dates or select another vehicle.', 'mhm-rentiva'),
-			);
+			return self::unavailable_result();
 		}
 
 		$result                 = self::available_result($vehicle_id, $start_ts, $end_ts);
@@ -453,31 +449,73 @@ final class Util {
 				// This ensures we don't show stale "available" data
 				if (self::has_overlap($vehicle_id, $start_ts, $end_ts)) {
 					// Cache was stale - return unavailable
-					return array(
-						'ok'      => false,
-						'code'    => 'unavailable',
-						'message' => __('This vehicle is already booked for the selected dates. Please choose different dates or select another vehicle.', 'mhm-rentiva'),
-					);
+					return self::unavailable_result();
 				}
 			}
-			return $cached_result;
+			return self::worded($cached_result);
 		}
 
 		// Overlap detection
 		if (self::has_overlap($vehicle_id, $start_ts, $end_ts)) {
-			$result = array(
-				'ok'      => false,
-				'code'    => 'unavailable',
-				'message' => __('This vehicle is already booked for the selected dates. Please choose different dates or select another vehicle.', 'mhm-rentiva'),
-			);
+			$result = self::unavailable_result();
 		} else {
 			$result = self::available_result($vehicle_id, $start_ts, $end_ts);
 		}
 
-		// Save result to cache
-		\MHMRentiva\Admin\Booking\Helpers\Cache::setAvailability($vehicle_id, $start_ts, $end_ts, $result);
+		// The cache holds one answer per vehicle and window for every visitor,
+		// so it holds no words: the message is written in the reader's language.
+		$cached = $result;
+		unset($cached['message']);
+		\MHMRentiva\Admin\Booking\Helpers\Cache::setAvailability($vehicle_id, $start_ts, $end_ts, $cached);
 
 		return $result;
+	}
+
+	/**
+	 * The message of an availability answer, in the language of the current
+	 * request. Null for a code this check does not answer with.
+	 */
+	private static function availability_message(string $code): ?string
+	{
+		switch ($code) {
+			case 'ok':
+				return __('✅ Great! This vehicle is available for your selected dates.', 'mhm-rentiva');
+			case 'unavailable':
+				return __('This vehicle is already booked for the selected dates. Please choose different dates or select another vehicle.', 'mhm-rentiva');
+		}
+
+		return null;
+	}
+
+	/**
+	 * A cached answer with its message written now. An entry cached before
+	 * messages were left out still carries one, in whatever language its first
+	 * reader had; it is replaced too.
+	 *
+	 * @param array<string, mixed> $answer
+	 * @return array<string, mixed>
+	 */
+	private static function worded(array $answer): array
+	{
+		$code    = (string) ( $answer['code'] ?? '' );
+		$message = self::availability_message($code);
+		if (null !== $message) {
+			$answer['message'] = $message;
+		}
+
+		return $answer;
+	}
+
+	/**
+	 * @return array{ok: false, code: string, message: string}
+	 */
+	private static function unavailable_result(): array
+	{
+		return array(
+			'ok'      => false,
+			'code'    => 'unavailable',
+			'message' => (string) self::availability_message('unavailable'),
+		);
 	}
 
 	/**
