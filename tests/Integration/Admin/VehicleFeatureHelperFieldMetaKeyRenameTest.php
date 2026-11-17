@@ -90,7 +90,7 @@ final class VehicleFeatureHelperFieldMetaKeyRenameTest extends WP_UnitTestCase {
 		$mileage_items = array_values( array_filter( $items, static fn( $item ) => $item['key'] === 'mileage' ) );
 
 		$this->assertCount( 1, $mileage_items, 'Mileage detail must be collected exactly once when its meta value is present.' );
-		$this->assertStringContainsString( '12.345', $mileage_items[0]['text'], 'The stored meta value must reach the rendered text -- proves field_meta_key resolves to the right post meta key.' );
+		$this->assertStringContainsString( number_format_i18n( 12345 ), $mileage_items[0]['text'], 'The stored meta value must reach the rendered text -- proves field_meta_key resolves to the right post meta key.' );
 	}
 
 	/**
