@@ -128,6 +128,39 @@ final class RepriceUnpaidDepositTest extends WP_UnitTestCase
 		$this->assertSame(1700.0, $this->meta($booking_id, '_mhmrentiva_remaining_amount'));
 	}
 
+	/**
+	 * @return array<string, array{0: array<string, string>}>
+	 */
+	public static function paid_by_the_old_writers(): array
+	{
+		return array(
+			'legacy completed value' => array( array( '_mhmrentiva_payment_status' => 'completed' ) ),
+			'legacy key only'        => array(
+				array(
+					'_mhmrentiva_payment_status'         => '',
+					'_mhmrentiva_booking_payment_status' => 'paid',
+				),
+			),
+			'awaiting verification'  => array( array( '_mhmrentiva_payment_status' => 'pending_verification' ) ),
+		);
+	}
+
+	/**
+	 * PaymentState's offline gate reads only the current key's raw value, so
+	 * these show nothing collected; the deposit may still be money taken.
+	 *
+	 * @dataProvider paid_by_the_old_writers
+	 * @param array<string, string> $meta
+	 */
+	public function test_a_deposit_the_payment_status_calls_paid_is_kept(array $meta): void
+	{
+		$booking_id = $this->unpaid_deposit_booking($meta);
+
+		BookingMeta::recalculate_booking_costs($booking_id, '2026-11-02', '2026-11-04');
+
+		$this->assertSame(300.0, $this->meta($booking_id, '_mhmrentiva_deposit_amount'));
+	}
+
 	public function test_a_booking_with_an_order_keeps_the_deposit_the_order_asks_for(): void
 	{
 		$booking_id = $this->unpaid_deposit_booking(array( '_mhmrentiva_woocommerce_order_id' => 987654 ));
