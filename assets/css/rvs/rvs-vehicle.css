@@ -284,9 +284,11 @@
 	gap: 6px;
 }
 
+/* Wraps on phones, as .rvs-availability__legend does: four items do not fit 390px. */
 .rvs-shell .rvs-vd__legend {
 	display: flex;
-	gap: 20px;
+	flex-wrap: wrap;
+	gap: 10px 20px;
 	margin: 0;
 	padding: 0;
 	color: var(--rvs-muted);
@@ -301,6 +303,7 @@
 }
 
 .rvs-shell .rvs-vd__swatch {
+	flex: none;
 	width: 14px;
 	height: 14px;
 	border-radius: var(--rvs-r);
