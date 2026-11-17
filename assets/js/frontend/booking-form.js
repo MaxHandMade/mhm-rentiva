@@ -684,8 +684,10 @@
             if (isoDropoff) data.dropoff_date = isoDropoff;
 
             // The rental agreement, when the form shows it and it is ticked.
+            // With the version of the text this page showed.
             if (this.hook('agreement-consent').is(':checked')) {
                 data.terms_accepted = '1';
+                data.terms_version = this.hook('agreement-version').val() || '';
             }
 
             return data;

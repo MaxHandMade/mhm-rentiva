@@ -765,29 +765,31 @@ final class BookingForm extends AbstractShortcode {
 	}
 
 	/**
-	 * The rental agreement as the form shows it: off, or its text as HTML.
+	 * The rental agreement as the form shows it: off, or its text as HTML and
+	 * the version (sha256) of that text, which the form posts back.
 	 *
-	 * @return array{enabled: bool, html: string}
+	 * @return array{enabled: bool, html: string, version: string}
 	 */
 	private static function agreement_view(): array
 	{
-		$agreement = \MHMRentiva\Admin\Settings\Groups\BookingSettings::rental_agreement();
+		$agreement = self::site_language_agreement();
 
 		return array(
 			'enabled' => $agreement['enabled'],
 			'html'    => $agreement['enabled'] ? \MHMRentiva\Helpers\AgreementText::to_html($agreement['text']) : '',
+			'version' => $agreement['enabled'] ? hash('sha256', $agreement['text']) : '',
 		);
 	}
 
 	/**
 	 * The acceptance a submission carries into the booking: when, and which
-	 * text (sha256 of the text shown). Empty while the agreement is off.
+	 * text (sha256). Empty while the agreement is off.
 	 *
 	 * @return array{terms_accepted_at?: string, terms_version?: string}
 	 */
 	private static function agreement_acceptance(): array
 	{
-		$agreement = \MHMRentiva\Admin\Settings\Groups\BookingSettings::rental_agreement();
+		$agreement = self::site_language_agreement();
 		if (! $agreement['enabled']) {
 			return array();
 		}
@@ -796,6 +798,25 @@ final class BookingForm extends AbstractShortcode {
 			'terms_accepted_at' => gmdate('Y-m-d H:i:s'),
 			'terms_version'     => hash('sha256', $agreement['text']),
 		);
+	}
+
+	/**
+	 * The rental agreement in the site's language, on the page and in the
+	 * submission alike. The submission runs in admin-ajax, where WordPress
+	 * uses a logged-in customer's profile language; the built-in template
+	 * would then be another text than the one the page showed.
+	 *
+	 * @return array{enabled: bool, text: string}
+	 */
+	private static function site_language_agreement(): array
+	{
+		$switched  = switch_to_locale(get_locale());
+		$agreement = \MHMRentiva\Admin\Settings\Groups\BookingSettings::rental_agreement();
+		if ($switched) {
+			restore_previous_locale();
+		}
+
+		return $agreement;
 	}
 
 	/**
@@ -1257,8 +1278,15 @@ final class BookingForm extends AbstractShortcode {
 			// The rental agreement, when the site requires it, is accepted here,
 			// on the server: the browser's check is only a convenience.
 			$acceptance = self::agreement_acceptance();
-			if (array() !== $acceptance && '1' !== $req->text('terms_accepted')) {
-				return self::failed(__('To complete your booking, accept the rental agreement.', 'mhm-rentiva'));
+			if (array() !== $acceptance) {
+				if ('1' !== $req->text('terms_accepted')) {
+					return self::failed(__('To complete your booking, accept the rental agreement.', 'mhm-rentiva'));
+				}
+				// The version the page showed must be the one recorded: a page
+				// cached, or left open, while the text changed shows another.
+				if (! hash_equals($acceptance['terms_version'], $req->text('terms_version'))) {
+					return self::failed(__('The rental agreement has changed. Reload the page and review it before booking.', 'mhm-rentiva'));
+				}
 			}
 
 			$selection       = self::accept_submitted_selection($req);

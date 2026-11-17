@@ -22,6 +22,7 @@ describe( 'booking form rental agreement', () => {
 				${ agreement ? `
 				<section data-rvs-agreement>
 					<label><input type="checkbox" name="terms_accepted" value="1" data-rvs-agreement-consent></label>
+					<input type="hidden" name="terms_version" value="abc123" data-rvs-agreement-version>
 					<p data-rvs-agreement-error hidden>Accept it.</p>
 				</section>` : '' }
 			</form>
@@ -68,6 +69,7 @@ describe( 'booking form rental agreement', () => {
 		expect( form.validateForm() ).toBe( true );
 		expect( form.container.find( '[data-rvs-agreement-error]' ).prop( 'hidden' ) ).toBe( true );
 		expect( form.getFormData().terms_accepted ).toBe( '1' );
+		expect( form.getFormData().terms_version ).toBe( 'abc123' );
 	} );
 
 	test( 'ticking the box after an error clears it', () => {

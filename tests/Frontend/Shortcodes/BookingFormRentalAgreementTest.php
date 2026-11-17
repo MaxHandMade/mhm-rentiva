@@ -152,7 +152,10 @@ final class BookingFormRentalAgreementTest extends WP_Ajax_UnitTestCase
 		$this->enable("## Terms v1\n- one");
 		$before = gmdate('Y-m-d H:i:s');
 
-		$response = $this->dispatch(array( 'terms_accepted' => '1' ));
+		$response = $this->dispatch(array(
+			'terms_accepted' => '1',
+			'terms_version'  => hash('sha256', "## Terms v1\n- one"),
+		));
 
 		$this->assertTrue($response['success'], wp_json_encode($response));
 		$data = $this->cart_booking_data();
@@ -165,9 +168,38 @@ final class BookingFormRentalAgreementTest extends WP_Ajax_UnitTestCase
 	{
 		$this->enable('');
 
-		$this->dispatch(array( 'terms_accepted' => '1' ));
+		$version = hash('sha256', BookingSettings::rental_agreement_template());
+		$this->dispatch(array(
+			'terms_accepted' => '1',
+			'terms_version'  => $version,
+		));
 
-		$this->assertSame(hash('sha256', BookingSettings::rental_agreement_template()), $this->cart_booking_data()['terms_version']);
+		$this->assertSame($version, $this->cart_booking_data()['terms_version']);
+	}
+
+	public function test_the_form_posts_back_the_version_of_the_text_it_shows(): void
+	{
+		$this->enable("## Terms v1\n- one");
+
+		$this->assertMatchesRegularExpression(
+			'/<input[^>]*name="terms_version"[^>]*value="' . hash('sha256', "## Terms v1\n- one") . '"/',
+			$this->form()
+		);
+	}
+
+	public function test_a_submission_from_a_page_showing_another_text_is_refused(): void
+	{
+		// A cached or open page showed v1; the admin has since saved v2.
+		$this->enable("## Terms v2\n- two");
+
+		$response = $this->dispatch(array(
+			'terms_accepted' => '1',
+			'terms_version'  => hash('sha256', "## Terms v1\n- one"),
+		));
+
+		$this->assertFalse($response['success']);
+		$this->assertSame('The rental agreement has changed. Reload the page and review it before booking.', $response['data']['message'] ?? null);
+		$this->assertSame(array(), $this->cart_items());
 	}
 
 	// ---------------------------------------------------------- record

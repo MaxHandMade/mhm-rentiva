@@ -113,8 +113,9 @@ final class BookingPortalMetaBox {
 
 	/**
 	 * The rental agreement line: accepted (when and which text), or, on a
-	 * booking an admin entered, that the customer accepted nothing here. A
-	 * form booking made while the agreement was off shows no line.
+	 * booking an admin entered (type 'manual'), that the customer accepted
+	 * nothing here. Any other booking without an acceptance -- a form booking
+	 * made while the agreement was off, a transfer -- shows no line.
 	 */
 	private static function render_agreement( int $booking_id ): void {
 		$line = \MHMRentiva\Helpers\AgreementText::acceptance_line(
@@ -124,7 +125,7 @@ final class BookingPortalMetaBox {
 
 		if ( '' !== $line ) {
 			$status = __( 'Accepted', 'mhm-rentiva' );
-		} elseif ( 'booking_form' !== (string) get_post_meta( $booking_id, '_mhmrentiva_booking_type', true ) ) {
+		} elseif ( 'manual' === (string) get_post_meta( $booking_id, '_mhmrentiva_booking_type', true ) ) {
 			$status = __( 'No acceptance (admin booking)', 'mhm-rentiva' );
 		} else {
 			return;

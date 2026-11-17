@@ -41,6 +41,7 @@ $enable_deposit        = $enable_deposit ?? true;
 $agreement             = $agreement ?? array(
 	'enabled' => false,
 	'html'    => '',
+	'version' => '',
 );
 $default_days          = (int) ( $default_days ?? 0 );
 $heading               = (string) ( $heading ?? '' );
@@ -199,6 +200,7 @@ $is_preview        = RenderContext::current()->is_preview();
 						</div>
 						<label class="rvs-agreement__consent">
 							<input type="checkbox" name="terms_accepted" value="1" data-rvs-agreement-consent aria-describedby="<?php echo esc_attr($uid . '-agreement-e'); ?>">
+							<input type="hidden" name="terms_version" value="<?php echo esc_attr( (string) $agreement['version']); ?>" data-rvs-agreement-version>
 							<span><?php esc_html_e('I have read and accept the rental agreement.', 'mhm-rentiva'); ?></span>
 						</label>
 						<p class="rvs-agreement__error" id="<?php echo esc_attr($uid . '-agreement-e'); ?>" data-rvs-agreement-error hidden><?php esc_html_e('To complete your booking, accept the rental agreement.', 'mhm-rentiva'); ?></p>

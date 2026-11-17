@@ -69,6 +69,12 @@ final class RentalAgreementRowTest extends WP_UnitTestCase
         $this->assertStringNotContainsString('data-mhm-agreement', $this->box($id));
     }
 
+    public function test_a_transfer_or_an_untyped_booking_shows_no_line(): void
+    {
+        $this->assertStringNotContainsString('data-mhm-agreement', $this->box($this->booking(array( '_mhmrentiva_booking_type' => 'transfer' ))));
+        $this->assertStringNotContainsString('data-mhm-agreement', $this->box($this->booking(array())));
+    }
+
     public function test_a_malformed_record_is_not_shown_as_accepted(): void
     {
         $this->assertSame('', AgreementText::acceptance_line('yesterday', self::VERSION));
