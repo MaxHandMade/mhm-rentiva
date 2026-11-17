@@ -323,11 +323,11 @@
 
 /*
  * Side by side once the widest real amount (~150px), the gap and the button
- * fit. The price column starts from zero and is never narrower than the amount
- * (min-content), so its long notes wrap inside it, and the row breaks only when
- * the amount itself and the button cannot share it (a larger amount, a longer
- * button label, bigger type): the button then drops below instead of
- * overlapping the price.
+ * fit. The price column starts from zero and is never narrower than its
+ * min-content (the nowrap amount, or a longer unbreakable word in a note), so
+ * its long notes wrap inside it, and the row breaks only when that and the
+ * button cannot share it (a larger amount, a longer button label, bigger
+ * type): the button then drops below instead of overlapping the price.
  */
 @container rvs-card (min-width: 330px) {
 	.rvs-shell .rvs-card__foot {
