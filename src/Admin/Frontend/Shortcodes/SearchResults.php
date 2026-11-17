@@ -1284,7 +1284,7 @@ final class SearchResults extends AbstractShortcode {
 		if (false !== $cached && is_array($cached)) {
 			// Validation: Ensure cache isn't effectively empty if it shouldn't be
 			if (! empty($cached['brands']) || ! empty($cached['fuel_types'])) {
-				return $cached;
+				return self::worded_facets($cached);
 			}
 		}
 
@@ -1307,35 +1307,14 @@ final class SearchResults extends AbstractShortcode {
 		 * came to disagree with the search results they sit next to.
 		 */
 
-		// Fuel types - Get keys and convert to labels
-		$fuel_type_keys = self::public_meta_values('_mhmrentiva_fuel_type');
+		// Fuel types and transmissions: the stored keys only (key => key). The
+		// day-long cache below is shared by every visitor, so it holds no words;
+		// worded_facets() writes the labels for the request that reads it.
+		$fuel_type_keys = (array) self::public_meta_values('_mhmrentiva_fuel_type');
+		$fuel_types     = array_combine($fuel_type_keys, $fuel_type_keys);
 
-		$fuel_types_map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
-		$fuel_types     = array();
-		if (! empty($fuel_type_keys)) {
-			foreach ($fuel_type_keys as $key) {
-				if (isset($fuel_types_map[ $key ])) {
-					$fuel_types[ $key ] = $fuel_types_map[ $key ];
-				} else {
-					$fuel_types[ $key ] = $key; // Fallback to key if label not found
-				}
-			}
-		}
-
-		// Transmission types - Get keys and convert to labels
-		$transmission_keys = self::public_meta_values('_mhmrentiva_transmission');
-
-		$transmissions_map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
-		$transmissions     = array();
-		if (! empty($transmission_keys)) {
-			foreach ($transmission_keys as $key) {
-				if (isset($transmissions_map[ $key ])) {
-					$transmissions[ $key ] = $transmissions_map[ $key ];
-				} else {
-					$transmissions[ $key ] = $key; // Fallback to key if label not found
-				}
-			}
-		}
+		$transmission_keys = (array) self::public_meta_values('_mhmrentiva_transmission');
+		$transmissions     = array_combine($transmission_keys, $transmission_keys);
 
 		// Seat counts
 		$seats = self::public_meta_values('_mhmrentiva_seats', true);
@@ -1348,6 +1327,60 @@ final class SearchResults extends AbstractShortcode {
 
 		// Price range
 		$price_range = self::public_meta_range('_mhmrentiva_price_per_day', '^[0-9]+(\.[0-9]+)?$');
+
+		$data = array(
+			'fuel_types'    => $fuel_types ?: array(),
+			'transmissions' => $transmissions ?: array(),
+			'seats'         => $seats ?: array(),
+			'brands'        => $brands ?: array(),
+			// Read per request in worded_facets(): names are per language.
+			'categories'    => array(),
+			'year_range'    => array(
+				'min' => (int) ( $year_range['min'] ?? 1990 ),
+				'max' => (int) ( $year_range['max'] ?? gmdate('Y') ),
+			),
+			'price_range'   => array(
+				'min' => (float) ( $price_range['min'] ?? 0 ),
+				'max' => (float) ( $price_range['max'] ?? 10000 ),
+			),
+		);
+
+		// Cache Logic: 24 Hours
+		// Empty State Protection: If no brands/fuel types found, cache for only 5 minutes
+		// to prevent "permanent empty state" if cache warms up before vehicles are added.
+		$is_empty = empty($data['brands']) && empty($data['fuel_types']);
+		$ttl      = $is_empty ? 300 : DAY_IN_SECONDS;
+
+		set_transient($cache_key, $data, $ttl);
+
+		return self::worded_facets($data);
+	}
+
+	/**
+	 * The cached facets with their words written in the current request's
+	 * language: fuel and transmission labels from their keys, and the
+	 * categories read now (WordPress caches the term query; a translation
+	 * plugin returns each language's own terms). An entry cached before the
+	 * facets were stored without words still carries labels; the keys are the
+	 * same, so it is relabelled too.
+	 *
+	 * @param array<string, mixed> $facets
+	 * @return array<string, mixed>
+	 */
+	private static function worded_facets(array $facets): array
+	{
+		$label = static function (array $values, array $labels): array {
+			$worded = array();
+			foreach (array_keys($values) as $key) {
+				$worded[ $key ] = $labels[ $key ] ?? (string) $key; // Fallback to the key if it has no label.
+			}
+			return $worded;
+		};
+
+		$fuel_types              = (array) ( $facets['fuel_types'] ?? array() );
+		$transmissions           = (array) ( $facets['transmissions'] ?? array() );
+		$facets['fuel_types']    = $label($fuel_types, \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types());
+		$facets['transmissions'] = $label($transmissions, \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types());
 
 		// Categories that hold a published vehicle (WordPress counts published
 		// objects only); no counts on the page (K4).
@@ -1368,32 +1401,9 @@ final class SearchResults extends AbstractShortcode {
 				}
 			}
 		}
+		$facets['categories'] = $categories;
 
-		$data = array(
-			'fuel_types'    => $fuel_types ?: array(),
-			'transmissions' => $transmissions ?: array(),
-			'seats'         => $seats ?: array(),
-			'brands'        => $brands ?: array(),
-			'categories'    => $categories,
-			'year_range'    => array(
-				'min' => (int) ( $year_range['min'] ?? 1990 ),
-				'max' => (int) ( $year_range['max'] ?? gmdate('Y') ),
-			),
-			'price_range'   => array(
-				'min' => (float) ( $price_range['min'] ?? 0 ),
-				'max' => (float) ( $price_range['max'] ?? 10000 ),
-			),
-		);
-
-		// Cache Logic: 24 Hours
-		// Empty State Protection: If no brands/fuel types found, cache for only 5 minutes
-		// to prevent "permanent empty state" if cache warms up before vehicles are added.
-		$is_empty = empty($data['brands']) && empty($data['fuel_types']);
-		$ttl      = $is_empty ? 300 : DAY_IN_SECONDS;
-
-		set_transient($cache_key, $data, $ttl);
-
-		return $data;
+		return $facets;
 	}
 
 	/**
