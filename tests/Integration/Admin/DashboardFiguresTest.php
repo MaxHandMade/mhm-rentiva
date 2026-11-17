@@ -174,6 +174,25 @@ final class DashboardFiguresTest extends WP_UnitTestCase {
 		$this->assertEqualsWithDelta( 75.0, $m['total_revenue'], 0.01 );
 	}
 
+	/**
+	 * Codex PR review (P2, #203): the debt total must not load the metadata of
+	 * every settled booking in the site's history -- only bookings that can
+	 * still owe are read.
+	 */
+	public function test_settled_bookings_are_not_read_for_the_debt_total(): void {
+		$paid     = $this->fully_paid( 'completed', 500.0 );
+		$refunded = $this->booking( 'confirmed', 300.0, array( '_mhmrentiva_payment_status' => 'refunded' ) );
+		$owing    = $this->deposit_paid( 'confirmed', 400.0, 360.0 );
+		foreach ( array( $paid, $refunded, $owing ) as $id ) {
+			wp_cache_delete( $id, 'post_meta' );
+		}
+
+		$this->assertEqualsWithDelta( 360.0, DashboardService::get_payments_summary()['pending_total'], 0.01 );
+		$this->assertFalse( wp_cache_get( $paid, 'post_meta' ), 'A booking paid in full is not loaded.' );
+		$this->assertFalse( wp_cache_get( $refunded, 'post_meta' ), 'A refunded booking is not loaded.' );
+		$this->assertNotFalse( wp_cache_get( $owing, 'post_meta' ), 'A booking that owes is read.' );
+	}
+
 	public function test_recent_bookings_are_the_newest_bookings_first(): void {
 		$older = $this->booking( 'confirmed', 1.0, array( '_mhmrentiva_pickup_date' => '2099-01-01' ), gmdate( 'Y-m-d H:i:s', strtotime( '-2 days' ) ) );
 		$newer = $this->booking( 'confirmed', 1.0, array( '_mhmrentiva_pickup_date' => '2027-01-01' ), gmdate( 'Y-m-d H:i:s', strtotime( '-1 hour' ) ) );

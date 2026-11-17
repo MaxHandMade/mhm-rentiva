@@ -1172,7 +1172,12 @@ final class DashboardService {
 		global $wpdb;
 
 		// IDs only, one row per booking; the amounts are read below through
-		// get_post_meta(), the same rows PaymentView reads.
+		// get_post_meta(), the same rows PaymentView reads. Bookings whose
+		// current payment status already settles them -- refunded, partially
+		// refunded, cancelled, or paid (legacy 'completed') without a deposit
+		// balance -- are left out here, so a long booking history is not
+		// loaded on every dashboard view (Codex PR review, #203). What remains
+		// is a superset of the bookings that owe; PaymentView decides.
 		$ids = array_map(
 			'intval',
 			(array) $wpdb->get_col(
@@ -1182,6 +1187,17 @@ final class DashboardService {
                  AND NOT EXISTS (
                      SELECT 1 FROM {$wpdb->postmeta} s
                      WHERE s.post_id = p.ID AND s.meta_key = '_mhmrentiva_status' AND s.meta_value IN ('cancelled','refunded')
+                 )
+                 AND NOT EXISTS (
+                     SELECT 1 FROM {$wpdb->postmeta} ps
+                     WHERE ps.post_id = p.ID AND ps.meta_key = '_mhmrentiva_payment_status'
+                     AND (
+                         ps.meta_value IN ('refunded','partially_refunded','cancelled')
+                         OR ( ps.meta_value IN ('paid','completed') AND NOT (
+                             EXISTS ( SELECT 1 FROM {$wpdb->postmeta} pt WHERE pt.post_id = p.ID AND pt.meta_key = '_mhmrentiva_payment_type' AND pt.meta_value = 'deposit' )
+                             AND EXISTS ( SELECT 1 FROM {$wpdb->postmeta} pr WHERE pr.post_id = p.ID AND pr.meta_key = '_mhmrentiva_remaining_amount' AND CAST(pr.meta_value AS DECIMAL(10,2)) > 0 )
+                         ) )
+                     )
                  )"
 			)
 		);
