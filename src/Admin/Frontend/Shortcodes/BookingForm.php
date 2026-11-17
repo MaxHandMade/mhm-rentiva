@@ -782,10 +782,11 @@ final class BookingForm extends AbstractShortcode {
 	}
 
 	/**
-	 * The acceptance a submission carries into the booking: when, and which
-	 * text (sha256). Empty while the agreement is off.
+	 * The acceptance a submission carries into the booking: when, which text
+	 * (sha256) and the text itself, so the booking keeps what the customer
+	 * accepted after the setting changes. Empty while the agreement is off.
 	 *
-	 * @return array{terms_accepted_at?: string, terms_version?: string}
+	 * @return array{terms_accepted_at?: string, terms_version?: string, terms_text?: string}
 	 */
 	private static function agreement_acceptance(): array
 	{
@@ -797,6 +798,7 @@ final class BookingForm extends AbstractShortcode {
 		return array(
 			'terms_accepted_at' => gmdate('Y-m-d H:i:s'),
 			'terms_version'     => hash('sha256', $agreement['text']),
+			'terms_text'        => $agreement['text'],
 		);
 	}
 

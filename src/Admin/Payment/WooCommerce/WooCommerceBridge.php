@@ -4329,9 +4329,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 	/**
 	 * The rental agreement acceptance the booking form handed over, as booking
-	 * meta: when the customer accepted (UTC) and which text (sha256). Nothing
-	 * when the booking carries no acceptance -- the agreement was off, or the
-	 * cart was filled before it was switched on.
+	 * meta: when the customer accepted (UTC), which text (sha256) and the text
+	 * itself, kept only when it is the text that version names. Nothing when
+	 * the booking carries no acceptance -- the agreement was off, or the cart
+	 * was filled before it was switched on.
 	 *
 	 * @param array<string, mixed> $booking_data
 	 * @return array<string, string>
@@ -4344,10 +4345,18 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return array();
 		}
 
-		return array(
+		$meta = array(
 			'_mhmrentiva_terms_accepted_at' => $at,
 			'_mhmrentiva_terms_version'     => $version,
 		);
+
+		$text = (string) ( $booking_data['terms_text'] ?? '' );
+		if ('' !== $text && hash_equals($version, hash('sha256', $text))) {
+			// The insert below slashes the whole post array (meta_input too).
+			$meta['_mhmrentiva_terms_text'] = $text;
+		}
+
+		return $meta;
 	}
 
 	/**

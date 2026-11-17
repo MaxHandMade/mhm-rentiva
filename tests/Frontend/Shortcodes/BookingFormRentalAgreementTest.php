@@ -215,6 +215,47 @@ final class BookingFormRentalAgreementTest extends WP_Ajax_UnitTestCase
 
 		$this->assertSame('2026-11-18 11:32:00', get_post_meta($booking_id, '_mhmrentiva_terms_accepted_at', true));
 		$this->assertSame(str_repeat('a', 64), get_post_meta($booking_id, '_mhmrentiva_terms_version', true));
+		$this->assertFalse(metadata_exists('post', $booking_id, '_mhmrentiva_terms_text'), 'No text was handed over.');
+	}
+
+	public function test_the_booking_keeps_the_accepted_text_itself(): void
+	{
+		// What the customer accepted must survive the admin editing the setting.
+		$text       = "## Terms\n- Pay fines\n- Path C:\\cars\\keys";
+		$booking_id = $this->create_booking(
+			array(
+				'terms_accepted_at' => '2026-11-18 11:32:00',
+				'terms_version'     => hash('sha256', $text),
+				'terms_text'        => $text,
+			)
+		);
+
+		$this->assertSame($text, get_post_meta($booking_id, '_mhmrentiva_terms_text', true), 'Backslashes and line breaks kept.');
+	}
+
+	public function test_a_text_that_does_not_match_its_version_is_not_kept(): void
+	{
+		$booking_id = $this->create_booking(
+			array(
+				'terms_accepted_at' => '2026-11-18 11:32:00',
+				'terms_version'     => hash('sha256', 'the text shown'),
+				'terms_text'        => 'another text',
+			)
+		);
+
+		$this->assertFalse(metadata_exists('post', $booking_id, '_mhmrentiva_terms_text'));
+	}
+
+	public function test_the_cart_carries_the_text_shown(): void
+	{
+		$this->enable("## Terms v1\n- one");
+
+		$this->dispatch(array(
+			'terms_accepted' => '1',
+			'terms_version'  => hash('sha256', "## Terms v1\n- one"),
+		));
+
+		$this->assertSame("## Terms v1\n- one", $this->cart_booking_data()['terms_text']);
 	}
 
 	public function test_a_booking_without_acceptance_writes_no_acceptance_keys(): void

@@ -475,6 +475,7 @@ final class DatabaseCleaner {
 			'_mhmrentiva_statement_vendor_snapshot',
 			'_mhmrentiva_status',
 			'_mhmrentiva_terms_accepted_at',
+			'_mhmrentiva_terms_text',
 			'_mhmrentiva_terms_version',
 			'_mhmrentiva_thread_id',
 			'_mhmrentiva_total_price',

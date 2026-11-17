@@ -103,5 +103,6 @@ final class RentalAgreementRowTest extends WP_UnitTestCase
 
         $this->assertContains('_mhmrentiva_terms_accepted_at', $known);
         $this->assertContains('_mhmrentiva_terms_version', $known);
+        $this->assertContains('_mhmrentiva_terms_text', $known);
     }
 }
