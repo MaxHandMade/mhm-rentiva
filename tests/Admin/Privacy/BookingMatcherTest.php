@@ -79,13 +79,24 @@ final class BookingMatcherTest extends WP_UnitTestCase
 		$this->assertSame(array($legacy_a, $legacy_b), BookingMatcher::ids('l@example.test', 'all', 50));
 	}
 
-	public function test_trash_and_auto_draft_are_ignored(): void
+	public function test_a_trashed_booking_matches_and_an_auto_draft_does_not(): void
 	{
-		$kept = $this->guest('t@example.test');
-		$this->booking(array('_mhmrentiva_customer_email' => 't@example.test'), 'mhmrentiva_booking', 'trash');
+		// A trashed booking can be restored and still holds the person's data.
+		$kept    = $this->guest('t@example.test');
+		$trashed = $this->booking(array('_mhmrentiva_customer_email' => 't@example.test'), 'mhmrentiva_booking', 'trash');
 		$this->booking(array('_mhmrentiva_customer_email' => 't@example.test'), 'mhmrentiva_booking', 'auto-draft');
 
-		$this->assertSame(array($kept), BookingMatcher::ids('t@example.test', 'all', 50));
+		$ids = BookingMatcher::ids('t@example.test', 'all', 50);
+		sort($ids);
+		$this->assertSame(array($kept, $trashed), $ids);
+	}
+
+	public function test_a_closed_trashed_booking_is_queued_for_erasure(): void
+	{
+		$trashed = $this->guest('tq@example.test', 'cancelled');
+		wp_trash_post($trashed);
+
+		$this->assertSame(array($trashed), BookingMatcher::ids('tq@example.test', 'queue', 50));
 	}
 
 	public function test_queue_skips_active_unknown_and_recently_marked(): void

@@ -168,8 +168,10 @@ final class BookingMatcher {
 		$owner_sql[]  = "EXISTS ( SELECT 1 FROM {$wpdb->postmeta} ms WHERE ms.post_id = p.ID AND ms.meta_key = '" . self::SUBJECT_KEY . "' AND BINARY ms.meta_value = %s )";
 		$owner_args[] = EmailMatch::subject_hash( $email );
 
+		// A trashed booking is included: it can be restored and still holds the
+		// person's data until the trash is emptied.
 		$where = $wpdb->prepare(
-			"p.post_type = 'mhmrentiva_booking' AND p.post_status NOT IN ( 'trash', 'auto-draft' ) AND ( " . implode( ' OR ', $owner_sql ) . ' )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders are in $owner_sql.
+			"p.post_type = 'mhmrentiva_booking' AND p.post_status <> 'auto-draft' AND ( " . implode( ' OR ', $owner_sql ) . ' )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders are in $owner_sql.
 			$owner_args
 		);
 
