@@ -118,6 +118,76 @@
 	margin: 0;
 }
 
+/* Rental agreement: the text scrolls in its box, the consent sits under it. */
+.rvs-shell .rvs-agreement__text {
+	max-height: 240px;
+	overflow-y: auto;
+	padding: 14px 16px;
+	border: 1px solid var(--rvs-line);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-surface);
+	font-size: 14px;
+	line-height: 1.6;
+}
+
+.rvs-shell .rvs-agreement__text:focus-visible {
+	outline: 3px solid var(--rvs-accent-text);
+	outline-offset: 2px;
+}
+
+.rvs-shell .rvs-agreement__text h3,
+.rvs-shell .rvs-agreement__text h4,
+.rvs-shell .rvs-agreement__text h5 {
+	margin: 14px 0 4px;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.4;
+	letter-spacing: normal;
+	text-transform: none;
+}
+
+.rvs-shell .rvs-agreement__text > :first-child {
+	margin-top: 0;
+}
+
+.rvs-shell .rvs-agreement__text p,
+.rvs-shell .rvs-agreement__text ul {
+	margin: 0 0 8px;
+}
+
+.rvs-shell .rvs-agreement__text ul {
+	padding-left: 20px;
+}
+
+.rvs-shell .rvs-agreement__text hr {
+	margin: 10px 0;
+	border: 0;
+	border-top: 1px solid var(--rvs-line);
+}
+
+.rvs-shell .rvs-agreement__consent {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	min-height: 44px;
+	font-size: 15px;
+	cursor: pointer;
+}
+
+.rvs-shell .rvs-agreement__consent input {
+	flex: none;
+	width: 20px;
+	height: 20px;
+	margin: 2px 0 0;
+	accent-color: var(--rvs-accent-strong);
+}
+
+.rvs-shell .rvs-agreement__error {
+	margin: 0;
+	color: var(--rvs-alert);
+	font-size: 13px;
+}
+
 /* Suggested vehicles under an "unavailable" answer: rvs cards, two a row. */
 .rvs-shell .rvs-booking__alternatives {
 	display: flex;
@@ -337,6 +407,15 @@
 
 	.rvs-shell .rvs-booking__section-title {
 		font-size: 20px;
+	}
+
+	.rvs-shell .rvs-agreement__text {
+		max-height: 300px;
+	}
+
+	.rvs-shell .rvs-agreement__consent input {
+		width: 22px;
+		height: 22px;
 	}
 
 	.rvs-shell .rvs-booking__aside {

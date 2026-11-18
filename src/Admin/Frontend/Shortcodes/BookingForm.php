@@ -314,6 +314,7 @@ final class BookingForm extends AbstractShortcode {
 			'add_to_favorites'                      => __('Add to favorites', 'mhm-rentiva'),
 			'remove_from_favorites'                 => __('Remove from favorites', 'mhm-rentiva'),
 			'terms_error'                           => __('You must accept the terms and conditions to complete your booking.', 'mhm-rentiva'),
+			'agreement_required'                    => __('To complete your booking, accept the rental agreement.', 'mhm-rentiva'),
 
 			// Booking messages
 			'booking_created'                       => __('Your booking has been successfully created!', 'mhm-rentiva'),
@@ -502,6 +503,7 @@ final class BookingForm extends AbstractShortcode {
 			'user_data'             => $user_data,
 			'validation_error'      => $validation_result['error'] ?? null,
 			'customer_settings'     => self::get_customer_settings(),
+			'agreement'             => self::agreement_view(),
 			'pickup_location_id'    => 0,
 			'pickup_location_name'  => '',
 			'prefill_pickup_time'   => (string) ( $atts['pickup_time'] ?? '' ),
@@ -753,20 +755,70 @@ final class BookingForm extends AbstractShortcode {
 	 */
 	private static function get_customer_settings(): array
 	{
-		$terms_text = SettingsCore::get('mhmrentiva_customer_terms_text', __('I accept the terms of use and privacy policy.', 'mhm-rentiva'));
-
-		// ⭐ If the saved text is the default English text, use the translated version
-		if ($terms_text === 'I accept the terms of use and privacy policy.') {
-			$terms_text = __('I accept the terms of use and privacy policy.', 'mhm-rentiva');
-		}
-
+		// The terms keys that used to sit here were read by nothing: the rental
+		// agreement (agreement_view()) is the booking form's consent now.
 		return array(
 			'registration_required' => SettingsCore::get('mhmrentiva_customer_registration_required', '0'),
 			'phone_required'        => SettingsCore::get('mhmrentiva_customer_phone_required', '0'),
-			'terms_required'        => SettingsCore::get('mhmrentiva_customer_terms_required', '0'),
-			'terms_text'            => $terms_text,
 			'data_consent_required' => SettingsCore::get('mhmrentiva_customer_data_consent', '0'),
 		);
+	}
+
+	/**
+	 * The rental agreement as the form shows it: off, or its text as HTML and
+	 * the version (sha256) of that text, which the form posts back.
+	 *
+	 * @return array{enabled: bool, html: string, version: string}
+	 */
+	private static function agreement_view(): array
+	{
+		$agreement = self::site_language_agreement();
+
+		return array(
+			'enabled' => $agreement['enabled'],
+			'html'    => $agreement['enabled'] ? \MHMRentiva\Helpers\AgreementText::to_html($agreement['text']) : '',
+			'version' => $agreement['enabled'] ? hash('sha256', $agreement['text']) : '',
+		);
+	}
+
+	/**
+	 * The acceptance a submission carries into the booking: when, which text
+	 * (sha256) and the text itself, so the booking keeps what the customer
+	 * accepted after the setting changes. Empty while the agreement is off.
+	 *
+	 * @return array{terms_accepted_at?: string, terms_version?: string, terms_text?: string}
+	 */
+	private static function agreement_acceptance(): array
+	{
+		$agreement = self::site_language_agreement();
+		if (! $agreement['enabled']) {
+			return array();
+		}
+
+		return array(
+			'terms_accepted_at' => gmdate('Y-m-d H:i:s'),
+			'terms_version'     => hash('sha256', $agreement['text']),
+			'terms_text'        => $agreement['text'],
+		);
+	}
+
+	/**
+	 * The rental agreement in the site's language, on the page and in the
+	 * submission alike. The submission runs in admin-ajax, where WordPress
+	 * uses a logged-in customer's profile language; the built-in template
+	 * would then be another text than the one the page showed.
+	 *
+	 * @return array{enabled: bool, text: string}
+	 */
+	private static function site_language_agreement(): array
+	{
+		$switched  = switch_to_locale(get_locale());
+		$agreement = \MHMRentiva\Admin\Settings\Groups\BookingSettings::rental_agreement();
+		if ($switched) {
+			restore_previous_locale();
+		}
+
+		return $agreement;
 	}
 
 	/**
@@ -1225,9 +1277,19 @@ final class BookingForm extends AbstractShortcode {
 			$payment_method  = 'woocommerce';
 			$payment_gateway = 'woocommerce';
 
-			// ⭐ Terms & Conditions validation removed - WooCommerce handles this on checkout page
-			// If WooCommerce is not active, terms validation would be handled here
-			// But since we're using WooCommerce, validation happens on checkout
+			// The rental agreement, when the site requires it, is accepted here,
+			// on the server: the browser's check is only a convenience.
+			$acceptance = self::agreement_acceptance();
+			if (array() !== $acceptance) {
+				if ('1' !== $req->text('terms_accepted')) {
+					return self::failed(__('To complete your booking, accept the rental agreement.', 'mhm-rentiva'));
+				}
+				// The version the page showed must be the one recorded: a page
+				// cached, or left open, while the text changed shows another.
+				if (! hash_equals($acceptance['terms_version'], $req->text('terms_version'))) {
+					return self::failed(__('The rental agreement has changed. Reload the page and review it before booking.', 'mhm-rentiva'));
+				}
+			}
 
 			$selection       = self::accept_submitted_selection($req);
 			$selected_addons = $selection->ids();
@@ -1403,7 +1465,7 @@ final class BookingForm extends AbstractShortcode {
 					'pickup_location_id'  => $pickup_location_id,
 					'cancellation_policy' => '24_hours',
 					'payment_deadline'    => self::get_payment_deadline($payment_gateway->get_gateway_name()),
-				);
+				) + $acceptance;
 
 				try {
 					// Add booking data to payment system (without creating booking yet)

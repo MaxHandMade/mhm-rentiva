@@ -116,6 +116,7 @@ final class BookingExporter {
 			__( 'Refund review reason', 'mhm-rentiva' ) => $meta( '_mhmrentiva_refund_review_dismissed_reason' ),
 			__( 'Payment receipt', 'mhm-rentiva' )      => $receipt_id > 0 ? (string) wp_get_attachment_url( $receipt_id ) : '',
 			__( 'Payment receipt note', 'mhm-rentiva' ) => $meta( '_mhmrentiva_receipt_note' ),
+			__( 'Rental agreement accepted', 'mhm-rentiva' ) => \MHMRentiva\Helpers\AgreementText::acceptance_line( $meta( '_mhmrentiva_terms_accepted_at' ), $meta( '_mhmrentiva_terms_version' ) ),
 			__( 'History', 'mhm-rentiva' )              => self::history( $id ),
 		);
 

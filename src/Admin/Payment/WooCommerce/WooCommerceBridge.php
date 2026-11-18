@@ -3100,7 +3100,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				'_mhmrentiva_cancellation_policy'  => $booking_data['cancellation_policy'] ?? self::get_default_cancellation_policy(),
 				// ⭐ Ensure payment_deadline is always set for auto-cancellation
 				'_mhmrentiva_payment_deadline'     => ! empty($booking_data['payment_deadline']) ? $booking_data['payment_deadline'] : self::get_payment_deadline(),
-			),
+			) + self::agreement_meta($booking_data),
 		);
 
 		// Neutral extension point: fires immediately before the booking record
@@ -4325,6 +4325,38 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				'formatted_amount' => wc_price($amount_to_pay),
 			)
 		);
+	}
+
+	/**
+	 * The rental agreement acceptance the booking form handed over, as booking
+	 * meta: when the customer accepted (UTC), which text (sha256) and the text
+	 * itself, kept only when it is the text that version names. Nothing when
+	 * the booking carries no acceptance -- the agreement was off, or the cart
+	 * was filled before it was switched on.
+	 *
+	 * @param array<string, mixed> $booking_data
+	 * @return array<string, string>
+	 */
+	private static function agreement_meta(array $booking_data): array
+	{
+		$at      = (string) ( $booking_data['terms_accepted_at'] ?? '' );
+		$version = (string) ( $booking_data['terms_version'] ?? '' );
+		if (! preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $at) || ! preg_match('/^[0-9a-f]{64}$/', $version)) {
+			return array();
+		}
+
+		$meta = array(
+			'_mhmrentiva_terms_accepted_at' => $at,
+			'_mhmrentiva_terms_version'     => $version,
+		);
+
+		$text = (string) ( $booking_data['terms_text'] ?? '' );
+		if ('' !== $text && hash_equals($version, hash('sha256', $text))) {
+			// The insert below slashes the whole post array (meta_input too).
+			$meta['_mhmrentiva_terms_text'] = $text;
+		}
+
+		return $meta;
 	}
 
 	/**

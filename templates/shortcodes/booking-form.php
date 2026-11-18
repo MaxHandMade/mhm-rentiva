@@ -38,6 +38,11 @@ $uid                   = (string) ( $uid ?? wp_unique_id('rvs-bf-') );
 $show_vehicle_selector = $show_vehicle_selector ?? true;
 $show_time_select      = $show_time_select ?? true;
 $enable_deposit        = $enable_deposit ?? true;
+$agreement             = $agreement ?? array(
+	'enabled' => false,
+	'html'    => '',
+	'version' => '',
+);
 $default_days          = (int) ( $default_days ?? 0 );
 $heading               = (string) ( $heading ?? '' );
 $steps                 = (array) ( $steps ?? array() );
@@ -184,6 +189,21 @@ $is_preview        = RenderContext::current()->is_preview();
 								<?php endif; ?>
 							<?php endforeach; ?>
 						</div>
+					</section>
+				<?php endif; ?>
+
+				<?php if (! empty($agreement['enabled'])) : ?>
+					<section class="rvs-booking__section rvs-agreement" data-rvs-agreement aria-labelledby="<?php echo esc_attr($uid . '-agreement-h'); ?>">
+						<h3 class="rvs-booking__section-title" id="<?php echo esc_attr($uid . '-agreement-h'); ?>"><?php esc_html_e('Rental agreement', 'mhm-rentiva'); ?></h3>
+						<div class="rvs-agreement__text" tabindex="0" role="region" aria-labelledby="<?php echo esc_attr($uid . '-agreement-h'); ?>">
+							<?php echo wp_kses( (string) $agreement['html'], \MHMRentiva\Helpers\AgreementText::TAGS); ?>
+						</div>
+						<label class="rvs-agreement__consent">
+							<input type="checkbox" name="terms_accepted" value="1" data-rvs-agreement-consent aria-describedby="<?php echo esc_attr($uid . '-agreement-e'); ?>">
+							<input type="hidden" name="terms_version" value="<?php echo esc_attr( (string) $agreement['version']); ?>" data-rvs-agreement-version>
+							<span><?php esc_html_e('I have read and accept the rental agreement.', 'mhm-rentiva'); ?></span>
+						</label>
+						<p class="rvs-agreement__error" id="<?php echo esc_attr($uid . '-agreement-e'); ?>" data-rvs-agreement-error hidden><?php esc_html_e('To complete your booking, accept the rental agreement.', 'mhm-rentiva'); ?></p>
 					</section>
 				<?php endif; ?>
 
