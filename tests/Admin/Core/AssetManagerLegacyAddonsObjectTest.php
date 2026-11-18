@@ -19,15 +19,19 @@ final class AssetManagerLegacyAddonsObjectTest extends WP_UnitTestCase
 {
 	private const HANDLE = 'rentiva-transfer-addon-modal';
 
+	/** @var \WP_Scripts|null The registry the rest of the suite relies on. */
+	private $scripts_before;
+
 	public function setUp(): void
 	{
 		parent::setUp();
+		$this->scripts_before  = $GLOBALS['wp_scripts'] ?? null;
 		$GLOBALS['wp_scripts'] = null;
 	}
 
 	public function tearDown(): void
 	{
-		$GLOBALS['wp_scripts'] = null;
+		$GLOBALS['wp_scripts'] = $this->scripts_before;
 		parent::tearDown();
 	}
 
