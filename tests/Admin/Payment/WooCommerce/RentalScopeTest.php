@@ -47,6 +47,10 @@ final class RentalScopeTest extends WP_UnitTestCase
 		if (function_exists('WC') && WC()->cart) {
 			WC()->cart->empty_cart();
 		}
+		if (function_exists('WC') && WC()->session) {
+			WC()->session->set(CheckoutJourney::CLASSIC_CART_SESSION_KEY, null);
+		}
+		remove_action('woocommerce_cart_emptied', array( CheckoutJourney::class, 'forget_classic_cart' ));
 		$GLOBALS['wp_styles']  = null;
 		$GLOBALS['wp_scripts'] = $this->scripts_before;
 		remove_all_filters('woocommerce_is_checkout');
@@ -452,18 +456,84 @@ final class RentalScopeTest extends WP_UnitTestCase
 		update_option(SettingsCore::OPTION_NAME, $settings);
 	}
 
-	public function test_cart_block_turns_classic_on_every_request_by_default(): void
+	private function cart_html(): ?string
 	{
-		foreach ($this->ask(static fn() => CheckoutJourney::pre_render_block(null, self::block('woocommerce/cart'))) as $cart => $html) {
+		$html = CheckoutJourney::pre_render_block(null, self::block('woocommerce/cart'));
+
+		return is_string($html) ? $html : null;
+	}
+
+	private function forget_classic_cart(): void
+	{
+		WC()->session->set(CheckoutJourney::CLASSIC_CART_SESSION_KEY, null);
+	}
+
+	public function test_cart_block_turns_classic_with_a_rentiva_line(): void
+	{
+		foreach (array( 'rental', 'mixed', 'transfer' ) as $cart) {
+			WC()->cart->empty_cart();
+			$this->forget_classic_cart();
+			self::carts()[ $cart ]($this);
+
+			$html = $this->cart_html();
 			$this->assertIsString($html, "Filled cart: {$cart}.");
 			$this->assertStringContainsString('woocommerce-cart-form', $html, "Filled cart: {$cart}.");
 		}
+		WC()->cart->empty_cart();
+	}
 
-		// Empty: the classic empty message, which cart.js needs after the last
-		// line is removed (B2).
-		$html = CheckoutJourney::pre_render_block(null, self::block('woocommerce/cart'));
-		$this->assertIsString($html);
+	public function test_a_shop_cart_keeps_the_cart_block(): void
+	{
+		$this->forget_classic_cart();
+		$this->add_product();
+		$this->assertNull($this->cart_html(), 'a customer who never had a rental keeps the Cart block');
+
+		WC()->cart->empty_cart();
+		$this->assertNull($this->cart_html(), 'nor does an empty cart turn classic on its own');
+	}
+
+	public function test_the_classic_cart_stays_until_the_cart_is_empty(): void
+	{
+		// cart.js re-reads the cart page after a line is removed and needs the
+		// classic form, or the classic empty message, in the answer (B2).
+		$this->forget_classic_cart();
+		$this->add_rental();
+		$this->add_product();
+		$this->assertIsString($this->cart_html());
+
+		foreach (WC()->cart->get_cart() as $key => $line) {
+			if (isset($line['mhmrentiva_booking_data'])) {
+				WC()->cart->remove_cart_item($key);
+			}
+		}
+		$html = $this->cart_html();
+		$this->assertIsString($html, 'the rental was removed: the shop line stays on the classic cart');
+		$this->assertStringContainsString('woocommerce-cart-form', $html);
+
+		// cart.js removes the last line one by one, not through empty_cart().
+		foreach (array_keys(WC()->cart->get_cart()) as $key) {
+			WC()->cart->remove_cart_item($key);
+		}
+		$html = $this->cart_html();
+		$this->assertIsString($html, 'the last line was removed: the classic empty message');
 		$this->assertStringContainsString('wc-empty-cart-message', $html);
+
+		$this->assertNull($this->cart_html(), 'the next visit of the empty cart is the Cart block again');
+	}
+
+	public function test_a_cart_emptied_elsewhere_forgets_the_classic_cart(): void
+	{
+		// WooCommerce empties the cart after an order is placed, away from the
+		// cart page: the next shop-only cart of that session keeps the Cart block.
+		CheckoutJourney::register();
+		$this->forget_classic_cart();
+		$this->add_rental();
+		$this->assertIsString($this->cart_html());
+
+		WC()->cart->empty_cart();
+		$this->add_product();
+
+		$this->assertNull($this->cart_html());
 	}
 
 	public function test_cart_block_stays_when_the_setting_is_off(): void
@@ -503,15 +573,24 @@ final class RentalScopeTest extends WP_UnitTestCase
 		$checkout = (string) get_permalink($page);
 		$other    = 'http://example.test/other/';
 
+		// A rental on the classic cart.
+		$this->forget_classic_cart();
+		$this->add_rental();
 		$this->assertSame(array( $other ), array_values(CheckoutJourney::resource_hints(array( $checkout, $other ), 'prerender')));
 		$this->assertSame(array( array( 'href' => $other ) ), array_values(CheckoutJourney::resource_hints(array( array( 'href' => $checkout ), array( 'href' => $other ) ), 'prerender')));
 
 		// Other relations are not this filter's business.
 		$this->assertSame(array( $checkout ), CheckoutJourney::resource_hints(array( $checkout ), 'prefetch'));
 
-		// A kept Cart block with a shop cart: WooCommerce's own hint, harmless.
-		$this->classic_cart_setting('0');
+		// A shop cart that never had a rental keeps the Cart block and the block
+		// checkout: WooCommerce's own hint, harmless.
+		WC()->cart->empty_cart();
+		$this->forget_classic_cart();
 		$this->add_product();
+		$this->assertSame(array( $checkout ), CheckoutJourney::resource_hints(array( $checkout ), 'prerender'));
+
+		// A kept Cart block with a shop cart: the same.
+		$this->classic_cart_setting('0');
 		$this->assertSame(array( $checkout ), CheckoutJourney::resource_hints(array( $checkout ), 'prerender'));
 
 		// A kept Cart block with a rental: the checkout turns classic, the hint

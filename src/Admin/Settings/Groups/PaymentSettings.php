@@ -104,7 +104,7 @@ final class PaymentSettings {
 			$page_slug,
 			'mhmrentiva_classic_cart',
 			__( 'Classic cart page', 'mhm-rentiva' ),
-			__( 'Show the classic cart in place of the Cart block, so that the deposit, the remaining amount and the empty-cart link appear there. Your shop products work in it too. Turn this off only to keep customizations made inside the Cart block.', 'mhm-rentiva' ),
+			__( 'Show the classic cart in place of the Cart block when the cart holds a rental, so that the deposit, the remaining amount and the empty-cart link appear there. That cart stays classic until it is emptied; a cart with only shop products keeps the Cart block. Turn this off only to keep customizations made inside the Cart block.', 'mhm-rentiva' ),
 			self::SECTION_GENERAL
 		);
 	}

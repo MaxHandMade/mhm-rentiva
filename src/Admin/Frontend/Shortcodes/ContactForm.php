@@ -85,7 +85,7 @@ final class ContactForm extends AbstractShortcode {
 	{
 		return array(
 			'type'                  => 'general',     // Form type (general, booking, support, feedback)
-			'show_topic_selector'   => '1',           // The visitor chooses the topic; off keeps `type` fixed
+			'show_topic_selector'   => '1',           // The visitor chooses the topic; off keeps `type` fixed. Not given with a booking/feedback type: off (render())
 			'title'                 => '',            // Custom title
 			'description'           => '',            // Custom description
 			'show_phone'            => '1',           // Show phone field
@@ -141,6 +141,37 @@ final class ContactForm extends AbstractShortcode {
 		// ajax_submit_contact_form()'s own $_FILES handling.)
 		add_action('wp_ajax_mhmrentiva_submit_contact_form', array( self::class, 'ajax_submit_contact_form' ));
 		add_action('wp_ajax_nopriv_mhmrentiva_submit_contact_form', array( self::class, 'ajax_submit_contact_form' ));
+	}
+
+	/**
+	 * A form given the booking or feedback type and no topic-selector setting
+	 * stays that form, with its own field (preferred date, rating) and no topic
+	 * selector, as before the selector existed. Decided on the attributes as
+	 * given -- the defaults and the attribute mapper make "not given" and "off"
+	 * the same later on.
+	 *
+	 * @param array<string, mixed> $atts Shortcode attributes or a block's payload.
+	 * @return array<string, mixed>
+	 */
+	public static function with_topic_selector_default(array $atts): array
+	{
+		foreach (array( 'show_topic_selector', 'showtopicselector', 'showTopicSelector' ) as $key) {
+			if (array_key_exists($key, $atts)) {
+				return $atts;
+			}
+		}
+
+		$type = $atts['type'] ?? $atts['formType'] ?? $atts['formtype'] ?? 'general';
+		if (is_scalar($type) && in_array(strtolower(trim( (string) $type)), array( 'booking', 'feedback' ), true)) {
+			$atts['show_topic_selector'] = '0';
+		}
+
+		return $atts;
+	}
+
+	public static function render(array $atts = array(), ?string $content = null): string
+	{
+		return parent::render(self::with_topic_selector_default($atts), $content);
 	}
 
 	/**

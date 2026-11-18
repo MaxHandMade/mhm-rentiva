@@ -57,15 +57,30 @@ final class ContactFormSettingsTest extends WP_Ajax_UnitTestCase
 		);
 	}
 
+	public function test_a_typed_block_follows_its_visible_selector_toggle(): void
+	{
+		// The block editor shows the toggle (on by default), so the block keeps
+		// what its editor shows; only the shortcode, which has no such control,
+		// falls back to the fixed form.
+		$this->assertStringContainsString('value="booking" checked', $this->render_block(array( 'type' => 'booking' )));
+		$this->assertStringContainsString('name="preferred_date"', $this->render_block(array( 'type' => 'booking', 'showTopicSelector' => false )));
+	}
+
 	public function test_atts_reach_the_template(): void
 	{
+		// A form given a booking or feedback type stays that form, as before
+		// the topic selector existed: its own field, no selector.
 		$booking = $this->render('[rentiva_contact type="booking"]');
 		$this->assertStringContainsString('data-form-type="booking"', $booking);
-		$this->assertStringNotContainsString('name="preferred_date"', $booking, 'PR F r2 M3: not among the selector\'s topics.');
-		$this->assertStringContainsString('name="preferred_date"', $this->render('[rentiva_contact type="booking" show_topic_selector="0"]'), 'A fixed booking form keeps it (spec §2.2 exception 1).');
-		$this->assertStringContainsString('value="booking" checked', $booking);
+		$this->assertStringContainsString('name="preferred_date"', $booking, 'A typed booking form keeps its preferred date.');
+		$this->assertStringNotContainsString('value="booking" checked', $booking, 'no topic selector on a typed form');
+		$this->assertStringContainsString('name="rating"', $this->render('[rentiva_contact type="feedback"]'), 'A typed feedback form keeps its rating.');
 
-		$this->assertStringNotContainsString('name="rating"', $this->render('[rentiva_contact type="feedback"]'), 'PR F r2 M3: no rating on the selector form.');
+		// The selector is asked for explicitly.
+		$chooser = $this->render('[rentiva_contact type="booking" show_topic_selector="1"]');
+		$this->assertStringNotContainsString('name="preferred_date"', $chooser, 'not among the selector\'s topics');
+		$this->assertStringContainsString('value="booking" checked', $chooser);
+		$this->assertStringNotContainsString('name="rating"', $this->render('[rentiva_contact type="feedback" show_topic_selector="1"]'));
 		$feedback = $this->render('[rentiva_contact type="feedback" show_topic_selector="0"]');
 		$this->assertStringContainsString('name="rating"', $feedback);
 

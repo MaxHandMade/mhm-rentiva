@@ -33,8 +33,9 @@ if (! defined('ABSPATH')) {
  * (WooCommerceBridge::enqueue_checkout_styles()); the hooks here only draw.
  *
  * A Cart or Checkout block never fires these hooks, so pre_render_block() draws
- * the classic page in its place: the cart on every request (setting
- * mhmrentiva_classic_cart, default on), the checkout whenever a Rentiva line is
+ * the classic page in its place: the cart while a Rentiva line is in it and
+ * until that cart has been shown empty (setting mhmrentiva_classic_cart,
+ * default on; classic_cart_applies()), the checkout whenever a Rentiva line is
  * in the cart. Administrators are told (block_checkout_notice()); the Store API
  * safety net behind this is in WooCommerceBridge::store_api_order_processed().
  *
@@ -48,6 +49,11 @@ final class CheckoutJourney {
 	 */
 	public const SUMMARY_SELECTOR = '.rvs-journey__summary';
 
+	/**
+	 * WooCommerce session key: this cart had a Rentiva line on the classic cart.
+	 */
+	public const CLASSIC_CART_SESSION_KEY = 'mhmrentiva_classic_cart';
+
 	public static function register(): void
 	{
 		add_action('woocommerce_before_checkout_form', array( self::class, 'render_checkout' ), 5, 0);
@@ -56,6 +62,7 @@ final class CheckoutJourney {
 		add_action('admin_notices', array( self::class, 'block_checkout_notice' ));
 		add_filter('body_class', array( self::class, 'body_class' ));
 		add_filter('pre_render_block', array( self::class, 'pre_render_block' ), 10, 2);
+		add_action('woocommerce_cart_emptied', array( self::class, 'forget_classic_cart' ), 10, 0);
 		add_filter('wp_resource_hints', array( self::class, 'resource_hints' ), 11, 2);
 		RentalMoneyLabels::register();
 		RentalCheckoutLook::register();
@@ -134,7 +141,8 @@ final class CheckoutJourney {
 		}
 
 		$name = (string) ( $parsed_block['blockName'] ?? '' );
-		if ('woocommerce/cart' === $name && self::classic_cart_enabled()) {
+		if ('woocommerce/cart' === $name && self::classic_cart_applies()) {
+			self::remember_classic_cart();
 			return self::classic_page('cart');
 		}
 		if ('woocommerce/checkout' === $name && WooCommerceBridge::cart_has_booking()) {
@@ -171,6 +179,49 @@ final class CheckoutJourney {
 	}
 
 	/**
+	 * Does this request draw the classic cart? With a Rentiva line in the cart,
+	 * and afterwards for the rest of that cart: WooCommerce's cart.js re-reads
+	 * the cart page after a line is removed and keeps only the classic form or
+	 * the classic empty message from the answer, so the page must stay classic
+	 * until the cart has been shown empty once. A shop customer who never had a
+	 * rental in the cart keeps the Cart block.
+	 */
+	private static function classic_cart_applies(): bool
+	{
+		if (! self::classic_cart_enabled()) {
+			return false;
+		}
+		if (WooCommerceBridge::cart_has_booking()) {
+			return true;
+		}
+
+		return function_exists('WC') && null !== WC()->session && '1' === (string) WC()->session->get(self::CLASSIC_CART_SESSION_KEY);
+	}
+
+	/**
+	 * The cart was emptied away from the cart page (WooCommerce does so after an
+	 * order is placed): the next cart of the session starts on the Cart block.
+	 * cart.js removes lines one by one, which does not fire this.
+	 */
+	public static function forget_classic_cart(): void
+	{
+		if (function_exists('WC') && null !== WC()->session) {
+			WC()->session->set(self::CLASSIC_CART_SESSION_KEY, null);
+		}
+	}
+
+	/**
+	 * Keep the classic cart for this cart; forget it once the empty cart was drawn.
+	 */
+	private static function remember_classic_cart(): void
+	{
+		if (! function_exists('WC') || null === WC()->session || null === WC()->cart) {
+			return;
+		}
+		WC()->session->set(self::CLASSIC_CART_SESSION_KEY, WC()->cart->is_empty() ? null : '1');
+	}
+
+	/**
 	 * A Cart block page tells the browser to prerender the checkout. A block
 	 * checkout could afford that; a classic one prints and spends the session's
 	 * notices on that hidden request, so the customer never sees them.
@@ -184,7 +235,7 @@ final class CheckoutJourney {
 		if ('prerender' !== $relation || ! is_array($urls) || ! function_exists('wc_get_page_id')) {
 			return $urls;
 		}
-		if (! self::classic_cart_enabled() && ! WooCommerceBridge::cart_has_booking()) {
+		if (! self::classic_cart_applies() && ! WooCommerceBridge::cart_has_booking()) {
 			return $urls;
 		}
 
