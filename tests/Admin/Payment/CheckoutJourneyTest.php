@@ -497,4 +497,80 @@ final class CheckoutJourneyTest extends WP_UnitTestCase
 
 		set_current_screen('front');
 	}
+
+	/**
+	 * The notice only informs, so an administrator who has read it can put it
+	 * away: a nonce'd link records the choice for that user alone, and the
+	 * notice stays away on every screen for them; another administrator still
+	 * sees it.
+	 */
+	public function test_block_checkout_notice_can_be_dismissed_per_user(): void
+	{
+		$warning = 'Rentiva shows the classic cart';
+		$this->use_checkout_page('<!-- wp:woocommerce/checkout /-->');
+		$first  = self::factory()->user->create(array( 'role' => 'administrator' ));
+		$second = self::factory()->user->create(array( 'role' => 'administrator' ));
+		set_current_screen('edit-mhmrentiva_vehicle');
+
+		wp_set_current_user($first);
+		$html = $this->notice_html();
+		$this->assertStringContainsString($warning, $html);
+		$this->assertMatchesRegularExpression('/admin-post\.php\?action=' . CheckoutJourney::DISMISS_NOTICE_ACTION . '[^"]*_wpnonce=/', html_entity_decode($html), 'The notice carries a nonce\'d dismiss link.');
+
+		$_REQUEST['_wpnonce'] = wp_create_nonce(CheckoutJourney::DISMISS_NOTICE_ACTION);
+		add_filter('wp_redirect', '__return_false');
+		CheckoutJourney::handle_dismiss_notice();
+		remove_filter('wp_redirect', '__return_false');
+		unset($_REQUEST['_wpnonce']);
+
+		$this->assertSame('', $this->notice_html(), 'Dismissed: gone for this administrator.');
+		global $wpdb;
+		$this->assertSame('1', get_user_meta($first, $wpdb->get_blog_prefix() . CheckoutJourney::DISMISS_NOTICE_META, true), 'Stored for this site only.');
+		set_current_screen('plugins');
+		$this->assertSame('', $this->notice_html(), 'Gone on the Plugins screen too.');
+
+		wp_set_current_user($second);
+		$this->assertStringContainsString($warning, $this->notice_html(), 'Another administrator still sees it.');
+
+		set_current_screen('front');
+	}
+
+	public function test_block_checkout_notice_dismiss_needs_a_nonce(): void
+	{
+		$admin = self::factory()->user->create(array( 'role' => 'administrator' ));
+		wp_set_current_user($admin);
+		$_REQUEST['_wpnonce'] = 'not-a-nonce';
+		add_filter('wp_die_handler', static fn () => static function (): void {
+			throw new \RuntimeException('died');
+		});
+		try {
+			CheckoutJourney::handle_dismiss_notice();
+			$this->fail('A request without a valid nonce must stop.');
+		} catch (\RuntimeException $e) {
+			$this->assertSame('died', $e->getMessage());
+		} finally {
+			unset($_REQUEST['_wpnonce']);
+		}
+		$this->assertFalse(get_user_option(CheckoutJourney::DISMISS_NOTICE_META, $admin));
+	}
+
+	/** A valid nonce is not enough: the user must also manage options. */
+	public function test_block_checkout_notice_dismiss_refuses_a_user_without_manage_options(): void
+	{
+		$editor = self::factory()->user->create(array( 'role' => 'editor' ));
+		wp_set_current_user($editor);
+		$_REQUEST['_wpnonce'] = wp_create_nonce(CheckoutJourney::DISMISS_NOTICE_ACTION);
+		add_filter('wp_die_handler', static fn () => static function (): void {
+			throw new \RuntimeException('died');
+		});
+		try {
+			CheckoutJourney::handle_dismiss_notice();
+			$this->fail('A user without manage_options must be refused.');
+		} catch (\RuntimeException $e) {
+			$this->assertSame('died', $e->getMessage());
+		} finally {
+			unset($_REQUEST['_wpnonce']);
+		}
+		$this->assertFalse(get_user_option(CheckoutJourney::DISMISS_NOTICE_META, $editor));
+	}
 }

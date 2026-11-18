@@ -62,7 +62,9 @@
       "Changed: with one pickup location the search strip shows that location as a line of text instead of a list.",
       "Note for themes: the booking form, availability calendar, contact form, vehicle details, rating form and search templates (templates/shortcodes/* and templates/partials/*) have new markup. A theme that overrides them keeps its old markup, which the new scripts do not drive: remove or update those overrides after updating.",
       "Note for site owners: clear your page cache after updating (your host's cache, LiteSpeed Cache, WP Rocket and the like). A page cached by 6.3.x keeps the old booking form and calendar markup, which the new scripts do not drive, until the cache is cleared. Rentiva's own short-lived cache starts afresh on its own.",
-      "Changed: an availability calendar whose vehicle_id names a vehicle that does not exist or cannot be rented shows \"Vehicle not found.\" instead of another vehicle's calendar."
+      "Changed: an availability calendar whose vehicle_id names a vehicle that does not exist or cannot be rented shows \"Vehicle not found.\" instead of another vehicle's calendar.",
+      "Changed: the admin notice about a WooCommerce Cart or Checkout block can be put away: \"Got it, do not show this again\" hides it for that administrator on every screen.",
+      "Fixed: a page carrying the retired customer dashboard (shortcode, block or Elementor widget) showed a guest an empty page anywhere but the plugin's own /panel/ page. It now shows the \"Your account has moved\" note with a link to My Account, where the login form is."
     ]
   },
   {

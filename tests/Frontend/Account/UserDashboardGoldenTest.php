@@ -11,8 +11,9 @@ use WP_UnitTestCase;
 
 /**
  * User dashboard (retired stub) front-end goldens, recorded BEFORE slice 3B-2a
- * (preview context and placeholders) changes anything. A guest sees nothing, a
- * customer sees the pointer to My Account, an administrator also sees the
+ * (preview context and placeholders) changes anything. A guest and a customer
+ * see the pointer to My Account (6.4.0: a guest saw nothing, a blank page
+ * anywhere but the redirecting /panel/), an administrator also sees the
  * deprecation sentence; shortcode, block and Elementor widget all render the
  * same stub. 3B-2a gives the Elementor/editor preview a notice; the front end
  * stays byte-identical.
@@ -51,12 +52,11 @@ final class UserDashboardGoldenTest extends WP_UnitTestCase
 		}
 
 		$html = $this->render($surface);
-		if ('guest' === $role) {
-			$this->assertStringNotContainsString('mhm-rentiva-retired-dashboard', $html, "$name: a guest sees no stub.");
-		} else {
-			$this->assertStringContainsString('mhm-rentiva-retired-dashboard', $html, "$name rendered no stub; the golden would pin an empty render.");
-			$this->assertSame('administrator' === $role, str_contains($html, 'mhm-rentiva-retired-dashboard__admin'), "$name: the deprecation sentence is the administrator's.");
-		}
+		// A guest gets the same pointer to My Account as a customer: only the
+		// plugin's own /panel/ page redirects, so on any other page carrying the
+		// stub an empty render would leave the visitor on a blank page.
+		$this->assertStringContainsString('mhm-rentiva-retired-dashboard', $html, "$name rendered no stub; the golden would pin an empty render.");
+		$this->assertSame('administrator' === $role, str_contains($html, 'mhm-rentiva-retired-dashboard__admin'), "$name: the deprecation sentence is the administrator's.");
 
 		$actual = $this->golden_form($html);
 		$file   = self::GOLDEN_DIR . '/user-dashboard-' . $surface . '-' . $role . '.html';

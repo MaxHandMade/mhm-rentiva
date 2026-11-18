@@ -54,12 +54,22 @@ final class CheckoutJourney {
 	 */
 	public const CLASSIC_CART_SESSION_KEY = 'mhmrentiva_classic_cart';
 
+	/** The admin-post action that puts the block checkout notice away for one user. */
+	public const DISMISS_NOTICE_ACTION = 'mhmrentiva_dismiss_block_checkout_notice';
+
+	/**
+	 * User option (per site, as each site has its own cart and checkout pages):
+	 * this administrator has read the block checkout notice.
+	 */
+	public const DISMISS_NOTICE_META = 'mhmrentiva_block_checkout_notice_dismissed';
+
 	public static function register(): void
 	{
 		add_action('woocommerce_before_checkout_form', array( self::class, 'render_checkout' ), 5, 0);
 		add_action('woocommerce_before_thankyou', array( self::class, 'render_thankyou' ), 10, 1);
 		add_filter('woocommerce_update_order_review_fragments', array( self::class, 'order_review_fragments' ), 10, 1);
 		add_action('admin_notices', array( self::class, 'block_checkout_notice' ));
+		add_action('admin_post_' . self::DISMISS_NOTICE_ACTION, array( self::class, 'handle_dismiss_notice' ));
 		add_filter('body_class', array( self::class, 'body_class' ));
 		add_filter('pre_render_block', array( self::class, 'pre_render_block' ), 10, 2);
 		add_action('woocommerce_cart_emptied', array( self::class, 'forget_classic_cart' ), 10, 0);
@@ -368,11 +378,41 @@ final class CheckoutJourney {
 		if (! current_user_can('manage_options') || ! self::is_notice_screen() || ! ( self::checkout_uses_block() || self::cart_uses_block() )) {
 			return;
 		}
+		// It only informs: once an administrator has read it, it stays away for
+		// them on every screen of this site (a choice per user, not for the site).
+		if ('1' === (string) get_user_option(self::DISMISS_NOTICE_META)) {
+			return;
+		}
+
+		$dismiss = wp_nonce_url(
+			add_query_arg('action', self::DISMISS_NOTICE_ACTION, admin_url('admin-post.php')),
+			self::DISMISS_NOTICE_ACTION
+		);
 
 		printf(
-			'<div class="notice notice-info"><p>%s</p></div>',
-			esc_html__('Your cart or checkout page uses a WooCommerce block. Rentiva shows the classic cart, and the classic checkout whenever a booking is in the cart, so the booking steps and the payment-type choice keep working. An order without a booking still uses the Checkout block. To keep the Cart block, turn off "Classic cart page" in the Payment tab of the Rentiva settings.', 'mhm-rentiva')
+			'<div class="notice notice-info"><p>%1$s</p><p><a class="button" href="%2$s">%3$s</a></p></div>',
+			esc_html__('Your cart or checkout page uses a WooCommerce block. Rentiva shows the classic cart, and the classic checkout whenever a booking is in the cart, so the booking steps and the payment-type choice keep working. An order without a booking still uses the Checkout block. To keep the Cart block, turn off "Classic cart page" in the Payment tab of the Rentiva settings.', 'mhm-rentiva'),
+			esc_url($dismiss),
+			esc_html__('Got it, do not show this again', 'mhm-rentiva')
 		);
+	}
+
+	/**
+	 * Record that the current administrator has read the block checkout notice,
+	 * then go back to the screen the link was on.
+	 */
+	public static function handle_dismiss_notice(): void
+	{
+		check_admin_referer(self::DISMISS_NOTICE_ACTION);
+		if (! current_user_can('manage_options')) {
+			wp_die(esc_html__('You do not have permission to do that.', 'mhm-rentiva'), '', array( 'response' => 403 ));
+		}
+
+		update_user_option(get_current_user_id(), self::DISMISS_NOTICE_META, '1');
+
+		if (wp_safe_redirect(wp_get_referer() ? wp_get_referer() : admin_url())) {
+			exit;
+		}
 	}
 
 	/**
