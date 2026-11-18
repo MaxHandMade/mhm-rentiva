@@ -622,4 +622,34 @@ final class BookingTimestampMigrationTest extends WP_UnitTestCase
 		$this->assertSame((string) strtotime('2027-05-10 10:00'), self::ts($id, 'start'), 'Below 4.8.0 the migrator body owns the step.');
 		$this->assertFalse(get_option(DatabaseMigrator::BOOKING_TS_ATTEMPTS_OPTION));
 	}
+
+	/**
+	 * A booking in the trash is rebuilt too: restored, it holds its vehicle
+	 * again, and a WooCommerce-era stamp would hold the wrong hours. Only
+	 * auto-drafts (never a booking) are left alone.
+	 */
+	public function test_migration_rebuilds_trashed_bookings(): void
+	{
+		$this->pin_site_timezone('Europe/Istanbul');
+
+		$wall = array(
+			'pickup_date'  => '2027-03-01',
+			'start_time'   => '22:00',
+			'dropoff_date' => '2027-03-03',
+			'end_time'     => '22:00',
+			'start_ts'     => (int) strtotime('2027-03-01 22:00 UTC'),
+			'end_ts'       => (int) strtotime('2027-03-03 22:00 UTC'),
+		);
+		$trashed = $this->booking($wall);
+		wp_trash_post($trashed);
+		$auto = $this->booking($wall);
+		wp_update_post(array( 'ID' => $auto, 'post_status' => 'auto-draft' ));
+
+		$this->step();
+
+		$this->assertSame('trash', get_post_status($trashed));
+		$this->assertSame((string) self::local_at('2027-03-01 22:00', 3), self::ts($trashed, 'start'));
+		$this->assertSame((string) self::local_at('2027-03-03 22:00', 3), self::ts($trashed, 'end'));
+		$this->assertSame((string) strtotime('2027-03-01 22:00 UTC'), self::ts($auto, 'start'), 'An auto-draft is not a booking.');
+	}
 }

@@ -1578,6 +1578,19 @@ final class DatabaseMigrator {
 	}
 
 	/**
+	 * Every status a booking row can hold, the trash included, for the
+	 * one-time booking steps. 'any' leaves the trash out, and a trashed
+	 * booking restored later holds its vehicle again with whatever it carries.
+	 * Auto-drafts are never bookings.
+	 *
+	 * @return list<string>
+	 */
+	private static function booking_statuses(): array
+	{
+		return array_values(array_diff(get_post_stati(), array( 'auto-draft', 'inherit' )));
+	}
+
+	/**
 	 * 4.10.0: a booking entered by hand and paid outside the site keeps no
 	 * payment deadline (see the version note above). Idempotent: a second run
 	 * finds no such meta row.
@@ -1589,7 +1602,7 @@ final class DatabaseMigrator {
 		$ids = get_posts(
 			array(
 				'post_type'      => 'mhmrentiva_booking',
-				'post_status'    => 'any',
+				'post_status'    => self::booking_statuses(),
 				'fields'         => 'ids',
 				'no_found_rows'  => true,
 				'posts_per_page' => -1,
@@ -1646,12 +1659,16 @@ final class DatabaseMigrator {
 				continue;
 			}
 
+			// The upgrade runs on plugins_loaded, before translations may load
+			// (WordPress 6.7+ reports an earlier call): the line is then kept
+			// in English, as the rest of this log is.
+			$format = did_action('after_setup_theme')
+				/* translators: %d: the booking id. */
+				? __('Booking #%d was entered by hand to be paid outside the site, but its dates were released when an old payment deadline ran out and may have been booked again since. It no longer holds the vehicle: check its dates, then confirm, move or cancel it.', 'mhm-rentiva')
+				: 'Booking #%d was entered by hand to be paid outside the site, but its dates were released when an old payment deadline ran out and may have been booked again since. It no longer holds the vehicle: check its dates, then confirm, move or cancel it.';
+
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
-				sprintf(
-					/* translators: %d: the booking id. */
-					__('Booking #%d was entered by hand to be paid outside the site, but its dates were released when an old payment deadline ran out and may have been booked again since. It no longer holds the vehicle: check its dates, then confirm, move or cancel it.', 'mhm-rentiva'),
-					$id
-				),
+				sprintf($format, $id),
 				$id,
 				array(
 					'surface' => 'migration_4100',
@@ -1708,7 +1725,7 @@ final class DatabaseMigrator {
 			$ids = get_posts(
 				array(
 					'post_type'      => 'mhmrentiva_booking',
-					'post_status'    => 'any',
+					'post_status'    => self::booking_statuses(),
 					'fields'         => 'ids',
 					'no_found_rows'  => true,
 					'posts_per_page' => self::BOOKING_TS_BATCH,

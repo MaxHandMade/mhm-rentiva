@@ -147,4 +147,58 @@ final class OfflineManualDeadlineRelease4100Test extends WP_UnitTestCase
 		$this->assertSame(1, (int) BookingConflicts::count_booking_overlaps_locked($this->vehicle_id, $start, $start + DAY_IN_SECONDS), 'Never two holds on one vehicle.');
 		$this->assertGreaterThan(0, $linked, 'The operator is told, on a log entry linked to the booking.');
 	}
+
+	/**
+	 * A trashed hand-entered booking loses its deadline too: restored, it would
+	 * otherwise come back holding nothing, the failure 4.10.0 exists to end.
+	 */
+	public function test_4100_releases_a_trashed_offline_hand_entered_deadline(): void
+	{
+		$start   = time() + 10 * DAY_IN_SECONDS;
+		$trashed = $this->booking('admin_manual', 'offline', $start);
+		wp_trash_post($trashed);
+		update_option('mhmrentiva_db_version', '4.9.0');
+
+		DatabaseMigrator::run_migrations();
+
+		$this->assertSame('trash', get_post_status($trashed));
+		$this->assertSame('', $this->deadline($trashed));
+	}
+
+	/**
+	 * The migrator runs on plugins_loaded, before after_setup_theme: a
+	 * translation call there makes WordPress (6.7+) report the domain as
+	 * loaded too early. The step's log line is written untranslated then.
+	 */
+	public function test_4100_translates_nothing_before_after_setup_theme(): void
+	{
+		global $wp_actions;
+		$start          = time() + 10 * DAY_IN_SECONDS;
+		$manual_offline = $this->booking('admin_manual', 'offline', $start);
+		$taken_since    = $this->booking('woocommerce_checkout', 'woocommerce', $start);
+		update_post_meta($taken_since, '_mhmrentiva_status', 'confirmed');
+		update_post_meta($taken_since, '_mhmrentiva_payment_status', 'paid');
+		// 6.3.1's stamp: the whole 6.4.0 upgrade path, every step it runs.
+		update_option('mhmrentiva_db_version', '4.7.0');
+
+		$calls = 0;
+		$count = static function ($translation) use (&$calls) {
+			++$calls;
+			return $translation;
+		};
+		$theme_setup = $wp_actions['after_setup_theme'] ?? null;
+		unset($wp_actions['after_setup_theme']);
+		add_filter('gettext_mhm-rentiva', $count);
+		try {
+			DatabaseMigrator::run_migrations();
+		} finally {
+			remove_filter('gettext_mhm-rentiva', $count);
+			if (null !== $theme_setup) {
+				$wp_actions['after_setup_theme'] = $theme_setup;
+			}
+		}
+
+		$this->assertNotSame('', $this->deadline($manual_offline), 'Premise: the dates_taken branch ran.');
+		$this->assertSame(0, $calls, 'No mhm-rentiva string is translated before after_setup_theme.');
+	}
 }
