@@ -1582,6 +1582,11 @@ final class DatabaseMigrator {
 	 * payment deadline (see the version note above). Idempotent: a second run
 	 * finds no such meta row.
 	 *
+	 * The trash is left out on purpose ('any' excludes it): released, a
+	 * trashed booking would come back from the trash holding its vehicle
+	 * whatever was sold since; kept, it comes back holding nothing, as before
+	 * 6.4.0, and the operator gets no log line about a booking they threw away.
+	 *
 	 * @return int How many bookings lost a deadline.
 	 */
 	private static function release_offline_manual_deadlines_4100(): int
@@ -1646,12 +1651,16 @@ final class DatabaseMigrator {
 				continue;
 			}
 
+			// The upgrade runs on plugins_loaded, before translations may load
+			// (WordPress 6.7+ reports an earlier call): the line is then kept
+			// in English, as the rest of this log is.
+			$format = did_action('after_setup_theme')
+				/* translators: %d: the booking id. */
+				? __('Booking #%d was entered by hand to be paid outside the site, but its dates were released when an old payment deadline ran out and may have been booked again since. It no longer holds the vehicle: check its dates, then confirm, move or cancel it.', 'mhm-rentiva')
+				: 'Booking #%d was entered by hand to be paid outside the site, but its dates were released when an old payment deadline ran out and may have been booked again since. It no longer holds the vehicle: check its dates, then confirm, move or cancel it.';
+
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
-				sprintf(
-					/* translators: %d: the booking id. */
-					__('Booking #%d was entered by hand to be paid outside the site, but its dates were released when an old payment deadline ran out and may have been booked again since. It no longer holds the vehicle: check its dates, then confirm, move or cancel it.', 'mhm-rentiva'),
-					$id
-				),
+				sprintf($format, $id),
 				$id,
 				array(
 					'surface' => 'migration_4100',
@@ -1708,7 +1717,12 @@ final class DatabaseMigrator {
 			$ids = get_posts(
 				array(
 					'post_type'      => 'mhmrentiva_booking',
-					'post_status'    => 'any',
+					// The trash too: a trashed booking restored later holds its
+					// vehicle with the stamps it carries. With 'any' in the list
+					// WP_Query only excludes the exclude_from_search statuses
+					// not named (auto-draft), so a status registered after
+					// plugins_loaded, or by a plugin since removed, still comes.
+					'post_status'    => array( 'any', 'trash' ),
 					'fields'         => 'ids',
 					'no_found_rows'  => true,
 					'posts_per_page' => self::BOOKING_TS_BATCH,

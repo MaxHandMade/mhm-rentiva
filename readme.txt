@@ -231,7 +231,7 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 == Upgrade Notice ==
 
 = 6.4.0 =
-Requires WordPress 7.0. New search, results and vehicle card design. Taxes now come only from WooCommerce > Settings > Tax (Rentiva's own tax settings are removed), and seasonal prices are charged as shown. Rentiva Pro 6.4.0 works with this release.
+Requires WordPress 7.0. New search, booking form, calendar and vehicle card markup: clear your page cache after updating. Taxes now come only from WooCommerce > Settings > Tax, and seasonal prices are charged as shown. Rentiva Pro: update Pro to 6.5.0 after this.
 
 = 6.3.1 =
 Elementor-built pages are found: "Book now" buttons open your booking page again. On Elementor sites the vehicle pages may move under your vehicle-details page (old addresses redirect).

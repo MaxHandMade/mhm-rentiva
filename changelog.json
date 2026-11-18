@@ -59,7 +59,9 @@
       "Fixed: with Rentiva Pro 6.4.x, the transfer add-on window shows the currency next to its amounts again.",
       "Changed: the vehicle comparison shortcode compares up to 3 vehicles (was 4), and the availability calendar shows 2 months by default (was 1); an explicit months_to_show still applies.",
       "Changed: with one pickup location the search strip shows that location as a line of text instead of a list.",
-      "Note for themes: the booking form, availability calendar, contact form, vehicle details, rating form and search templates (templates/shortcodes/* and templates/partials/*) have new markup. A theme that overrides them keeps its old markup, which the new scripts do not drive: remove or update those overrides after updating."
+      "Note for themes: the booking form, availability calendar, contact form, vehicle details, rating form and search templates (templates/shortcodes/* and templates/partials/*) have new markup. A theme that overrides them keeps its old markup, which the new scripts do not drive: remove or update those overrides after updating.",
+      "Note for site owners: clear your page cache after updating (your host's cache, LiteSpeed Cache, WP Rocket and the like). A page cached by 6.3.x keeps the old booking form and calendar markup, which the new scripts do not drive, until the cache is cleared. Rentiva's own short-lived cache starts afresh on its own.",
+      "Changed: an availability calendar whose vehicle_id names a vehicle that does not exist or cannot be rented shows \"Vehicle not found.\" instead of another vehicle's calendar."
     ]
   },
   {

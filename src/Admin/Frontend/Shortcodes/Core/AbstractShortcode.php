@@ -658,10 +658,16 @@ abstract class AbstractShortcode {
 
 		// Use versioning for mass invalidation (The WordPress Way)
 		$version = get_transient('mhmrentiva_rv_cache_v_' . $tag);
-		if (false === $version) {
+		// The stamp names the release that wrote it. After an update the
+		// markup and the scripts change together, so HTML an older release
+		// cached must not be served: its stamp (or a bare one from before
+		// stamps named the release) starts a new one, and the old entries
+		// expire unread.
+		$release = defined('MHMRENTIVA_VERSION') ? (string) MHMRENTIVA_VERSION : '';
+		if (! is_string($version) || ! str_starts_with($version, $release . '|')) {
 			// Unique, not time(): a version deleted and rebuilt within the same
 			// second must not hand back the entries it was deleted to retire.
-			$version = wp_generate_uuid4();
+			$version = $release . '|' . wp_generate_uuid4();
 			set_transient('mhmrentiva_rv_cache_v_' . $tag, $version, DAY_IN_SECONDS * 30);
 		}
 
