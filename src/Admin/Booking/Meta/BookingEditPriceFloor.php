@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Admin\Booking\Meta;
 
 use MHMRentiva\Admin\Addons\AddonSelection;
+use MHMRentiva\Admin\Booking\Core\BookingPricingInputs;
 use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
 
@@ -222,6 +223,20 @@ final class BookingEditPriceFloor {
 	private static function decide( int $post_id, int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time, AddonSelection $selection ): string {
 		// A transfer is not re-priced (BookingMeta::recalculate_booking_costs()).
 		if ( BookingMeta::is_transfer_booking( $post_id ) ) {
+			return '';
+		}
+
+		// Nothing that sets the price was changed (a note, the status, ...): there
+		// is no new price to refuse, even when today's rates quote another total.
+		$posted = array(
+			'vehicle'   => $vehicle_id,
+			'pickup'    => $pickup_date,
+			'start'     => $pickup_time,
+			'dropoff'   => $dropoff_date,
+			'end'       => $dropoff_time,
+			'selection' => $selection,
+		);
+		if ( BookingPricingInputs::form_view( $post_id ) === BookingPricingInputs::form_view( $post_id, $posted ) ) {
 			return '';
 		}
 
