@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Frontend\Account;
 
+use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\Frontend\Account\AccountBookingsQuery;
 use MHMRentiva\Admin\Frontend\Account\AccountDashboardView;
 use MHMRentiva\Admin\Frontend\Account\AccountRenderer;
@@ -98,14 +99,50 @@ final class AccountDashboardViewTest extends WP_UnitTestCase
 
 	public function test_past_pickup_not_picked(): void
 	{
-		$now = 1_800_000_000;
+		$now       = (int) SiteTime::instant('2027-03-10', '14:00');
+		$yesterday = (int) SiteTime::instant('2027-03-09', '16:00');
 
-		$this->assertNull(AccountDashboardView::pick_next(array( self::cand(1, 'confirmed', $now - 60) ), $now));
+		$this->assertNull(AccountDashboardView::pick_next(array( self::cand(1, 'confirmed', $yesterday) ), $now));
 		$this->assertNull(AccountDashboardView::pick_next(array(), $now));
 		$this->assertSame(
 			2,
-			AccountDashboardView::pick_next(array( self::cand(1, 'confirmed', $now - 60), self::cand(2, 'confirmed', $now + 60) ), $now)
+			AccountDashboardView::pick_next(array( self::cand(1, 'confirmed', $yesterday), self::cand(2, 'confirmed', $now + 60) ), $now)
 		);
+	}
+
+	public function test_a_pickup_earlier_today_is_still_the_next_rental(): void
+	{
+		// The day's semantics of the query and of "Your next rental starts today."
+		$now      = (int) SiteTime::instant('2027-03-10', '14:00');
+		$this_am  = (int) SiteTime::instant('2027-03-10', '09:00');
+		$tomorrow = (int) SiteTime::instant('2027-03-11', '09:00');
+
+		$this->assertSame(
+			1,
+			AccountDashboardView::pick_next(array( self::cand(1, 'confirmed', $this_am), self::cand(2, 'confirmed', $tomorrow) ), $now)
+		);
+	}
+
+	public function test_the_day_is_the_sites_day_not_utc(): void
+	{
+		update_option('timezone_string', 'Europe/Istanbul');
+		try {
+			// 01:00 on the 10th in Istanbul is still the 9th in UTC; a pickup at
+			// 23:30 on the 9th (Istanbul) is yesterday for the site.
+			$now       = (int) SiteTime::instant('2027-03-10', '01:00');
+			$yesterday = (int) SiteTime::instant('2027-03-09', '23:30');
+			$this->assertSame(gmdate('Y-m-d', $now), gmdate('Y-m-d', $yesterday), 'same UTC day: the case separates the two');
+
+			$this->assertNull(AccountDashboardView::pick_next(array( self::cand(1, 'confirmed', $yesterday) ), $now));
+
+			// And the other way: 00:30 on the 10th in Istanbul is the 9th in UTC,
+			// yet it is today for the site, so it is still the next rental.
+			$this_night = (int) SiteTime::instant('2027-03-10', '00:30');
+			$this->assertSame('2027-03-09', gmdate('Y-m-d', $this_night), 'yesterday in UTC');
+			$this->assertSame(1, AccountDashboardView::pick_next(array( self::cand(1, 'confirmed', $this_night) ), $now));
+		} finally {
+			update_option('timezone_string', '');
+		}
 	}
 
 	public function test_next_rental_found_beyond_first_ten(): void

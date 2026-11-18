@@ -35,6 +35,8 @@ final class AccountDashboardView {
 	{
 		$in_progress = null;
 		$upcoming    = null;
+		// By the site's day, like the query: a pickup earlier today is still today's rental.
+		$today = SiteTime::local_date($now_ts);
 		foreach ($candidates as $candidate) {
 			$ts = (int) $candidate['pickup_ts'];
 			if (Status::IN_PROGRESS === $candidate['status']) {
@@ -44,7 +46,7 @@ final class AccountDashboardView {
 				continue;
 			}
 
-			if (! in_array($candidate['status'], array( Status::CONFIRMED, Status::PENDING, Status::PENDING_PAYMENT ), true) || $ts <= 0 || $ts < $now_ts) {
+			if (! in_array($candidate['status'], array( Status::CONFIRMED, Status::PENDING, Status::PENDING_PAYMENT ), true) || $ts <= 0 || SiteTime::local_date($ts) < $today) {
 				continue;
 			}
 			if (null === $upcoming || self::is_earlier($candidate, $upcoming)) {

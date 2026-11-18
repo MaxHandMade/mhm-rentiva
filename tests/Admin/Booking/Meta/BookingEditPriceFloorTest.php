@@ -121,6 +121,73 @@ final class BookingEditPriceFloorTest extends WP_UnitTestCase
 		$this->assertSame('Note from this Update', $this->meta('_mhmrentiva_special_notes'), 'the rest of the Update is saved');
 	}
 
+	public function test_an_unchanged_update_of_a_refunded_booking_is_not_refused(): void
+	{
+		// Today's rate quotes 3,000 for the stored 2,550: only the note is edited.
+		update_post_meta($this->booking, '_mhmrentiva_payment_status', 'refunded');
+
+		$this->update();
+
+		$this->assertSame('', BookingEditNotice::peek($this->booking), 'nothing that moves money was changed');
+		$this->assertSame('Note from this Update', $this->meta('_mhmrentiva_special_notes'));
+		$this->assertSame('2550', $this->meta('_mhmrentiva_total_price'));
+	}
+
+	public function test_an_unchanged_update_with_add_ons_keeps_the_lines_total_and_payment_type(): void
+	{
+		// An add-on whose price rose after booking: today's quote differs from
+		// every stored figure, and a refunded booking would be refused a raise.
+		$addon = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_addon', 'post_status' => 'publish', 'post_title' => 'Child seat' ));
+		update_post_meta($addon, 'mhmrentiva_addon_price', '300');
+		update_post_meta($addon, 'mhmrentiva_addon_enabled', '1');
+		\MHMRentiva\Admin\Addons\AddonSelection::of(array( $addon ), array( $addon => 2 ))->store($this->booking);
+		$lines = array(
+			array( 'id' => $addon, 'title' => 'Child seat', 'price' => 50.0, 'quantity' => 2, 'line_total' => 100.0 ),
+		);
+		update_post_meta($this->booking, '_mhmrentiva_addon_details', $lines);
+		update_post_meta($this->booking, '_mhmrentiva_addon_total', '100');
+		update_post_meta($this->booking, '_mhmrentiva_payment_status', 'refunded');
+
+		$this->update(array(
+			'mhmrentiva_edit_selected_addons' => array( (string) $addon ),
+			'mhmrentiva_edit_addon_qty'       => array( $addon => '2' ),
+		));
+
+		$this->assertSame('', BookingEditNotice::peek($this->booking), 'nothing that moves money was changed');
+		$this->assertSame($lines, get_post_meta($this->booking, '_mhmrentiva_addon_details', true), 'lines not re-priced');
+		$this->assertSame('100', $this->meta('_mhmrentiva_addon_total'));
+		$this->assertSame('2550', $this->meta('_mhmrentiva_total_price'));
+		$this->assertSame('full', $this->meta('_mhmrentiva_payment_type'));
+		$this->assertSame(array( $addon ), \MHMRentiva\Admin\Addons\AddonSelection::for_booking($this->booking)->ids());
+		$this->assertSame(2, \MHMRentiva\Admin\Addons\AddonSelection::for_booking($this->booking)->quantity($addon));
+	}
+
+	/**
+	 * Characterises the save chain: BookingPricingInputs::open() (priority 1)
+	 * copies the legacy keys to the current ones before the floor (priority 5)
+	 * reads stored_range(), so a refusal writes the real dates back, not ''.
+	 */
+	public function test_a_refused_update_keeps_the_dates_of_a_legacy_key_booking(): void
+	{
+		foreach (array( 'pickup_date', 'dropoff_date' ) as $field) {
+			update_post_meta($this->booking, '_mhmrentiva_booking_' . $field, $this->meta('_mhmrentiva_' . $field));
+			delete_post_meta($this->booking, '_mhmrentiva_' . $field);
+		}
+		update_post_meta($this->booking, '_mhmrentiva_pickup_time', '10:00');
+		update_post_meta($this->booking, '_mhmrentiva_dropoff_time', '10:00');
+		delete_post_meta($this->booking, '_mhmrentiva_start_time');
+		delete_post_meta($this->booking, '_mhmrentiva_end_time');
+
+		// 2 days at 1,000 = 2,000 < 2,550 collected: refused.
+		$this->update(array( 'mhmrentiva_edit_dropoff_date' => '2099-05-06' ));
+
+		$this->assertStringContainsString('less than what was collected', BookingEditNotice::peek($this->booking));
+		$this->assertSame('2099-05-04', $this->meta('_mhmrentiva_pickup_date'));
+		$this->assertSame('10:00', $this->meta('_mhmrentiva_start_time'));
+		$this->assertSame('2099-05-07', $this->meta('_mhmrentiva_dropoff_date'));
+		$this->assertSame('10:00', $this->meta('_mhmrentiva_end_time'));
+	}
+
 	public function test_an_extension_of_a_paid_offline_booking_owes_the_difference(): void
 	{
 		// 4 days at today's 1,000.
