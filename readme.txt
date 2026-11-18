@@ -197,36 +197,25 @@ ordinary visitors can also send re-opens the bypass this default closes.
 
 == Changelog ==
 
-WordPress.org renders at most 5,000 characters of this section, so only the releases published since the version currently in the directory are repeated here. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json, 6.0.0's breaking-change notice among them.
+WordPress.org shows at most 5,000 characters of this section, so it lists what a site owner needs for the release since the version in the directory. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json.
 
 = 6.4.0 =
-* Changed: requires WordPress 7.0 or newer (was 6.7); current WooCommerce requires 7.0 as well.
-* Changed: the new front-end pages use the Plus Jakarta Sans typeface, served from your own site.
-* New: a redesigned search and results page. The search strip is one row (pickup location, pickup, return) and opens on tomorrow to three days later. Results have a filter column with a new Category filter, removable filter chips, a line with the dates and number of days, and page buttons that keep your filters. On phones the filters open in a drawer.
-* New: a redesigned vehicle card on grids, lists, featured vehicles, search results and My Account > Favorites. With search dates it shows the total for the whole rental, required add-ons included, and the price per day; it lists the deposit and the free-cancellation window.
-* New: a comparison bar on the results page shows the vehicles picked for comparison.
-* Changed: the availability calendars show partly free days (the return day of a booking from its return time plus the buffer) and a separate "Closed" state for days closed by hand.
-* Changed: a vehicle card with search dates names the required services its total includes and what they add.
-* Fixed: the booking form quotes exactly what is charged. Seasonal pricing, when enabled, now applies to the payment and the stored booking total, not only to the quote on screen.
-* Changed: booking-form prices follow WooCommerce's tax display. Rentiva's own tax settings (Vehicle settings > Tax Inclusive Pricing, Tax Rate (%)) are removed; taxes are set in WooCommerce > Settings > Tax. The tax charged does not change.
-* Changed: the search strip has no tabs, and its "Show Rental Tab" option is gone from the block and the Elementor widget. Elementor's generated CSS is rebuilt once on update, so saved vehicle-card styles reach the new card.
-* Fixed: with page caching for visitors, one visitor's filtered, paged or dated results are no longer shown to another.
-* Fixed: the booking form shows the vehicle's seats, transmission and fuel under its name again; the vehicle-details main photo fills its frame on Elementor pages; featured-vehicle slider cards are equally tall.
-* New: My Account follows the new design. The dashboard greets the customer and shows the next rental; the booking page shows progress, payment, when free cancellation ends and how much is refunded.
-* New: a printable Booking summary, from the dashboard, the booking page and the thank-you page. It is not an invoice.
-* Changed: the My Account menu items are named "My bookings", "My favorites" and "Payment history". WooCommerce's own items are unchanged.
-* Changed: the customer's file upload is now called "Upload bank receipt". It appears, and the server accepts or removes a file, only while a booking awaits payment or confirmation and no money has been received. Staff can still remove a file.
-* Changed: payment history shows the car name, the amount actually paid, and the right status for a paid booking.
-* Fixed: the free-cancellation deadline used the wrong pickup time on bookings created by hand.
-* Fixed: a remaining-balance payment no longer cancels a paid booking or settles a changed balance; a mismatch is flagged for staff.
-* Fixed: Payment Management refunds no longer refused a day after booking.
-* Changed: in My Account's privacy controls, "Withdraw Consent" appears only once the customer has given consent.
-* Fixed: "Clear all favorites" no longer shows an error message before it runs.
-* Security: the REST nonce is no longer printed on every page. It is printed on My Account pages, on pages with the My bookings or Payment history shortcode and on pages with the search form.
-* Note for themes: a theme that overrides templates/account/*.php keeps its old markup and may look unstyled, because the old account stylesheets no longer load on these pages. A theme that overrides WooCommerce's myaccount/dashboard.php keeps its own.
-* Changed: My bookings is split into Upcoming, Past and Cancelled, each with its count, and becomes one card per booking on phones. The menu shows the number of upcoming bookings and saved vehicles. The old filter box and search field are gone; links that carry their values still narrow the list. My favorites uses the same layout.
-* Changed: My bookings is ordered within each section: Upcoming soonest pickup first, Past and Cancelled latest first. Saved blocks and widgets that used the old default order follow it too. The new "Automatic" order option is the default; an order chosen explicitly still applies.
-* Removed: three unregistered dashboard options no settings screen wrote are no longer read.
+* Before you update: Rentiva requires WordPress 7.0 or newer (was 6.7); current WooCommerce requires 7.0 as well.
+* After you update: clear your page cache (your host's cache, LiteSpeed Cache, WP Rocket and the like). A page cached by 6.3.x keeps the old booking form and calendar markup, which the new scripts do not drive, until it is cleared.
+* Note for themes: a theme that overrides templates/shortcodes/*, templates/partials/* or templates/account/*.php keeps its old markup, which the new scripts and styles no longer drive. Remove or update those overrides.
+* Rentiva Pro users: update Pro to 6.5.0 after this release; Pro 6.4.x keeps working until then.
+* New: a redesigned search strip, results page and vehicle card. Results have a Category filter, removable filter chips, a comparison bar (up to 3 vehicles) and a filter drawer on phones. With search dates every card shows the total for the rental, required services included.
+* New: My Account follows the new design. The dashboard shows the next rental; the booking page shows progress, payment and when free cancellation ends; My bookings is split into Upcoming, Past and Cancelled; a printable Booking summary (not an invoice).
+* New: an optional rental agreement on the booking form (Settings > Booking > Rental agreement, off by default). The time and the version of the text the customer accepted are stored with the booking.
+* Changed: taxes come only from WooCommerce > Settings > Tax; Rentiva's own tax settings are removed. The tax charged does not change.
+* Fixed: the booking form quotes exactly what is charged. Seasonal pricing reaches the payment and the stored booking total.
+* Fixed: WooCommerce checkout bookings stored their times off by the site's UTC offset (three hours in Istanbul), so a late-evening booking could overlap another. A one-time step on update corrects existing bookings.
+* Fixed: a booking entered by hand and paid outside the site is no longer cancelled after the payment deadline. A failed remaining-balance payment no longer cancels the booking.
+* Fixed: a booking refunded in full before the rental no longer holds the vehicle. Payment Management refunds are no longer refused a day after booking.
+* Changed: the classic cart replaces the Cart block only when the cart holds a rental. The availability calendar shows 2 months by default and partly free days; a calendar whose vehicle no longer exists shows "Vehicle not found." instead of another vehicle.
+* Changed: the customer's upload is called "Upload bank receipt" and is accepted only while a booking awaits payment or confirmation and no money has been received. Payment history shows the amount actually paid.
+* Fixed: with page caching for visitors, one visitor's results are no longer shown to another. Personal data export and erasure include bookings in the trash.
+* Security: the REST nonce is printed only on the pages that need it.
 
 == Upgrade Notice ==
 
