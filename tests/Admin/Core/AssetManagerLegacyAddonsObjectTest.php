@@ -59,7 +59,7 @@ final class AssetManagerLegacyAddonsObjectTest extends WP_UnitTestCase
 
 	public function test_it_runs_before_the_footer_scripts_print(): void
 	{
-		AssetManager::init();
+		AssetManager::register_compat();
 
 		$this->assertSame(1, has_action('wp_print_footer_scripts', array( AssetManager::class, 'legacy_addons_object' )));
 	}

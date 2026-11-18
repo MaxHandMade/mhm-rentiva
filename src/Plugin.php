@@ -142,6 +142,7 @@ final class Plugin {
 		// Asset Manager - Central CSS and JS file management
 		if ($this->is_class_available('MHMRentiva\Admin\Core\AssetManager')) {
 			\MHMRentiva\Admin\Core\AssetManager::init();
+			\MHMRentiva\Admin\Core\AssetManager::register_compat();
 		}
 
 		// Site accent colour: one inline rule on the rvs token stylesheet.
