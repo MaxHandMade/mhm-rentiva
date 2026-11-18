@@ -12,11 +12,20 @@ use MHMRentiva\Admin\Frontend\Shortcodes\Account\UserDashboard;
  */
 final class RetiredUserDashboardStubTest extends \WP_UnitTestCase {
 
-    public function test_a_guest_sees_nothing(): void
+    /**
+     * Only the plugin's own /panel/ page redirects a guest; on any other page
+     * the stub is the only thing there, so the guest gets the same pointer as
+     * a customer (the account page holds the login form) -- not a blank page.
+     */
+    public function test_a_guest_sees_the_pointer_to_my_account_and_no_administrator_notice(): void
     {
         wp_set_current_user(0);
 
-        $this->assertSame('', UserDashboard::render());
+        $html = UserDashboard::render();
+
+        $this->assertStringContainsString('mhm-rentiva-retired-dashboard', $html);
+        $this->assertStringContainsString(esc_url(wc_get_page_permalink('myaccount')), $html);
+        $this->assertStringNotContainsString('deprecated', strtolower($html));
     }
 
     public function test_a_customer_sees_one_line_and_a_link_to_my_account(): void

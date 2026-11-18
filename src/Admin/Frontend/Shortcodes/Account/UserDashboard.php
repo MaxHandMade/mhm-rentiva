@@ -56,16 +56,17 @@ final class UserDashboard {
 	}
 
 	/**
-	 * The notice for the user on the page: none for a guest, the customer notice,
-	 * plus the administrator sentence for an administrator.
+	 * The notice for the user on the page: the customer notice for a guest and a
+	 * customer, plus the administrator sentence for an administrator.
 	 */
 	private static function notice_for_current_user(): string
 	{
 		if (! is_user_logged_in()) {
-			// A guest has nothing to be told here: the page they landed on is
-			// someone else's layout decision, and the login form lives on the
-			// account page they will be redirected to anyway.
-			return '';
+			// Only the plugin's own /panel/ page redirects a guest
+			// (guard_panel_access()); on any other page carrying the stub an
+			// empty render left the visitor on a blank page. The notice links to
+			// the account page, where the login form is.
+			return self::markup();
 		}
 
 		$html = self::markup();
