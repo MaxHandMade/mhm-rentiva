@@ -57,7 +57,7 @@
       "Düzeltildi: show_topic_selector vermeyen [rentiva_contact type=\"booking\"] ya da type=\"feedback\" kısa kodu, 6.3.1'deki gibi tercih edilen tarih ya da puan alanıyla sabit formunu korur. Bloklar ve Elementor widget'ları, varsayılanı açık olan \"Konu seçiciyi göster\" anahtarını izler: sabit bir rezervasyon ya da geri bildirim formu için kapatın.",
       "Düzeltildi: rezervasyon formu ile müsaitlik takvimi aynı sayfadayken formun müsaitlik satırı artık ikinci bir takvim gibi başlatılmıyor.",
       "Düzeltildi: Rentiva Pro 6.4.x ile transfer ek hizmet penceresi tutarların yanında para birimini yeniden gösteriyor.",
-      "Değişti: araç karşılaştırma kısa kodu en fazla 3 araç gösterir (önce 4), müsaitlik takvimi varsayılan olarak 2 ay gösterir (önce 1); açıkça verilen months_to_show geçerlidir.",
+      "Değişti: araç karşılaştırma kısa kodu 3 araca kadar karşılaştırır (önce 4), müsaitlik takvimi varsayılan olarak 2 ay gösterir (önce 1); açıkça verilen months_to_show geçerlidir.",
       "Değişti: tek teslim noktası olan sitede arama şeridi o noktayı liste yerine bir metin satırı olarak gösterir.",
       "Temalar için not: rezervasyon formu, müsaitlik takvimi, iletişim formu, araç detayı, puanlama formu ve arama şablonları (templates/shortcodes/* ve templates/partials/*) yeni işaretleme kullanıyor. Bunları ezen bir tema eski işaretlemeyi korur ve yeni betikler onu çalıştırmaz: güncellemeden sonra bu ezmeleri kaldırın ya da güncelleyin."
     ]
