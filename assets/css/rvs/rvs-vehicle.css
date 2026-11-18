@@ -380,10 +380,24 @@
 }
 
 .rvs-shell .rvs-vd__window {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+	display: flex;
+	flex-wrap: wrap;
 	gap: 10px;
 	margin: 0;
+}
+
+/*
+ * Two fields side by side leave a date about 165px in the usual card, too
+ * little for WordPress's default date format ("September 30, 2026"). Under
+ * 420px of form width each field takes a row: the basis
+ * `calc((420px - 100%) * 999)` is hugely positive there (capped at 100%) and
+ * negative, so zero, above it. Inside a field the time sits beside its date
+ * from 300px and goes below it under that (the 250px phone card).
+ */
+.rvs-shell .rvs-vd__window > .rvs-field {
+	flex: 1 1 calc((420px - 100%) * 999);
+	min-width: 0;
+	max-width: 100%;
 }
 
 /* The car's own pickup point, in place of a select of every branch. */
@@ -404,8 +418,19 @@
 
 .rvs-shell .rvs-vd__when {
 	display: flex;
-	flex-direction: column;
-	gap: 6px;
+	flex-wrap: wrap;
+	gap: 6px 8px;
+}
+
+.rvs-shell .rvs-vd__when > .rvs-input:first-child {
+	flex: 1 1 160px;
+	min-width: 0;
+}
+
+.rvs-shell .rvs-vd__time {
+	flex: 0 0 calc((300px - 100%) * 999);
+	min-width: 96px;
+	max-width: 100%;
 }
 
 .rvs-shell .rvs-vd__time--locked {

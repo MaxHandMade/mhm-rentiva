@@ -3,8 +3,20 @@
  *
  * Values: one row --
  * pickup location (wider) · pickup · return · Search -- on a surface panel,
- * 52 px fields with visible labels; stacked at 768 px and below and in the
- * vertical layout.
+ * 52 px fields with visible labels; always stacked in the vertical layout and
+ * at 768 px screens and below.
+ *
+ * The row wraps by the width the strip is given, not the screen: a theme's
+ * content column (645px in Twenty Twenty-Five) is far narrower than the
+ * window, and a long date ("September 30, 2026", WordPress's default format)
+ * needs about 160px beside the 96px time. Each field keeps 300px; one that
+ * no longer fits moves to the next row. The location takes a row of its own
+ * under 960px, Search under 760px (two dates and Search), measured on the
+ * form's content box: the basis
+ * `calc((T - 100%) * 999)` is hugely positive under T (capped at 100%) and
+ * negative, so zero, above it. Unlike a size container this keeps the
+ * strip's content width, so it cannot collapse inside a Row block, an
+ * Elementor row or any parent sized by its content.
  */
 
 .rvs-shell .rvs-search {
@@ -12,9 +24,9 @@
 }
 
 .rvs-shell .rvs-search__form {
-	display: grid;
-	grid-template-columns: minmax(0, 1.6fr) repeat(2, minmax(0, 1fr)) auto;
-	align-items: end;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
 	gap: 15px;
 	margin: 0;
 	padding: 20px;
@@ -22,32 +34,52 @@
 	background: var(--rvs-surface);
 }
 
-.rvs-shell .rvs-search--no-location .rvs-search__form {
-	grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
-}
-
-.rvs-shell .rvs-search--no-dates .rvs-search__form {
-	grid-template-columns: minmax(0, 1fr) auto;
-}
-
 .rvs-shell .rvs-search__field {
-	min-width: 0;
+	flex: 1 1 0%;
+	min-width: min(100%, 300px);
 }
 
-/* Date and time share one field. */
+/* One row needs 200 + 2 x 300 + Search + gaps: about 960px with a location. */
+.rvs-shell .rvs-search__field--location {
+	flex: 1.6 1 calc((960px - 100%) * 999);
+	min-width: min(100%, 200px);
+	max-width: 100%;
+}
+
+/* Two dates and Search: 2 x 300 + Search + gaps, about 745px, with room
+   for a longer translation of "Search". */
+.rvs-shell .rvs-search__submit {
+	flex: 0 0 calc((760px - 100%) * 999);
+	min-width: max-content;
+	max-width: 100%;
+}
+
+/* Without dates: the location and Search share the row, as before. */
+.rvs-shell .rvs-search--no-dates .rvs-search__field--location {
+	flex-basis: 0%;
+}
+
+.rvs-shell .rvs-search--no-dates .rvs-search__submit {
+	flex-basis: auto;
+}
+
+/* Date and time share one field; under 300px of field width the time goes
+   below its date. */
 .rvs-shell .rvs-search__when {
 	display: flex;
+	flex-wrap: wrap;
 	gap: 8px;
 }
 
 .rvs-shell .rvs-search__when > .rvs-input:first-child {
-	flex: 1;
+	flex: 1 1 160px;
 	min-width: 0;
 }
 
 .rvs-shell .rvs-search__time {
-	flex: 0 0 96px;
-	width: 96px;
+	flex: 0 0 calc((300px - 100%) * 999);
+	min-width: 96px;
+	max-width: 100%;
 	padding-inline: 10px;
 }
 
@@ -61,16 +93,21 @@
 .rvs-shell .rvs-search__submit {
 	min-height: 52px;
 	padding-inline: 28px;
+	white-space: nowrap;
 }
 
 .rvs-shell .rvs-search__field--dropoff {
-	grid-column: 1 / -1;
+	flex-basis: 100%;
+}
+
+/* The row stays the drop-off's own; only the select is capped. */
+.rvs-shell .rvs-search__field--dropoff > .rvs-input {
 	max-width: 420px;
 }
 
 /* A site with one pickup point names it under the fields instead of a select. */
 .rvs-shell .rvs-search__where {
-	grid-column: 1 / -1;
+	flex-basis: 100%;
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -84,27 +121,24 @@
 }
 
 /* Stacked: the vertical layout everywhere, every layout on phones. */
-.rvs-shell .rvs-search--vertical .rvs-search__form {
-	grid-template-columns: minmax(0, 1fr);
-}
-
+.rvs-shell .rvs-search--vertical .rvs-search__field,
 .rvs-shell .rvs-search--vertical .rvs-search__submit {
-	width: 100%;
+	flex-basis: 100%;
 }
 
 @media (max-width: 768px) {
-	.rvs-shell .rvs-search__form,
-	.rvs-shell .rvs-search--no-location .rvs-search__form,
-	.rvs-shell .rvs-search--no-dates .rvs-search__form {
-		grid-template-columns: minmax(0, 1fr);
+	.rvs-shell .rvs-search__form {
 		padding: 15px;
 	}
 
-	.rvs-shell .rvs-search__submit {
-		width: 100%;
+	.rvs-shell .rvs-search__field,
+	.rvs-shell .rvs-search--no-dates .rvs-search__field--location,
+	.rvs-shell .rvs-search__submit,
+	.rvs-shell .rvs-search--no-dates .rvs-search__submit {
+		flex-basis: 100%;
 	}
 
-	.rvs-shell .rvs-search__field--dropoff {
+	.rvs-shell .rvs-search__field--dropoff > .rvs-input {
 		max-width: none;
 	}
 }
