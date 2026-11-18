@@ -59,7 +59,9 @@
       "Düzeltildi: Rentiva Pro 6.4.x ile transfer ek hizmet penceresi tutarların yanında para birimini yeniden gösteriyor.",
       "Değişti: araç karşılaştırma kısa kodu 3 araca kadar karşılaştırır (önce 4), müsaitlik takvimi varsayılan olarak 2 ay gösterir (önce 1); açıkça verilen months_to_show geçerlidir.",
       "Değişti: tek teslim noktası olan sitede arama şeridi o noktayı liste yerine bir metin satırı olarak gösterir.",
-      "Temalar için not: rezervasyon formu, müsaitlik takvimi, iletişim formu, araç detayı, puanlama formu ve arama şablonları (templates/shortcodes/* ve templates/partials/*) yeni işaretleme kullanıyor. Bunları ezen bir tema eski işaretlemeyi korur ve yeni betikler onu çalıştırmaz: güncellemeden sonra bu ezmeleri kaldırın ya da güncelleyin."
+      "Temalar için not: rezervasyon formu, müsaitlik takvimi, iletişim formu, araç detayı, puanlama formu ve arama şablonları (templates/shortcodes/* ve templates/partials/*) yeni işaretleme kullanıyor. Bunları ezen bir tema eski işaretlemeyi korur ve yeni betikler onu çalıştırmaz: güncellemeden sonra bu ezmeleri kaldırın ya da güncelleyin.",
+      "Site sahipleri için not: güncellemeden sonra sayfa önbelleğini temizleyin (barındırma önbelleği, LiteSpeed Cache, WP Rocket ve benzerleri). 6.3.x'in önbelleğe aldığı bir sayfa, önbellek temizlenene kadar eski rezervasyon formu ve takvim işaretlemesini korur ve yeni betikler onu çalıştırmaz. Rentiva'nın kendi kısa ömürlü önbelleği kendiliğinden yenilenir.",
+      "Değişti: vehicle_id'si var olmayan ya da kiralanamayan bir araca işaret eden müsaitlik takvimi, başka bir aracın takvimi yerine \"Araç bulunamadı.\" gösterir."
     ]
   },
   {

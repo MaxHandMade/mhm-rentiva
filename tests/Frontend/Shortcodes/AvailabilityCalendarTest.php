@@ -382,4 +382,31 @@ class AvailabilityCalendarTest extends WP_UnitTestCase
 		$this->assertSame('2', \MHMRentiva\Core\Attribute\AllowlistRegistry::get_schema('rentiva_availability_calendar')['months_to_show']['default'] ?? null);
 		$this->assertArrayHasKey('months_to_show', \MHMRentiva\Tests\Support\SettingProbe::data_controls('AvailabilityCalendarWidget'));
 	}
+
+	/**
+	 * After an update, HTML an older release cached is not served: the
+	 * markup and the scripts change together, and a 6.3.1 calendar under
+	 * 6.4.0 scripts does not move. The cache stamp names the release that
+	 * wrote it; a stamp from another release (or none) starts a new one.
+	 */
+	public function test_cache_stamp_from_another_release_starts_a_new_one(): void
+	{
+		$key = new \ReflectionMethod(\MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar::class, 'get_cache_key');
+		$key->setAccessible(true);
+		$stamp = 'mhmrentiva_rv_cache_v_rentiva_availability_calendar';
+		$atts  = array( 'vehicle_id' => '1' );
+
+		set_transient($stamp, 'f0e1d2c3-0000-4000-8000-000000000000', DAY_IN_SECONDS);
+		$old = $key->invoke(null, $atts);
+		$this->assertStringStartsWith(MHMRENTIVA_VERSION . '|', (string) get_transient($stamp), 'An older release\'s stamp is replaced.');
+
+		$current = (string) get_transient($stamp);
+		$again   = $key->invoke(null, $atts);
+		$this->assertSame($current, (string) get_transient($stamp), 'This release\'s stamp is kept.');
+		$this->assertSame($old, $again);
+
+		set_transient($stamp, '6.3.1|f0e1d2c3-0000-4000-8000-000000000000', DAY_IN_SECONDS);
+		$this->assertNotSame($again, $key->invoke(null, $atts), 'Another release\'s stamp gives another key.');
+		delete_transient($stamp);
+	}
 }
