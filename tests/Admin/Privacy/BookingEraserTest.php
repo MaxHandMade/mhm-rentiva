@@ -91,6 +91,23 @@ final class BookingEraserTest extends WP_UnitTestCase
 		$this->assertCount(1, array_filter($result['messages'], static fn(string $m): bool => false !== strpos($m, '#' . $active)));
 	}
 
+	public function test_a_trashed_closed_booking_is_anonymised_and_stays_in_the_trash(): void
+	{
+		$trashed = $this->guest('cancelled');
+		wp_trash_post($trashed);
+		$saves = did_action('save_post');
+
+		$result = BookingEraser::erase(self::EMAIL, 1);
+
+		$this->assertTrue($result['items_removed']);
+		$this->assertFalse($result['items_retained']);
+		$this->assertTrue($result['done']);
+		$this->assertSame('trash', get_post_status($trashed), 'not restored by the erasure');
+		$this->assertSame($saves, did_action('save_post'), 'no save_post handler ran');
+		$this->assertSame('', (string) get_post_meta($trashed, '_mhmrentiva_customer_phone', true));
+		$this->assertFalse(BookingMatcher::matches($trashed, self::EMAIL));
+	}
+
 	public function test_second_run_does_nothing_to_closed(): void
 	{
 		$this->guest('completed');

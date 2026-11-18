@@ -123,6 +123,22 @@ final class AccountDashboardViewTest extends WP_UnitTestCase
 		);
 	}
 
+	public function test_the_day_is_the_sites_day_not_utc(): void
+	{
+		update_option('timezone_string', 'Europe/Istanbul');
+		try {
+			// 01:00 on the 10th in Istanbul is still the 9th in UTC; a pickup at
+			// 23:30 on the 9th (Istanbul) is yesterday for the site.
+			$now       = (int) SiteTime::instant('2027-03-10', '01:00');
+			$yesterday = (int) SiteTime::instant('2027-03-09', '23:30');
+			$this->assertSame(gmdate('Y-m-d', $now), gmdate('Y-m-d', $yesterday), 'same UTC day: the case separates the two');
+
+			$this->assertNull(AccountDashboardView::pick_next(array( self::cand(1, 'confirmed', $yesterday) ), $now));
+		} finally {
+			update_option('timezone_string', '');
+		}
+	}
+
 	public function test_next_rental_found_beyond_first_ten(): void
 	{
 		$ids = array();

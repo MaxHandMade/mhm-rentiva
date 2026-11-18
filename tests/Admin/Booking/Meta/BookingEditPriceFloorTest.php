@@ -133,6 +133,11 @@ final class BookingEditPriceFloorTest extends WP_UnitTestCase
 		$this->assertSame('2550', $this->meta('_mhmrentiva_total_price'));
 	}
 
+	/**
+	 * Characterises the save chain: BookingPricingInputs::open() (priority 1)
+	 * copies the legacy keys to the current ones before the floor (priority 5)
+	 * reads stored_range(), so a refusal writes the real dates back, not ''.
+	 */
 	public function test_a_refused_update_keeps_the_dates_of_a_legacy_key_booking(): void
 	{
 		foreach (array( 'pickup_date', 'dropoff_date' ) as $field) {
