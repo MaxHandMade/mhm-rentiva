@@ -1692,14 +1692,13 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 		$ids = get_posts(
 			array(
-				'post_type'        => 'mhmrentiva_booking',
-				'post_status'      => 'any',
-				'fields'           => 'ids',
-				'numberposts'      => 20,
-				'no_found_rows'    => true,
-				'suppress_filters' => true,
+				'post_type'     => 'mhmrentiva_booking',
+				'post_status'   => 'any',
+				'fields'        => 'ids',
+				'numberposts'   => 20,
+				'no_found_rows' => true,
 				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Two exact keys, one order's bookings: a handful of rows, only on a checkout retry.
-				'meta_query'       => array(
+				'meta_query'    => array(
 					array(
 						'key'   => '_mhmrentiva_woocommerce_order_id',
 						'value' => $order_id,

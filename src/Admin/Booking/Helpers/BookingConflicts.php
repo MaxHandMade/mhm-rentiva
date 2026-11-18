@@ -681,12 +681,11 @@ final class BookingConflicts {
 	{
 		$ids = get_posts(
 			array(
-				'post_type'        => 'mhmrentiva_vehicle',
-				'post_status'      => 'any',
-				'posts_per_page'   => -1,
-				'fields'           => 'ids',
-				'no_found_rows'    => true,
-				'suppress_filters' => true,
+				'post_type'      => 'mhmrentiva_vehicle',
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
 			)
 		);
 
