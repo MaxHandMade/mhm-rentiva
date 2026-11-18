@@ -129,6 +129,32 @@ final class AssetManager {
 		add_action('init', array( self::class, 'register_vendor_assets' ));
 		// Register Common Assets (Shared but not Global)
 		add_action('init', array( self::class, 'register_common_assets' ));
+
+		// Before the footer scripts print (core prints them at priority 10).
+		add_action('wp_print_footer_scripts', array( self::class, 'legacy_addons_object' ), 1);
+	}
+
+	/**
+	 * Pro 6.4.x's transfer add-on modal reads its currency symbol from
+	 * `window.mhmRentivaAddons`, the object Lite 6.3.x printed on every front-end
+	 * page and Lite 6.4.0 no longer does; without it the modal's amounts show
+	 * no currency. Only that field, only when the modal's script is on the page,
+	 * and never over an object something else has set. Drop when Pro no longer
+	 * needs it (Pro 6.5.0 reads its own).
+	 */
+	public static function legacy_addons_object(): void
+	{
+		$handle = 'rentiva-transfer-addon-modal';
+		if (! wp_script_is($handle, 'enqueued')) {
+			return;
+		}
+
+		$currency = CurrencyHelper::get_js_currency_payload();
+		wp_add_inline_script(
+			$handle,
+			'window.mhmRentivaAddons = window.mhmRentivaAddons || ' . wp_json_encode(array( 'currencySymbol' => (string) ( $currency['symbol'] ?? '' ) ), JSON_HEX_TAG) . ';',
+			'before'
+		);
 	}
 
 	/**
