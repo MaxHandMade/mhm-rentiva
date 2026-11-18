@@ -60,6 +60,18 @@ describe( 'availability calendar: one instance per root', () => {
 		require( '../../assets/js/frontend/availability-calendar.js' );
 	} );
 
+	test( 'the_booking_forms_status_line_is_not_a_calendar', () => {
+		// The booking form's availability line carries the same hook name; a page
+		// with the form and a calendar must start the calendar only.
+		const status = '<div class="rvs-booking"><div class="rvs-booking__availability" data-rvs-availability role="status" hidden></div></div>';
+		boot( status + calendar( 3017 ) );
+
+		expect( calls.map( ( c ) => c.data.vehicle_id ) ).toEqual( [ '3017' ] );
+		const line = document.querySelector( '.rvs-booking__availability' );
+		expect( line.hasAttribute( 'aria-busy' ) ).toBe( false );
+		expect( line.hidden ).toBe( true );
+	} );
+
 	test( 'each_root_loads_its_own_months', () => {
 		boot( calendar( 3017 ) + calendar( 2983 ) );
 

@@ -15,7 +15,9 @@
 ( function ( $ ) {
 	'use strict';
 
-	const ROOT = '[data-rvs-availability]';
+	// The vehicle id tells a calendar root from the booking form's availability
+	// line, which carries the same hook name.
+	const ROOT = '[data-rvs-availability][data-vehicle-id]';
 	const PREVIEW = '[data-rv-render="preview"]';
 	const STATE = 'rvsAvailabilityState';
 	// The spinner: on a visitor's own step or switch, not on the quiet refresh at load.
