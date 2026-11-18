@@ -652,4 +652,31 @@ final class BookingTimestampMigrationTest extends WP_UnitTestCase
 		$this->assertSame((string) self::local_at('2027-03-03 22:00', 3), self::ts($trashed, 'end'));
 		$this->assertSame((string) strtotime('2027-03-01 22:00 UTC'), self::ts($auto, 'start'), 'An auto-draft is not a booking.');
 	}
+
+	/**
+	 * A booking whose status nothing registers when the migrator runs (one a
+	 * plugin registers on init, or a plugin since removed) is rebuilt too.
+	 */
+	public function test_migration_rebuilds_a_booking_in_an_unregistered_status(): void
+	{
+		global $wpdb;
+		$this->pin_site_timezone('Europe/Istanbul');
+
+		$id = $this->booking(array(
+			'pickup_date'  => '2027-04-05',
+			'start_time'   => '21:00',
+			'dropoff_date' => '2027-04-07',
+			'end_time'     => '21:00',
+			'start_ts'     => (int) strtotime('2027-04-05 21:00 UTC'),
+			'end_ts'       => (int) strtotime('2027-04-07 21:00 UTC'),
+		));
+		$wpdb->update($wpdb->posts, array( 'post_status' => 'mhm-gone-status' ), array( 'ID' => $id ));
+		clean_post_cache($id);
+		$this->assertNotContains('mhm-gone-status', get_post_stati(), 'Premise: nothing registers the status.');
+
+		$this->step();
+
+		$this->assertSame((string) self::local_at('2027-04-05 21:00', 3), self::ts($id, 'start'));
+		$this->assertSame((string) self::local_at('2027-04-07 21:00', 3), self::ts($id, 'end'));
+	}
 }

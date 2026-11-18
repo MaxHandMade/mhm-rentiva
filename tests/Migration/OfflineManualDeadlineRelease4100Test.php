@@ -149,20 +149,51 @@ final class OfflineManualDeadlineRelease4100Test extends WP_UnitTestCase
 	}
 
 	/**
-	 * A trashed hand-entered booking loses its deadline too: restored, it would
-	 * otherwise come back holding nothing, the failure 4.10.0 exists to end.
+	 * A trashed booking is left alone, with or without someone else on its
+	 * dates. Released, it would come back from the trash holding its vehicle
+	 * whatever was sold since; kept, it comes back holding nothing, as it
+	 * did before 6.4.0. And the operator gets no log line about a booking
+	 * they threw away.
+	 *
+	 * @dataProvider trashed_cases
 	 */
-	public function test_4100_releases_a_trashed_offline_hand_entered_deadline(): void
+	public function test_4100_leaves_a_trashed_hand_entered_booking_alone(bool $dates_taken): void
 	{
 		$start   = time() + 10 * DAY_IN_SECONDS;
 		$trashed = $this->booking('admin_manual', 'offline', $start);
+		if ($dates_taken) {
+			$taken = $this->booking('woocommerce_checkout', 'woocommerce', $start);
+			update_post_meta($taken, '_mhmrentiva_status', 'confirmed');
+			update_post_meta($taken, '_mhmrentiva_payment_status', 'paid');
+		}
+		$deadline = $this->deadline($trashed);
 		wp_trash_post($trashed);
 		update_option('mhmrentiva_db_version', '4.9.0');
+		$logged  = 0;
+		$capture = static function ($meta_id, $object_id, $meta_key, $meta_value) use (&$logged, $trashed) {
+			if ('_mhmrentiva_log_booking_id' === $meta_key && $trashed === (int) $meta_value) {
+				++$logged;
+			}
+		};
+		add_action('added_post_meta', $capture, 10, 4);
 
 		DatabaseMigrator::run_migrations();
+		remove_action('added_post_meta', $capture, 10);
 
 		$this->assertSame('trash', get_post_status($trashed));
-		$this->assertSame('', $this->deadline($trashed));
+		$this->assertSame($deadline, $this->deadline($trashed), 'The deadline stays.');
+		$this->assertSame(0, $logged, 'No log line about a trashed booking.');
+	}
+
+	/**
+	 * @return array<string, array{0: bool}>
+	 */
+	public static function trashed_cases(): array
+	{
+		return array(
+			'dates free'  => array( false ),
+			'dates taken' => array( true ),
+		);
 	}
 
 	/**

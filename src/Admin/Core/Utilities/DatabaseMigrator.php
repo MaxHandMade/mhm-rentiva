@@ -1578,22 +1578,14 @@ final class DatabaseMigrator {
 	}
 
 	/**
-	 * Every status a booking row can hold, the trash included, for the
-	 * one-time booking steps. 'any' leaves the trash out, and a trashed
-	 * booking restored later holds its vehicle again with whatever it carries.
-	 * Auto-drafts are never bookings.
-	 *
-	 * @return list<string>
-	 */
-	private static function booking_statuses(): array
-	{
-		return array_values(array_diff(get_post_stati(), array( 'auto-draft', 'inherit' )));
-	}
-
-	/**
 	 * 4.10.0: a booking entered by hand and paid outside the site keeps no
 	 * payment deadline (see the version note above). Idempotent: a second run
 	 * finds no such meta row.
+	 *
+	 * The trash is left out on purpose ('any' excludes it): released, a
+	 * trashed booking would come back from the trash holding its vehicle
+	 * whatever was sold since; kept, it comes back holding nothing, as before
+	 * 6.4.0, and the operator gets no log line about a booking they threw away.
 	 *
 	 * @return int How many bookings lost a deadline.
 	 */
@@ -1602,7 +1594,7 @@ final class DatabaseMigrator {
 		$ids = get_posts(
 			array(
 				'post_type'      => 'mhmrentiva_booking',
-				'post_status'    => self::booking_statuses(),
+				'post_status'    => 'any',
 				'fields'         => 'ids',
 				'no_found_rows'  => true,
 				'posts_per_page' => -1,
@@ -1725,7 +1717,12 @@ final class DatabaseMigrator {
 			$ids = get_posts(
 				array(
 					'post_type'      => 'mhmrentiva_booking',
-					'post_status'    => self::booking_statuses(),
+					// The trash too: a trashed booking restored later holds its
+					// vehicle with the stamps it carries. With 'any' in the list
+					// WP_Query only excludes the exclude_from_search statuses
+					// not named (auto-draft), so a status registered after
+					// plugins_loaded, or by a plugin since removed, still comes.
+					'post_status'    => array( 'any', 'trash' ),
 					'fields'         => 'ids',
 					'no_found_rows'  => true,
 					'posts_per_page' => self::BOOKING_TS_BATCH,
