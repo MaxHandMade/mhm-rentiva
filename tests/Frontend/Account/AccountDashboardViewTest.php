@@ -134,6 +134,12 @@ final class AccountDashboardViewTest extends WP_UnitTestCase
 			$this->assertSame(gmdate('Y-m-d', $now), gmdate('Y-m-d', $yesterday), 'same UTC day: the case separates the two');
 
 			$this->assertNull(AccountDashboardView::pick_next(array( self::cand(1, 'confirmed', $yesterday) ), $now));
+
+			// And the other way: 00:30 on the 10th in Istanbul is the 9th in UTC,
+			// yet it is today for the site, so it is still the next rental.
+			$this_night = (int) SiteTime::instant('2027-03-10', '00:30');
+			$this->assertSame('2027-03-09', gmdate('Y-m-d', $this_night), 'yesterday in UTC');
+			$this->assertSame(1, AccountDashboardView::pick_next(array( self::cand(1, 'confirmed', $this_night) ), $now));
 		} finally {
 			update_option('timezone_string', '');
 		}

@@ -133,6 +133,35 @@ final class BookingEditPriceFloorTest extends WP_UnitTestCase
 		$this->assertSame('2550', $this->meta('_mhmrentiva_total_price'));
 	}
 
+	public function test_an_unchanged_update_with_add_ons_keeps_the_lines_total_and_payment_type(): void
+	{
+		// An add-on whose price rose after booking: today's quote differs from
+		// every stored figure, and a refunded booking would be refused a raise.
+		$addon = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_addon', 'post_status' => 'publish', 'post_title' => 'Child seat' ));
+		update_post_meta($addon, 'mhmrentiva_addon_price', '300');
+		update_post_meta($addon, 'mhmrentiva_addon_enabled', '1');
+		\MHMRentiva\Admin\Addons\AddonSelection::of(array( $addon ), array( $addon => 2 ))->store($this->booking);
+		$lines = array(
+			array( 'id' => $addon, 'title' => 'Child seat', 'price' => 50.0, 'quantity' => 2, 'line_total' => 100.0 ),
+		);
+		update_post_meta($this->booking, '_mhmrentiva_addon_details', $lines);
+		update_post_meta($this->booking, '_mhmrentiva_addon_total', '100');
+		update_post_meta($this->booking, '_mhmrentiva_payment_status', 'refunded');
+
+		$this->update(array(
+			'mhmrentiva_edit_selected_addons' => array( (string) $addon ),
+			'mhmrentiva_edit_addon_qty'       => array( $addon => '2' ),
+		));
+
+		$this->assertSame('', BookingEditNotice::peek($this->booking), 'nothing that moves money was changed');
+		$this->assertSame($lines, get_post_meta($this->booking, '_mhmrentiva_addon_details', true), 'lines not re-priced');
+		$this->assertSame('100', $this->meta('_mhmrentiva_addon_total'));
+		$this->assertSame('2550', $this->meta('_mhmrentiva_total_price'));
+		$this->assertSame('full', $this->meta('_mhmrentiva_payment_type'));
+		$this->assertSame(array( $addon ), \MHMRentiva\Admin\Addons\AddonSelection::for_booking($this->booking)->ids());
+		$this->assertSame(2, \MHMRentiva\Admin\Addons\AddonSelection::for_booking($this->booking)->quantity($addon));
+	}
+
 	/**
 	 * Characterises the save chain: BookingPricingInputs::open() (priority 1)
 	 * copies the legacy keys to the current ones before the floor (priority 5)
