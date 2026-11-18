@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Frontend\Account;
 
+use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\Frontend\Account\AccountBookingsQuery;
 use MHMRentiva\Admin\Frontend\Account\AccountDashboardView;
 use MHMRentiva\Admin\Frontend\Account\AccountRenderer;
@@ -98,13 +99,27 @@ final class AccountDashboardViewTest extends WP_UnitTestCase
 
 	public function test_past_pickup_not_picked(): void
 	{
-		$now = 1_800_000_000;
+		$now       = (int) SiteTime::instant('2027-03-10', '14:00');
+		$yesterday = (int) SiteTime::instant('2027-03-09', '16:00');
 
-		$this->assertNull(AccountDashboardView::pick_next(array( self::cand(1, 'confirmed', $now - 60) ), $now));
+		$this->assertNull(AccountDashboardView::pick_next(array( self::cand(1, 'confirmed', $yesterday) ), $now));
 		$this->assertNull(AccountDashboardView::pick_next(array(), $now));
 		$this->assertSame(
 			2,
-			AccountDashboardView::pick_next(array( self::cand(1, 'confirmed', $now - 60), self::cand(2, 'confirmed', $now + 60) ), $now)
+			AccountDashboardView::pick_next(array( self::cand(1, 'confirmed', $yesterday), self::cand(2, 'confirmed', $now + 60) ), $now)
+		);
+	}
+
+	public function test_a_pickup_earlier_today_is_still_the_next_rental(): void
+	{
+		// The day's semantics of the query and of "Your next rental starts today."
+		$now      = (int) SiteTime::instant('2027-03-10', '14:00');
+		$this_am  = (int) SiteTime::instant('2027-03-10', '09:00');
+		$tomorrow = (int) SiteTime::instant('2027-03-11', '09:00');
+
+		$this->assertSame(
+			1,
+			AccountDashboardView::pick_next(array( self::cand(1, 'confirmed', $this_am), self::cand(2, 'confirmed', $tomorrow) ), $now)
 		);
 	}
 
