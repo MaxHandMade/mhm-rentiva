@@ -47,6 +47,10 @@ final class RentalScopeTest extends WP_UnitTestCase
 		if (function_exists('WC') && WC()->cart) {
 			WC()->cart->empty_cart();
 		}
+		if (function_exists('WC') && WC()->session) {
+			WC()->session->set(CheckoutJourney::CLASSIC_CART_SESSION_KEY, null);
+		}
+		remove_action('woocommerce_cart_emptied', array( CheckoutJourney::class, 'forget_classic_cart' ));
 		$GLOBALS['wp_styles']  = null;
 		$GLOBALS['wp_scripts'] = $this->scripts_before;
 		remove_all_filters('woocommerce_is_checkout');
@@ -506,12 +510,30 @@ final class RentalScopeTest extends WP_UnitTestCase
 		$this->assertIsString($html, 'the rental was removed: the shop line stays on the classic cart');
 		$this->assertStringContainsString('woocommerce-cart-form', $html);
 
-		WC()->cart->empty_cart();
+		// cart.js removes the last line one by one, not through empty_cart().
+		foreach (array_keys(WC()->cart->get_cart()) as $key) {
+			WC()->cart->remove_cart_item($key);
+		}
 		$html = $this->cart_html();
 		$this->assertIsString($html, 'the last line was removed: the classic empty message');
 		$this->assertStringContainsString('wc-empty-cart-message', $html);
 
 		$this->assertNull($this->cart_html(), 'the next visit of the empty cart is the Cart block again');
+	}
+
+	public function test_a_cart_emptied_elsewhere_forgets_the_classic_cart(): void
+	{
+		// WooCommerce empties the cart after an order is placed, away from the
+		// cart page: the next shop-only cart of that session keeps the Cart block.
+		CheckoutJourney::register();
+		$this->forget_classic_cart();
+		$this->add_rental();
+		$this->assertIsString($this->cart_html());
+
+		WC()->cart->empty_cart();
+		$this->add_product();
+
+		$this->assertNull($this->cart_html());
 	}
 
 	public function test_cart_block_stays_when_the_setting_is_off(): void

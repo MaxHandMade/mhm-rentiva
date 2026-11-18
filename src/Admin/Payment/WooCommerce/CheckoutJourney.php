@@ -62,6 +62,7 @@ final class CheckoutJourney {
 		add_action('admin_notices', array( self::class, 'block_checkout_notice' ));
 		add_filter('body_class', array( self::class, 'body_class' ));
 		add_filter('pre_render_block', array( self::class, 'pre_render_block' ), 10, 2);
+		add_action('woocommerce_cart_emptied', array( self::class, 'forget_classic_cart' ), 10, 0);
 		add_filter('wp_resource_hints', array( self::class, 'resource_hints' ), 11, 2);
 		RentalMoneyLabels::register();
 		RentalCheckoutLook::register();
@@ -195,6 +196,18 @@ final class CheckoutJourney {
 		}
 
 		return function_exists('WC') && null !== WC()->session && '1' === (string) WC()->session->get(self::CLASSIC_CART_SESSION_KEY);
+	}
+
+	/**
+	 * The cart was emptied away from the cart page (WooCommerce does so after an
+	 * order is placed): the next cart of the session starts on the Cart block.
+	 * cart.js removes lines one by one, which does not fire this.
+	 */
+	public static function forget_classic_cart(): void
+	{
+		if (function_exists('WC') && null !== WC()->session) {
+			WC()->session->set(self::CLASSIC_CART_SESSION_KEY, null);
+		}
 	}
 
 	/**
