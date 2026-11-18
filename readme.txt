@@ -195,6 +195,17 @@ the plugin uses the first one present that holds a valid public IP address, fall
 if none match. Only add a header your proxy is actually configured to set and protect; adding one that
 ordinary visitors can also send re-opens the bypass this default closes.
 
+== Screenshots ==
+
+1. Search and results: the search strip, filters, and vehicle cards with the total for the chosen dates.
+2. Vehicle page: photo gallery, highlights, rental conditions, the availability calendar and the booking card.
+3. Booking form: dates, additional services, the rental agreement the customer accepts, and the price summary with the deposit.
+4. My Account: the customer's upcoming, past and cancelled bookings.
+5. Admin dashboard: bookings, booking value, upcoming operations, booking statuses and quick actions.
+6. Bookings list: status tabs, payment and payment-method filters, deposit and remaining amounts.
+7. Vehicle editor: gallery, daily price, specifications, deposit and features.
+8. Settings: booking rules such as the default rental days, cancellation deadline and payment deadline.
+
 == Changelog ==
 
 WordPress.org shows at most 5,000 characters of this section, so it lists what a site owner needs for the release since the version in the directory. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json.
