@@ -87,7 +87,10 @@ final class VehicleDetails extends AbstractShortcode {
 	 * Two months from year/month, for the vehicle page's month navigation.
 	 */
 	public static function ajax_months(): void {
-		$req        = self::verified_request();
+		$req = self::verified_request();
+		// The availability calendar's month navigation allowance: one bucket for
+		// both public month endpoints, so a visitor cannot walk months unbounded.
+		\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die( 'calendar_months', 60, 60, __( 'Too many requests. Please wait.', 'mhm-rentiva' ) );
 		$vehicle_id = self::requested_vehicle( $req );
 		if ( $vehicle_id <= 0 ) {
 			return;

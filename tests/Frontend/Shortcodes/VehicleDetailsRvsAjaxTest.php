@@ -320,6 +320,22 @@ final class VehicleDetailsRvsAjaxTest extends WP_Ajax_UnitTestCase
 		$this->assertFalse($this->quote()['success'] ?? true);
 	}
 
+	/**
+	 * The vehicle page's month navigation shares the availability calendar's
+	 * allowance (60 a minute): a guest cannot walk months without limit.
+	 */
+	public function test_months_endpoint_is_rate_limited(): void
+	{
+		for ($i = 0; $i < 60; $i++) {
+			\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit('calendar_months', 60, 60);
+		}
+
+		$response = $this->call('mhmrentiva_vd_months', array( 'vehicle_id' => (string) $this->vehicle_id, 'year' => '2027', 'month' => '7' ));
+
+		$this->assertFalse($response['success'] ?? true);
+		$this->assertArrayNotHasKey('html', (array) ( $response['data'] ?? array() ));
+	}
+
 	public function test_bad_nonce_rejected(): void
 	{
 		$response = $this->call('mhmrentiva_vd_quote', array( 'nonce' => 'bad', 'vehicle_id' => (string) $this->vehicle_id ));
