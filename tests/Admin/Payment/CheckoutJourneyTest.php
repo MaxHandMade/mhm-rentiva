@@ -524,6 +524,8 @@ final class CheckoutJourneyTest extends WP_UnitTestCase
 		unset($_REQUEST['_wpnonce']);
 
 		$this->assertSame('', $this->notice_html(), 'Dismissed: gone for this administrator.');
+		global $wpdb;
+		$this->assertSame('1', get_user_meta($first, $wpdb->get_blog_prefix() . CheckoutJourney::DISMISS_NOTICE_META, true), 'Stored for this site only.');
 		set_current_screen('plugins');
 		$this->assertSame('', $this->notice_html(), 'Gone on the Plugins screen too.');
 
@@ -549,6 +551,26 @@ final class CheckoutJourneyTest extends WP_UnitTestCase
 		} finally {
 			unset($_REQUEST['_wpnonce']);
 		}
-		$this->assertSame('', (string) get_user_meta($admin, CheckoutJourney::DISMISS_NOTICE_META, true));
+		$this->assertFalse(get_user_option(CheckoutJourney::DISMISS_NOTICE_META, $admin));
+	}
+
+	/** A valid nonce is not enough: the user must also manage options. */
+	public function test_block_checkout_notice_dismiss_refuses_a_user_without_manage_options(): void
+	{
+		$editor = self::factory()->user->create(array( 'role' => 'editor' ));
+		wp_set_current_user($editor);
+		$_REQUEST['_wpnonce'] = wp_create_nonce(CheckoutJourney::DISMISS_NOTICE_ACTION);
+		add_filter('wp_die_handler', static fn () => static function (): void {
+			throw new \RuntimeException('died');
+		});
+		try {
+			CheckoutJourney::handle_dismiss_notice();
+			$this->fail('A user without manage_options must be refused.');
+		} catch (\RuntimeException $e) {
+			$this->assertSame('died', $e->getMessage());
+		} finally {
+			unset($_REQUEST['_wpnonce']);
+		}
+		$this->assertFalse(get_user_option(CheckoutJourney::DISMISS_NOTICE_META, $editor));
 	}
 }

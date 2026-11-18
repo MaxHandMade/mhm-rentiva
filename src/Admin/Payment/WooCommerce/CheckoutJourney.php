@@ -57,7 +57,10 @@ final class CheckoutJourney {
 	/** The admin-post action that puts the block checkout notice away for one user. */
 	public const DISMISS_NOTICE_ACTION = 'mhmrentiva_dismiss_block_checkout_notice';
 
-	/** User meta: this administrator has read the block checkout notice. */
+	/**
+	 * User option (per site, as each site has its own cart and checkout pages):
+	 * this administrator has read the block checkout notice.
+	 */
 	public const DISMISS_NOTICE_META = 'mhmrentiva_block_checkout_notice_dismissed';
 
 	public static function register(): void
@@ -376,8 +379,8 @@ final class CheckoutJourney {
 			return;
 		}
 		// It only informs: once an administrator has read it, it stays away for
-		// them on every screen (a choice per user, not for the site).
-		if ('1' === (string) get_user_meta(get_current_user_id(), self::DISMISS_NOTICE_META, true)) {
+		// them on every screen of this site (a choice per user, not for the site).
+		if ('1' === (string) get_user_option(self::DISMISS_NOTICE_META)) {
 			return;
 		}
 
@@ -405,7 +408,7 @@ final class CheckoutJourney {
 			wp_die(esc_html__('You do not have permission to do that.', 'mhm-rentiva'), '', array( 'response' => 403 ));
 		}
 
-		update_user_meta(get_current_user_id(), self::DISMISS_NOTICE_META, '1');
+		update_user_option(get_current_user_id(), self::DISMISS_NOTICE_META, '1');
 
 		if (wp_safe_redirect(wp_get_referer() ? wp_get_referer() : admin_url())) {
 			exit;
