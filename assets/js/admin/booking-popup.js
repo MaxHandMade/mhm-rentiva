@@ -47,6 +47,8 @@ jQuery(document).ready(function($) {
 				status_label  : $this.data('status-label') || $this.data('status'),
 				start_date    : $this.data('start-date'),
 				end_date      : $this.data('end-date'),
+				start_time    : $this.data('start-time'),
+				end_time      : $this.data('end-time'),
 				created_date  : $this.data('created-date')
 			}];
 		}
@@ -68,6 +70,10 @@ jQuery(document).ready(function($) {
 		$('#popup-vehicle-plate').text(b.vehicle_plate || '—');
 		$('#popup-start-date').text(b.start_date || '—');
 		$('#popup-end-date').text(b.end_date || '—');
+		// A booking without a time shows only its date: an empty slot, not a
+		// second dash under the date.
+		$('#popup-start-time').text(b.start_time ? String(b.start_time) : '');
+		$('#popup-end-time').text(b.end_time ? String(b.end_time) : '');
 		$('#popup-total-price').text(b.total_price ? b.total_price : '—');
 		$('#popup-created-date').text(b.created_date || '—');
 		$('.mhm-popup-booking-id').text(b.display_id ? '#' + b.display_id : (b.booking_id ? '#' + b.booking_id : ''));
@@ -89,8 +95,10 @@ jQuery(document).ready(function($) {
 		var html = '';
 		bookings.forEach(function(b) {
 			var safeCustomerName = $('<span>').text(b.customer_name || '—').html();
-			var safeStartDate    = $('<span>').text(b.start_date || '—').html();
-			var safeEndDate      = $('<span>').text(b.end_date || '—').html();
+			var startText        = (b.start_date || '—') + (b.start_time ? ' ' + b.start_time : '');
+			var endText          = (b.end_date || '—') + (b.end_time ? ' ' + b.end_time : '');
+			var safeStartDate    = $('<span>').text(startText).html();
+			var safeEndDate      = $('<span>').text(endText).html();
 			var safeTotalPrice   = $('<span>').text(b.total_price || '—').html();
 			var safeStatusLabel  = $('<span>').text(b.status_label || b.status || '—').html();
 			var bookingId        = parseInt(b.booking_id, 10) || 0;

@@ -137,6 +137,96 @@ final class FleetOccupancyMatrixTest extends WP_UnitTestCase
         $this->assertStringNotContainsString( '&quot;booking_id&quot;:' . $confirmed_id, $html );
     }
 
+    // --- Popup values are display strings, not raw meta ---------------------
+    //
+    // The popup printed the stored meta as-is: a total of "237.6" with no
+    // currency, ISO dates, and no pickup/return time at all (the times were
+    // never put into the JSON the popup reads). Every value the popup shows
+    // is formatted here, by the site's own date/time format and the shop's
+    // price format, so the screen reads like every other admin screen.
+
+    private function popupPayload( string $html ): array
+    {
+        $this->assertSame( 1, preg_match( '/data-bookings="([^"]*)"/', $html, $m ), 'the cell carries a bookings payload' );
+        $decoded = json_decode( html_entity_decode( $m[1], ENT_QUOTES, 'UTF-8' ), true );
+        $this->assertIsArray( $decoded );
+        return $decoded[0];
+    }
+
+    public function test_popup_payload_carries_formatted_price_dates_and_times(): void
+    {
+        update_option( 'date_format', 'F j, Y' );
+        update_option( 'time_format', 'g:i a' );
+
+        $vehicle = $this->makeVehicle();
+        $month   = (int) gmdate( 'n' );
+        $year    = (int) gmdate( 'Y' );
+        $pickup  = sprintf( '%04d-%02d-10', $year, $month );
+        $dropoff = sprintf( '%04d-%02d-12', $year, $month );
+        $booking = $this->makeBooking( $vehicle->ID, 'confirmed', $pickup, $dropoff );
+        update_post_meta( $booking, '_mhmrentiva_total_price', '237.6' );
+        update_post_meta( $booking, '_mhmrentiva_start_time', '09:00' );
+        update_post_meta( $booking, '_mhmrentiva_end_time', '18:30' );
+
+        wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+        $payload = $this->popupPayload( $this->render( array( $vehicle ), $month, $year ) );
+
+        $this->assertSame( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( 237.6, 2 ), $payload['total_price'] );
+        $this->assertStringContainsString( '237', $payload['total_price'] );
+        $this->assertNotSame( '237.6', $payload['total_price'] );
+        $this->assertSame( mysql2date( 'F j, Y', $pickup ), $payload['start_date'] );
+        $this->assertSame( mysql2date( 'F j, Y', $dropoff ), $payload['end_date'] );
+        $this->assertSame( '9:00 am', $payload['start_time'] );
+        $this->assertSame( '6:30 pm', $payload['end_time'] );
+    }
+
+    public function test_popup_payload_leaves_missing_time_and_price_empty(): void
+    {
+        $vehicle = $this->makeVehicle();
+        $month   = (int) gmdate( 'n' );
+        $year    = (int) gmdate( 'Y' );
+        $day     = sprintf( '%04d-%02d-15', $year, $month );
+        $this->makeBooking( $vehicle->ID, 'confirmed', $day, $day );
+
+        wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+        $payload = $this->popupPayload( $this->render( array( $vehicle ), $month, $year ) );
+
+        $this->assertSame( '', $payload['total_price'] );
+        $this->assertSame( '', $payload['start_time'] );
+        $this->assertSame( '', $payload['end_time'] );
+    }
+
+    /**
+     * Impossible stored values (a zero date, a rolled-over day, a US-style
+     * date, an out-of-range time) are shown as stored, never turned into a
+     * real-looking but wrong date or time.
+     *
+     * @dataProvider impossibleValues
+     */
+    public function test_popup_formatters_show_impossible_values_as_stored( string $method, string $stored ): void
+    {
+        update_option( 'date_format', 'F j, Y' );
+        update_option( 'time_format', 'g:i a' );
+
+        $formatter = new \ReflectionMethod( FleetOccupancyMatrix::class, $method );
+        $formatter->setAccessible( true );
+
+        $this->assertSame( $stored, $formatter->invoke( null, $stored ) );
+    }
+
+    public static function impossibleValues(): array
+    {
+        return array(
+            'zero date'            => array( 'format_date', '0000-00-00' ),
+            'february 31'          => array( 'format_date', '2026-02-31' ),
+            'day-first date'       => array( 'format_date', '05/11/2026' ),
+            'hour 25'              => array( 'format_time', '25:99' ),
+            'hour 24'              => array( 'format_time', '24:00' ),
+            'zero post date'       => array( 'format_datetime', '0000-00-00 00:00:00' ),
+            'rolled-over datetime' => array( 'format_datetime', '2026-02-31 10:00:00' ),
+        );
+    }
+
     // --- Test 2: PII gate ---------------------------------------------------
     //
     // The gate is the BOOKING post type's own edit_others_posts capability,

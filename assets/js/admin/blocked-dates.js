@@ -212,9 +212,27 @@
 		if ( parts.length !== 3 ) { return dateStr; }
 		var d = new Date( parseInt( parts[0], 10 ), parseInt( parts[1], 10 ) - 1, parseInt( parts[2], 10 ) );
 		if ( isNaN( d.getTime() ) ) { return dateStr; }
-		return d.toLocaleDateString( document.documentElement.lang || 'tr-TR', {
+		return d.toLocaleDateString( pageLocale(), {
 			day: '2-digit', month: 'short', year: 'numeric',
 		} );
+	}
+
+	// The admin page's language. WordPress builds <html lang> by swapping "_"
+	// for "-", which is not always a tag Intl accepts (core's pt_PT_ao90 →
+	// "pt-PT-ao90" throws a RangeError): fall back to its language-region
+	// part, then to the browser default.
+	function pageLocale() {
+		var lang       = document.documentElement.lang || '';
+		var candidates = [ lang, lang.split( '-' ).slice( 0, 2 ).join( '-' ) ];
+		for ( var i = 0; i < candidates.length; i++ ) {
+			if ( ! candidates[ i ] ) { continue; }
+			try {
+				return Intl.DateTimeFormat.supportedLocalesOf( candidates[ i ] ).length ? candidates[ i ] : undefined;
+			} catch ( e ) {
+				// Not a valid language tag: try the shorter form.
+			}
+		}
+		return undefined;
 	}
 
 	function renderChips() {

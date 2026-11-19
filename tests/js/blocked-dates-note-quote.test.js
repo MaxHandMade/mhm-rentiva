@@ -40,6 +40,18 @@ describe( 'blocked dates: a note with a quote is drawn whole', () => {
 		expect( $( '.blocked-date-chip-note[data-date="2099-12-01"]' ).val() ).toBe( NOTE );
 	} );
 
+	it( 'still draws the chips under a locale Intl rejects (pt-PT-ao90)', async () => {
+		document.documentElement.setAttribute( 'lang', 'pt-PT-ao90' );
+		try {
+			const $ = await mount( 'Not ekle' );
+			expect( $( '.blocked-date-chip-note[data-date="2099-12-01"]' ).length ).toBe( 1 );
+			const label = new Date( 2099, 11, 1 ).toLocaleDateString( 'pt-PT', { day: '2-digit', month: 'short', year: 'numeric' } );
+			expect( $( '#mhm-blocked-dates-chips' ).text() ).toContain( label );
+		} finally {
+			document.documentElement.removeAttribute( 'lang' );
+		}
+	} );
+
 	it( 'keeps a placeholder with a quote whole', async () => {
 		const $ = await mount( 'Not "isteğe bağlı"' );
 		expect( $( '.blocked-date-chip-note' ).attr( 'placeholder' ) ).toBe( 'Not "isteğe bağlı"' );
