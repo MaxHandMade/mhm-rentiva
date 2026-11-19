@@ -259,34 +259,47 @@ final class FleetOccupancyMatrix {
 	}
 
 	/**
-	 * A stored Y-m-d date in the site's date format; anything unparsable is
-	 * shown as stored rather than turned into a wrong date.
+	 * A stored Y-m-d date in the site's date format. Only a real calendar day
+	 * is formatted; anything else (a zero date, February 31, another layout)
+	 * is shown as stored rather than turned into a wrong date.
 	 */
 	private static function format_date( string $date ): string {
-		if ( '' === $date || false === strtotime( $date ) ) {
+		if ( ! self::is_calendar_day( $date ) ) {
 			return $date;
 		}
 		return (string) mysql2date( (string) get_option( 'date_format' ), $date );
 	}
 
 	/**
-	 * A stored H:i time in the site's time format.
+	 * A stored H:i (or H:i:s) time in the site's time format; an out-of-range
+	 * time is shown as stored.
 	 */
 	private static function format_time( string $time ): string {
-		if ( '' === $time || 1 !== preg_match( '/^\d{1,2}:\d{2}(:\d{2})?$/', $time ) ) {
+		if ( ! self::is_clock_time( $time ) ) {
 			return $time;
 		}
 		return (string) mysql2date( (string) get_option( 'time_format' ), '2000-01-01 ' . $time );
 	}
 
 	/**
-	 * A stored post_date (site-local Y-m-d H:i:s) in the site's date and time formats.
+	 * A stored post_date (site-local Y-m-d H:i:s) in the site's date and time
+	 * formats; anything that is not a real date and time is shown as stored.
 	 */
 	private static function format_datetime( string $datetime ): string {
-		if ( '' === $datetime || false === strtotime( $datetime ) ) {
+		$parts = explode( ' ', $datetime, 2 );
+		if ( 2 !== count( $parts ) || ! self::is_calendar_day( $parts[0] ) || ! self::is_clock_time( $parts[1] ) ) {
 			return $datetime;
 		}
 		return (string) mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $datetime );
+	}
+
+	private static function is_calendar_day( string $date ): bool {
+		return 1 === preg_match( '/^(\d{4})-(\d{2})-(\d{2})$/', $date, $m )
+			&& checkdate( (int) $m[2], (int) $m[3], (int) $m[1] );
+	}
+
+	private static function is_clock_time( string $time ): bool {
+		return 1 === preg_match( '/^([01]?\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/', $time );
 	}
 
 	/**

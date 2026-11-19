@@ -196,6 +196,37 @@ final class FleetOccupancyMatrixTest extends WP_UnitTestCase
         $this->assertSame( '', $payload['end_time'] );
     }
 
+    /**
+     * Impossible stored values (a zero date, a rolled-over day, a US-style
+     * date, an out-of-range time) are shown as stored, never turned into a
+     * real-looking but wrong date or time.
+     *
+     * @dataProvider impossibleValues
+     */
+    public function test_popup_formatters_show_impossible_values_as_stored( string $method, string $stored ): void
+    {
+        update_option( 'date_format', 'F j, Y' );
+        update_option( 'time_format', 'g:i a' );
+
+        $formatter = new \ReflectionMethod( FleetOccupancyMatrix::class, $method );
+        $formatter->setAccessible( true );
+
+        $this->assertSame( $stored, $formatter->invoke( null, $stored ) );
+    }
+
+    public static function impossibleValues(): array
+    {
+        return array(
+            'zero date'            => array( 'format_date', '0000-00-00' ),
+            'february 31'          => array( 'format_date', '2026-02-31' ),
+            'day-first date'       => array( 'format_date', '05/11/2026' ),
+            'hour 25'              => array( 'format_time', '25:99' ),
+            'hour 24'              => array( 'format_time', '24:00' ),
+            'zero post date'       => array( 'format_datetime', '0000-00-00 00:00:00' ),
+            'rolled-over datetime' => array( 'format_datetime', '2026-02-31 10:00:00' ),
+        );
+    }
+
     // --- Test 2: PII gate ---------------------------------------------------
     //
     // The gate is the BOOKING post type's own edit_others_posts capability,

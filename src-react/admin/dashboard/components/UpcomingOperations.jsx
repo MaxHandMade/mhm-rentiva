@@ -12,6 +12,25 @@ const parseDay = ( dateStr ) => {
 	return m ? new Date( Number( m[ 1 ] ), Number( m[ 2 ] ) - 1, Number( m[ 3 ] ) ) : new Date( dateStr );
 };
 
+// The admin page's language (the admin user's locale), not the browser's.
+// WordPress turns its locale into <html lang> by swapping "_" for "-", which
+// is not always a tag Intl accepts (core's pt_PT_ao90 → "pt-PT-ao90" throws a
+// RangeError), so fall back to its language-region part, then to the default.
+const pageLocale = () => {
+	const lang = document.documentElement.lang || '';
+	for ( const candidate of [ lang, lang.split( '-' ).slice( 0, 2 ).join( '-' ) ] ) {
+		if ( ! candidate ) {
+			continue;
+		}
+		try {
+			return Intl.DateTimeFormat.supportedLocalesOf( candidate ).length ? candidate : undefined;
+		} catch ( e ) {
+			// Not a valid language tag: try the shorter form.
+		}
+	}
+	return undefined;
+};
+
 const formatShortDate = ( dateStr ) => {
 	if ( ! dateStr ) {
 		return '';
@@ -20,8 +39,7 @@ const formatShortDate = ( dateStr ) => {
 	if ( isNaN( d.getTime() ) ) {
 		return dateStr;
 	}
-	// The admin page's language (the admin user's locale), not the browser's.
-	return d.toLocaleDateString( document.documentElement.lang || undefined, { day: '2-digit', month: 'short' } );
+	return d.toLocaleDateString( pageLocale(), { day: '2-digit', month: 'short' } );
 };
 
 export default function UpcomingOperations( { initial } ) {

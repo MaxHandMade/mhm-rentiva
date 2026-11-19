@@ -32,6 +32,14 @@ describe( 'Upcoming Operations dates follow the admin page language', () => {
 		expect( text ).toContain( expected( 2026, 11, 24, 'de-DE' ) );
 	} );
 
+	it( 'survives a WordPress locale that is not a valid language tag', () => {
+		// Core ships pt_PT_ao90; <html lang> becomes "pt-PT-ao90", which
+		// Intl rejects with a RangeError. The widget must still render.
+		document.documentElement.setAttribute( 'lang', 'pt-PT-ao90' );
+		const { container } = render( <UpcomingOperations initial={ initial } /> );
+		expect( container.querySelector( '.mhm-upcoming-ops__dates' ).textContent ).toContain( expected( 2026, 11, 20, 'pt-PT' ) );
+	} );
+
 	it( 'reads a date-only value as that calendar day, not as UTC midnight', () => {
 		document.documentElement.setAttribute( 'lang', 'en-US' );
 		const { container } = render( <UpcomingOperations initial={ initial } /> );
