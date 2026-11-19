@@ -6,10 +6,10 @@
     "title": "Yeni hesaba tek karşılama e-postası; rezervasyon takvimi özeti ve pano tarihleri doğru biçimde",
     "summary": "6.4.1, yöneticinin iki ekranda okuduklarını ve yeni müşterinin aldığı e-postayı düzeltiyor. Rezervasyon takvimi özeti saatleri, biçimli toplamı ve sitenizin tarih biçimini gösteriyor; pano tarihleri yönetici dilinizi izliyor. Hesabını WooCommerce açan müşteri tek karşılama e-postası alıyor.",
     "changes": [
-      "Düzeltildi: ödeme sırasında hesap açan misafir tek karşılama e-postası alıyor: WooCommerce'in parola bağlantılı hesap e-postası. Önceden buna ek olarak Rentiva'nın karşılaması da gidiyordu. O WooCommerce e-postası kapalıysa (WooCommerce > Ayarlar > E-postalar) Rentiva'nın karşılaması yine gönderilir.",
+      "Düzeltildi: hesabını WooCommerce'in açtığı müşteri (ödeme sırasında ya da Hesabım'da) tek karşılama e-postası alıyor: WooCommerce'in parola bağlantılı hesap e-postası. Önceden buna ek olarak Rentiva'nın karşılaması da gidiyordu. O WooCommerce e-postası kapalıysa (WooCommerce > Ayarlar > E-postalar) Rentiva'nın karşılaması yine gönderilir.",
       "Düzeltildi: rezervasyon takvimindeki özet penceresi alış ve dönüş saatlerini gösteriyor; toplam, rezervasyon listesindeki gibi mağazanızın para birimiyle, tarihler sitenizin tarih ve saat biçiminde.",
-      "Düzeltildi: panodaki Yaklaşan işlemler kutusu tarihleri tarayıcınızın değil yönetici dilinizin biçiminde gösteriyor ve UTC'nin batısındaki sitelerde artık bir gün önceyi göstermiyor.",
-      "Düzeltildi: pano ve araç düzenleme ekranındaki kapalı günler listesi, dili Portekizce (AO90) olan yöneticide artık çalışmayı durdurmuyor.",
+      "Düzeltildi: panodaki Yaklaşan işlemler kutusu tarihleri tarayıcınızın değil yönetici dilinizin biçiminde gösteriyor ve tarayıcınız UTC'nin batısındaysa artık bir gün önceyi göstermiyor.",
+      "Düzeltildi: araç düzenleme ekranındaki kapalı günler listesi, dili Portekizce (AO90) olan yöneticide artık çalışmayı durdurmuyor.",
       "Düzeltildi: yeni kurulum günlüğe artık \"Table ... doesn't exist\" veritabanı hatası yazmıyor."
     ]
   },
