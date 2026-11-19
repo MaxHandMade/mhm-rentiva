@@ -52,7 +52,26 @@ final class BookingNotifications {
 
 		$emails      = WC()->mailer()->get_emails();
 		$new_account = $emails['WC_Email_Customer_New_Account'] ?? null;
-		if ( ! $new_account instanceof \WC_Email || ! $new_account->is_enabled() ) {
+		if ( ! $new_account instanceof \WC_Email_Customer_New_Account ) {
+			return;
+		}
+
+		// Ask the question the way WooCommerce does when it sends: trigger() sets
+		// the new customer on the e-mail, and send_notification() goes only when
+		// the e-mail is enabled AND has a recipient. Both filters
+		// (woocommerce_email_enabled_ / woocommerce_email_recipient_customer_new_account)
+		// may decide per customer, so they are asked with that customer set. A
+		// copy, so WooCommerce's own e-mail object is left as it was.
+		$user = get_userdata( $customer_id );
+		if ( ! $user ) {
+			return;
+		}
+		$probe             = clone $new_account;
+		$probe->object     = $user;
+		$probe->user_login = stripslashes( $user->user_login );
+		$probe->user_email = stripslashes( $user->user_email );
+		$probe->recipient  = $probe->user_email;
+		if ( ! $probe->is_enabled() || '' === (string) $probe->get_recipient() ) {
 			return;
 		}
 
