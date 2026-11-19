@@ -1,7 +1,21 @@
 [
   {
+    "version": "6.4.1",
+    "date": "2026-11-19",
+    "type": "patch",
+    "title": "Yeni hesaba tek karşılama e-postası; rezervasyon takvimi özeti ve pano tarihleri doğru biçimde",
+    "summary": "6.4.1, yöneticinin iki ekranda okuduklarını ve yeni müşterinin aldığı e-postayı düzeltiyor. Rezervasyon takvimi özeti saatleri, biçimli toplamı ve sitenizin tarih biçimini gösteriyor; pano tarihleri yönetici dilinizi izliyor. Hesabını WooCommerce açan müşteri tek karşılama e-postası alıyor.",
+    "changes": [
+      "Düzeltildi: ödeme sırasında hesap açan misafir tek karşılama e-postası alıyor: WooCommerce'in parola bağlantılı hesap e-postası. Önceden buna ek olarak Rentiva'nın karşılaması da gidiyordu. O WooCommerce e-postası kapalıysa (WooCommerce > Ayarlar > E-postalar) Rentiva'nın karşılaması yine gönderilir.",
+      "Düzeltildi: rezervasyon takvimindeki özet penceresi alış ve dönüş saatlerini gösteriyor; toplam mağazanızın fiyat biçiminde, tarihler sitenizin tarih ve saat biçiminde.",
+      "Düzeltildi: panodaki Yaklaşan işlemler kutusu tarihleri tarayıcınızın değil yönetici dilinizin biçiminde gösteriyor ve UTC'nin batısındaki sitelerde artık bir gün önceyi göstermiyor.",
+      "Düzeltildi: pano ve araç düzenleme ekranındaki kapalı günler listesi, dili Portekizce (AO90) olan yöneticide artık çalışmayı durdurmuyor.",
+      "Düzeltildi: yeni kurulum günlüğe artık \"Table ... doesn't exist\" veritabanı hatası yazmıyor."
+    ]
+  },
+  {
     "version": "6.4.0",
-    "date": "2026-10-25",
+    "date": "2026-11-18",
     "type": "minor",
     "title": "Yeni arama, sonuç sayfası ve araç kartı; tahsilatla aynı tutarı gösteren rezervasyon teklifi",
     "summary": "6.4.0 ziyaretçinin ilk gördüğü sayfaları yeniliyor ve ekrandaki fiyatı tahsil edilen fiyat yapıyor. Arama şeridi, sonuç sayfası ve araç kartı yeni ön yüz tasarımına geçti: kategori filtresi, filtre çipleri, karşılaştırma bandı ve telefonda filtre çekmecesi; arama tarihleri varken her kart kiralamanın toplamını gösteriyor. Rezervasyon formu WooCommerce'in tahsil ettiği tutarı gösteriyor: sezon fiyatı artık ödemeye yansıyor, vergi yalnız WooCommerce'ten geliyor. Bir veritabanı adımı Elementor'un üretilmiş CSS'ini yeniden kuruyor. Rentiva Pro kullanıcıları: bu sürümden sonra Pro'yu 6.5.0'a güncelleyin; o zamana kadar Pro 6.4.x çalışmaya devam eder.",

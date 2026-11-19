@@ -14,7 +14,7 @@
   <img src=".wordpress-org/banner-1544x500.png" alt="MHM Rentiva — Car Rental Booking for WordPress" width="800">
 </p>
 
-![Version](https://img.shields.io/badge/version-6.4.0-blue.svg)
+![Version](https://img.shields.io/badge/version-6.4.1-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-7.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -431,10 +431,10 @@ All 16 blocks delegate to their shortcode renderer via `do_shortcode()` (Render 
 ### 🧪 Testing System
 
 **Automated Test Suite:**
-- **PHPUnit**: 4,242 tests / 21,318 assertions (v6.4.0)
-- **CI Matrix**: 4 jobs (PHPCS, PHPStan, PHPUnit, Plugin Check). PHPCS, PHPStan and Plugin Check run on PHP 8.2; PHPUnit runs on PHP 8.1, 8.2, 8.3 and 8.4 on ubuntu-latest, plus a PHP 8.1 canary row on ubuntu-26.04, and every PHPUnit row also runs the whole suite as multisite. WordPress is always the latest release — no WP version matrix
+- **PHPUnit**: 6,438 tests / 31,846 assertions (v6.4.1)
+- **CI Matrix**: 13 checks on ubuntu-latest. PHPCS, PHPStan and Plugin Check run on PHP 8.2. PHPUnit runs on PHP 8.1, 8.2, 8.3 and 8.4 with the latest WordPress, plus a PHP 8.1 row on WordPress 7.0.8, the minimum the plugin requires; each PHPUnit row runs as a single-site job and as a separate multisite job
 - **PHPCS**: WordPress Coding Standards via a custom ruleset (43 documented exclusions), 0 errors
-- **Documented Baseline**: 0 failures; skipped tests: 23 (single site), 8 (whole suite as multisite) — v6.4.0 CI measurement
+- **Documented Baseline**: 0 failures; skipped tests: 25 (single site), 9 (whole suite as multisite) — v6.4.1 CI measurement
 - **Test Admin Page**: Accessible from Rentiva menu
 - **Test Reports**: Downloadable test reports
 - **Test Runner**: Automated test execution
@@ -785,7 +785,7 @@ define('SCRIPT_DEBUG', true);
 - Test email notifications
 
 **Automated Testing**:
-- PHPUnit suite: 4,242 tests / 21,318 assertions (unit + WP_UnitTestCase integration, v6.4.0)
+- PHPUnit suite: 6,438 tests / 31,846 assertions (unit + WP_UnitTestCase integration, v6.4.1)
 
 ---
 

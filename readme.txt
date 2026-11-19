@@ -5,7 +5,7 @@ Requires at least: 7.0
 Tested up to:      7.1
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.4.0
+Stable tag:        6.4.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -210,6 +210,13 @@ ordinary visitors can also send re-opens the bypass this default closes.
 
 WordPress.org shows at most 5,000 characters of this section, so it lists what a site owner needs for the release since the version in the directory. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json.
 
+= 6.4.1 =
+* Fixed: a guest who creates an account at checkout gets one welcome e-mail, WooCommerce's account e-mail with the set-password link, instead of that and Rentiva's welcome. If that WooCommerce e-mail is switched off (WooCommerce > Settings > Emails), Rentiva's welcome is still sent.
+* Fixed: the bookings calendar summary shows the pickup and return times, the total in your shop's price format, and dates in your site's date and time format.
+* Fixed: Upcoming Operations on the dashboard shows dates in your admin language instead of your browser's, and no longer a day early on sites west of UTC.
+* Fixed: the dashboard and the blocked-days list on the vehicle editor no longer stop working for an admin whose language is Portuguese (AO90).
+* Fixed: a fresh install no longer writes a "Table ... doesn't exist" database error to the log.
+
 = 6.4.0 =
 * Before you update: Rentiva requires WordPress 7.0 or newer (was 6.7); current WooCommerce requires 7.0 as well.
 * After you update: clear your page cache (your host's cache, LiteSpeed Cache, WP Rocket and the like). A page cached by 6.3.x keeps the old booking form and calendar markup, which the new scripts do not drive, until it is cleared.
@@ -229,6 +236,9 @@ WordPress.org shows at most 5,000 characters of this section, so it lists what a
 * Security: the REST nonce is printed only on the pages that need it.
 
 == Upgrade Notice ==
+
+= 6.4.1 =
+Fixes the bookings calendar summary (times, prices, dates) and dashboard dates, and sends one welcome e-mail when WooCommerce creates the customer's account.
 
 = 6.4.0 =
 Requires WordPress 7.0. New search, booking form, calendar and vehicle card markup: clear your page cache after updating. Taxes now come only from WooCommerce > Settings > Tax, and seasonal prices are charged as shown. Rentiva Pro: update Pro to 6.5.0 after this.

@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: MHM Rentiva 6.4.0\n"
+"Project-Id-Version: MHM Rentiva 6.4.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
 "POT-Creation-Date: 2026-11-18T08:09:03+00:00\n"
 "PO-Revision-Date: 2026-11-11 15:00+0000\n"
