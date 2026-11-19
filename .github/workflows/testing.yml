@@ -485,11 +485,14 @@ jobs:
           MYSQL_ROOT_PASSWORD: root
         ports:
           - 3306:3306
+        # 2026-11-19: datadir RAM'de (tmpfs) — veri atılır, suite DB ağırlıklı; Pro'nun self-hosted
+        # MySQL'i aynı ayarla koşuyor. Sağlık denetimi 10 sn yerine 2 sn aralıkla (aynı toplam bekleme).
         options: >-
+          --tmpfs /var/lib/mysql:rw
           --health-cmd="mysqladmin ping"
-          --health-interval=10s
+          --health-interval=2s
           --health-timeout=5s
-          --health-retries=5
+          --health-retries=30
 
     steps:
       - name: Check out source code
@@ -503,7 +506,34 @@ jobs:
           tools: composer:v2
           coverage: none
 
+      # 2026-11-19: WP çekirdeği + test kütüphanesi (includes/data) sürüm başına GitHub önbelleğinden.
+      # İsabette SVN kurulumu ve indirmeler atlanır; install-wp-tests.sh işe özel wp-tests-config.php ve
+      # DB'yi yine kurar. Önbelleğe YAZMA sürüm denetiminden SONRA ve ağaç sınamasıyla yapılır
+      # (install-wp-tests.sh indirme/SVN hatasını yutar; bozuk ağaç önbelleğe girmesin — Pro #149 dersi).
+      - name: Resolve the WordPress version for the test-tree cache
+        id: wpver
+        run: |
+          set -euo pipefail
+          V='${{ matrix.wp || 'latest' }}'
+          if [ "$V" = latest ]; then
+            V=$(curl -fsS https://api.wordpress.org/core/version-check/1.7/ | grep -o '"version":"[^"]*' | head -n 1 | sed 's/"version":"//')
+          fi
+          echo "ver=${V}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the WordPress test tree
+        id: wpcache
+        if: ${{ steps.wpver.outputs.ver != '' }}
+        uses: actions/cache/restore@v5
+        with:
+          path: /tmp/wp-tree-cache
+          key: wp-tree-${{ steps.wpver.outputs.ver }}-${{ hashFiles('bin/install-wp-tests.sh') }}
+
+      - name: Unpack the cached WordPress test tree
+        if: ${{ steps.wpcache.outputs.cache-hit == 'true' }}
+        run: tar -C / -xf /tmp/wp-tree-cache/wp-tree.tar
+
       - name: Install SVN (required by install-wp-tests.sh)
+        if: ${{ steps.wpcache.outputs.cache-hit != 'true' }}
         run: sudo apt-get update && sudo apt-get install -y subversion
 
       - name: Cache Composer dependencies
@@ -526,6 +556,29 @@ jobs:
       # download that silently fell back to another release would stay green.
       - name: Check the installed WordPress version
         run: bash bin/check-wp-version.sh /tmp/wordpress ${{ matrix.wp || 'latest' }}
+
+      - name: Validate the WordPress test tree before caching it
+        id: wpok
+        if: ${{ steps.wpver.outputs.ver != '' && steps.wpcache.outputs.cache-hit != 'true' }}
+        env:
+          V: ${{ steps.wpver.outputs.ver }}
+        run: |
+          ok=1
+          grep -q "^\$wp_version = '${V}';" /tmp/wordpress/wp-includes/version.php || { echo "core version.php is not ${V}"; ok=0; }
+          [ -f /tmp/wordpress/wp-settings.php ] || { echo "core incomplete (wp-settings.php)"; ok=0; }
+          [ -f /tmp/wordpress/wp-content/db.php ] || { echo "db.php missing"; ok=0; }
+          [ -f /tmp/wordpress-tests-lib/includes/bootstrap.php ] || { echo "test library incomplete (bootstrap.php)"; ok=0; }
+          [ -f /tmp/wordpress-tests-lib/includes/functions.php ] || { echo "test library incomplete (functions.php)"; ok=0; }
+          [ -n "$(ls -A /tmp/wordpress-tests-lib/data 2>/dev/null)" ] || { echo "test data dir empty"; ok=0; }
+          echo "ok=${ok}" >> "$GITHUB_OUTPUT"
+          if [ "$ok" = 1 ]; then
+            mkdir -p /tmp/wp-tree-cache
+            tar -C / -cf /tmp/wp-tree-cache/wp-tree.tar tmp/wordpress tmp/wordpress-tests-lib/includes tmp/wordpress-tests-lib/data
+            echo "tree valid: staged, cached only if the whole job succeeds"
+          else
+            echo "NOT caching: the downloaded tree failed validation"
+          fi
+
 
       # WooCommerce is not part of the WordPress test suite, and without it 26
       # source files take their "WooCommerce absent" branch -- which is how the
@@ -629,6 +682,17 @@ jobs:
           WP_TESTS_DIR: /tmp/wordpress-tests-lib
         run: composer test:multisite:full
 
+      # Codex #223 P2: yarıda kalmış bir SVN indirmesi doğrulamayı geçebilir (data dizini boş değil);
+      # testler geçmeden kaydedilirse eksik ağaç önbellekten tekrar tekrar gelirdi. Doğrulanmış TEMİZ
+      # ağaç yukarıda tar'a alındı; burada yalnız bu işin tüm adımları başarılıysa kaydedilir.
+      - name: Save the WordPress test tree (only after the job succeeded)
+        if: ${{ success() && steps.wpok.outputs.ok == '1' }}
+        uses: actions/cache/save@v5
+        with:
+          path: /tmp/wp-tree-cache
+          key: wp-tree-${{ steps.wpver.outputs.ver }}-${{ hashFiles('bin/install-wp-tests.sh') }}
+
+
   # Gate G-D: WP.org's own Plugin Check, on the surface .distignore actually
   # ships -- including vendor/mhm/ui-core, which Plugin Check hides from itself
   # ("vendor" is in its hardcoded ignore list, so the gate restages those files
@@ -646,6 +710,7 @@ jobs:
   # drops the docker prefix, running the identical argument vectors. So this job
   # and a developer's machine measure the same thing rather than two things that
   # resemble each other.
+
   plugin-check:
     name: Plugin Check (G-D)
     runs-on: ubuntu-latest
