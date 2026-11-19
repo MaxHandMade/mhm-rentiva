@@ -31,6 +31,32 @@ final class BookingNotifications {
 	public static function register(): void {
 		add_action( 'mhmrentiva_booking_created', array( self::class, 'on_created' ) );
 		add_action( 'mhmrentiva_booking_status_changed', array( self::class, 'on_status_changed' ), 10, 3 );
+		add_action( 'woocommerce_created_customer', array( self::class, 'skip_welcome_for_woocommerce_account' ), 10, 1 );
+	}
+
+	/**
+	 * An account WooCommerce just opened (checkout or My Account sign-up) is
+	 * welcomed by WooCommerce's own "new account" e-mail, which carries the
+	 * set-password link. Rentiva's welcome on top of it is a second welcome
+	 * for the same account, so it is marked as already sent. When the shop
+	 * has switched WooCommerce's new-account e-mail off, nothing is marked:
+	 * Rentiva's welcome is then the only one the customer gets.
+	 *
+	 * @param int $customer_id The user WooCommerce created.
+	 */
+	public static function skip_welcome_for_woocommerce_account( $customer_id ): void {
+		$customer_id = (int) $customer_id;
+		if ( $customer_id <= 0 || ! function_exists( 'WC' ) ) {
+			return;
+		}
+
+		$emails      = WC()->mailer()->get_emails();
+		$new_account = $emails['WC_Email_Customer_New_Account'] ?? null;
+		if ( ! $new_account instanceof \WC_Email || ! $new_account->is_enabled() ) {
+			return;
+		}
+
+		update_user_meta( $customer_id, '_mhmrentiva_welcome_sent', '1' );
 	}
 
 	/**
