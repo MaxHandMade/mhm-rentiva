@@ -442,7 +442,10 @@ jobs:
   # ubuntu-26.04" on an ubuntu-latest job -- and was then removed as a
   # duplicate of the 8.1 row.
   phpunit:
-    name: Run PHPUnit (PHP ${{ matrix.php }}${{ matrix.os != 'ubuntu-latest' && format(', {0}', matrix.os) || '' }}${{ matrix.wp && matrix.wp != 'latest' && format(', WP {0}', matrix.wp) || '' }})
+    # 2026-11-19: tek site ve Multisite turları AYRI işler (önce aynı işte art arda ~6+6 dk koşuyordu).
+    # Tek site işinin adı DEĞİŞMEDİ (main ruleset'inin zorunlu kontrolleri bu adları bekler); Multisite
+    # işleri "Run PHPUnit multisite (…)" adıyla gelir ve merge'den sonra zorunlu kontrollere eklenir.
+    name: Run PHPUnit${{ matrix.mode == 'multisite' && ' multisite' || '' }} (PHP ${{ matrix.php }}${{ matrix.os != 'ubuntu-latest' && format(', {0}', matrix.os) || '' }}${{ matrix.wp && matrix.wp != 'latest' && format(', WP {0}', matrix.wp) || '' }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
 
@@ -455,6 +458,7 @@ jobs:
         # key only in `include` it would merge into the existing 8.1 row and
         # replace its `latest` run.
         wp: [ latest ]
+        mode: [ single, multisite ]
         include:
           # The floor the plugin promises: readme `Requires at least: 7.0` and
           # `Requires PHP: 8.1`. The pinned WooCommerce (11.0.1, needs 6.9) and
@@ -467,6 +471,11 @@ jobs:
           - php: '8.1'
             os: ubuntu-latest
             wp: '7.0.8'
+            mode: single
+          - php: '8.1'
+            os: ubuntu-latest
+            wp: '7.0.8'
+            mode: multisite
 
     services:
       mysql:
@@ -548,6 +557,7 @@ jobs:
           grep -q "define( 'ELEMENTOR_VERSION', '${{ matrix.elementor || '4.3.5' }}' );" /tmp/wordpress/wp-content/plugins/elementor/elementor.php
 
       - name: Run PHPUnit
+        if: ${{ matrix.mode == 'single' }}
         env:
           WP_TESTS_DIR: /tmp/wordpress-tests-lib
           MHMRENTIVA_TEST_ELEMENTOR_VERSION: ${{ matrix.elementor || '4.3.5' }}
@@ -571,6 +581,7 @@ jobs:
       # admin-only functions are present rather than trusting a count: a count
       # alone stayed plausible while a whole family was missing.
       - name: Admin-only function load-context gate (G-E)
+        if: ${{ matrix.mode == 'single' }}
         env:
           WP_CORE_DIR: /tmp/wordpress
         run: composer check-admin-only
@@ -589,6 +600,7 @@ jobs:
       # and assert-tests-ran.php because --group matching nothing prints
       # "No tests executed!" and exits 0 -- 9.6 has no --fail-on-empty-test-suite.
       - name: Multisite sentinel (the config nothing used to execute)
+        if: ${{ matrix.mode == 'multisite' }}
         env:
           WP_TESTS_DIR: /tmp/wordpress-tests-lib
         run: composer test:multisite
@@ -612,6 +624,7 @@ jobs:
       # the helpers do not hand out capabilities when there is no network.
       # assert-tests-ran.php still guards against a run that executes nothing.
       - name: Multisite run (whole suite)
+        if: ${{ matrix.mode == 'multisite' }}
         env:
           WP_TESTS_DIR: /tmp/wordpress-tests-lib
         run: composer test:multisite:full
