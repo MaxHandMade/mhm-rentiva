@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Admin\Core\ListTable;
 
 use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Core\Utilities\BookingQueryHelper;
 use MHMRentiva\Admin\Core\Utilities\OccupancyMapService;
@@ -234,20 +235,58 @@ final class FleetOccupancyMatrix {
 			$customer_name = $customer_info['last_name'];
 		}
 
+		// Same fallback chain as OccupancyMapService::get_map()'s SQL — one
+		// definition of "where a booking's dates live", read here in PHP
+		// instead of a JOIN.
+		$start_date = self::first_meta( $booking_id, array( MetaKeys::BOOKING_PICKUP_DATE, '_mhmrentiva_booking_pickup_date' ) );
+		$end_date   = self::first_meta( $booking_id, array( MetaKeys::BOOKING_DROPOFF_DATE, MetaKeys::BOOKING_RETURN_DATE, MetaKeys::BOOKING_END_DATE ) );
+		$total      = self::first_meta( $booking_id, array( MetaKeys::BOOKING_TOTAL_PRICE ) );
+
+		// Everything below is what the popup SHOWS, so it is formatted here:
+		// the shop's price format (the same call the bookings list uses) and
+		// the site's own date and time formats.
 		return array(
 			'customer_name'  => '' !== $customer_name ? $customer_name : __( 'Reserved', 'mhm-rentiva' ),
 			'customer_email' => (string) ( $customer_info['email'] ?? '' ),
 			'customer_phone' => (string) ( $customer_info['phone'] ?? '' ),
-			'total_price'    => self::first_meta( $booking_id, array( MetaKeys::BOOKING_TOTAL_PRICE ) ),
-			// Same fallback chain as OccupancyMapService::get_map()'s SQL —
-			// one definition of "where a booking's dates live", read here
-			// in PHP instead of a JOIN.
-			'start_date'     => self::first_meta( $booking_id, array( MetaKeys::BOOKING_PICKUP_DATE, '_mhmrentiva_booking_pickup_date' ) ),
-			'end_date'       => self::first_meta( $booking_id, array( MetaKeys::BOOKING_DROPOFF_DATE, MetaKeys::BOOKING_RETURN_DATE, MetaKeys::BOOKING_END_DATE ) ),
-			'start_time'     => self::first_meta( $booking_id, array( MetaKeys::BOOKING_PICKUP_TIME ) ),
-			'end_time'       => self::first_meta( $booking_id, array( MetaKeys::BOOKING_RETURN_TIME ) ),
-			'created_date'   => (string) get_post_field( 'post_date', $booking_id ),
+			'total_price'    => is_numeric( $total ) ? CurrencyHelper::format_price( (float) $total, 2 ) : '',
+			'start_date'     => self::format_date( $start_date ),
+			'end_date'       => self::format_date( $end_date ),
+			'start_time'     => self::format_time( self::first_meta( $booking_id, array( MetaKeys::BOOKING_PICKUP_TIME ) ) ),
+			'end_time'       => self::format_time( self::first_meta( $booking_id, array( MetaKeys::BOOKING_RETURN_TIME ) ) ),
+			'created_date'   => self::format_datetime( (string) get_post_field( 'post_date', $booking_id ) ),
 		);
+	}
+
+	/**
+	 * A stored Y-m-d date in the site's date format; anything unparsable is
+	 * shown as stored rather than turned into a wrong date.
+	 */
+	private static function format_date( string $date ): string {
+		if ( '' === $date || false === strtotime( $date ) ) {
+			return $date;
+		}
+		return (string) mysql2date( (string) get_option( 'date_format' ), $date );
+	}
+
+	/**
+	 * A stored H:i time in the site's time format.
+	 */
+	private static function format_time( string $time ): string {
+		if ( '' === $time || 1 !== preg_match( '/^\d{1,2}:\d{2}(:\d{2})?$/', $time ) ) {
+			return $time;
+		}
+		return (string) mysql2date( (string) get_option( 'time_format' ), '2000-01-01 ' . $time );
+	}
+
+	/**
+	 * A stored post_date (site-local Y-m-d H:i:s) in the site's date and time formats.
+	 */
+	private static function format_datetime( string $datetime ): string {
+		if ( '' === $datetime || false === strtotime( $datetime ) ) {
+			return $datetime;
+		}
+		return (string) mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $datetime );
 	}
 
 	/**
@@ -476,6 +515,8 @@ final class FleetOccupancyMatrix {
 				$booking['customer_email'] = $fields['customer_email'] ?? '';
 				$booking['customer_phone'] = $fields['customer_phone'] ?? '';
 				$booking['total_price']    = $fields['total_price'] ?? '';
+				$booking['start_time']     = $fields['start_time'] ?? '';
+				$booking['end_time']       = $fields['end_time'] ?? '';
 				$booking['created_date']   = $fields['created_date'] ?? '';
 			}
 			$all_bookings[] = $booking;

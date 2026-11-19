@@ -4,15 +4,24 @@ import { __ } from '@wordpress/i18n';
 import { useApi } from '../../../shared/hooks/useApi';
 import { rentivaApi } from '../../../shared/api/rentiva';
 
+// A stored Y-m-d is a calendar day: build it from its parts in local time.
+// `new Date( 'Y-m-d' )` reads it as UTC midnight, which is the previous day
+// for an admin west of UTC.
+const parseDay = ( dateStr ) => {
+	const m = /^(\d{4})-(\d{2})-(\d{2})/.exec( dateStr );
+	return m ? new Date( Number( m[ 1 ] ), Number( m[ 2 ] ) - 1, Number( m[ 3 ] ) ) : new Date( dateStr );
+};
+
 const formatShortDate = ( dateStr ) => {
 	if ( ! dateStr ) {
 		return '';
 	}
-	const d = new Date( dateStr );
+	const d = parseDay( dateStr );
 	if ( isNaN( d.getTime() ) ) {
 		return dateStr;
 	}
-	return d.toLocaleDateString( undefined, { day: '2-digit', month: 'short' } );
+	// The admin page's language (the admin user's locale), not the browser's.
+	return d.toLocaleDateString( document.documentElement.lang || undefined, { day: '2-digit', month: 'short' } );
 };
 
 export default function UpcomingOperations( { initial } ) {
