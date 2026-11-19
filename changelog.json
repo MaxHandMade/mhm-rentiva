@@ -4,9 +4,9 @@
     "date": "2026-11-19",
     "type": "patch",
     "title": "One welcome e-mail for a new account, and the bookings calendar summary and dashboard dates shown properly",
-    "summary": "6.4.1 fixes what an admin reads on two screens and what a new customer receives. The bookings calendar summary shows times, the formatted total and your date format; dashboard dates follow your admin language. A customer whose account WooCommerce creates gets one welcome e-mail.",
+    "summary": "6.4.1 fixes what an admin reads on three screens and what a new customer receives. The bookings calendar summary shows times, the formatted total and your date format; dashboard dates follow your admin language. A customer whose account WooCommerce creates gets one welcome e-mail.",
     "changes": [
-      "Fixed: a customer whose account WooCommerce creates, at checkout or in My Account, gets one welcome e-mail, WooCommerce's account e-mail with the set-password link, instead of that and Rentiva's welcome. If that WooCommerce e-mail is switched off (WooCommerce > Settings > Emails), Rentiva's welcome is still sent.",
+      "Fixed: a customer whose account WooCommerce creates, at checkout or in My Account, gets one welcome e-mail, WooCommerce's own new-account e-mail, instead of that and Rentiva's welcome. If that WooCommerce e-mail is switched off (WooCommerce > Settings > Emails), Rentiva's welcome is still sent.",
       "Fixed: the bookings calendar summary shows the pickup and return times, the total with your shop's currency, formatted as in the bookings list, and dates in your site's date and time format.",
       "Fixed: Upcoming Operations on the dashboard shows dates in your admin language instead of your browser's, and no longer a day early when your browser is west of UTC.",
       "Fixed: the blocked-days list on the vehicle editor no longer stops working for an admin whose language is Portuguese (AO90).",

@@ -211,7 +211,7 @@ ordinary visitors can also send re-opens the bypass this default closes.
 WordPress.org shows at most 5,000 characters of this section, so it lists what a site owner needs for the release since the version in the directory. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json.
 
 = 6.4.1 =
-* Fixed: a customer whose account WooCommerce creates, at checkout or in My Account, gets one welcome e-mail, WooCommerce's account e-mail with the set-password link, instead of that and Rentiva's welcome. If that WooCommerce e-mail is switched off (WooCommerce > Settings > Emails), Rentiva's welcome is still sent.
+* Fixed: a customer whose account WooCommerce creates, at checkout or in My Account, gets one welcome e-mail, WooCommerce's own new-account e-mail, instead of that and Rentiva's welcome. If that WooCommerce e-mail is switched off (WooCommerce > Settings > Emails), Rentiva's welcome is still sent.
 * Fixed: the bookings calendar summary shows the pickup and return times, the total with your shop's currency, formatted as in the bookings list, and dates in your site's date and time format.
 * Fixed: Upcoming Operations on the dashboard shows dates in your admin language instead of your browser's, and no longer a day early when your browser is west of UTC.
 * Fixed: the blocked-days list on the vehicle editor no longer stops working for an admin whose language is Portuguese (AO90).
