@@ -35,6 +35,7 @@ Everything described below works in full. There are no vehicle, booking or listi
 
 **Documentation and support**
 
+*   [mhmrentiva.com](https://mhmrentiva.com/en/) — the plugin's own site: what it does, pricing and tutorials
 *   [Documentation](https://maxhandmade.github.io/mhm-rentiva-docs/) — setup, shortcodes, blocks and Elementor widgets, in English and Turkish
 *   [Support forum](https://wordpress.org/support/plugin/mhm-rentiva/)
 *   [Source code and issue tracker on GitHub](https://github.com/MaxHandMade/mhm-rentiva)
