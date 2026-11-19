@@ -1372,6 +1372,13 @@ final class DatabaseMigrator {
 			return false;
 		}
 
+		// A table that does not exist yet (a first install, before dbDelta
+		// creates it) has no index. Asking SHOW INDEX anyway is a database
+		// error that lands in the log on every fresh activation.
+		if (! self::table_exists($table_name)) {
+			return false;
+		}
+
 		$results = $wpdb->get_results(
 			$wpdb->prepare('SHOW INDEX FROM %i WHERE Key_name = %s', $table_name, $index_name)
 		);
