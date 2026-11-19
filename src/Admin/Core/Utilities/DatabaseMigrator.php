@@ -1300,8 +1300,11 @@ final class DatabaseMigrator {
             KEY status (status)
         ) $charset_collate;";
 
-		// Drop old non-tenant-aware UNIQUE key if exists (dbDelta won't drop it automatically)
-		if (self::index_exists($table_name, 'key_uuid')) {
+		// Drop old non-tenant-aware UNIQUE key if exists (dbDelta won't drop it automatically).
+		// Only a table that already exists can carry it: on a first install the
+		// table is not there yet, and SHOW INDEX on it is a database error that
+		// lands in the log on every fresh activation.
+		if (self::table_exists($table_name) && self::index_exists($table_name, 'key_uuid')) {
 			$wpdb->query(
 				$wpdb->prepare(
 					'ALTER TABLE %i DROP INDEX `key_uuid`',
@@ -1369,13 +1372,6 @@ final class DatabaseMigrator {
 
 		$table_name = self::sanitize_table_identifier($table);
 		if (empty($table_name)) {
-			return false;
-		}
-
-		// A table that does not exist yet (a first install, before dbDelta
-		// creates it) has no index. Asking SHOW INDEX anyway is a database
-		// error that lands in the log on every fresh activation.
-		if (! self::table_exists($table_name)) {
 			return false;
 		}
 
