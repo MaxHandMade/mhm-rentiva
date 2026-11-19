@@ -119,6 +119,26 @@ final class WelcomeAfterWooCommerceAccountTest extends WP_UnitTestCase
         $this->assertSame( 1, $this->welcomeMailsTo( 'olivia.brown@example.com' ) );
     }
 
+    /**
+     * WooCommerce sends only when the e-mail is enabled AND has a recipient
+     * (WC_Email::send_notification()). A shop that empties the recipient for
+     * a customer sends them nothing, so Rentiva's welcome must still go.
+     */
+    public function test_an_emptied_recipient_is_honoured(): void
+    {
+        list( $user_id, $booking ) = $this->customerWithBooking( 'daniel.weber@example.com' );
+        $no_recipient = static function ( $recipient, $object ) use ( $user_id ) {
+            return ( $object instanceof \WP_User && $object->ID === $user_id ) ? '' : $recipient;
+        };
+        add_filter( 'woocommerce_email_recipient_customer_new_account', $no_recipient, 10, 2 );
+
+        BookingNotifications::skip_welcome_for_woocommerce_account( $user_id );
+        $this->sendWelcome( $booking );
+
+        remove_filter( 'woocommerce_email_recipient_customer_new_account', $no_recipient, 10 );
+        $this->assertSame( 1, $this->welcomeMailsTo( 'daniel.weber@example.com' ) );
+    }
+
     public function test_the_probe_leaves_woocommerces_own_email_object_untouched(): void
     {
         list( $user_id ) = $this->customerWithBooking( 'mateo.garcia@example.com' );
