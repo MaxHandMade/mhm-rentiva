@@ -97,6 +97,39 @@ final class WelcomeAfterWooCommerceAccountTest extends WP_UnitTestCase
         $this->assertSame( 1, $this->welcomeMailsTo( 'lucas.martin@example.com' ) );
     }
 
+    /**
+     * WooCommerce decides "is the new-account e-mail on?" with the new customer
+     * set on the e-mail (woocommerce_email_enabled_customer_new_account gets
+     * $this->object). A shop that switches it off for some customers must not
+     * have them marked as welcomed by an answer asked without that customer:
+     * they would get neither e-mail.
+     */
+    public function test_a_per_customer_switch_off_is_honoured(): void
+    {
+        list( $user_id, $booking ) = $this->customerWithBooking( 'olivia.brown@example.com' );
+        $off_for_this_customer = static function ( $enabled, $object ) use ( $user_id ) {
+            return ( $object instanceof \WP_User && $object->ID === $user_id ) ? false : $enabled;
+        };
+        add_filter( 'woocommerce_email_enabled_customer_new_account', $off_for_this_customer, 10, 2 );
+
+        BookingNotifications::skip_welcome_for_woocommerce_account( $user_id );
+        $this->sendWelcome( $booking );
+
+        remove_filter( 'woocommerce_email_enabled_customer_new_account', $off_for_this_customer, 10 );
+        $this->assertSame( 1, $this->welcomeMailsTo( 'olivia.brown@example.com' ) );
+    }
+
+    public function test_the_probe_leaves_woocommerces_own_email_object_untouched(): void
+    {
+        list( $user_id ) = $this->customerWithBooking( 'mateo.garcia@example.com' );
+        $email  = WC()->mailer()->get_emails()['WC_Email_Customer_New_Account'];
+        $before = $email->object;
+
+        BookingNotifications::skip_welcome_for_woocommerce_account( $user_id );
+
+        $this->assertSame( $before, $email->object );
+    }
+
     public function test_a_customer_whose_account_woocommerce_did_not_open_is_welcomed(): void
     {
         list( , $booking ) = $this->customerWithBooking( 'sofia.rossi@example.com' );
