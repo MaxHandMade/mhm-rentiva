@@ -212,7 +212,7 @@ WordPress.org shows at most 5,000 characters of this section, so it lists what a
 
 = 6.4.1 =
 * Fixed: a guest who creates an account at checkout gets one welcome e-mail, WooCommerce's account e-mail with the set-password link, instead of that and Rentiva's welcome. If that WooCommerce e-mail is switched off (WooCommerce > Settings > Emails), Rentiva's welcome is still sent.
-* Fixed: the bookings calendar summary shows the pickup and return times, the total in your shop's price format, and dates in your site's date and time format.
+* Fixed: the bookings calendar summary shows the pickup and return times, the total with your shop's currency, formatted as in the bookings list, and dates in your site's date and time format.
 * Fixed: Upcoming Operations on the dashboard shows dates in your admin language instead of your browser's, and no longer a day early on sites west of UTC.
 * Fixed: the dashboard and the blocked-days list on the vehicle editor no longer stop working for an admin whose language is Portuguese (AO90).
 * Fixed: a fresh install no longer writes a "Table ... doesn't exist" database error to the log.
