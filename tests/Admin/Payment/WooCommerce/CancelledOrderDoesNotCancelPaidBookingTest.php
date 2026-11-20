@@ -159,6 +159,35 @@ final class CancelledOrderDoesNotCancelPaidBookingTest extends WP_UnitTestCase
     }
 
     /**
+     * A declined card on the booking's own (only) order keeps the booking
+     * waiting for payment: the customer retries on the same order, and the
+     * auto-cancel sweep (pending/pending, past the payment deadline) releases
+     * the dates if no payment comes. Until 2026-11-20 it cancelled the booking at
+     * once, and the cancellation cancelled the order: the "Pay" link of the
+     * failed order led to a dead order and the failed-order e-mail went twice.
+     * A cancelled order still cancels (test_cancelling_the_only_order_still_cancels_the_booking).
+     */
+    public function test_a_failed_payment_on_the_only_order_keeps_the_booking_waiting_for_payment(): void
+    {
+        $booking_id = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_booking' ) );
+        update_post_meta( $booking_id, '_mhmrentiva_payment_type', 'deposit' );
+        update_post_meta( $booking_id, '_mhmrentiva_status', Status::PENDING );
+        update_post_meta( $booking_id, '_mhmrentiva_payment_status', 'pending' );
+
+        $order = $this->create_unpaid_order_for_booking( $booking_id, '300' );
+        $this->wire_line_item_booking_id( $order, $booking_id );
+        update_post_meta( $booking_id, '_mhmrentiva_woocommerce_order_id', $order->get_id() );
+
+        $order->update_status( 'failed' );
+
+        $this->assertSame( Status::PENDING, Status::get( $booking_id ), 'A declined card cancelled the booking.' );
+        $this->assertSame( 'pending', get_post_meta( $booking_id, '_mhmrentiva_payment_status', true ), 'The pair the auto-cancel sweep selects.' );
+        $this->assertTrue( wc_get_order( $order->get_id() )->has_status( 'failed' ), 'The order stays failed, so it can be paid again.' );
+        $notes = array_map( static fn( $n ) => $n->content, wc_get_order_notes( array( 'order_id' => $order->get_id() ) ) );
+        $this->assertNotEmpty( array_filter( $notes, static fn( $n ) => str_contains( $n, 'waits for payment' ) ), 'The order says what happened to the booking.' );
+    }
+
+    /**
      * WooCommerceFixtures::create_paid_order_for_booking() wires
      * `_mhmrentiva_booking_id` onto the ORDER only. Production also wires the
      * same key onto the order's LINE ITEM (WooCommerceBridge.php :911, :1026;

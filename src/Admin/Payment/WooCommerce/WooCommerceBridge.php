@@ -3413,7 +3413,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					//
 					// And the pointer goes only when the order is CANCELLED and
 					// NEVER PAID. A failed order is
-					// retried on the same order, so it stays the link. A paid
+					// retried on the same order, so it stays the link (the
+					// booking's own failed order, below, keeps its booking too). A paid
 					// order that is later cancelled still holds the money --
 					// cancelled is not a refund, and WooCommerce keeps its
 					// date_paid -- and the pointer is how PaymentState::orders()
@@ -3501,6 +3502,21 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 						);
 					}
 
+					break;
+				}
+
+				// The booking's own order: a declined card is not a cancellation.
+				// The customer pays again on the same order (WooCommerce's "Pay"
+				// link on a failed order); the booking waits for that payment as
+				// it does for a bank transfer, in the pending/pending pair the
+				// auto-cancel sweep selects, so the dates are released if no
+				// payment comes by the payment deadline. Cancelling here used to
+				// cancel the order with the booking: the Pay link led to a dead
+				// order and the failed-order e-mail went out twice.
+				if ('failed' === $new_status) {
+					update_post_meta($booking_id, '_mhmrentiva_payment_status', 'pending');
+					Status::update_status($booking_id, 'pending', get_current_user_id());
+					$order->add_order_note(__('The payment failed. The booking waits for payment: the customer can pay again on this order. If no payment comes in time, the booking is cancelled automatically.', 'mhm-rentiva'));
 					break;
 				}
 
