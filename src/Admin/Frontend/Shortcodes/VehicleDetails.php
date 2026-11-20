@@ -43,6 +43,33 @@ final class VehicleDetails extends AbstractShortcode {
 		add_action( 'wp_ajax_nopriv_mhmrentiva_vd_months', array( self::class, 'ajax_months' ) );
 		add_action( 'wp_ajax_mhmrentiva_vd_quote', array( self::class, 'ajax_quote' ) );
 		add_action( 'wp_ajax_nopriv_mhmrentiva_vd_quote', array( self::class, 'ajax_quote' ) );
+		add_filter( 'document_title_parts', array( self::class, 'document_title_parts' ) );
+	}
+
+	/**
+	 * The vehicle page's document title names the vehicle the URL routes to
+	 * (/vehicle-details/{slug}/): one page serves every car, so without this
+	 * each tab, search result and shared link reads the page's own title.
+	 * Only on that page, and only for a vehicle the page would show.
+	 *
+	 * @param mixed $parts wp_get_document_title()'s parts.
+	 * @return mixed
+	 */
+	public static function document_title_parts( $parts ) {
+		if ( ! is_array( $parts ) ) {
+			return $parts;
+		}
+		$page = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_id( self::SHORTCODE );
+		if ( null === $page || ! is_page( $page ) ) {
+			return $parts;
+		}
+		$vehicle = self::get_routed_vehicle_id();
+		if ( $vehicle < 1 ) {
+			return $parts;
+		}
+		// Plain text: wp_get_document_title() escapes the joined title.
+		$parts['title'] = wp_strip_all_tags( html_entity_decode( get_the_title( $vehicle ), ENT_QUOTES, 'UTF-8' ) );
+		return $parts;
 	}
 
 	/**
