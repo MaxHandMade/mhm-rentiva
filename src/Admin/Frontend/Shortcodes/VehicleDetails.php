@@ -67,8 +67,10 @@ final class VehicleDetails extends AbstractShortcode {
 		if ( $vehicle < 1 ) {
 			return $parts;
 		}
-		// Plain text: wp_get_document_title() escapes the joined title.
-		$parts['title'] = wp_strip_all_tags( html_entity_decode( get_the_title( $vehicle ), ENT_QUOTES, 'UTF-8' ) );
+		// Plain text: tags out first, then entities decoded (an entity-encoded
+		// "&lt;b&gt;" in a title is text, not a tag). The joined title is escaped
+		// by core's own `document_title` filter (esc_html, default-filters.php).
+		$parts['title'] = html_entity_decode( wp_strip_all_tags( get_the_title( $vehicle ) ), ENT_QUOTES, 'UTF-8' );
 		return $parts;
 	}
 

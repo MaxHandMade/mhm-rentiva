@@ -55,8 +55,12 @@ final class VehicleDetailsDocumentTitleTest extends WP_UnitTestCase
 	{
 		$parts = $this->on($this->page, 'hyundai-tucson');
 
-		$this->assertSame('Hyundai Tucson & Co', $parts['title'], 'Plain text: wp_get_document_title() escapes it.');
+		$this->assertSame('Hyundai Tucson & Co', $parts['title'], 'Plain text: core\'s document_title filter escapes it.');
 		$this->assertSame('Rentiva Test', $parts['site']);
+
+		// End to end: the escaped document title, as both theme kinds print it.
+		add_filter('document_title_parts', array( VehicleDetails::class, 'document_title_parts' ));
+		$this->assertStringStartsWith('Hyundai Tucson &#038; Co', wp_get_document_title(), 'esc_html() writes & as &#038;.');
 	}
 
 	public function test_without_a_vehicle_in_the_url_the_title_is_the_page(): void
