@@ -195,13 +195,25 @@ final class BookingFormSettingsTest extends WP_UnitTestCase
 	 */
 	private function golden_form(string $html): string
 	{
+		$html = \MHMRentiva\Tests\Support\CanonicalHtml::of($html);
 		$map = array();
 		foreach ($this->catalog as $i => $id) {
 			$map[ $id ]                               = 'VEHICLE' . $i;
 			$map[ (int) get_post_thumbnail_id($id) ] = 'IMAGE' . $i;
 		}
+		// The value of a vehicle <option> and of an add-on checkbox, wherever it
+		// sits among the tag's (sorted) attributes.
 		$html = (string) preg_replace_callback(
-			'/(?<=_id=|[?&]p=|data-vehicle-id="|<option value="|name="addons\[\]" value="|data-rvs-addon="|data-rvs-stepper="|addon_qty\[)(\d+)(?=["&\]])/',
+			'/<(?:option\b|input\b[^>]* name="addons\[\]")[^>]*>/',
+			static fn(array $tag): string => (string) preg_replace_callback(
+				'/(?<= value=")(\d+)(?=")/',
+				static fn(array $m): string => $map[ (int) $m[1] ] ?? 'ID',
+				$tag[0]
+			),
+			$html
+		);
+		$html = (string) preg_replace_callback(
+			'/(?<=_id=|[?&]p=|data-vehicle-id="|data-rvs-addon="|data-rvs-stepper="|addon_qty\[)(\d+)(?=["&\]])/',
 			static fn(array $m): string => $map[ (int) $m[1] ] ?? 'ID',
 			$html
 		);
@@ -213,7 +225,11 @@ final class BookingFormSettingsTest extends WP_UnitTestCase
 	private function default_days(string $html): ?string
 	{
 		$this->assertStringContainsString('data-rvs-booking-form', $html, 'No booking form.');
-		return preg_match('/<div class="rvs-booking[^"]*" data-rvs-booking-form[^>]*\sdata-default-days="([^"]*)"/', $html, $m) ? $m[1] : null;
+		// The form's own tag; its attributes are sorted, data-default-days first.
+		if (! preg_match('/<div [^>]*data-rvs-booking-form[^>]*>/', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $tag)) {
+			return null;
+		}
+		return preg_match('/\sdata-default-days="([^"]*)"/', $tag[0], $m) ? $m[1] : null;
 	}
 
 	private function title(string $html): ?string

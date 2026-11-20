@@ -458,7 +458,7 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 	 */
 	private function rows(string $html): array
 	{
-		preg_match_all('#data-testid="payment-item" data-booking-id="(\d+)"#', $html, $m);
+		preg_match_all('#data-booking-id="(\d+)"[^>]* data-testid="payment-item"#', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $m);
 		return array_map('intval', $m[1]);
 	}
 
@@ -468,11 +468,12 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 	 */
 	private function golden_form(string $html): string
 	{
+		$html = \MHMRentiva\Tests\Support\CanonicalHtml::of($html);
 		$html = (string) preg_replace('#(rvs-account-payments__date"[^>]*>)[^<]*(</td>)#', '$1DATE$2', $html);
 		$html = RenderNormalizer::golden($html);
 		// The fixture car's counter and the booking number follow the post ids of the run.
 		$html = (string) preg_replace('/Fixture Vehicle \d+/', 'Fixture Vehicle N', $html);
-		$html = (string) preg_replace('/(rvs-account-bookings__no">)#\d+/', '$1#N', $html);
+		$html = (string) preg_replace('/(rvs-account-bookings__no"[^>]*>)#\d+/', '$1#N', $html);
 		$html = (string) preg_replace('/>\s+</', ">\n<", trim($html));
 		return (string) preg_replace('/[ \t]+/', ' ', $html) . "\n";
 	}

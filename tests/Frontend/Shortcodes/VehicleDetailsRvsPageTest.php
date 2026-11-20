@@ -226,8 +226,8 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 
 		// Named on the visible field until the script hands the name to the
 		// hidden Y-m-d field (datepicker-init.js); the server reads either.
-		$this->assertMatchesRegularExpression('/<input id="[^"]+-pickup" type="text" class="rvs-input js-datepicker" name="pickup_date" value="12\/07\/2027"[^>]*>\s*<input type="hidden" value="2027-07-12" data-rvs-date-value>/', $html);
-		$this->assertMatchesRegularExpression('/<input id="[^"]+-return" type="text" class="rvs-input js-datepicker" name="return_date" value="15\/07\/2027"[^>]*>\s*<input type="hidden" value="2027-07-15" data-rvs-date-value>/', $html);
+		$this->assertMatchesRegularExpression('/<input [^>]*class="rvs-input js-datepicker"[^>]* id="[^"]+-pickup"[^>]* name="pickup_date"[^>]* type="text" value="12\/07\/2027">\s*<input data-rvs-date-value type="hidden" value="2027-07-12">/', \MHMRentiva\Tests\Support\CanonicalHtml::of($html));
+		$this->assertMatchesRegularExpression('/<input [^>]*class="rvs-input js-datepicker"[^>]* id="[^"]+-return"[^>]* name="return_date"[^>]* type="text" value="15\/07\/2027">\s*<input data-rvs-date-value type="hidden" value="2027-07-15">/', \MHMRentiva\Tests\Support\CanonicalHtml::of($html));
 	}
 
 	public function test_unavailable_window_disables_continue(): void
@@ -244,7 +244,10 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		set_query_var('mhmrentiva_pickup_date', '');
 		set_query_var('mhmrentiva_return_date', '');
 
-		$this->assertMatchesRegularExpression('/data-rvs-vd-continue[^>]*aria-disabled="true"/', $html);
+		// The card's link and the phone bar's: every Continue is disabled.
+		$continues = \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<a data-rvs-vd-continue>');
+		$this->assertGreaterThan(0, $continues);
+		$this->assertSame($continues, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<a data-rvs-vd-continue aria-disabled="true">'));
 		$this->assertMatchesRegularExpression('/data-rvs-vd-message role="status">[^<]+</', $html);
 	}
 
@@ -371,7 +374,7 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		$this->assertStringNotContainsString('rvs-breakdown__deposit', $html, 'No deposit row.');
 		$this->assertStringNotContainsString('rvs-breakdown__pickup', $html, 'No "Due at pickup" row.');
 		$this->assertStringNotContainsString('rvs-breakdown__summary', $html, 'No "Price breakdown" link.');
-		$this->assertMatchesRegularExpression('/<button [^>]*data-rvs-vd-breakdown-open[^>]*\shidden>/', $html, 'The phone bar opens no breakdown.');
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<button data-rvs-vd-breakdown-open hidden>'), 'The phone bar opens no breakdown.');
 		$this->assertSame(0, preg_match_all('/<div [^>]*data-rvs-vd-breakdown(?![-\w])(?![^>]*\shidden[\s>])[^>]*>/', $html), 'Both breakdown boxes are hidden.');
 		$this->assertSame(0, preg_match_all('/<[^>]*data-rvs-vd-priced(?![^>]*\shidden[\s>])[^>]*>/', $html), 'Every period total is hidden.');
 

@@ -254,7 +254,7 @@ final class ReviewSurfacesOneRuleTest extends WP_Ajax_UnitTestCase
 		$html = $this->render();
 
 		$this->assertMatchesRegularExpression('#<fieldset[^>]*>\s*<legend>[^<]+</legend>\s*<div class="rvs-stars">#', $html);
-		$this->assertSame(5, substr_count($html, 'type="radio" name="rating"'));
+		$this->assertSame(5, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<input type="radio" name="rating">'));
 		$this->assertStringContainsString('aria-live="polite"', $html);
 		$this->assertStringNotContainsString('rating_nonce', $html, 'The dead nonce field is gone.');
 		$this->assertStringContainsString('name="nonce"', $html);
@@ -387,7 +387,7 @@ final class ReviewSurfacesOneRuleTest extends WP_Ajax_UnitTestCase
 		$this->assertDoesNotMatchRegularExpression('/<form [^>]*\bhidden\b/', $html, 'No card means no Edit: the form must not wait for one.');
 		$this->assertStringNotContainsString('data-rvs-review-edit', $html);
 		$this->assertStringContainsString('>What I wrote.</textarea>', $html);
-		$this->assertMatchesRegularExpression('/value="3"\s+checked/', $html);
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<input value="3" checked>'));
 		$this->assertStringContainsString('Update review', $html);
 		$this->assertStringContainsString('Edit your review', $html);
 		$this->assertStringNotContainsString('Submit review', $html, 'Sending it changes the review: the button says so.');
@@ -478,7 +478,7 @@ final class ReviewSurfacesOneRuleTest extends WP_Ajax_UnitTestCase
 	public function test_nested_boxes_add_no_heading(): void
 	{
 		$page = do_shortcode('[rentiva_vehicle_details vehicle_id="' . $this->vehicle . '"]');
-		preg_match('#<section class="rvs-vd__section rvs-vd__reviews".*?</section>#s', $page, $section);
+		preg_match('#<section [^>]*class="rvs-vd__section rvs-vd__reviews".*?</section>#s', \MHMRentiva\Tests\Support\CanonicalHtml::of($page), $section);
 
 		$this->assertNotEmpty($section);
 		$this->assertStringContainsString('No reviews yet.', $section[0]);

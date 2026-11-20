@@ -370,7 +370,7 @@ final class MyFavoritesSettingsTest extends WP_UnitTestCase
 	 */
 	private function cards(string $html): array
 	{
-		preg_match_all('#class="rvs-card rvs-card--\w+[^"]*" data-rvs-card data-testid="vehicle-card" data-id="(\d+)"#', $html, $m);
+		preg_match_all('#class="rvs-card rvs-card--\w+[^"]*" data-id="(\d+)" data-rvs-card data-testid="vehicle-card"#', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $m);
 		return array_map('intval', $m[1]);
 	}
 

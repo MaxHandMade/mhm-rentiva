@@ -70,9 +70,9 @@ final class MaintenanceSettingsLiveViaSystemTabTest extends WP_UnitTestCase
     {
         $html = $this->render_live_system_tab();
 
-        $this->assertStringContainsString(
-            'name="mhmrentiva_settings[mhmrentiva_clean_data_on_uninstall]" value="1"',
-            $html,
+        $this->assertNotSame(
+            0,
+            \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<input name="mhmrentiva_settings[mhmrentiva_clean_data_on_uninstall]" value="1">'),
             'MaintenanceSettings::render_group_db_cleanup() must render the opt-in checkbox on the live System & Performance tab -- it is reached via the tab\'s $sections list (SECTION_ID), not via the dead render_settings_section() wrapper.'
         );
         $this->assertStringContainsString(

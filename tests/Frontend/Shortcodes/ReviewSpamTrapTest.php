@@ -144,7 +144,7 @@ final class ReviewSpamTrapTest extends WP_Ajax_UnitTestCase
 		$html = do_shortcode('[rentiva_vehicle_rating_form vehicle_id="' . $this->vehicle . '"]');
 		remove_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);
 
-		$this->assertSame(1, preg_match('/name="rvs_rendered" value="([^"]+)"/', $html, $m));
+		$this->assertSame(1, preg_match('/name="rvs_rendered"[^>]* value="([^"]+)"/', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $m));
 		// age() measures from the submit's arrival (REQUEST_TIME). Here the stamp is
 		// read in the request that drew it, and REQUEST_TIME is this process's start
 		// or an earlier test's submit -- a second before the stamp's time() and the
@@ -160,6 +160,6 @@ final class ReviewSpamTrapTest extends WP_Ajax_UnitTestCase
 				$_SERVER['REQUEST_TIME'] = $saved;
 			}
 		}
-		$this->assertMatchesRegularExpression('#<div class="rvs-sr-only" inert>\s*<label[^>]*>[^<]*</label>\s*<input type="text"[^>]*name="rvs_leave_blank"#', $html);
+		$this->assertMatchesRegularExpression('#<div class="rvs-sr-only" inert>\s*<label[^>]*>[^<]*</label>\s*<input [^>]*name="rvs_leave_blank"[^>]* type="text"#', \MHMRentiva\Tests\Support\CanonicalHtml::of($html));
 	}
 }

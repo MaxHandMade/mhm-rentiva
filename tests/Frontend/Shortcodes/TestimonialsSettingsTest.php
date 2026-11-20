@@ -328,12 +328,13 @@ final class TestimonialsSettingsTest extends WP_UnitTestCase
 	 */
 	private function reviews(string $html): array
 	{
-		preg_match_all('#<p class="rvs-tcard__text" data-rvs-slot="text">&ldquo;(.*?)&rdquo;</p>#', $html, $m);
+		preg_match_all('#<p class="rvs-tcard__text" data-rvs-slot="text">“(.*?)”</p>#u', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $m);
 		return $m[1];
 	}
 
 	private function golden_form(string $html): string
 	{
+		$html = \MHMRentiva\Tests\Support\CanonicalHtml::of($html);
 		$html = RenderNormalizer::golden($html);
 		$html = (string) preg_replace('/>\s+</', ">\n<", trim($html));
 		return (string) preg_replace('/[ \t]+/', ' ', $html) . "\n";

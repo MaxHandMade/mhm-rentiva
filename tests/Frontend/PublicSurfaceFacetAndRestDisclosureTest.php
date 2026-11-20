@@ -384,9 +384,9 @@ final class PublicSurfaceFacetAndRestDisclosureTest extends WP_Ajax_UnitTestCase
 
 		$request = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/availability' );
 		$request->set_param( 'vehicle_id', $vehicle_id );
-		$request->set_param( 'pickup_date', gmdate( 'Y-m-20' ) );
+		$request->set_param( 'pickup_date', gmdate( 'Y-m-d', (int) strtotime( '+20 days' ) ) );
 		$request->set_param( 'pickup_time', '10:00' );
-		$request->set_param( 'dropoff_date', gmdate( 'Y-m-22' ) );
+		$request->set_param( 'dropoff_date', gmdate( 'Y-m-d', (int) strtotime( '+22 days' ) ) );
 		$request->set_param( 'dropoff_time', '10:00' );
 
 		// The route's own permission_callback is nonce + rate limit, neither of
@@ -405,9 +405,9 @@ final class PublicSurfaceFacetAndRestDisclosureTest extends WP_Ajax_UnitTestCase
 
 		$request = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/availability/with-alternatives' );
 		$request->set_param( 'vehicle_id', $vehicle_id );
-		$request->set_param( 'pickup_date', gmdate( 'Y-m-20' ) );
+		$request->set_param( 'pickup_date', gmdate( 'Y-m-d', (int) strtotime( '+20 days' ) ) );
 		$request->set_param( 'pickup_time', '10:00' );
-		$request->set_param( 'dropoff_date', gmdate( 'Y-m-22' ) );
+		$request->set_param( 'dropoff_date', gmdate( 'Y-m-d', (int) strtotime( '+22 days' ) ) );
 		$request->set_param( 'dropoff_time', '10:00' );
 
 		return Availability::check_with_alternatives( $request );

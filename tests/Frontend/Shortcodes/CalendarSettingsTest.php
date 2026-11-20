@@ -261,6 +261,7 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 	 */
 	private function calendar_golden(string $html): string
 	{
+		$html = \MHMRentiva\Tests\Support\CanonicalHtml::of($html);
 		$map = array();
 		foreach ($this->catalog as $i => $id) {
 			$map[ $id ]                               = 'VEHICLE' . $i;
@@ -292,8 +293,8 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 	private function weekdays(string $html): array
 	{
 		// The first month's header; every month repeats it.
-		preg_match('#<thead>.*?</thead>#s', $html, $head);
-		preg_match_all('#<th scope="col"[^>]*>\s*([^<]*?)\s*</th>#', $head[0] ?? '', $m);
+		preg_match('#<thead>.*?</thead>#s', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $head);
+		preg_match_all('#<th [^>]*scope="col"[^>]*>\s*([^<]*?)\s*</th>#', $head[0] ?? '', $m);
 		return $m[1];
 	}
 

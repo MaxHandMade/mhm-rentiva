@@ -339,6 +339,7 @@ final class SearchSettingsTest extends WP_UnitTestCase
 	 */
 	private function golden_form(string $html): string
 	{
+		$html = \MHMRentiva\Tests\Support\CanonicalHtml::of($html);
 		$map = array();
 		foreach ($this->catalog as $i => $id) {
 			$map[ $id ]                               = 'VEHICLE' . $i;
@@ -355,13 +356,13 @@ final class SearchSettingsTest extends WP_UnitTestCase
 		// masked only when the shown text IS the hidden date in the site format,
 		// so a strip that printed Y-m-d or junk in the visible field still fails.
 		$html = (string) preg_replace_callback(
-			'/(class="[^"]*js-datepicker" name="mhmrentiva_(?:pickup|return)_date" value=")([^"]+)("[^>]*>\s*<input type="hidden" value=")(\d{4}-\d{2}-\d{2})"/',
+			'/(class="[^"]*js-datepicker"[^>]* name="mhmrentiva_(?:pickup|return)_date"[^>]* value=")([^"]+)("[^>]*>\s*<input data-rvs-date-value type="hidden" value=")(\d{4}-\d{2}-\d{2})"/',
 			static fn(array $m): string => $m[1] . ( \MHMRentiva\Admin\Core\Assets\DatepickerAssets::display_date($m[4]) === $m[2] ? 'SHOWN_DATE' : $m[2] ) . $m[3] . $m[4] . '"',
 			$html
 		);
-		$html = (string) preg_replace('/(<input type="hidden" value=")\d{4}-\d{2}-\d{2}(" data-rvs-date-value>)/', '$1DATE$2', $html);
+		$html = (string) preg_replace('/(<input data-rvs-date-value type="hidden" value=")\d{4}-\d{2}-\d{2}(")/', '$1DATE$2', $html);
 		// Category term ids differ from run to run.
-		$html = (string) preg_replace('/(name="mhmrentiva_category\[\]" value=")\d+"/', '$1TERM"', $html);
+		$html = (string) preg_replace('/(name="mhmrentiva_category\[\]"[^>]* value=")\d+"/', '$1TERM"', $html);
 		$html = (string) preg_replace('/>\s+</', ">\n<", trim($html));
 		return (string) preg_replace('/[ \t]+/', ' ', $html) . "\n";
 	}
@@ -401,7 +402,7 @@ final class SearchSettingsTest extends WP_UnitTestCase
 
 	private function action(string $html): string
 	{
-		$this->assertSame(1, preg_match('/<form class="rvs-search__form"[^>]*\saction="([^"]*)"/', $html, $m), 'No rental search form.');
+		$this->assertSame(1, preg_match('/<form action="([^"]*)"[^>]* class="rvs-search__form"/', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $m), 'No rental search form.');
 		return $m[1];
 	}
 

@@ -214,7 +214,7 @@ final class VehicleRatingFormSettingsTest extends WP_UnitTestCase
 		// Logged in: the stars and the text box are there with the old toggles off.
 		$html = $this->render_surface('block', $saved_block);
 		$this->assertSame(5, substr_count($html, 'name="rating"'), 'five star inputs');
-		$this->assertSame(1, substr_count($html, '<textarea name="comment"'), 'the text box');
+		$this->assertSame(1, preg_match_all('/<textarea [^>]*name="comment"/', \MHMRentiva\Tests\Support\CanonicalHtml::of($html)), 'the text box');
 
 		// A visitor gets the login prompt from the global setting, whatever was saved.
 		wp_set_current_user(0);
@@ -245,7 +245,8 @@ final class VehicleRatingFormSettingsTest extends WP_UnitTestCase
 	 */
 	private function golden_form(string $html): string
 	{
-		$html = (string) preg_replace('#(name="vehicle_id" value=")\d+"#', '$1VEHICLE"', $html);
+		$html = \MHMRentiva\Tests\Support\CanonicalHtml::of($html);
+		$html = (string) preg_replace('#(name="vehicle_id"[^>]* value=")\d+"#', '$1VEHICLE"', $html);
 		$html = RenderNormalizer::golden($html);
 		$html = (string) preg_replace('/>\s+</', ">\n<", trim($html));
 		return (string) preg_replace('/[ \t]+/', ' ', $html) . "\n";

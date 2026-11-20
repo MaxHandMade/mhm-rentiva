@@ -62,7 +62,7 @@ final class ContactFormSettingsTest extends WP_Ajax_UnitTestCase
 		// The block editor shows the toggle (on by default), so the block keeps
 		// what its editor shows; only the shortcode, which has no such control,
 		// falls back to the fixed form.
-		$this->assertStringContainsString('value="booking" checked', $this->render_block(array( 'type' => 'booking' )));
+		$this->assertNotSame(0, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($this->render_block(array( 'type' => 'booking' )), '<input value="booking" checked>'));
 		$this->assertStringContainsString('name="preferred_date"', $this->render_block(array( 'type' => 'booking', 'showTopicSelector' => false )));
 	}
 
@@ -73,13 +73,13 @@ final class ContactFormSettingsTest extends WP_Ajax_UnitTestCase
 		$booking = $this->render('[rentiva_contact type="booking"]');
 		$this->assertStringContainsString('data-form-type="booking"', $booking);
 		$this->assertStringContainsString('name="preferred_date"', $booking, 'A typed booking form keeps its preferred date.');
-		$this->assertStringNotContainsString('value="booking" checked', $booking, 'no topic selector on a typed form');
+		$this->assertSame(0, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($booking, '<input value="booking" checked>'), 'no topic selector on a typed form');
 		$this->assertStringContainsString('name="rating"', $this->render('[rentiva_contact type="feedback"]'), 'A typed feedback form keeps its rating.');
 
 		// The selector is asked for explicitly.
 		$chooser = $this->render('[rentiva_contact type="booking" show_topic_selector="1"]');
 		$this->assertStringNotContainsString('name="preferred_date"', $chooser, 'not among the selector\'s topics');
-		$this->assertStringContainsString('value="booking" checked', $chooser);
+		$this->assertNotSame(0, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($chooser, '<input value="booking" checked>'));
 		$this->assertStringNotContainsString('name="rating"', $this->render('[rentiva_contact type="feedback" show_topic_selector="1"]'));
 		$feedback = $this->render('[rentiva_contact type="feedback" show_topic_selector="0"]');
 		$this->assertStringContainsString('name="rating"', $feedback);

@@ -90,7 +90,8 @@ final class KitStatsGridHtmlTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'mhmui-stat-card__delta-sr', $raw );
 		$this->assertStringContainsString( 'dashicons-calendar-alt', $raw );
 
-		$this->assertSame( $raw, wp_kses_post( $raw ) );
+		// Nothing stripped: the same markup, in either wp_kses() parser's spelling.
+		$this->assertSame( \MHMRentiva\Tests\Support\CanonicalHtml::of( $raw ), \MHMRentiva\Tests\Support\CanonicalHtml::of( wp_kses_post( $raw ) ) );
 	}
 
 	public function test_the_helper_is_the_kit_renderer_when_the_kit_is_loaded(): void {
@@ -166,6 +167,6 @@ final class KitStatsGridHtmlTest extends WP_UnitTestCase {
 	public function test_the_fallback_also_survives_wp_kses_post_byte_identical(): void {
 		$html = AssetManager::stats_grid_html( $this->cards(), 4, false );
 
-		$this->assertSame( $html, wp_kses_post( $html ) );
+		$this->assertSame( \MHMRentiva\Tests\Support\CanonicalHtml::of( $html ), \MHMRentiva\Tests\Support\CanonicalHtml::of( wp_kses_post( $html ) ) );
 	}
 }

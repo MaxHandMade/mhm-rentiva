@@ -94,7 +94,7 @@ final class VehicleTabSeasonalPricingFieldsTest extends WP_UnitTestCase
         $html = $this->render_live_vehicle_tab();
         $this->assertSame(
             1,
-            substr_count($html, $checkbox_tag),
+            \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<input ' . $checkbox_tag . '>'),
             'Seasonal-pricing master switch checkbox must render exactly once on the live Vehicle tab.'
         );
     }
@@ -110,9 +110,9 @@ final class VehicleTabSeasonalPricingFieldsTest extends WP_UnitTestCase
 
         $html_before = $this->render_live_vehicle_tab();
         // Default from VehiclePricingSettings::get_default_settings(): summer = 1.3.
-        $this->assertStringContainsString(
-            'name="' . $field_name . '" value="1.3"',
-            $html_before,
+        $this->assertNotSame(
+            0,
+            \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html_before, '<input name="' . $field_name . '" value="1.3">'),
             'Live tab must render the current (default) summer multiplier before any save.'
         );
 
@@ -142,9 +142,9 @@ final class VehicleTabSeasonalPricingFieldsTest extends WP_UnitTestCase
             substr_count($html_after, 'name="' . $field_name . '"'),
             'Field must still render exactly once after a save (no duplicate registration).'
         );
-        $this->assertStringContainsString(
-            'name="' . $field_name . '" value="2.75"',
-            $html_after,
+        $this->assertNotSame(
+            0,
+            \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html_after, '<input name="' . $field_name . '" value="2.75">'),
             'Live tab must reflect the newly-saved value on re-render.'
         );
     }

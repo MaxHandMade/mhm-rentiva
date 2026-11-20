@@ -248,7 +248,7 @@ final class PaymentHistoryTruthTest extends WP_UnitTestCase
 		$html = $this->html();
 
 		$this->assertStringContainsString('class="rvs-table', $html);
-		$this->assertStringContainsString('<th scope="col" role="columnheader">', $html);
+		$this->assertNotSame(0, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<th scope="col" role="columnheader">'));
 		$this->assertStringContainsString('role="cell"', $html);
 		$this->assertMatchesRegularExpression('#<td[^>]*data-label="[^"]+"#', $html);
 		$this->assertStringContainsString('aria-hidden="true"', $html, 'The status icon is decoration.');

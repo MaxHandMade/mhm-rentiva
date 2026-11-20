@@ -117,6 +117,7 @@ final class UserDashboardGoldenTest extends WP_UnitTestCase
 
 	private function golden_form(string $html): string
 	{
+		$html = \MHMRentiva\Tests\Support\CanonicalHtml::of($html);
 		$html = RenderNormalizer::golden($html);
 		$html = (string) preg_replace('/>\s+</', ">\n<", trim($html));
 		return '' === $html ? '' : (string) preg_replace('/[ \t]+/', ' ', $html) . "\n";

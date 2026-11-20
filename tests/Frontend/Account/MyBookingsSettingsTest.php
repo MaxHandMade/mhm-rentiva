@@ -413,7 +413,7 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 	 */
 	private function ids(string $html): array
 	{
-		preg_match_all('#<td role="cell" class="rvs-account-bookings__no"[^>]*>\#(\d+)</td>#', $html, $m);
+		preg_match_all('#<td class="rvs-account-bookings__no"[^>]*>\#(\d+)</td>#', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $m);
 		return array_map('intval', $m[1]);
 	}
 
@@ -443,6 +443,7 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 	 */
 	private function golden_form(string $html): string
 	{
+		$html = \MHMRentiva\Tests\Support\CanonicalHtml::of($html);
 		$map = array();
 		foreach ($this->bookings as $i => $id) {
 			$map[ $id ] = 'BOOKING' . $i;
@@ -456,7 +457,7 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 			$html
 		);
 		$html = (string) preg_replace('/Fixture Vehicle \d+/', 'Fixture Vehicle N', $html);
-		$html = (string) preg_replace('#(<td role="cell" class="rvs-account-bookings__dates"[^>]*>)[^<]*(</td>)#', '$1DATE$2', $html);
+		$html = (string) preg_replace('#(<td class="rvs-account-bookings__dates"[^>]*>)[^<]*(</td>)#', '$1DATE$2', $html);
 		$html = (string) preg_replace('/rvs-acc-\d+/', 'rvs-acc-N', $html);
 		$html = RenderNormalizer::golden($html);
 		$html = (string) preg_replace('/>\s+</', ">\n<", trim($html));

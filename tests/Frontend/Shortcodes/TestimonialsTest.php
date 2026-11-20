@@ -125,7 +125,7 @@ class TestimonialsTest extends WP_UnitTestCase
 		$this->assertStringContainsString('role="region"', $output);
 		$this->assertSame(3, substr_count($output, 'class="rvs-testimonials__dot"'));
 		// Every indicator names its review.
-		$this->assertSame(3, preg_match_all('/class="rvs-testimonials__dot" aria-label="Review \d of 3"/', $output));
+		$this->assertSame(3, preg_match_all('/aria-label="Review \d of 3"[^>]* class="rvs-testimonials__dot"/', \MHMRentiva\Tests\Support\CanonicalHtml::of($output)));
 		$this->assertStringContainsString('aria-label="Previous review"', $output);
 		$this->assertStringContainsString('aria-label="Next review"', $output);
 	}
@@ -183,7 +183,7 @@ class TestimonialsTest extends WP_UnitTestCase
 		$output = $this->render('limit="2" show_quotes="0" show_date="0"');
 
 		$this->assertStringContainsString('data-rvs-load-more', $output);
-		$this->assertStringContainsString('<div hidden inert data-rvs-card-template>', $output);
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($output, '<div hidden inert data-rvs-card-template>'));
 		// Two real cards and one in the template, none with a quote icon or a date.
 		$this->assertSame(3, substr_count($output, 'class="rvs-tcard"'));
 		$this->assertStringNotContainsString('rvs-tcard__quote', $output);
@@ -228,7 +228,7 @@ class TestimonialsTest extends WP_UnitTestCase
 		RequestSimulator::new_request();
 		$both = do_shortcode('[rentiva_testimonials limit="1"][rentiva_testimonials limit="2" orderby="rating"]');
 
-		$this->assertSame(2, substr_count($both, 'data-rvs-testimonials '));
+		$this->assertSame(2, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($both, '<div data-rvs-testimonials>'));
 		$this->assertSame(2, substr_count($both, 'data-rvs-load-more'));
 		$this->assertSame(1, substr_count($both, 'data-orderby='), 'The second list order must not leak into the first.');
 	}
@@ -240,7 +240,7 @@ class TestimonialsTest extends WP_UnitTestCase
 
 		$start = strpos($output, 'data-rvs-card-template');
 		$this->assertNotFalse($start, 'The hidden card must be in the page.');
-		$this->assertStringContainsString('<div hidden inert data-rvs-card-template>', $output);
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($output, '<div hidden inert data-rvs-card-template>'));
 		$clone = substr($output, $start);
 		$this->assertStringNotContainsString('rvs-review-stars__star', $clone, 'The script draws the stars.');
 		$this->assertStringNotContainsString('>-<', $clone, 'No placeholder text.');
@@ -268,7 +268,7 @@ class TestimonialsTest extends WP_UnitTestCase
 		$this->reviews(3);
 
 		$on = $this->render('layout="carousel" auto_rotate="1"');
-		$this->assertStringContainsString('data-rvs-pause aria-label="Pause automatic rotation"', $on);
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($on, '<button data-rvs-pause aria-label="Pause automatic rotation">'));
 		$this->assertStringNotContainsString('data-rvs-pause', $this->render('layout="carousel"'));
 	}
 }

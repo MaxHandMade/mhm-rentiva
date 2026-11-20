@@ -199,7 +199,7 @@ final class ContactFormSpamTest extends WP_Ajax_UnitTestCase
 		RequestSimulator::new_request();
 		$html = do_shortcode('[rentiva_contact]');
 
-		$this->assertSame(1, preg_match('/name="rvs_rendered" value="([^"]+)"/', $html, $m));
+		$this->assertSame(1, preg_match('/name="rvs_rendered"[^>]* value="([^"]+)"/', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $m));
 		// age() measures from the submit's arrival (REQUEST_TIME). Here the stamp is
 		// read in the request that drew it, and REQUEST_TIME is this process's start
 		// or an earlier test's submit -- a second before the stamp's time() and the

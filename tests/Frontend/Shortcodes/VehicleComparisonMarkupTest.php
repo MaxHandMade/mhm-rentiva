@@ -81,7 +81,8 @@ final class VehicleComparisonMarkupTest extends WP_UnitTestCase
 	{
 		$html = $this->shortcode();
 
-		$this->assertMatchesRegularExpression('/<input type="checkbox" data-rvs-cmp-only>/', $html);
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<input type="checkbox" data-rvs-cmp-only>'));
+		$this->assertSame(0, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<input data-rvs-cmp-only checked>'), 'The differences box starts off.');
 
 		$view = ComparisonView::build(array(), $this->ids, false);
 		$rows = array();

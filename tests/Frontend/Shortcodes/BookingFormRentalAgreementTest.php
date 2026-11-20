@@ -125,7 +125,7 @@ final class BookingFormRentalAgreementTest extends WP_Ajax_UnitTestCase
 		$this->assertStringContainsString('data-rvs-agreement', $html);
 		$this->assertStringContainsString('<h4>Our terms</h4>', $html);
 		$this->assertStringContainsString('<strong>carefully</strong>', $html);
-		$this->assertMatchesRegularExpression('/<input[^>]*type="checkbox"[^>]*name="terms_accepted"[^>]*value="1"/', $html);
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<input type="checkbox" name="terms_accepted" value="1">'));
 		$this->assertStringContainsString('I have read and accept the rental agreement.', $html);
 	}
 

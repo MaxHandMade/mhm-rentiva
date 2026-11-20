@@ -237,7 +237,7 @@ final class BookingFormAddonQuantityTest extends WP_Ajax_UnitTestCase
 		$html = do_shortcode('[rentiva_booking_form vehicle_id="' . $this->vehicle_id . '"]');
 
 		// Aşama 2 PR C: a stepper from 0 to the maximum; at 0 nothing is posted.
-		$this->assertSame(1, preg_match('/data-rvs-stepper="' . $seat . '"[^>]*>/', $html, $stepper), 'A service sold up to 3 gets a quantity stepper.');
+		$this->assertSame(1, preg_match('/<[a-z]+ [^>]*data-rvs-stepper="' . $seat . '"[^>]*>/', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $stepper), 'A service sold up to 3 gets a quantity stepper.');
 		$this->assertMatchesRegularExpression('/\bdata-max="3"/', $stepper[0]);
 		$this->assertMatchesRegularExpression('/\bdata-min="0"/', $stepper[0]);
 		$this->assertSame(1, preg_match('/<input[^>]*name="addon_qty\[' . $seat . '\]"[^>]*>/', $html, $input));

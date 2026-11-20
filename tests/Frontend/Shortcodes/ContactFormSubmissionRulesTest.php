@@ -366,7 +366,7 @@ final class ContactFormSubmissionRulesTest extends WP_Ajax_UnitTestCase
 	public function test_the_token_of_a_form_decides_the_auto_reply(): void
 	{
 		$html = $this->render('[rentiva_contact]');
-		$this->assertSame(1, preg_match('/name="recipient_token" value="([^"]+)"/', $html, $m), 'Default auto reply: the form carries a token.');
+		$this->assertSame(1, preg_match('/name="recipient_token"[^>]* value="([^"]+)"/', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $m), 'Default auto reply: the form carries a token.');
 		$this->assertStringNotContainsString('name="auto_reply"', $html);
 
 		$this->submit(array( 'recipient_token' => html_entity_decode($m[1], ENT_QUOTES) ));

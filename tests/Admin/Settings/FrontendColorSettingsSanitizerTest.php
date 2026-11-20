@@ -156,9 +156,9 @@ final class FrontendColorSettingsSanitizerTest extends WP_UnitTestCase
 		);
 		$html = $this->render();
 
-		$this->assertMatchesRegularExpression('/<input type="radio" name="mhmrentiva_settings\[mhmrentiva_accent_mode\]" value="auto"\s*\/?>/', $html);
-		$this->assertMatchesRegularExpression('/<input type="radio" name="mhmrentiva_settings\[mhmrentiva_accent_mode\]" value="custom" checked=(["\'])checked\1/', $html);
-		$this->assertMatchesRegularExpression('/<input type="text" name="mhmrentiva_settings\[mhmrentiva_accent_color\]" class="mhm-rentiva-accent-color" data-default-color="#2271b1" value="#0067ff"/', $html);
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<input type="radio" name="mhmrentiva_settings[mhmrentiva_accent_mode]" value="auto">'));
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<input type="radio" name="mhmrentiva_settings[mhmrentiva_accent_mode]" value="custom" checked>'));
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<input type="text" name="mhmrentiva_settings[mhmrentiva_accent_color]" class="mhm-rentiva-accent-color" data-default-color="#2271b1" value="#0067ff">'));
 		$this->assertStringContainsString('notice notice-warning inline', $html);
 		$this->assertStringContainsString(ColorMath::palette('#0067ff')['tokens']['accent-text'], $html);
 		$this->assertStringContainsString('&lt;b&gt;', $html, 'The notice text is escaped');
@@ -200,8 +200,8 @@ final class FrontendColorSettingsSanitizerTest extends WP_UnitTestCase
 		restore_error_handler();
 
 		$this->assertSame(array(), $warnings);
-		$this->assertMatchesRegularExpression('/value="auto" checked=(["\'])checked\1/', $html);
-		$this->assertMatchesRegularExpression('/class="mhm-rentiva-accent-color" data-default-color="#2271b1" value=""/', $html);
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<input value="auto" checked>'));
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<input class="mhm-rentiva-accent-color" data-default-color="#2271b1" value="">'));
 		$this->assertStringNotContainsString('red;}', $html);
 	}
 
