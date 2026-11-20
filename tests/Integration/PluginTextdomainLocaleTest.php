@@ -200,16 +200,22 @@ final class PluginTextdomainLocaleTest extends \WP_UnitTestCase
 
 	/**
 	 * Negative control: proves the filename really is locale-derived rather than
-	 * the assertions above passing for an unrelated reason. de_DE ships no
-	 * catalog, so the file_exists() guard must stop the load.
+	 * the assertions above passing for an unrelated reason. zz_ZZ ships no
+	 * catalog, so the file_exists() guard must stop the load. (It was de_DE
+	 * until de_DE started shipping in 2026-11; a code no real language uses
+	 * keeps this control valid as locales are added.)
 	 */
 	public function test_locale_without_a_shipped_catalog_loads_nothing(): void
 	{
-		$this->hook('determine_locale', static fn (): string => 'de_DE');
+		$this->assertFileDoesNotExist(
+			dirname(__DIR__, 2) . '/languages/mhm-rentiva-zz_ZZ.mo',
+			'Precondition: the negative control needs a locale the plugin does not ship.'
+		);
+		$this->hook('determine_locale', static fn (): string => 'zz_ZZ');
 
 		$mofile = $this->capture_loaded_mofile();
 
-		$this->assertNull($mofile, 'A catalog was loaded for de_DE, which the plugin does not ship.');
+		$this->assertNull($mofile, 'A catalog was loaded for zz_ZZ, which the plugin does not ship.');
 		$this->assertFalse(is_textdomain_loaded('mhm-rentiva'));
 	}
 }

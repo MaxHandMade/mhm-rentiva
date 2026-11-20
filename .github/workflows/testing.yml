@@ -286,7 +286,10 @@ jobs:
       # catalogs: md5 name, source, revision date, msgid completeness; a block
       # with no catalog fails) and reports any stray JSON WordPress never loads.
       - name: React + block translation catalogs (languages/*.json vs the committed .po)
-        run: python3 bin/build-i18n.py --verify-only
+        run: |
+          python3 bin/build-i18n.py --verify-only
+          # Bundled de_DE (2026-11): without this its catalogs could go stale unseen.
+          python3 bin/build-i18n.py --verify-only --locale de_DE
 
       # Translation placeholder parity. A translator may change the words; a
       # changed PLACEHOLDER changes behaviour. Found 2026-08-24: seven Turkish
