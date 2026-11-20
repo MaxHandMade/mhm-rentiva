@@ -60,6 +60,9 @@ final class RentalCheckoutLook {
 		// so a theme that prints its page title shows two different lines, never
 		// the same heading twice.
 		add_filter('woocommerce_thankyou_order_received_text', array( self::class, 'order_received_text' ), 10, 2);
+		// Before WooCommerce's own bank details (WC_Gateway_BACS::thankyou_page, 10):
+		// a rental that ended without a booking asks for no transfer.
+		add_action('woocommerce_thankyou_bacs', array( self::class, 'drop_bank_details_of_an_ended_rental' ), 1, 1);
 		// After WooCommerce's own bank details (WC_Gateway_BACS::thankyou_page, 10).
 		add_action('woocommerce_thankyou_bacs', array( self::class, 'render_bank_transfer' ), 20, 1);
 
@@ -238,6 +241,11 @@ final class RentalCheckoutLook {
 	}
 
 	/**
+	 * The rental's thank-you sentence, by the order's status. A failed order
+	 * keeps WooCommerce's message (both templates print their own failure
+	 * text). A cancelled or refunded one says so: the classic template's
+	 * sentence for it is "Your order has been received", which is not true.
+	 *
 	 * @param mixed $message WooCommerce's thank-you sentence (escaped HTML).
 	 * @param mixed $order   The order, or false.
 	 * @return mixed
@@ -247,8 +255,38 @@ final class RentalCheckoutLook {
 		if (! ( $order instanceof \WC_Order ) || ! CheckoutJourney::is_rental_order($order)) {
 			return $message;
 		}
+		if ($order->has_status('cancelled')) {
+			return esc_html__('This booking has been cancelled.', 'mhm-rentiva');
+		}
+		if ($order->has_status('refunded')) {
+			return esc_html__('This booking has been refunded.', 'mhm-rentiva');
+		}
+		if (CheckoutJourney::ended_without_booking($order)) {
+			return $message;
+		}
 
 		return esc_html__('Thank you. We have your booking; its details are below.', 'mhm-rentiva');
+	}
+
+	/**
+	 * WooCommerce's bank transfer gateway prints the shop's bank details on
+	 * every bacs thank-you page, whatever the order's status. On a rental that
+	 * ended without a booking (failed, cancelled, refunded) that asks the
+	 * customer to send money for nothing, so its callback is taken off for this
+	 * request. Shop orders are WooCommerce's and keep it.
+	 *
+	 * @param mixed $order_id The order WooCommerce is thanking for.
+	 */
+	public static function drop_bank_details_of_an_ended_rental($order_id): void
+	{
+		$order = wc_get_order( (int) $order_id);
+		if (! ( $order instanceof \WC_Order ) || ! CheckoutJourney::is_rental_order($order) || ! CheckoutJourney::ended_without_booking($order)) {
+			return;
+		}
+		$gateway = function_exists('WC') ? ( WC()->payment_gateways()->payment_gateways()['bacs'] ?? null ) : null;
+		if (is_object($gateway)) {
+			remove_action('woocommerce_thankyou_bacs', array( $gateway, 'thankyou_page' ), 10);
+		}
 	}
 
 	/**
@@ -266,7 +304,7 @@ final class RentalCheckoutLook {
 	public static function render_bank_transfer($order_id): void
 	{
 		$order = wc_get_order( (int) $order_id);
-		if (! ( $order instanceof \WC_Order ) || $order->has_status(array( 'failed', 'cancelled', 'refunded' ))) {
+		if (! ( $order instanceof \WC_Order ) || CheckoutJourney::ended_without_booking($order)) {
 			return;
 		}
 		// Once the shop has confirmed the transfer, nothing is left to send and
