@@ -149,7 +149,7 @@ final class TestimonialsLoadMorePoolTest extends WP_Ajax_UnitTestCase
 	/** @return list<string> */
 	private function first_page(string $atts): array
 	{
-		preg_match_all('#<p class="rvs-tcard__text" data-rvs-slot="text">&ldquo;(.*?)&rdquo;</p>#', $this->shortcode($atts), $m);
+		preg_match_all('#<p class="rvs-tcard__text" data-rvs-slot="text">“(.*?)”</p>#u', \MHMRentiva\Tests\Support\CanonicalHtml::of($this->shortcode($atts)), $m);
 		return $m[1];
 	}
 

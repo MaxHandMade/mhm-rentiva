@@ -21,13 +21,18 @@ namespace MHMRentiva\Tests\Support;
  * whose last rule `[a-z0-9]{13,}` also erased every long lower-case word.
  * Step 6 narrowed that rule to the uniqid prefixes above; the
  * measured dead set did not change (see the task-0 report).
+ *
+ * The render is first put in CanonicalHtml's one spelling (sorted attributes,
+ * one form of character references), so the rules below -- and the goldens --
+ * read the same bytes under both wp_kses() parsers of WordPress 7.2.
  */
 final class RenderNormalizer
 {
 	public static function normalize(string $html): string
 	{
+		$html = CanonicalHtml::of($html);
 		$html = (string) preg_replace('/data-render-time="[^"]*"/', 'data-render-time="T"', $html);
-		$html = (string) preg_replace('/(name="rvs_rendered" value=")[^"]*"/', '$1STAMP"', $html);
+		$html = (string) preg_replace('/(name="rvs_rendered"[^>]* value=")[^"]*"/', '$1STAMP"', $html);
 		$html = (string) preg_replace('/rvsr-\d+/', 'rvsr-N', $html);
 		// The vehicle page, its calendar months and the booking form (wp_unique_id) -- in hrefs too.
 		$html = (string) preg_replace('/\b(rvs-vd|rvs-cal|rvs-bf|rvs-contact|rvs-reviews)-\d+/', '$1-N', $html);

@@ -95,7 +95,7 @@ class BookingFormSummaryInitialStateTest extends WP_UnitTestCase
 			remove_filter('number_format_i18n', $marker);
 		}
 
-		$this->assertSame(1, preg_match('/<option value="' . $vehicle . '"[^>]*data-rating="([^"]*)"/', $html, $m), 'Rating not on the option.');
+		$this->assertSame(1, preg_match('/<option [^>]*data-rating="([^"]*)"[^>]* value="' . $vehicle . '"/', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $m), 'Rating not on the option.');
 		$this->assertStringStartsWith('ZZ', $m[1]);
 	}
 
@@ -120,11 +120,11 @@ class BookingFormSummaryInitialStateTest extends WP_UnitTestCase
 		$unrated = ShortcodeFixtures::vehicle();
 		$html    = do_shortcode('[rentiva_booking_form]');
 
-		$this->assertSame(1, preg_match('/<option value="' . $rated . '"[^>]*>/', $html, $r), 'Rated option missing.');
+		$this->assertSame(1, preg_match('/<option [^>]*value="' . $rated . '"[^>]*>/', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $r), 'Rated option missing.');
 		$this->assertStringContainsString('data-rating-count="3"', $r[0]);
 		$this->assertStringContainsString('data-rating="' . number_format_i18n(4.5, 1) . '"', $r[0]);
 
-		$this->assertSame(1, preg_match('/<option value="' . $unrated . '"[^>]*>/', $html, $u), 'Unrated option missing.');
+		$this->assertSame(1, preg_match('/<option [^>]*value="' . $unrated . '"[^>]*>/', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $u), 'Unrated option missing.');
 		$this->assertStringContainsString('data-rating-count="0"', $u[0]);
 	}
 }

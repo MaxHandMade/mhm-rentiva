@@ -144,7 +144,7 @@ final class ContactRecipientTokenTest extends WP_Ajax_UnitTestCase
 		RequestSimulator::new_request();
 		$html = do_shortcode('[rentiva_contact email_to="' . self::CUSTOM . '"' . $atts . ']');
 		$this->assertStringNotContainsString(self::CUSTOM, $html, 'The address is never printed in the page source.');
-		$this->assertSame(1, preg_match('/name="recipient_token" value="([^"]+)"/', $html, $m), 'A recipient token is rendered when email_to is set.');
+		$this->assertSame(1, preg_match('/name="recipient_token"[^>]* value="([^"]+)"/', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $m), 'A recipient token is rendered when email_to is set.');
 		return html_entity_decode($m[1], ENT_QUOTES);
 	}
 

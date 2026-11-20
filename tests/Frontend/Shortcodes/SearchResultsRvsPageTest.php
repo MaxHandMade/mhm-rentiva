@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Frontend\Shortcodes;
 
 use MHMRentiva\Admin\Frontend\Shortcodes\SearchResults;
+use MHMRentiva\Tests\Support\CanonicalHtml;
 use WP_Ajax_UnitTestCase;
 
 /**
@@ -186,7 +187,7 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 	 */
 	private static function section(string $html, string $kind): string
 	{
-		return preg_match('#<section class="rvs-results__section rvs-results__section--' . $kind . '".*?</section>#s', $html, $m) ? $m[0] : '';
+		return preg_match('#<section [^>]*class="rvs-results__section rvs-results__section--' . $kind . '".*?</section>#s', CanonicalHtml::of($html), $m) ? $m[0] : '';
 	}
 
 	/* PR S tests --------------------------------------------------------------- */
@@ -308,8 +309,8 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		));
 		$this->assertStringContainsString('href="' . $expected . '"', str_replace('&amp;', '&', $booked));
 		// The vehicle page derives the car's own point: none is sent.
-		$this->assertMatchesRegularExpression('/rvs-card__later" href="([^"]+)"/', $booked);
-		preg_match('/rvs-card__later" href="([^"]+)"/', $booked, $link);
+		$this->assertMatchesRegularExpression('/rvs-card__later"[^>]* href="([^"]+)"/', $booked);
+		preg_match('/rvs-card__later"[^>]* href="([^"]+)"/', $booked, $link);
 		$this->assertStringNotContainsString('pickup_location', $link[1]);
 		// No price and no booking button on a booked card.
 		$this->assertStringNotContainsString('vehicle-book-btn', $booked);
@@ -483,7 +484,7 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		$html = $this->page();
 
 		$this->assertSame('mhmrentiva_search_filters_v4', SearchResults::FILTERS_CACHE_KEY);
-		$this->assertStringContainsString('name="mhmrentiva_pickup_location[]" value="2"', $html);
+		$this->assertSame(1, CanonicalHtml::count_tags($html, '<input name="mhmrentiva_pickup_location[]" value="2">'));
 		$this->assertStringNotContainsString('Gone', $html);
 	}
 
@@ -891,7 +892,7 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		set_query_var(SearchResults::query_var('fuel_type'), 'diesel');
 		$html = $this->page();
 
-		$this->assertMatchesRegularExpression('/<button type="button" class="rvs-chip" data-rvs-chip data-name="mhmrentiva_fuel_type\[\]" data-value="diesel">/', $html);
+		$this->assertSame(1, CanonicalHtml::count_tags($html, '<button type="button" class="rvs-chip" data-rvs-chip data-name="mhmrentiva_fuel_type[]" data-value="diesel">'));
 		$this->assertStringContainsString('Zz Page One', $html);
 		$this->assertStringNotContainsString('Zz Page Two', $html);
 	}
@@ -985,7 +986,8 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		$html = (string) do_shortcode('[rentiva_search_results show_filters="0"]');
 
 		$this->assertStringNotContainsString('data-rvs-filters', $html);
-		$this->assertMatchesRegularExpression('/data-rvs-window hidden>.*name="mhmrentiva_fuel_type\[\]" value="diesel"/s', $html);
+		$this->assertSame(1, CanonicalHtml::count_tags($html, '<form data-rvs-window hidden>'));
+		$this->assertMatchesRegularExpression('/<form [^>]*data-rvs-window[^>]*>.*<input [^>]*name="mhmrentiva_fuel_type\[\]"[^>]* value="diesel"/s', CanonicalHtml::of($html));
 	}
 
 	public function test_an_empty_list_value_is_no_filter(): void
@@ -1008,7 +1010,7 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 	{
 		$html = $this->page();
 
-		$this->assertMatchesRegularExpression('/role="region" aria-label="Comparison" data-rvs-compare-band data-count="0" data-max="3"/', $html);
+		$this->assertSame(1, CanonicalHtml::count_tags($html, '<div role="region" aria-label="Comparison" data-rvs-compare-band data-count="0" data-max="3">'));
 	}
 
 	public function test_results_script_depends_on_the_shared_dialog(): void

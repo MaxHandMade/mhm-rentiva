@@ -189,8 +189,8 @@ final class CoverReadChokeTest extends WP_UnitTestCase
 
 		$this->assertDoesNotMatchRegularExpression( '/<img[^>]*\bsrc=""/', $html );
 		$this->assertMatchesRegularExpression(
-			'/rvs-vd__photo--main"[^>]*>\s*<img src="' . preg_quote( esc_url( (string) wp_get_attachment_image_url( $own, 'large' ) ), '/' ) . '"/',
-			$html
+			'/rvs-vd__photo--main"[^>]*>\s*<img [^>]*src="' . preg_quote( esc_url( (string) wp_get_attachment_image_url( $own, 'large' ) ), '/' ) . '"/',
+			\MHMRentiva\Tests\Support\CanonicalHtml::of( $html )
 		);
 
 		// Neither cover nor gallery: no main image at all.

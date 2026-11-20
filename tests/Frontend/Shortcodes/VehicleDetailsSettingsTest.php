@@ -277,8 +277,9 @@ final class VehicleDetailsSettingsTest extends WP_UnitTestCase
 	 */
 	private function golden_form(string $html): string
 	{
-		$html = (string) preg_replace('#(<div class="rvs-vd__months" data-rvs-vd-months[^>]*>).*?(</div>\s*<ul class="rvs-vd__legend">)#s', '$1MONTHS$2', $html);
-		$html = (string) preg_replace('#<aside class="rvs-vd__booking".*?</aside>#s', 'BOOKING', $html);
+		$html = \MHMRentiva\Tests\Support\CanonicalHtml::of($html);
+		$html = (string) preg_replace('#(<div [^>]*class="rvs-vd__months" data-rvs-vd-months[^>]*>).*?(</div>\s*<ul class="rvs-vd__legend">)#s', '$1MONTHS$2', $html);
+		$html = (string) preg_replace('#<aside [^>]*class="rvs-vd__booking".*?</aside>#s', 'BOOKING', $html);
 		$html = (string) preg_replace('#\b(rvs-vd|rvs-cal)-\d+#', '$1-N', $html);
 		// The gallery's JSON carries upload paths with escaped slashes (2026\/10\/).
 		$html = (string) preg_replace('#uploads\\\\/\d{4}\\\\/\d{2}\\\\/#', 'uploads\\/Y\\/M\\/', $html);

@@ -27,7 +27,7 @@ class BookingFormTest extends WP_UnitTestCase
     {
         $output = do_shortcode('[rentiva_booking_form show_time_select="false"]');
 
-        $this->assertStringContainsString('type="hidden" name="pickup_time"', $output);
+        $this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($output, '<input type="hidden" name="pickup_time">'));
         $this->assertStringContainsString('value="12:00"', $output);
         // The select should NOT be present (checking based on my manual verification)
         // Note: assertStringNotContainsString might fail if there are OTHER selects, so be specific

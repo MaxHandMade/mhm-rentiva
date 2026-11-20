@@ -256,7 +256,7 @@ class AvailabilityCalendarTest extends WP_UnitTestCase
 
 		$future = $this->render('vehicle_id="' . $id . '" start_month="2099-03"');
 		$this->assertStringContainsString('data-start-month="2099-03"', $future);
-		$this->assertStringContainsString('data-year="2099" data-month="3"', $future);
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($future, '<div data-year="2099" data-month="3">'));
 		$this->assertDoesNotMatchRegularExpression('/data-rvs-cal-nav="-1"[^>]*disabled/', $future);
 
 		$past = $this->render('vehicle_id="' . $id . '" start_month="2001-01"');
@@ -271,7 +271,7 @@ class AvailabilityCalendarTest extends WP_UnitTestCase
 	{
 		$output = $this->render('vehicle_id="' . $this->vehicle() . '" theme="compact" class="my-class"');
 
-		$this->assertMatchesRegularExpression('/<section class="rvs-availability rv-theme-compact my-class"/', $output);
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($output, '<section class="rvs-availability rv-theme-compact my-class">'));
 	}
 
 	public function test_selector_is_a_dialog_of_buttons_with_more_than_one_vehicle(): void

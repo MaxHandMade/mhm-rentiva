@@ -81,7 +81,7 @@ final class PageLinkTargetsTest extends WP_UnitTestCase
 		// The results page's "Change" (summary card, empty states) opens the search
 		// page -- the strip there takes the search back (Aşama 2 PR 3).
 		$this->assertStringContainsString( 'data-rvs-change', $html, 'Fixture guard: the results page renders.' );
-		$this->assertStringContainsString( 'href="' . esc_url( (string) get_permalink( $search ) ) . '" data-rvs-change', $html );
+		$this->assertSame( 1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags( $html, '<a href="' . esc_url( (string) get_permalink( $search ) ) . '" data-rvs-change>' ) );
 	}
 
 	public function test_the_search_results_script_is_told_the_search_page(): void

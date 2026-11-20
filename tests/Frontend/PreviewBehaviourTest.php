@@ -285,7 +285,7 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 
 		// Control: the catalog grid still shows the editor's real state.
 		$grid = $this->shortcode('rentiva_vehicles_grid', array( 'ids' => implode(',', $samples) ));
-		$this->assertMatchesRegularExpression('/<input\b[^>]*\bdata-rvs-compare\b[^>]*\bchecked\b/', $grid, 'Catalog cards keep the real compare state.');
+		$this->assertNotSame(0, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($grid, '<input data-rvs-compare checked>'), 'Catalog cards keep the real compare state.');
 	}
 
 	/**

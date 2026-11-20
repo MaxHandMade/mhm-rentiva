@@ -109,7 +109,7 @@ final class TestimonialsLoadMoreOrderTest extends WP_Ajax_UnitTestCase
 	public function test_wrapper_carries_non_default_settings_only(): void
 	{
 		$default = $this->wrapper_data($this->shortcode('limit="3"'));
-		$this->assertSame(array( 'limit', 'layout', 'auto-rotate' ), array_keys($default));
+		$this->assertEqualsCanonicalizing(array( 'limit', 'layout', 'auto-rotate' ), array_keys($default));
 
 		$set = $this->wrapper_data($this->shortcode('limit="3" orderby="rating" order="ASC" rating="2" show_author_avatar="0" show_quotes="0" show_date="0"'));
 		$this->assertSame('rating', $set['orderby']);
@@ -151,7 +151,7 @@ final class TestimonialsLoadMoreOrderTest extends WP_Ajax_UnitTestCase
 	private function all_pages(string $atts): array
 	{
 		$html = $this->shortcode($atts);
-		preg_match_all('#<p class="rvs-tcard__text" data-rvs-slot="text">&ldquo;(.*?)&rdquo;</p>#', $html, $m);
+		preg_match_all('#<p class="rvs-tcard__text" data-rvs-slot="text">“(.*?)”</p>#u', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $m);
 		$texts = $m[1];
 
 		$data = $this->wrapper_data($html);
@@ -199,11 +199,11 @@ final class TestimonialsLoadMoreOrderTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * @return array<string,string> the wrapper's data-* attributes, in order
+	 * @return array<string,string> the wrapper's data-* attributes, by name (attribute order carries no meaning)
 	 */
 	private function wrapper_data(string $html): array
 	{
-		$this->assertSame(1, preg_match('#<div class="rvs-testimonials [^>]*>#', $html, $tag));
+		$this->assertSame(1, preg_match('#<div [^>]*class="rvs-testimonials [^>]*>#', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $tag));
 		preg_match_all('#data-([a-z-]+)="([^"]*)"#', $tag[0], $m, PREG_SET_ORDER);
 		$out = array();
 		foreach ($m as $attr) {

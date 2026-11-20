@@ -42,7 +42,7 @@ final class BridgeRenderTest extends WP_UnitTestCase
 		$this->assertStringNotContainsString('title=', $html);
 		// Since slice 3A Task 1 the title renders (it was a dead setting): intact,
 		// escaped once, as text in the heading -- never as shortcode text.
-		$this->assertStringContainsString('<h2 class="rvs-contact__title">Bize ulaşın [7/24] &amp; &quot;biz&quot;</h2>', $html);
+		$this->assertStringContainsString('<h2 class="rvs-contact__title">Bize ulaşın [7/24] &amp; "biz"</h2>', \MHMRentiva\Tests\Support\CanonicalHtml::of($html));
 	}
 
 	public function test_bracket_ampersand_quote_value_survives(): void
@@ -58,7 +58,7 @@ final class BridgeRenderTest extends WP_UnitTestCase
 
 		$html = Templates::render_shortcode_atts('rentiva_vehicle_comparison', $atts);
 
-		$this->assertSame(1, substr_count($html, 'Karşılaştır [7/24] &amp; &quot;biz&quot;'), $html);
+		$this->assertSame(1, substr_count(\MHMRentiva\Tests\Support\CanonicalHtml::of($html), 'Karşılaştır [7/24] &amp; "biz"'), $html);
 	}
 
 	public function test_auth_gate_and_kses_still_apply(): void

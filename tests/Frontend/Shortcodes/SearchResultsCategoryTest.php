@@ -84,7 +84,7 @@ final class SearchResultsCategoryTest extends WP_UnitTestCase
 	{
 		$html = $this->render();
 
-		$this->assertMatchesRegularExpression('/name="mhmrentiva_category\[\]"\s+value="' . $this->suv_term . '"/', $html);
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<input name="mhmrentiva_category[]" value="' . $this->suv_term . '">'));
 		$this->assertStringContainsString('Zz SUV', $html);
 		$this->assertDoesNotMatchRegularExpression('/Zz SUV\s*<[^>]*>\s*\(?\d+\)?/', $html, 'No option counts (K4).');
 	}

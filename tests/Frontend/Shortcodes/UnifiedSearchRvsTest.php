@@ -54,8 +54,8 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 	{
 		$first  = do_shortcode('[rentiva_unified_search]');
 		$second = do_shortcode('[rentiva_unified_search]');
-		preg_match('/id="([^"]+)-pickup-date"/', $first, $a);
-		preg_match('/id="([^"]+)-pickup-date"/', $second, $b);
+		preg_match('/\sid="([^"]+)-pickup-date"/', \MHMRentiva\Tests\Support\CanonicalHtml::of($first), $a);
+		preg_match('/\sid="([^"]+)-pickup-date"/', \MHMRentiva\Tests\Support\CanonicalHtml::of($second), $b);
 
 		$this->assertNotSame($a[1], $b[1]);
 	}
@@ -100,7 +100,7 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 
 		$html = do_shortcode('[rentiva_unified_search]');
 		$this->assertStringContainsString('value="2027-07-12"', $html);
-		$this->assertMatchesRegularExpression('/<option value="14:30" selected/', $html);
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<option value="14:30" selected>'));
 	}
 
 	/**
@@ -124,8 +124,8 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 
 		foreach (array( 'pickup' => array( '12/07/2027', '2027-07-12' ), 'return' => array( '15/07/2027', '2027-07-15' ) ) as $field => $dates) {
 			$this->assertMatchesRegularExpression(
-				'/<input id="[^"]+-' . $field . '-date" type="text" class="[^"]*js-datepicker" name="' . SearchResults::query_var($field . '_date') . '" value="' . preg_quote($dates[0], '/') . '"[^>]*>\s*<input type="hidden" value="' . $dates[1] . '" data-rvs-date-value>/',
-				$html,
+				'/<input [^>]*class="[^"]*js-datepicker"[^>]* id="[^"]+-' . $field . '-date"[^>]* name="' . SearchResults::query_var($field . '_date') . '"[^>]* type="text" value="' . preg_quote($dates[0], '/') . '">\s*<input data-rvs-date-value type="hidden" value="' . $dates[1] . '">/',
+				\MHMRentiva\Tests\Support\CanonicalHtml::of($html),
 				$field . ': visible and named in the site format, hidden Y-m-d right after it.'
 			);
 		}
@@ -224,7 +224,7 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 
 		$this->assertStringContainsString('data-rvs-pickup-location', $html);
 		$this->assertStringNotContainsString('data-rvs-pickup-where', $html);
-		$this->assertMatchesRegularExpression('#<option value="4" selected#', $html);
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($html, '<option value="4" selected>'));
 		$this->assertStringContainsString('>Sabiha Gökçen</option>', $html);
 	}
 

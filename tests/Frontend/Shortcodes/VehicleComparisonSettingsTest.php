@@ -166,6 +166,7 @@ final class VehicleComparisonSettingsTest extends WP_UnitTestCase
 	 */
 	private function golden_form(string $html): string
 	{
+		$html = \MHMRentiva\Tests\Support\CanonicalHtml::of($html);
 		$map = array();
 		foreach ($this->catalog as $i => $id) {
 			$map[ $id ]                               = 'VEHICLE' . $i;

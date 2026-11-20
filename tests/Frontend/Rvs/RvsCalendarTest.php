@@ -200,7 +200,7 @@ final class RvsCalendarTest extends WP_UnitTestCase
 		$raw      = (string) Templates::render('partials/rvs/calendar-month', array( 'calendar' => $cal ), true);
 		$filtered = wp_kses($raw, Html::allowed_markup());
 
-		$this->assertStringContainsString('<button type="button" class="rvs-cal__btn" data-date="2027-07-22" aria-label="', $filtered);
+		$this->assertSame(1, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($filtered, '<button type="button" class="rvs-cal__btn" data-date="2027-07-22" aria-label>'));
 		$this->assertSame(substr_count($raw, '<button'), substr_count($filtered, '<button'));
 		$this->assertSame(substr_count($raw, 'aria-label='), substr_count($filtered, 'aria-label='));
 		$this->assertSame(substr_count($raw, 'data-date='), substr_count($filtered, 'data-date='));
@@ -249,7 +249,7 @@ final class RvsCalendarTest extends WP_UnitTestCase
 
 		$this->assertMatchesRegularExpression('/class="rvs-cal__day is-partial is-partial-from" data-date="2027-07-21"[^>]*><button type="button" class="rvs-cal__btn" data-date="2027-07-21" aria-label="[^"]*Available from 11:30"/', $html);
 		$this->assertMatchesRegularExpression('/class="rvs-cal__day is-partial is-partial-until" data-date="2027-07-19"[^>]*><button/', $html);
-		$this->assertMatchesRegularExpression('/class="rvs-cal__day is-closed" data-date="2027-07-27"><span class="rvs-cal__num">27<\/span><span class="rvs-cal__time" aria-hidden="true">/', $html);
+		$this->assertMatchesRegularExpression('/class="rvs-cal__day is-closed" data-date="2027-07-27"><span class="rvs-cal__num">27<\/span><span aria-hidden="true" class="rvs-cal__time">/', \MHMRentiva\Tests\Support\CanonicalHtml::of($html));
 		$this->assertStringNotContainsString('data-date="2027-07-27" aria-label', $html);
 		// 15..31 = 17 days, minus booked 20 and closed 27.
 		$this->assertSame(15, substr_count($html, '<button type="button"'));
@@ -260,8 +260,8 @@ final class RvsCalendarTest extends WP_UnitTestCase
 		$cal  = RvsCalendar::month(2027, 7, self::states(), '2027-07-15');
 		$html = (string) Templates::render('partials/rvs/calendar-month', array( 'calendar' => $cal ), true);
 
-		$this->assertStringContainsString('<span class="rvs-cal__time" aria-hidden="true">11:30 →</span><span class="rvs-cal__time-short" aria-hidden="true">11:30 →</span>', $html);
-		$this->assertStringContainsString('<span class="rvs-cal__time" aria-hidden="true">→ 09:00</span><span class="rvs-cal__time-short" aria-hidden="true">→ 09</span>', $html);
+		$this->assertStringContainsString('<span aria-hidden="true" class="rvs-cal__time">11:30 →</span><span aria-hidden="true" class="rvs-cal__time-short">11:30 →</span>', \MHMRentiva\Tests\Support\CanonicalHtml::of($html));
+		$this->assertStringContainsString('<span aria-hidden="true" class="rvs-cal__time">→ 09:00</span><span aria-hidden="true" class="rvs-cal__time-short">→ 09</span>', \MHMRentiva\Tests\Support\CanonicalHtml::of($html));
 		$this->assertMatchesRegularExpression('/data-date="2027-07-19"[^>]*>.*?<span class="rvs-sr-only">, Available until 09:00<\/span>/s', $html);
 	}
 
@@ -283,7 +283,7 @@ final class RvsCalendarTest extends WP_UnitTestCase
 		$cal  = RvsCalendar::month(2027, 7, array( '2027-07-19' => array( 'state' => 'partial', 'until' => '09:00' ) ), '2027-07-15');
 		$html = (string) Templates::render('partials/rvs/calendar-month', array( 'calendar' => $cal ), true);
 
-		$this->assertStringContainsString('<span class="rvs-cal__time-short" aria-hidden="true">→ 9:00 am</span>', $html);
+		$this->assertStringContainsString('<span aria-hidden="true" class="rvs-cal__time-short">→ 9:00 am</span>', \MHMRentiva\Tests\Support\CanonicalHtml::of($html));
 	}
 
 	public function test_partial_markup_survives_allowed_markup(): void

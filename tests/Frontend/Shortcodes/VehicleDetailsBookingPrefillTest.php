@@ -72,7 +72,7 @@ class VehicleDetailsBookingPrefillTest extends WP_UnitTestCase
 
 		$form = do_shortcode('[rentiva_booking_form]');
 
-		$this->assertStringContainsString('name="vehicle_id" value="' . $this->vehicle_id . '"', $form);
+		$this->assertNotSame(0, \MHMRentiva\Tests\Support\CanonicalHtml::count_tags($form, '<input name="vehicle_id" value="' . $this->vehicle_id . '">'));
 		$this->assertStringNotContainsString('name="pickup_location_id"', $form, 'The form posts no location; the server takes it from the car.');
 		$this->assertStringContainsString('Zz Prefill Point', $form);
 		$this->assertStringContainsString('Zz Prefill Point', $html, 'The vehicle page names the same point.');

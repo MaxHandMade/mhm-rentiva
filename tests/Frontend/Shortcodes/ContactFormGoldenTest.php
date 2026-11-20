@@ -157,8 +157,9 @@ final class ContactFormGoldenTest extends WP_UnitTestCase
 
 	private function golden_form(string $html): string
 	{
+		$html = \MHMRentiva\Tests\Support\CanonicalHtml::of($html);
 		// The recipient token is a sealed payload: mask its value.
-		$html = (string) preg_replace('/(name="recipient_token" value=")[^"]*"/', '$1TOKEN"', $html);
+		$html = (string) preg_replace('/(name="recipient_token"[^>]* value=")[^"]*"/', '$1TOKEN"', $html);
 		$html = RenderNormalizer::golden($html);
 		$html = (string) preg_replace('/>\s+</', ">\n<", trim($html));
 		return (string) preg_replace('/[ \t]+/', ' ', $html) . "\n";

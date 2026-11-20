@@ -91,7 +91,7 @@ final class AccountBookingsSegmentQueryTest extends WP_UnitTestCase
 		$this->assertCount(10, $data['bookings']);
 		$this->assertSame(2, $data['total_pages']);
 		$html = $this->shortcode('limit="10"');
-		$this->assertStringContainsString('aria-current="page">' . esc_html(sprintf('Upcoming (%s)', '12')) . '<', $html);
+		$this->assertMatchesRegularExpression('#<a aria-current="page"[^>]*>' . preg_quote(sprintf('Upcoming (%s)', '12'), '#') . '<#', \MHMRentiva\Tests\Support\CanonicalHtml::of($html));
 		$this->assertStringContainsString('>Past (1)<', $html);
 		$this->assertStringContainsString('>Cancelled (1)<', $html);
 		$this->assertStringContainsString('mhmrentiva_view=past', $html, 'Section links carry the section.');
@@ -459,7 +459,7 @@ final class AccountBookingsSegmentQueryTest extends WP_UnitTestCase
 	 */
 	private function row_ids(string $html): array
 	{
-		preg_match_all('#<td role="cell" class="rvs-account-bookings__no"[^>]*>\#(\d+)</td>#', $html, $m);
+		preg_match_all('#<td class="rvs-account-bookings__no"[^>]*>\#(\d+)</td>#', \MHMRentiva\Tests\Support\CanonicalHtml::of($html), $m);
 		return array_map('intval', $m[1]);
 	}
 

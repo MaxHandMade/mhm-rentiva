@@ -443,9 +443,9 @@ final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 				'action'              => 'mhmrentiva_booking_form',
 				'nonce'               => wp_create_nonce( 'mhmrentiva_booking_form_nonce' ),
 				'vehicle_id'          => (string) $vehicle_id,
-				'pickup_date'         => gmdate( 'Y-m-20' ),
+				'pickup_date'         => gmdate( 'Y-m-d', (int) strtotime( '+20 days' ) ),
 				'pickup_time'         => '10:00',
-				'dropoff_date'        => gmdate( 'Y-m-22' ),
+				'dropoff_date'        => gmdate( 'Y-m-d', (int) strtotime( '+22 days' ) ),
 				'dropoff_time'        => '10:00',
 				'customer_first_name' => 'Jane',
 				'customer_last_name'  => 'Doe',
@@ -463,9 +463,9 @@ final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 				'action'       => 'mhmrentiva_calculate_price',
 				'nonce'        => wp_create_nonce( 'mhmrentiva_booking_form_nonce' ),
 				'vehicle_id'   => (string) $vehicle_id,
-				'pickup_date'  => gmdate( 'Y-m-20' ),
+				'pickup_date'  => gmdate( 'Y-m-d', (int) strtotime( '+20 days' ) ),
 				'pickup_time'  => '10:00',
-				'dropoff_date' => gmdate( 'Y-m-22' ),
+				'dropoff_date' => gmdate( 'Y-m-d', (int) strtotime( '+22 days' ) ),
 				'dropoff_time' => '10:00',
 			)
 		);
@@ -479,9 +479,9 @@ final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 				'action'       => 'mhmrentiva_check_availability',
 				'nonce'        => wp_create_nonce( 'mhmrentiva_booking_form_nonce' ),
 				'vehicle_id'   => (string) $vehicle_id,
-				'pickup_date'  => gmdate( 'Y-m-20' ),
+				'pickup_date'  => gmdate( 'Y-m-d', (int) strtotime( '+20 days' ) ),
 				'pickup_time'  => '10:00',
-				'dropoff_date' => gmdate( 'Y-m-22' ),
+				'dropoff_date' => gmdate( 'Y-m-d', (int) strtotime( '+22 days' ) ),
 				'dropoff_time' => '10:00',
 			)
 		);
