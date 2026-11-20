@@ -124,6 +124,38 @@ final class KsesGateTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * WordPress 7.2 reimplements wp_kses() on the HTML API and keeps the old
+	 * parser behind the wp_kses_force_legacy_parser filter. Every tag must come
+	 * out with the same tags and attributes under both: a difference is markup
+	 * the new parser reads otherwise (an SVG shape filtered outside its <svg>
+	 * came back unclosed, and the wrapper dropped the icon and the next cell).
+	 * Runs only where both parsers exist (the WordPress trunk run).
+	 *
+	 * @dataProvider tags
+	 */
+	public function test_both_kses_parsers_keep_the_same_markup(string $tag): void
+	{
+		if (! function_exists('wp_sanitize_html_kses')) {
+			$this->markTestSkipped('This WordPress has one wp_kses() parser.');
+		}
+
+		$fixture = ShortcodeFixtures::for_tag($tag);
+		wp_set_current_user((int) $fixture['user']);
+		$wrapper = $GLOBALS['shortcode_tags'][ $tag ];
+
+		add_filter('wp_kses_force_legacy_parser', '__return_true');
+		RequestSimulator::new_request();
+		$legacy = (string) call_user_func($wrapper, $fixture['atts'], null);
+		remove_filter('wp_kses_force_legacy_parser', '__return_true');
+
+		RequestSimulator::new_request();
+		$current = (string) call_user_func($wrapper, $fixture['atts'], null);
+
+		$this->assertStringContainsString($fixture['marker'], $current, "$tag render lacks its marker; the fixture did not reach the real markup.");
+		$this->assertSame($this->inventory($legacy), $this->inventory($current), "$tag: the two wp_kses() parsers keep different markup.");
+	}
+
+	/**
 	 * Negative control: markup the allowlist refuses must show up as a difference,
 	 * or the equality above proves nothing.
 	 */

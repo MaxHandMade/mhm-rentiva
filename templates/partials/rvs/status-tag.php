@@ -25,20 +25,10 @@ $mhmrentiva_tag_paths = array(
 );
 $mhmrentiva_tag_path  = $mhmrentiva_tag_paths[ $mhmrentiva_tag_modifier ] ?? $mhmrentiva_tag_paths['pending'];
 
-$mhmrentiva_tag_kses = array(
-	'circle' => array(
-		'cx' => true,
-		'cy' => true,
-		'r'  => true,
-	),
-	'path'   => array( 'd' => true ),
-	'rect'   => array(
-		'x'      => true,
-		'y'      => true,
-		'width'  => true,
-		'height' => true,
-		'rx'     => true,
-	),
-);
+// The icon is filtered as one piece, <svg> included. A shape filtered on its
+// own is parsed as HTML, where its self-closing slash means nothing: since
+// WordPress 7.2 it comes back unclosed, and the next wp_kses() drops the
+// whole <svg> together with what follows it.
+$mhmrentiva_tag_icon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . $mhmrentiva_tag_path . '</svg>';
 ?>
-<span class="rvs-status rvs-status--<?php echo esc_attr($mhmrentiva_tag_modifier); ?>"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><?php echo wp_kses($mhmrentiva_tag_path, $mhmrentiva_tag_kses); ?></svg><?php echo esc_html($mhmrentiva_tag_label); ?></span>
+<span class="rvs-status rvs-status--<?php echo esc_attr($mhmrentiva_tag_modifier); ?>"><?php echo wp_kses($mhmrentiva_tag_icon, \MHMRentiva\Helpers\Icons::allowed_svg()); ?><?php echo esc_html($mhmrentiva_tag_label); ?></span>
