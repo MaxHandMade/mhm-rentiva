@@ -3,6 +3,12 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Support;
 
+// Pro's suites require this file directly and autoload MHMRentiva\Tests\ from
+// their own tests/, where the sibling helper does not live.
+if (! class_exists(CanonicalHtml::class, false)) {
+	require_once __DIR__ . '/CanonicalHtml.php';
+}
+
 /**
  * The one normalizer every render comparison of the settings gates uses
  * (spec 2026-10-10-elementor-kopru-dilim-3a §3 G1, and G2 in later tasks).
