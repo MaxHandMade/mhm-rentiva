@@ -12,6 +12,17 @@
  * nothing here has to out-shout it.
  */
 
+/* Closed until jQuery UI opens it. jQuery UI creates the popup at init and
+   relies on its own base stylesheet to hide it; that stylesheet is not
+   loaded, and the rvs look below starts only when a field opens the popup
+   (beforeShow adds `rvs-dp`). Without this the empty popup sits at the end of
+   the page, unstyled, on any page that loads no other datepicker skin. Opening
+   writes an inline display:block, which wins over this rule. The popup only:
+   an inline (embedded) datepicker is not #ui-datepicker-div. */
+#ui-datepicker-div {
+	display: none;
+}
+
 /* The popup takes the shell's tokens, not its page container. jQuery UI writes
    an inline z-index one above the input's stack; on a phone that leaves the
    popup under the fixed summary bands (booking form, vehicle page: 9990), so

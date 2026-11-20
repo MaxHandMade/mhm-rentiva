@@ -196,7 +196,8 @@ final class BookingForm extends AbstractShortcode {
 	/**
 	 * No per-shortcode stylesheet: rvs-booking.css comes with the rvs chain
 	 * (AssetManager::enqueue_rvs_booking()). datepicker-custom.css is not loaded
-	 * either -- rvs-booking.css styles the popup while it carries the shell.
+	 * either: rvs-datepicker.css keeps the popup closed until a field opens it,
+	 * and styles it once it carries the shell (beforeShow adds `rvs-shell rvs-dp`).
 	 */
 	protected static function get_css_files(array $atts = array()): array
 	{
