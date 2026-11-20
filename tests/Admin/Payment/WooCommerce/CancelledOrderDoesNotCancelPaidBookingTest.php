@@ -188,6 +188,26 @@ final class CancelledOrderDoesNotCancelPaidBookingTest extends WP_UnitTestCase
     }
 
     /**
+     * A booking's cancellation cancels its unpaid order from whatever cancelled
+     * it -- the operator, the auto-cancel sweep, the customer. The order's note
+     * said "cancelled by customer" every time; it now names no one.
+     */
+    public function test_the_order_note_of_a_cancelled_booking_does_not_blame_the_customer(): void
+    {
+        $booking_id = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_booking' ) );
+        update_post_meta( $booking_id, '_mhmrentiva_status', Status::PENDING );
+        $order = $this->create_unpaid_order_for_booking( $booking_id, '300' );
+        update_post_meta( $booking_id, '_mhmrentiva_woocommerce_order_id', $order->get_id() );
+
+        \MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge::sync_completed_to_wc( $booking_id, Status::PENDING, Status::CANCELLED );
+
+        $this->assertTrue( wc_get_order( $order->get_id() )->has_status( 'cancelled' ), 'PREMISE: the unpaid order is cancelled with the booking.' );
+        $notes = implode( "\n", array_map( static fn( $n ) => $n->content, wc_get_order_notes( array( 'order_id' => $order->get_id() ) ) ) );
+        $this->assertStringNotContainsString( 'by customer', $notes );
+        $this->assertStringContainsString( 'The booking was cancelled, so its order is cancelled too.', $notes );
+    }
+
+    /**
      * WooCommerceFixtures::create_paid_order_for_booking() wires
      * `_mhmrentiva_booking_id` onto the ORDER only. Production also wires the
      * same key onto the order's LINE ITEM (WooCommerceBridge.php :911, :1026;

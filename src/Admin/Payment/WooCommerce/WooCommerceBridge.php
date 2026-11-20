@@ -3865,9 +3865,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				return;
 			}
 
+			// Any surface's cancellation lands here (the operator, the auto-cancel
+			// sweep, the customer), so the note names no one.
 			$order->update_status(
 				'cancelled',
-				__('Booking cancelled by customer.', 'mhm-rentiva')
+				__('The booking was cancelled, so its order is cancelled too.', 'mhm-rentiva')
 			);
 		}
 	}
