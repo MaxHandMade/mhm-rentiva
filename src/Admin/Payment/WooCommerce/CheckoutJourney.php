@@ -118,6 +118,17 @@ final class CheckoutJourney {
 	}
 
 	/**
+	 * The order ended without a booking: its payment failed, or it was
+	 * cancelled or refunded. Its thank-you page says nothing of a booking
+	 * received and asks for no transfer -- one rule for the sentence, the
+	 * journey heading and the bank card.
+	 */
+	public static function ended_without_booking(\WC_Order $order): bool
+	{
+		return $order->has_status(array( 'failed', 'cancelled', 'refunded' ));
+	}
+
+	/**
 	 * One rental line, or the remaining payment of a rental: that order's line
 	 * carries no snapshot, only the order's own `_mhmrentiva_is_remaining_payment`
 	 * and `_mhmrentiva_booking_id` (RemainingPaymentHandler).
@@ -322,11 +333,11 @@ final class CheckoutJourney {
 			$summaries[] = $vars;
 		}
 
-		$failed = $order->has_status('failed');
+		$ended = self::ended_without_booking($order);
 		self::render_journey(
-			$failed ? 2 : 3,
+			$ended ? 2 : 3,
 			$summaries,
-			$failed ? '' : ( $several ? __('Your bookings are received', 'mhm-rentiva') : __('Your booking is received', 'mhm-rentiva') )
+			$ended ? '' : ( $several ? __('Your bookings are received', 'mhm-rentiva') : __('Your booking is received', 'mhm-rentiva') )
 		);
 	}
 

@@ -193,7 +193,7 @@ final class RentalMoneyLabels {
 	 */
 	public static function order_state(\WC_Order $order): string
 	{
-		if ($order->has_status(array( 'failed', 'cancelled', 'refunded' ))) {
+		if (CheckoutJourney::ended_without_booking($order)) {
 			return self::STATE_DUE;
 		}
 

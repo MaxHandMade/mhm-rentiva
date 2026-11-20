@@ -240,6 +240,42 @@ final class RentalCheckoutLookTest extends WP_UnitTestCase
 		$this->assertSame('Thank you.', RentalCheckoutLook::order_received_text('Thank you.', $shop));
 	}
 
+	/** @return array<string,array{string,string}> status => the sentence the page must show */
+	public function ended_statuses(): array
+	{
+		return array(
+			// Both WooCommerce templates print their own failure message.
+			'failed'    => array( 'failed', 'WOOCOMMERCE' ),
+			// The classic template would say "Your order has been received".
+			'cancelled' => array( 'cancelled', 'This booking has been cancelled.' ),
+			'refunded'  => array( 'refunded', 'This booking has been refunded.' ),
+		);
+	}
+
+	/**
+	 * A rental order that ended without a booking -- payment failed, the order
+	 * was cancelled or refunded -- says nothing of a booking received: neither
+	 * the thank-you sentence nor the journey heading. A cancelled or refunded
+	 * one says so, on the classic template too, whose own sentence for every
+	 * status but failed is "Thank you. Your order has been received."
+	 *
+	 * @dataProvider ended_statuses
+	 */
+	public function test_an_order_that_ended_without_a_booking_does_not_say_it_has_one(string $status, string $sentence): void
+	{
+		$order = $this->order($this->rental_data());
+		$order->set_status($status);
+		$order->save();
+
+		$woocommerce = 'Thank you. Your order has been received.';
+		$this->assertSame('WOOCOMMERCE' === $sentence ? $woocommerce : $sentence, RentalCheckoutLook::order_received_text($woocommerce, $order), "$status: the thank-you sentence.");
+
+		RentalCheckoutLook::register();
+		$html = $this->capture(static fn() => \MHMRentiva\Admin\Payment\WooCommerce\CheckoutJourney::render_thankyou($order->get_id()));
+		$this->assertStringNotContainsString('Your booking is received', $html, "$status: the journey heading says the booking is received.");
+		$this->assertStringNotContainsString('rvs-journey__headline', $html, "$status: a journey heading is drawn.");
+	}
+
 	public function test_an_order_of_two_rentals_gets_the_journey_with_a_card_each(): void
 	{
 		$order = wc_create_order();
@@ -419,6 +455,45 @@ final class RentalCheckoutLookTest extends WP_UnitTestCase
 		$failed = $this->order($this->rental_data());
 		$failed->update_status('failed');
 		$this->assertSame('', $this->capture(static fn() => RentalCheckoutLook::render_bank_transfer($failed->get_id())));
+	}
+
+	/**
+	 * WooCommerce's bank transfer gateway prints "Our bank details" on every
+	 * bacs thank-you page, whatever the status: on a rental that was cancelled,
+	 * that asks the customer to send money for nothing. A rental order that
+	 * ended without a booking drops it; a live one keeps it.
+	 */
+	public function test_an_ended_rental_does_not_show_the_shops_bank_details(): void
+	{
+		$gateway = WC()->payment_gateways()->payment_gateways()['bacs'] ?? null;
+		$this->assertInstanceOf(\WC_Gateway_BACS::class, $gateway, 'PREMISE: the bank transfer gateway is loaded.');
+		$callback = array( $gateway, 'thankyou_page' );
+		add_action('woocommerce_thankyou_bacs', $callback); // As the gateway registers it (a hook reset between tests may drop it).
+		RentalCheckoutLook::register();
+
+		$live = $this->order($this->rental_data());
+		$live->update_status('on-hold');
+		RentalCheckoutLook::drop_bank_details_of_an_ended_rental($live->get_id());
+		$this->assertSame(10, has_action('woocommerce_thankyou_bacs', $callback), 'A live rental keeps the bank details.');
+
+		$cancelled = $this->order($this->rental_data());
+		$cancelled->update_status('cancelled');
+		RentalCheckoutLook::drop_bank_details_of_an_ended_rental($cancelled->get_id());
+		$this->assertFalse(has_action('woocommerce_thankyou_bacs', $callback), 'A cancelled rental still shows the bank details.');
+
+		$this->assertSame(1, has_action('woocommerce_thankyou_bacs', array( RentalCheckoutLook::class, 'drop_bank_details_of_an_ended_rental' )), 'It runs before the gateway (10).');
+	}
+
+	public function test_a_cancelled_shop_order_keeps_woocommerces_bank_details(): void
+	{
+		$gateway  = WC()->payment_gateways()->payment_gateways()['bacs'];
+		$callback = array( $gateway, 'thankyou_page' );
+		add_action('woocommerce_thankyou_bacs', $callback); // As the gateway registers it.
+
+		$shop = $this->order(null);
+		$shop->update_status('cancelled');
+		RentalCheckoutLook::drop_bank_details_of_an_ended_rental($shop->get_id());
+		$this->assertSame(10, has_action('woocommerce_thankyou_bacs', $callback), 'Only rental orders are Rentiva\'s to change.');
 	}
 
 	// ----------------------------------------- block image script (m3, R12)
