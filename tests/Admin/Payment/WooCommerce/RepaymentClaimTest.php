@@ -140,11 +140,39 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * An order whose first payment failed: booked, then the failure cancelled
-	 * the booking (handle_order_status_change(), `failed`).
+	 * An order whose first payment failed and whose booking later lost its
+	 * dates: booked, the card declined (the booking waits for payment), then the
+	 * booking cancelled (fail_then_lose_dates()).
 	 *
 	 * @return array{0: \WC_Order, 1: int}
 	 */
+	/**
+	 * The card is declined, and later the booking loses its dates while the
+	 * order stays failed -- what every scenario here starts from.
+	 *
+	 * A declined card on the booking's own order keeps the booking waiting for
+	 * payment (pending/pending, WooCommerceBridge); the dates go when the
+	 * auto-cancel sweep or an operator cancels the booking. The cancellation
+	 * here is that later step: Status only, so the failed order stays payable,
+	 * which is the case the revival guards below exist for.
+	 *
+	 * @param list<int> $booking_ids
+	 */
+	private function fail_then_lose_dates(\WC_Order $order, array $booking_ids): void
+	{
+		$order->update_status('failed');
+		WooCommerceBridge::handle_order_status_change($order->get_id(), 'pending', 'failed', $order);
+		// Every booking of the order is checked before any is cancelled: one
+		// booking's cancellation can reach its siblings through the order.
+		foreach ($booking_ids as $booking_id) {
+			$this->assertSame(Status::PENDING, get_post_meta($booking_id, '_mhmrentiva_status', true), 'A declined card keeps the booking waiting for payment.');
+		}
+		foreach ($booking_ids as $booking_id) {
+			Status::update_status($booking_id, Status::CANCELLED, 0);
+			wp_cache_delete($booking_id, 'post_meta');
+		}
+	}
+
 	private function failed_order(): array
 	{
 		$order = $this->pending_order();
@@ -153,8 +181,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$booking_id = (int) $order->get_meta('_mhmrentiva_booking_id');
 		$this->assertGreaterThan(0, $booking_id);
 
-		$order->update_status('failed');
-		WooCommerceBridge::handle_order_status_change($order->get_id(), 'pending', 'failed', $order);
+		$this->fail_then_lose_dates($order, array( $booking_id ));
 		$this->assertSame('cancelled', get_post_meta($booking_id, '_mhmrentiva_status', true));
 
 		return array( wc_get_order($order->get_id()), $booking_id );
@@ -613,7 +640,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	{
 		$second_vehicle = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish', 'post_title' => 'Renault Clio' ));
 
-		// One order, two rentals; the payment failed and cancelled both.
+		// One order, two rentals; the payment failed and both bookings later lost their dates.
 		$order = wc_create_order();
 		$this->pending_line($order, $this->snapshot());
 		$this->pending_line($order, $this->snapshot(array( 'vehicle_id' => $second_vehicle )));
@@ -626,8 +653,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		foreach ($order->get_items() as $item) {
 			$ids[] = (int) $item->get_meta('_mhmrentiva_booking_id');
 		}
-		$order->update_status('failed');
-		WooCommerceBridge::handle_order_status_change($order->get_id(), 'pending', 'failed', $order);
+		$this->fail_then_lose_dates($order, $ids);
 		$deadline = (string) get_post_meta($ids[0], '_mhmrentiva_payment_deadline', true);
 
 		// Someone takes the second vehicle's dates only.
@@ -713,8 +739,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		foreach ($order->get_items() as $item) {
 			$ids[] = (int) $item->get_meta('_mhmrentiva_booking_id');
 		}
-		$order->update_status('failed');
-		WooCommerceBridge::handle_order_status_change($order->get_id(), 'pending', 'failed', $order);
+		$this->fail_then_lose_dates($order, $ids);
 
 		$other = wc_create_order();
 		$this->pending_line($other, $this->snapshot(array( 'vehicle_id' => $second_vehicle )));
