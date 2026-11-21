@@ -34,7 +34,11 @@ final class LayoutBackslashTest extends WP_UnitTestCase
 	private const SOURCE   = 'C:\\layouts\\v1.json';
 	private const TITLE    = 'Kampanya \\ Yaz';
 	private const CLASS_V1 = 'kampanya\\yaz';
-	private const CLASS_V2 = 'kampanya\\\\kis "2027"';
+	// No double quote in a shortcode attribute: no WordPress version carries
+	// one through post_content intact. Before 7.2 the shortcode received the
+	// literal `&quot;`; from 7.2 kses decodes it in post text and the attribute
+	// ends early. Quotes stay covered in the stored manifest (source.notes).
+	private const CLASS_V2 = 'kampanya\\\\kis 2027';
 	private const SLUG     = 'ters-bolu-yerlesim';
 
 	private LayoutEngine $engine;

@@ -421,6 +421,18 @@ tests_add_filter('setup_theme', static function () {
 	// database looking native.
 	update_option('woocommerce_custom_orders_table_enabled', 'yes');
 
+	// The attribute lookup regenerator answers `woocommerce_installed` by
+	// scheduling an Action Scheduler job when products exist and its table is
+	// empty. Action Scheduler starts on `init`, after this hook, so that
+	// schedule raises a _doing_it_wrong notice. Products do exist in a
+	// @runInSeparateProcess child on the WordPress trunk test library: it no
+	// longer reinstalls WordPress there, so rows earlier tests committed stay.
+	// No test reads the attribute lookup table.
+	$mhmrentiva_lookup = '\Automattic\WooCommerce\Internal\ProductAttributesLookup\DataRegenerator';
+	if (class_exists($mhmrentiva_lookup) && function_exists('wc_get_container')) {
+		remove_action('woocommerce_installed', array( wc_get_container()->get($mhmrentiva_lookup), 'run_woocommerce_installed_callback' ));
+	}
+
 	\WC_Install::install();
 
 	// Capabilities are registered during install; WP caches roles before that.
