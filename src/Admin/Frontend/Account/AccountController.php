@@ -1146,7 +1146,7 @@ final class AccountController {
 			$first_name   = isset($_POST['first_name']) ? sanitize_text_field(wp_unslash( (string) $_POST['first_name'])) : '';
 			$last_name    = isset($_POST['last_name']) ? sanitize_text_field(wp_unslash( (string) $_POST['last_name'])) : '';
 			$phone        = isset($_POST['phone']) ? sanitize_text_field(wp_unslash( (string) $_POST['phone'])) : '';
-			$address      = isset($_POST['address']) ? sanitize_textarea_field(wp_unslash($_POST['address'])) : '';
+			$address      = \MHMRentiva\Admin\Core\Security\VerifiedRequest::from($_POST)->textarea('address');
 
 			// Update user information
 			$user_data = array(
@@ -1304,7 +1304,7 @@ final class AccountController {
 		}
 
 		// Get cancellation reason (optional)
-		$reason = isset($_POST['reason']) ? sanitize_textarea_field(wp_unslash($_POST['reason'])) : '';
+		$reason = \MHMRentiva\Admin\Core\Security\VerifiedRequest::from($_POST)->textarea('reason');
 
 		// Get current user ID
 		$user_id = get_current_user_id();

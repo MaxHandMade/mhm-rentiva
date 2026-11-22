@@ -344,11 +344,11 @@ final class SettingsHelper {
 
 		return match ( $type ) {
 			'email'    => sanitize_email( (string) $value ),
-			'textarea' => sanitize_textarea_field( (string) $value ),
+			'textarea' => \MHMRentiva\Admin\Core\Helpers\Sanitizer::lines( $value ),
 			'url'      => esc_url_raw( (string) $value ),
 			'checkbox' => ( '1' === $value || 1 === $value ) ? '1' : '0',
 			'integer'  => (int) $value,
-			default    => sanitize_text_field( (string) $value ),
+			default    => \MHMRentiva\Admin\Core\Helpers\Sanitizer::line( $value ),
 		};
 	}
 

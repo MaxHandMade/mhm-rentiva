@@ -294,7 +294,7 @@ final class CommentsSettings {
 			if ( 'spam_words' === $key ) {
 				// Handle comma-separated string from textarea or array.
 				$words = is_array( $value ) ? $value : explode( ',', (string) $value );
-				$words = array_map( 'sanitize_text_field', $words );
+				$words = array_map( array( \MHMRentiva\Admin\Core\Helpers\Sanitizer::class, 'line' ), $words );
 				return array_values( array_filter( array_map( 'trim', $words ) ) );
 			}
 			// Recursive sanitization for deep arrays.
@@ -307,7 +307,7 @@ final class CommentsSettings {
 		}
 
 		// Default text sanitization.
-		return sanitize_text_field( (string) $value );
+		return \MHMRentiva\Admin\Core\Helpers\Sanitizer::line( $value );
 	}
 
 	/**

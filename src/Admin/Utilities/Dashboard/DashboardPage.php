@@ -179,7 +179,7 @@ final class DashboardPage {
 				continue;
 			}
 
-			$label = isset( $item['label'] ) ? sanitize_text_field( (string) $item['label'] ) : '';
+			$label = isset( $item['label'] ) ? \MHMRentiva\Admin\Core\Helpers\Sanitizer::line( $item['label'] ) : '';
 			$href  = isset( $item['href'] ) ? esc_url_raw( (string) $item['href'], array( 'http', 'https' ) ) : '';
 			$icon  = isset( $item['icon'] ) ? (string) $item['icon'] : '';
 

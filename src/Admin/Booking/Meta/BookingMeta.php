@@ -1853,7 +1853,7 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		$email_type = $req->text('email_type');
-		$subject    = $req->text('email_subject');
+		$subject    = $req->line('email_subject');
 		// wp_kses_post rather than sanitize_text_field: the body is authored in a
 		// rich-text field and its HTML formatting has to survive into the email.
 		$message = wp_kses_post( (string) ( $req->raw('email_message') ?? '' ) );

@@ -59,7 +59,7 @@ final class AddCustomerPage {
 			$customer_name    = sanitize_text_field( wp_unslash( $_POST['customer_name'] ?? '' ) );
 			$customer_email   = sanitize_email( wp_unslash( $_POST['customer_email'] ?? '' ) );
 			$customer_phone   = sanitize_text_field( wp_unslash( $_POST['customer_phone'] ?? '' ) );
-			$customer_address = sanitize_textarea_field( wp_unslash( $_POST['customer_address'] ?? '' ) );
+			$customer_address = \MHMRentiva\Admin\Core\Security\VerifiedRequest::from( $_POST )->textarea( 'customer_address' );
 
 			// Phone is required alongside name and e-mail (matches the edit
 			// screen): bookings need a way to reach the customer, and the HTML
@@ -145,7 +145,7 @@ final class AddCustomerPage {
 		$posted_customer_name    = isset( $_POST['customer_name'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_name'] ) ) : '';
 		$posted_customer_email   = isset( $_POST['customer_email'] ) ? sanitize_email( wp_unslash( $_POST['customer_email'] ) ) : '';
 		$posted_customer_phone   = isset( $_POST['customer_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_phone'] ) ) : '';
-		$posted_customer_address = isset( $_POST['customer_address'] ) ? sanitize_textarea_field( wp_unslash( $_POST['customer_address'] ) ) : '';
+		$posted_customer_address = \MHMRentiva\Admin\Core\Security\VerifiedRequest::from( $_POST )->textarea( 'customer_address' );
 
 		echo '<div class="rv-cust-scope"><div class="rv-cust rv-cust-detail-page">';
 		echo '<form method="post" action="" class="rv-cust-panel__card rv-cust-form">';

@@ -5,6 +5,7 @@ namespace MHMRentiva\Admin\Vehicle\Meta;
 
 use MHMRentiva\Admin\Booking\Helpers\BookingConflicts;
 use MHMRentiva\Admin\Booking\Helpers\Cache;
+use MHMRentiva\Admin\Core\Helpers\Sanitizer;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 use MHMRentiva\Admin\Core\Utilities\OccupancyMapService;
 if ( ! defined( 'ABSPATH' ) ) {
@@ -149,21 +150,14 @@ final class BlockedDatesMetaBox {
 
 		// Save notes — decode JSON first, then sanitize each value individually
 		$notes_clean = array();
-		// Cleaned on the read, like the dates payload above. sanitize_textarea_field()
-		// strips tags, and PHP's strip_tags() truncates everything after an unclosed
-		// "<" -- which would silently destroy the whole notes payload. The picker
-		// therefore emits every "<" as its JSON unicode escape (see
-		// assets/js/admin/blocked-dates.js), so the blob reaching this line has no
-		// literal "<" to trip over. Each decoded note is sanitized again below.
-		$raw_notes_str = isset( $_POST[ self::META_KEY_NOTES ] )
-			? sanitize_textarea_field( wp_unslash( (string) $_POST[ self::META_KEY_NOTES ] ) )
-			: '{}';
-		$notes_raw     = json_decode( $raw_notes_str, true );
+		// The JSON is decoded as it came -- tag stripping would cut it at an
+		// unclosed "<" -- and every note is sanitized below.
+		$notes_raw = json_decode( (string) VerifiedRequest::from( $_POST )->raw( self::META_KEY_NOTES ), true );
 		if ( is_array( $notes_raw ) ) {
 			foreach ( $notes_raw as $d => $note ) {
 				$d = sanitize_text_field( (string) $d );
 				if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $d ) && in_array( $d, $clean, true ) ) {
-					$note = sanitize_textarea_field( (string) $note );
+					$note = Sanitizer::lines( $note );
 					if ( $note !== '' ) {
 						$notes_clean[ $d ] = $note;
 					}
@@ -533,7 +527,7 @@ final class BlockedDatesMetaBox {
 		if ( ! $req->has( 'notes' ) ) {
 			return array();
 		}
-		// Decoded raw, then every note goes through sanitize_textarea_field below.
+		// Decoded raw, then every note goes through Sanitizer::lines() below.
 		$notes = json_decode( (string) $req->raw( 'notes' ), true );
 		if ( ! is_array( $notes ) ) {
 			return array();
@@ -542,7 +536,7 @@ final class BlockedDatesMetaBox {
 		foreach ( $notes as $d => $note ) {
 			$d = sanitize_text_field( (string) $d );
 			if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $d ) && in_array( $d, $valid_dates, true ) ) {
-				$note = sanitize_textarea_field( (string) $note );
+				$note = Sanitizer::lines( $note );
 				if ( $note !== '' ) {
 					$clean[ $d ] = $note;
 				}

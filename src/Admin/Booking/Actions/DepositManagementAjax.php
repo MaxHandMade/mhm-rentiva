@@ -539,7 +539,7 @@ final class DepositManagementAjax {
 		}
 
 		$req       = VerifiedRequest::from( $_POST );
-		$reference = mb_substr( $req->text( 'reference' ), 0, self::REFERENCE_MAX_LENGTH );
+		$reference = mb_substr( $req->line( 'reference' ), 0, self::REFERENCE_MAX_LENGTH );
 
 		if ( ! RefundLock::acquire( $booking_id ) ) {
 			// This used to claim "another refund is already running" as
@@ -811,10 +811,8 @@ final class DepositManagementAjax {
 		// leading whitespace, rejecting it as empty and, on success, storing
 		// whitespace nobody asked to keep. textarea(), not text() -- the control
 		// this posts from is a <textarea>
-		// (BookingRefundMetaBox::render_needs_review_controls()), and
-		// text()'s sanitize_text_field() collapses the newlines a
-		// multi-line reason relies on; textarea()'s sanitize_textarea_field()
-		// preserves them.
+		// (BookingRefundMetaBox::render_needs_review_controls()), and text()
+		// collapses the newlines a multi-line reason relies on.
 		$reason = trim( ( VerifiedRequest::from( $_POST ) )->textarea( 'reason' ) );
 
 		if ( '' === $reason ) {

@@ -8,6 +8,7 @@ if (! defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
+use MHMRentiva\Admin\Core\Helpers\Sanitizer;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 
 
@@ -93,14 +94,11 @@ final class VehicleMeta extends AbstractMetaBox {
 	}
 
 	/**
-	 * Safe sanitize text field that handles null values
+	 * A vehicle's written value (label, colour, feature), percent signs kept.
 	 */
 	public static function sanitize_text_field_safe($value)
 	{
-		if ($value === null || $value === '') {
-			return '';
-		}
-		return sanitize_text_field( (string) $value);
+		return Sanitizer::line($value);
 	}
 
 	protected static function get_post_type(): string
@@ -650,7 +648,7 @@ final class VehicleMeta extends AbstractMetaBox {
 			}
 
 			// Sanitize value from POST
-			$value                     = $req->text($field_name);
+			$value                     = $req->line($field_name);
 			$sanitized_value           = self::sanitize_field($field_name, $value);
 			$meta_updates[ $meta_key ] = $sanitized_value;
 		}
@@ -682,7 +680,7 @@ final class VehicleMeta extends AbstractMetaBox {
 			$field_name = 'mhmrentiva_' . $field_key;
 
 			if ($req->has($field_name)) {
-				$value                     = $req->text($field_name);
+				$value                     = $req->line($field_name);
 				$value                     = mb_convert_encoding($value, 'UTF-8', 'auto');
 				$meta_updates[ $meta_key ] = $value;
 			}

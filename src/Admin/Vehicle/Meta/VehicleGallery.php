@@ -192,9 +192,9 @@ final class VehicleGallery extends AbstractMetaBox {
 		}
 
 		if ( isset( $_POST['mhmrentiva_gallery_images'] ) ) {
-			$gallery_images = sanitize_text_field( wp_unslash( (string) $_POST['mhmrentiva_gallery_images'] ) );
-			$decoded        = json_decode( $gallery_images, true );
-			$entries        = self::filter_allowed_entries( $post_id, is_array( $decoded ) ? $decoded : array() );
+			// Decoded as it came; filter_allowed_entries() sanitizes every field.
+			$decoded = json_decode( (string) \MHMRentiva\Admin\Core\Security\VerifiedRequest::from( $_POST )->raw( 'mhmrentiva_gallery_images' ), true );
+			$entries = self::filter_allowed_entries( $post_id, is_array( $decoded ) ? $decoded : array() );
 			update_post_meta( $post_id, '_mhmrentiva_gallery_images', wp_slash( wp_json_encode( $entries ) ) );
 		}
 	}
@@ -710,8 +710,8 @@ final class VehicleGallery extends AbstractMetaBox {
 			$kept[] = array(
 				'id'    => $id,
 				'url'   => self::rendition_url( $id ),
-				'alt'   => sanitize_text_field( self::entry_text( $entry, 'alt' ) ),
-				'title' => sanitize_text_field( self::entry_text( $entry, 'title' ) ),
+				'alt'   => \MHMRentiva\Admin\Core\Helpers\Sanitizer::line( self::entry_text( $entry, 'alt' ) ),
+				'title' => \MHMRentiva\Admin\Core\Helpers\Sanitizer::line( self::entry_text( $entry, 'title' ) ),
 			);
 		}
 
@@ -738,8 +738,8 @@ final class VehicleGallery extends AbstractMetaBox {
 				$sanitized_images[] = array(
 					'id'    => $id,
 					'url'   => esc_url_raw( self::entry_text( $image, 'url' ) ),
-					'alt'   => sanitize_text_field( self::entry_text( $image, 'alt' ) ),
-					'title' => sanitize_text_field( self::entry_text( $image, 'title' ) ),
+					'alt'   => \MHMRentiva\Admin\Core\Helpers\Sanitizer::line( self::entry_text( $image, 'alt' ) ),
+					'title' => \MHMRentiva\Admin\Core\Helpers\Sanitizer::line( self::entry_text( $image, 'title' ) ),
 				);
 			}
 		}
