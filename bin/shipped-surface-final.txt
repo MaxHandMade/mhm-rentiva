@@ -152,6 +152,7 @@ assets/js/frontend/featured-vehicles.js
 assets/js/frontend/my-account.js
 assets/js/frontend/rvs-dialog.js
 assets/js/frontend/rvs-stepper.js
+assets/js/frontend/rvs-tabs.js
 assets/js/frontend/rvs-vehicle.js
 assets/js/frontend/search-results.js
 assets/js/frontend/testimonials.js
