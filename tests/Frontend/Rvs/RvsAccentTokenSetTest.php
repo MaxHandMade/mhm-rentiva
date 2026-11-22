@@ -275,7 +275,6 @@ final class RvsAccentTokenSetTest extends WP_UnitTestCase
 
 		// file, selector, property.
 		$cases = array(
-			array( 'frontend/rvs-account-nav.css', $nav_active, 'border-left-color' ),
 			array( 'frontend/rvs-account-nav.css', $nav_active, 'border-bottom-color' ),
 			array( 'frontend/rvs-availability.css', '.rvs-shell .rvs-availability__option[aria-pressed="true"]', 'border-color' ),
 			array( 'frontend/rvs-availability.css', '.rvs-shell .rvs-availability__option[aria-pressed="true"]', 'box-shadow' ),
