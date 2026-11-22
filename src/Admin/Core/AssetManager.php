@@ -280,6 +280,10 @@ final class AssetManager {
 		if (! wp_script_is('mhm-rentiva-rvs-dialog', 'registered')) {
 			wp_register_script('mhm-rentiva-rvs-dialog', MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/rvs-dialog.js', array(), self::get_file_version('assets/js/frontend/rvs-dialog.js'), true);
 		}
+		if (! wp_script_is('mhm-rentiva-rvs-tabs', 'registered')) {
+			wp_register_script('mhm-rentiva-rvs-tabs', MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/rvs-tabs.js', array(), self::get_file_version('assets/js/frontend/rvs-tabs.js'), true);
+			wp_localize_script('mhm-rentiva-rvs-tabs', 'mhmRentivaRvsTabs', array( 'more' => _x('More', 'button that opens the rest of a row of tabs', 'mhm-rentiva') ));
+		}
 		if (! wp_script_is('mhm-rentiva-rvs-stepper', 'registered')) {
 			wp_register_script('mhm-rentiva-rvs-stepper', MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/rvs-stepper.js', array(), self::get_file_version('assets/js/frontend/rvs-stepper.js'), true);
 		}
@@ -452,12 +456,14 @@ final class AssetManager {
 
 	/**
 	 * The My Account page shell and navigation layer (rvs-account-nav.css) on
-	 * top of the tokens and the shell. Alone on WooCommerce's own endpoints.
+	 * top of the tokens and the shell, and the script that moves the tabs that
+	 * do not fit into "More". Alone on WooCommerce's own endpoints.
 	 */
 	public static function enqueue_rvs_account_nav(): void
 	{
 		self::register_core_styles();
 		wp_enqueue_style('mhm-rentiva-rvs-account-nav');
+		wp_enqueue_script('mhm-rentiva-rvs-tabs');
 	}
 
 	/**
@@ -469,6 +475,7 @@ final class AssetManager {
 	{
 		self::enqueue_rvs_dialog();
 		wp_enqueue_style('mhm-rentiva-rvs-account');
+		wp_enqueue_script('mhm-rentiva-rvs-tabs');
 	}
 
 	/**

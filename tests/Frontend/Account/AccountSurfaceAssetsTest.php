@@ -119,6 +119,7 @@ final class AccountSurfaceAssetsTest extends WP_UnitTestCase
 				$this->assertContains($handle, $todo, "$label: $handle missing from the resolved chain.");
 			}
 			$this->assertTrue(wp_script_is('mhm-rentiva-rvs-dialog', 'enqueued'), "$label: rvs-dialog.js not enqueued.");
+			$this->assertTrue(wp_script_is('mhm-rentiva-rvs-tabs', 'enqueued'), "$label: rvs-tabs.js not enqueued.");
 			$this->assertTrue(wp_script_is('mhm-rentiva-my-account', 'enqueued'), "$label: my-account.js not enqueued.");
 
 			RequestSimulator::new_request();
@@ -173,6 +174,7 @@ final class AccountSurfaceAssetsTest extends WP_UnitTestCase
 
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-account-nav', 'enqueued'));
 		$this->assertFalse(wp_style_is('mhm-rentiva-rvs-account', 'enqueued'));
+		$this->assertTrue(wp_script_is('mhm-rentiva-rvs-tabs', 'enqueued'), 'orders: rvs-tabs.js not enqueued.');
 		foreach (self::LEGACY_STYLES as $handle) {
 			$this->assertFalse(wp_style_is($handle, 'enqueued'), "orders: legacy $handle enqueued.");
 		}
@@ -190,6 +192,7 @@ final class AccountSurfaceAssetsTest extends WP_UnitTestCase
 		AccountController::enqueue_assets();
 
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-account-nav', 'enqueued'), 'The menu layer loads on extension screens too.');
+		$this->assertTrue(wp_script_is('mhm-rentiva-rvs-tabs', 'enqueued'));
 		$this->assertFalse(wp_style_is('mhm-rentiva-rvs-account', 'enqueued'));
 		foreach (self::LEGACY_STYLES as $handle) {
 			$this->assertTrue(wp_style_is($handle, 'enqueued'), "extension endpoint: legacy $handle not enqueued.");
