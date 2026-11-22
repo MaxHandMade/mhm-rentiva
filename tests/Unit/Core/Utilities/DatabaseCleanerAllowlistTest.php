@@ -127,6 +127,20 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		'_mhmrentiva_legacy_status',
 		'_mhmrentiva_legacy_thread_uuid',
 		'_mhmrentiva_message_count',
+		// Pro's conversations between a customer and a vendor.
+		'_mhmrentiva_customer_gone',
+		'_mhmrentiva_message_kind',
+		'_mhmrentiva_message_original',
+		'_mhmrentiva_message_original_subject',
+		'_mhmrentiva_message_vehicle_id',
+		'_mhmrentiva_message_vendor_id',
+		'_mhmrentiva_report_by',
+		'_mhmrentiva_report_state',
+		'_mhmrentiva_report_text',
+		'_mhmrentiva_vendor_read_at',
+		'_mhmrentiva_vendor_scrub',
+		'_mhmrentiva_waiting_notified',
+		'_mhmrentiva_waiting_since',
 		// Slice 3 Task 12 bound Lite's last active reader of this key
 		// (EmailTemplates, RefundNotifications, BookingColumns) to PaymentState.
 		// Pro's BackgroundProcessor.php and Export.php still read it directly, so
