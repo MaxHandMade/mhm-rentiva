@@ -79,6 +79,34 @@ describe( 'rvs tabs', () => {
 		expect( list.querySelector( '.rvs-tabs-more__menu' ).hidden ).toBe( true );
 	} );
 
+	it( 'keeps the focus when the row is laid out again', async () => {
+		const ready = document.fonts;
+		let again;
+		Object.defineProperty( document, 'fonts', { value: { ready: { then: ( fn ) => { again = fn; } } }, configurable: true } );
+		const list = load( { labels: [ 'a', 'b', 'c', 'd', 'e' ] } );
+		const link = list.querySelectorAll( 'a' )[ 1 ];
+		link.focus();
+		again();
+		expect( document.activeElement ).toBe( link );
+
+		// Open menu, focus inside it.
+		const button = list.querySelector( 'button' );
+		button.click();
+		const inside = list.querySelector( '.rvs-tabs-more__menu a' );
+		inside.focus();
+		again();
+		expect( document.activeElement ).toBe( inside );
+		expect( list.querySelector( '.rvs-tabs-more__menu' ).hidden ).toBe( false );
+
+		// The button itself, once everything fits: the first tab takes over.
+		button.focus();
+		Object.defineProperty( list, 'clientWidth', { value: 900, configurable: true } );
+		again();
+		expect( list.querySelector( '.rvs-tabs-more' ) ).toBeNull();
+		expect( document.activeElement ).toBe( list.querySelector( 'a' ) );
+		Object.defineProperty( document, 'fonts', { value: ready, configurable: true } );
+	} );
+
 	it( 'scrolls the current tab into view on a phone, with no More', () => {
 		const list = load( { labels: [ 'a', 'b', 'c', 'd', 'e' ], current: 4, wide: false } );
 		expect( list.querySelector( '.rvs-tabs-more' ) ).toBeNull();

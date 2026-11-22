@@ -155,7 +155,7 @@
 /* "More". */
 .woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li.rvs-tabs-more {
 	position: relative;
-	margin-left: auto;
+	margin-inline-start: auto;
 }
 
 .woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation .rvs-tabs-more__button {
@@ -175,7 +175,7 @@
 .woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation .rvs-tabs-more__menu {
 	position: absolute;
 	top: 100%;
-	right: 0;
+	inset-inline-end: 0;
 	z-index: 5;
 	box-sizing: border-box;
 	min-width: 220px;

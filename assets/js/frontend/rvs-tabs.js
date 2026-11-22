@@ -76,8 +76,24 @@
 		}
 
 		function layout() {
-			const focused = more.contains( document.activeElement ) ? document.activeElement : null;
+			// Moving an element drops its focus; it is given back at the end.
+			const focused = list.contains( document.activeElement ) ? document.activeElement : null;
 			const wasOpen = ! menu.hidden;
+			place();
+			if ( ! focused ) {
+				return;
+			}
+			const inMenu = menu.contains( focused );
+			if ( inMenu && wasOpen ) {
+				toggle( true );
+			}
+			const target = list.contains( focused ) && ( ! inMenu || wasOpen ) ? focused : ( list.contains( button ) ? button : items[ 0 ].querySelector( 'a' ) );
+			if ( target ) {
+				target.focus( { preventScroll: true } );
+			}
+		}
+
+		function place() {
 			toggle( false );
 			more.remove();
 			items.forEach( ( item ) => list.append( item ) );
@@ -107,10 +123,6 @@
 					menu.append( item );
 				}
 			} );
-			if ( focused && more.contains( focused ) ) {
-				toggle( wasOpen );
-				focused.focus();
-			}
 		}
 
 		button.addEventListener( 'click', () => toggle( menu.hidden ) );
@@ -132,6 +144,10 @@
 		} );
 
 		layout();
+		const wide = window.matchMedia( WIDE );
+		if ( wide.addEventListener ) {
+			wide.addEventListener( 'change', layout );
+		}
 		let width = list.clientWidth;
 		const again = () => {
 			if ( list.clientWidth !== width ) {
