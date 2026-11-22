@@ -274,6 +274,7 @@ final class DatabaseCleaner {
 			'_mhmrentiva_created_via',
 			'_mhmrentiva_custom_details',
 			'_mhmrentiva_customer_email',
+			'_mhmrentiva_customer_gone',
 			'_mhmrentiva_customer_first_name',
 			'_mhmrentiva_customer_id',
 			'_mhmrentiva_customer_last_name',

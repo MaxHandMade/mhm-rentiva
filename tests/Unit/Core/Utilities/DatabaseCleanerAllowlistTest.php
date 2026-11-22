@@ -128,6 +128,7 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		'_mhmrentiva_legacy_thread_uuid',
 		'_mhmrentiva_message_count',
 		// Pro's conversations between a customer and a vendor.
+		'_mhmrentiva_customer_gone',
 		'_mhmrentiva_message_kind',
 		'_mhmrentiva_message_original',
 		'_mhmrentiva_message_original_subject',
