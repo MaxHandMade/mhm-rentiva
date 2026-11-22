@@ -635,7 +635,7 @@ final class SetupWizard {
 		check_admin_referer('mhmrentiva_setup_email');
 
 		$settings                                  = get_option('mhmrentiva_settings', array());
-		$settings['mhmrentiva_email_from_name']    = sanitize_text_field(wp_unslash($_POST['sender_name'] ?? ''));
+		$settings['mhmrentiva_email_from_name']    = \MHMRentiva\Admin\Core\Security\VerifiedRequest::from($_POST)->line('sender_name');
 		$settings['mhmrentiva_email_from_address'] = sanitize_email(wp_unslash($_POST['sender_email'] ?? ''));
 		$settings['mhmrentiva_email_reply_to']     = sanitize_email(wp_unslash($_POST['reply_address'] ?? ''));
 		$settings['mhmrentiva_email_test_mode']    = isset($_POST['test_mode']) ? '1' : '0';

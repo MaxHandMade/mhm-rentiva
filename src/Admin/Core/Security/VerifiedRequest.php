@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Security;
 
+use MHMRentiva\Admin\Core\Helpers\Sanitizer;
+
 if (! defined('ABSPATH')) {
 	exit;
 }
@@ -79,7 +81,21 @@ final class VerifiedRequest {
 	}
 
 	/**
-	 * Sanitized multi-line text, newlines preserved.
+	 * A line a person wrote, percent signs kept (Sanitizer::line()). text() is
+	 * for keys, dates, statuses and tokens.
+	 */
+	public function line(string $key, string $fallback = ''): string
+	{
+		if (! isset($this->data[ $key ]) || is_array($this->data[ $key ])) {
+			return $fallback;
+		}
+
+		return Sanitizer::line(wp_unslash( (string) $this->data[ $key ]));
+	}
+
+	/**
+	 * Multi-line text a person wrote: newlines and percent signs kept
+	 * (Sanitizer::lines()).
 	 */
 	public function textarea(string $key, string $fallback = ''): string
 	{
@@ -87,7 +103,7 @@ final class VerifiedRequest {
 			return $fallback;
 		}
 
-		return sanitize_textarea_field(wp_unslash( (string) $this->data[ $key ]));
+		return Sanitizer::lines(wp_unslash( (string) $this->data[ $key ]));
 	}
 
 	/**

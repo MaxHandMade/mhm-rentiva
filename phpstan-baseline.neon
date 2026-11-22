@@ -472,12 +472,6 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/ContactForm.php
 
 		-
-			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/ContactForm.php
-
-		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_PATH not found\.$#'
 			identifier: constant.notFound
 			count: 2

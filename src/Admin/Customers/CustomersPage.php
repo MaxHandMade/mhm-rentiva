@@ -498,7 +498,7 @@ final class CustomersPage {
 			$customer_name    = isset($_POST['customer_name']) ? sanitize_text_field(wp_unslash( (string) $_POST['customer_name'])) : '';
 			$customer_email   = sanitize_email(wp_unslash($_POST['customer_email'] ?? ''));
 			$customer_phone   = isset($_POST['customer_phone']) ? sanitize_text_field(wp_unslash( (string) $_POST['customer_phone'])) : '';
-			$customer_address = sanitize_textarea_field(wp_unslash($_POST['customer_address'] ?? ''));
+			$customer_address = \MHMRentiva\Admin\Core\Security\VerifiedRequest::from($_POST)->textarea('customer_address');
 
 			// Phone is required alongside name and e-mail: bookings need a way to
 			// reach the customer, and the HTML `required` attribute alone is not

@@ -52,7 +52,7 @@ final class Transformers {
 
             case 'string':
             default:
-                return is_scalar($value) ? sanitize_text_field( (string) $value) : ( $config['default'] ?? '' );
+                return is_scalar($value) ? \MHMRentiva\Admin\Core\Helpers\Sanitizer::line($value) : ( $config['default'] ?? '' );
         }
     }
 

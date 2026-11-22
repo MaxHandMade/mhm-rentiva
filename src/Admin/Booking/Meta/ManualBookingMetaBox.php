@@ -896,7 +896,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		$payment_type   = isset($_POST['payment_type']) ? sanitize_text_field(wp_unslash( (string) $_POST['payment_type'])) : 'deposit';
 		$payment_method = isset($_POST['payment_method']) ? sanitize_text_field(wp_unslash( (string) $_POST['payment_method'])) : 'woocommerce';
 		$status         = isset($_POST['status']) ? sanitize_text_field(wp_unslash( (string) $_POST['status'])) : Status::CONFIRMED;
-		$notes          = isset($_POST['notes']) ? sanitize_textarea_field(wp_unslash( (string) $_POST['notes'])) : '';
+		$notes          = \MHMRentiva\Admin\Core\Security\VerifiedRequest::from($_POST)->textarea('notes');
 
 		if (! $vehicle_id || ! $customer_id || ! $pickup_date || ! $dropoff_date) {
 			wp_send_json_error(array( 'message' => esc_html__('Required fields are missing.', 'mhm-rentiva') ));

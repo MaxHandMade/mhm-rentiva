@@ -445,11 +445,11 @@ abstract class AbstractMetaBox {
 			case 'url':
 				return esc_url_raw( $value ?: '' );
 			case 'textarea':
-				return sanitize_textarea_field( (string) ( $value ?: '' ) );
+				return \MHMRentiva\Admin\Core\Helpers\Sanitizer::lines( $value );
 			case 'number':
 				return static::sanitize_text_field_safe( $value ); // WordPress number sanitization
 			default:
-				return static::sanitize_text_field_safe( $value );
+				return \MHMRentiva\Admin\Core\Helpers\Sanitizer::line( $value );
 		}
 	}
 

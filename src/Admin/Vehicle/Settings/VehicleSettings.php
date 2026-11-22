@@ -19,6 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Manage vehicle features and equipment in admin panel
  */
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Vehicle settings screens rely on controlled analytical/meta queries for admin management.
+use MHMRentiva\Admin\Core\Helpers\Sanitizer;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 
 final class VehicleSettings {
@@ -100,7 +101,7 @@ final class VehicleSettings {
 			foreach ( $custom_details as $key => $detail_data ) {
 				if ( is_array( $detail_data ) && isset( $detail_data['label'] ) && isset( $detail_data['value'] ) ) {
 					// Add to global options
-					$available_details[ self::sanitize_text_field_safe( $key ) ] = self::sanitize_text_field_safe( $detail_data['label'] );
+					$available_details[ self::sanitize_text_field_safe( $key ) ] = Sanitizer::line( $detail_data['label'] );
 					$option_updated = true;
 				}
 			}
@@ -113,7 +114,7 @@ final class VehicleSettings {
 	}
 
 	/**
-	 * Sanitize an array-shaped option: `sanitize_key()` on the KEY, `sanitize_text_field()`
+	 * Sanitize an array-shaped option: `sanitize_key()` on the KEY, `Sanitizer::line()`
 	 * on the VALUE.
 	 *
 	 * Used for `mhmrentiva_selected_*` (selected field-key lists) and `mhmrentiva_custom_*`
@@ -123,8 +124,7 @@ final class VehicleSettings {
 	 * server-generated (`custom_<time>_<rand>`, see ajax_add_custom_field())
 	 * or taxonomy-derived (`tax_<taxonomy>_<slug>`), both already
 	 * `[a-z0-9_-]`, so `sanitize_key()` is lossless for real data. The VALUE
-	 * is a plain label/selection string, so `sanitize_text_field()` (as
-	 * before) is correct there.
+	 * is a plain label/selection string a person wrote.
 	 *
 	 * `array_map( 'sanitize_text_field', $input )` sanitized
 	 * VALUES only -- `array_map()` never touches keys -- so a dirty array key
@@ -146,7 +146,7 @@ final class VehicleSettings {
 			if ( '' === $safe_key ) {
 				continue;
 			}
-			$out[ $safe_key ] = sanitize_text_field( is_scalar( $value ) ? (string) $value : '' );
+			$out[ $safe_key ] = Sanitizer::line( $value );
 		}
 
 		return $out;
@@ -1578,7 +1578,7 @@ final class VehicleSettings {
 
 		// Key always generated server-side — never trust client-provided keys
 		$field_key   = 'custom_' . time() . '_' . wp_rand( 1000, 9999 );
-		$field_label = $req->text( 'field_label' );
+		$field_label = $req->line( 'field_label' );
 		$field_type  = $req->text( 'field_type' ); // details, features, equipment
 
 		// Encoding fix - For Turkish characters
@@ -1594,7 +1594,7 @@ final class VehicleSettings {
 				$field_meta               = get_option( 'mhmrentiva_custom_field_meta', array() );
 				$field_meta[ $field_key ] = array(
 					'type'    => $req->text( 'type' ),
-					'options' => $req->text( 'options' ),
+					'options' => $req->line( 'options' ),
 				);
 				update_option( 'mhmrentiva_custom_field_meta', $field_meta );
 			}

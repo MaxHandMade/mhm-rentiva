@@ -15,8 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Template variables - sanitized and escaped
 $status        = isset( $args['status'] ) ? mhmrentiva_sanitize_text_field_safe( $args['status'] ) : 'approved';
 $customer_name = isset( $args['customer_name'] ) ? mhmrentiva_sanitize_text_field_safe( $args['customer_name'] ) : '';
-$booking_title = isset( $args['booking_title'] ) ? mhmrentiva_sanitize_text_field_safe( $args['booking_title'] ) : '';
-$admin_note    = isset( $args['admin_note'] ) ? sanitize_textarea_field( $args['admin_note'] ) : '';
+$booking_title = isset( $args['booking_title'] ) ? \MHMRentiva\Admin\Core\Helpers\Sanitizer::line( $args['booking_title'] ) : '';
+$admin_note    = isset( $args['admin_note'] ) ? \MHMRentiva\Admin\Core\Helpers\Sanitizer::lines( $args['admin_note'] ) : '';
 $account_url   = isset( $args['account_url'] ) ? esc_url_raw( $args['account_url'] ) : '';
 $site_name     = get_bloginfo( 'name' );
 $site_url      = home_url();

@@ -189,7 +189,7 @@ final class SettingsSanitizer {
 	}
 
 	/**
-	 * Keys a tab stores with sanitize_textarea_field().
+	 * Keys a tab stores as multi-line text (Sanitizer::lines()).
 	 *
 	 * The programmatic branch below sees the whole settings array on every
 	 * write (the setup wizard saves it in full), so without this list those
@@ -209,7 +209,7 @@ final class SettingsSanitizer {
 		/**
 		 * Filters the settings keys a programmatic write treats as multi-line text.
 		 *
-		 * @param string[] $keys Keys sanitized with sanitize_textarea_field().
+		 * @param string[] $keys Keys stored with their line breaks.
 		 */
 		$filtered = apply_filters( 'mhmrentiva_settings_textarea_keys', $keys );
 
@@ -254,8 +254,8 @@ final class SettingsSanitizer {
 			}
 
 			$out[ $key ] = in_array( $key, $textarea, true )
-				? \sanitize_textarea_field( (string) $value )
-				: \sanitize_text_field( (string) $value );
+				? \MHMRentiva\Admin\Core\Helpers\Sanitizer::lines( $value )
+				: \MHMRentiva\Admin\Core\Helpers\Sanitizer::line( $value );
 		}
 
 		return $out;
@@ -288,7 +288,7 @@ final class SettingsSanitizer {
 		if ( null === $value || '' === $value || \is_array( $value ) ) {
 			return '';
 		}
-		return \sanitize_text_field( (string) $value );
+		return \MHMRentiva\Admin\Core\Helpers\Sanitizer::line( $value );
 	}
 
 	/**
@@ -627,11 +627,11 @@ final class SettingsSanitizer {
 			'mhmrentiva_send_auto_cancel_email'           => self::get_bool( $input, 'mhmrentiva_send_auto_cancel_email' ),
 			'mhmrentiva_default_rental_days'              => self::get_int( $input, 'mhmrentiva_default_rental_days', 1, 1, 365 ),
 			// Shown on the vehicle page's rental conditions.
-			'mhmrentiva_booking_security_deposit_note'    => sanitize_textarea_field( (string) ( $input['mhmrentiva_booking_security_deposit_note'] ?? '' ) ),
-			'mhmrentiva_booking_fuel_policy_note'         => sanitize_textarea_field( (string) ( $input['mhmrentiva_booking_fuel_policy_note'] ?? '' ) ),
+			'mhmrentiva_booking_security_deposit_note'    => \MHMRentiva\Admin\Core\Helpers\Sanitizer::lines( $input['mhmrentiva_booking_security_deposit_note'] ?? '' ),
+			'mhmrentiva_booking_fuel_policy_note'         => \MHMRentiva\Admin\Core\Helpers\Sanitizer::lines( $input['mhmrentiva_booking_fuel_policy_note'] ?? '' ),
 			// Rental agreement on the booking form; an empty text uses the template.
 			'mhmrentiva_rental_agreement_enabled'         => self::get_bool( $input, 'mhmrentiva_rental_agreement_enabled' ),
-			'mhmrentiva_rental_agreement_text'            => sanitize_textarea_field( (string) ( $input['mhmrentiva_rental_agreement_text'] ?? '' ) ),
+			'mhmrentiva_rental_agreement_text'            => \MHMRentiva\Admin\Core\Helpers\Sanitizer::lines( $input['mhmrentiva_rental_agreement_text'] ?? '' ),
 		);
 	}
 
@@ -741,7 +741,7 @@ final class SettingsSanitizer {
 			}
 		}
 
-		$out['mhmrentiva_text_login_required'] = \sanitize_textarea_field( $input['mhmrentiva_text_login_required'] ?? '' );
+		$out['mhmrentiva_text_login_required'] = \MHMRentiva\Admin\Core\Helpers\Sanitizer::lines( $input['mhmrentiva_text_login_required'] ?? '' );
 
 		return array_merge( $out, self::sanitize_accent_settings( $input ) );
 	}
@@ -889,7 +889,7 @@ final class SettingsSanitizer {
 		return array(
 			'mhmrentiva_transfer_deposit_type' => self::validate_enum( $input['mhmrentiva_transfer_deposit_type'] ?? '', array( 'full_payment', 'percentage' ), 'full_payment' ),
 			'mhmrentiva_transfer_deposit_rate' => self::get_int( $input, 'mhmrentiva_transfer_deposit_rate', 20, 1, 100 ),
-			'mhmrentiva_transfer_custom_types' => \sanitize_textarea_field( $input['mhmrentiva_transfer_custom_types'] ?? '' ),
+			'mhmrentiva_transfer_custom_types' => \MHMRentiva\Admin\Core\Helpers\Sanitizer::lines( $input['mhmrentiva_transfer_custom_types'] ?? '' ),
 		);
 	}
 

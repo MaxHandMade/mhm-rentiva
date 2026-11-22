@@ -88,7 +88,7 @@ final class EmailLog {
 
 		update_post_meta( $post_id, '_mhmrentiva_email_key', sanitize_text_field( $key ) );
 		update_post_meta( $post_id, '_mhmrentiva_email_to', sanitize_email( $to ) );
-		update_post_meta( $post_id, '_mhmrentiva_email_subject', wp_slash( sanitize_text_field( $subject ) ) );
+		update_post_meta( $post_id, '_mhmrentiva_email_subject', wp_slash( \MHMRentiva\Admin\Core\Helpers\Sanitizer::line( $subject ) ) );
 		update_post_meta( $post_id, '_mhmrentiva_email_status', $ok ? 'success' : 'failed' );
 		update_post_meta( $post_id, '_mhmrentiva_email_context', wp_slash( (string) wp_json_encode( $context ) ) );
 	}

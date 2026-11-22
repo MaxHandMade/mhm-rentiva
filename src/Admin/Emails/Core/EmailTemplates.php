@@ -339,7 +339,7 @@ final class EmailTemplates {
 					update_option($field_name, '1');
 					break;
 				case 'text':
-					update_option($field_name, sanitize_text_field( (string) ( $value ?: '' )));
+					update_option($field_name, \MHMRentiva\Admin\Core\Helpers\Sanitizer::line($value));
 					break;
 				case 'email':
 					update_option($field_name, sanitize_email( (string) ( $value ?: '' )));
@@ -348,7 +348,7 @@ final class EmailTemplates {
 					update_option($field_name, wp_kses_post($value ?: ''));
 					break;
 				default:
-					update_option($field_name, sanitize_text_field( (string) ( $value ?: '' )));
+					update_option($field_name, \MHMRentiva\Admin\Core\Helpers\Sanitizer::line($value));
 					break;
 			}
 		}

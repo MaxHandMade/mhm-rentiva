@@ -344,7 +344,7 @@ final class CommentsSettingsGroup {
 		$spam_words       = isset( $settings['spam_protection']['spam_words'] ) && is_array( $settings['spam_protection']['spam_words'] )
 			? $settings['spam_protection']['spam_words']
 			: array( 'spam', 'viagra', 'casino', 'loan', 'free money', 'click here' );
-		$spam_words_value = implode( ', ', array_map( 'sanitize_text_field', $spam_words ) );
+		$spam_words_value = implode( ', ', array_map( array( \MHMRentiva\Admin\Core\Helpers\Sanitizer::class, 'line' ), $spam_words ) );
 
 		// Note: For spam words, we use 'spam_protection' as group and 'spam_words' as field.
 		// The helper will handle the dynamic name generation.

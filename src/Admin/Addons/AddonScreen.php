@@ -376,7 +376,7 @@ final class AddonScreen {
 			return self::create_failure( __( 'You do not have permission for this action.', 'mhm-rentiva' ) );
 		}
 
-		$title = isset( $request['title'] ) ? sanitize_text_field( (string) $request['title'] ) : '';
+		$title = isset( $request['title'] ) ? \MHMRentiva\Admin\Core\Helpers\Sanitizer::line( $request['title'] ) : '';
 		$title = trim( $title );
 
 		if ( '' === $title ) {
@@ -390,7 +390,7 @@ final class AddonScreen {
 		}
 
 		$description = isset( $request['description'] )
-			? sanitize_textarea_field( (string) $request['description'] )
+			? \MHMRentiva\Admin\Core\Helpers\Sanitizer::lines( $request['description'] )
 			: '';
 
 		$pricing_type = AddonPricingType::sanitize(

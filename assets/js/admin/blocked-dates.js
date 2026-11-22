@@ -193,10 +193,9 @@
 	}
 
 	/**
-	 * JSON.stringify() leaves "<" literal. The save handler runs the notes blob
-	 * through sanitize_textarea_field(), whose strip_tags() would truncate the
-	 * JSON at an unclosed "<" and silently drop every note, so emit "<" as its
-	 * unicode escape instead -- json_decode() turns it back into "<".
+	 * JSON.stringify() leaves "<" literal, and anything on the way that strips
+	 * tags would cut the JSON there. Emitted as its unicode escape;
+	 * json_decode() turns it back into "<".
 	 */
 	function toSafeJson( value ) {
 		return JSON.stringify( value ).replace( /</g, '\\u003C' );

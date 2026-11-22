@@ -58,7 +58,7 @@ final class ContactMessagesRestController {
 				'search'   => array(
 					'type'              => 'string',
 					'default'           => '',
-					'sanitize_callback' => 'sanitize_text_field',
+					'sanitize_callback' => array( \MHMRentiva\Admin\Core\Helpers\Sanitizer::class, 'line' ),
 				),
 				'page'     => array(
 					'type'    => 'integer',

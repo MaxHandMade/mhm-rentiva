@@ -619,7 +619,8 @@ final class SearchResults extends AbstractShortcode {
 	private static function get_search_params_from_url(): array
 	{
 		return array(
-			'keyword'         => self::get_text('keyword'),
+			// What the visitor typed; a vehicle title may carry "%10".
+			'keyword'         => \MHMRentiva\Admin\Core\Helpers\Sanitizer::line(wp_unslash(get_query_var(self::query_var('keyword'), ''))),
 			'pickup_date'     => self::submitted_date(self::get_text('pickup_date')),
 			'return_date'     => self::submitted_date(self::get_text('return_date')),
 			// The window's time, as the AJAX path reads it: the page and its
@@ -2044,7 +2045,7 @@ final class SearchResults extends AbstractShortcode {
 			// `page` stays bare: it is core's query var on the URL side and this
 			// payload mirrors it.
 			$search_params = array(
-				'keyword'         => $req->text(self::query_var('keyword')),
+				'keyword'         => $req->line(self::query_var('keyword')),
 				'pickup_date'     => self::submitted_date($req->text(self::query_var('pickup_date'))),
 				'return_date'     => self::submitted_date($req->text(self::query_var('return_date'))),
 				// The window's time: the search and the cards' links both use it.

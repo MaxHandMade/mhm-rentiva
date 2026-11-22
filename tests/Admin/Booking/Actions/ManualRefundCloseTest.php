@@ -375,6 +375,14 @@ final class ManualRefundCloseTest extends WP_Ajax_UnitTestCase
         $this->assertSame('CASH-0002', $matching[0]['data']['reference'] ?? null);
     }
 
+    public function test_a_percent_in_the_reference_is_kept(): void
+    {
+        $response = $this->call_close($this->booking_id, array( 'reference' => 'Kasa %10 kesinti' ));
+        $this->assertTrue((bool) ( $response['success'] ?? false ), 'Sanity. Raw: ' . $this->_last_response);
+
+        $this->assertSame('Kasa %10 kesinti', get_post_meta($this->booking_id, '_mhmrentiva_refund_completed_reference', true));
+    }
+
     /**
      * M4 (fix round 1): sanitize_text_field() normalises but does not
      * truncate, and the reference goes verbatim into a WC order note and

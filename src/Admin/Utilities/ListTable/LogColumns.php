@@ -115,7 +115,7 @@ final class LogColumns {
 				}
 				break;
 			case 'message':
-				$msg = self::sanitize_text_field_safe( get_post_field( 'post_content', $post_id ) );
+				$msg = \MHMRentiva\Admin\Core\Helpers\Sanitizer::line( get_post_field( 'post_content', $post_id ) );
 				if ( $msg !== '' ) {
 					echo esc_html( wp_strip_all_tags( $msg ) );
 				} else {
