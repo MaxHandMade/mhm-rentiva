@@ -67,6 +67,25 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		$this->assertStringContainsString('data-rvs-calendar', $html);
 	}
 
+	public function test_the_booking_box_ends_with_a_hook_that_knows_the_vehicle(): void
+	{
+		$seen   = array();
+		$listen = static function ($vehicle_id) use (&$seen): void {
+			$seen[] = $vehicle_id;
+			echo '<p class="probe-after-box"></p>';
+		};
+		add_action('mhmrentiva_vehicle_booking_box_after', $listen);
+		$with    = $this->render();
+		$without = $this->render(' show_booking="0"');
+		remove_action('mhmrentiva_vehicle_booking_box_after', $listen);
+
+		$this->assertSame(array( $this->vehicle_id ), $seen, 'Once, and only where the box is drawn.');
+		$this->assertStringNotContainsString('probe-after-box', $without);
+		$probe = strpos($with, 'probe-after-box');
+		$this->assertGreaterThan(strpos($with, 'rvs-vd__assurances'), $probe);
+		$this->assertLessThan(strpos($with, 'rvs-vd__bar"'), $probe, 'Inside the box, above the phone bar.');
+	}
+
 	/**
 	 * @return array<string, array{0: string, 1: string}>
 	 */

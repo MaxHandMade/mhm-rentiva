@@ -143,6 +143,16 @@ $mhmrentiva_continue   = static function (string $extra_class) use ($mhmrentiva_
 				<li><?php echo esc_html( (string) $mhmrentiva_booking['cancel_text']); ?></li>
 			<?php endif; ?>
 		</ul>
+		<?php
+		/**
+		 * Fires at the end of the vehicle page's booking box, under the assurances.
+		 *
+		 * @since 6.5.0
+		 *
+		 * @param int $vehicle_id Vehicle.
+		 */
+		do_action('mhmrentiva_vehicle_booking_box_after', (int) $mhmrentiva_view['vehicle_id']);
+		?>
 	</div>
 
 	<div class="rvs-vd__bar" role="region" aria-label="<?php esc_attr_e('Booking summary', 'mhm-rentiva'); ?>">

@@ -274,8 +274,8 @@ final class Uninstaller {
 			++$results['posts_deleted'];
 		}
 
-		// 3b. Delete the plugin's own records: logs, contact messages and the
-		// additional-services catalogue.
+		// 3b. Delete the plugin's own records: logs, contact messages, the
+		// add-on's conversations and the additional-services catalogue.
 		//
 		// Step 4's `_mhmrentiva%` postmeta sweep strips the meta but leaves the
 		// wp_posts row, and for a contact message that row still holds the
@@ -292,13 +292,19 @@ final class Uninstaller {
 		// is catalogue data with no such argument -- and leaving it behind meant
 		// one post type out of four survived, under a slug nothing registers any
 		// more.
+		//
+		// mhmrentiva_message (the paid add-on's customer conversations) has the
+		// contact message's reason: step 4 strips the meta that says whose words
+		// they are, and the words themselves would stay, out of reach of every
+		// privacy request.
 		$owned_records = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT ID FROM {$wpdb->posts} WHERE post_type IN ( %s, %s, %s, %s )",
+				"SELECT ID FROM {$wpdb->posts} WHERE post_type IN ( %s, %s, %s, %s, %s )",
 				'mhmrentiva_contact',
 				'mhmrentiva_app_log',
 				'mhmrentiva_email_log',
-				'mhmrentiva_addon'
+				'mhmrentiva_addon',
+				'mhmrentiva_message'
 			)
 		);
 
