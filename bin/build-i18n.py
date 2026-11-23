@@ -470,10 +470,51 @@ def find_stray_catalogs(entries: list[str], slugs: list[str], locale: str) -> li
     )
 
 
+def verify_pot_routing(entries: list[str], locale: str, po_path: Path) -> list[str]:
+    """Every msgid the committed .pot routes to a bundle must be in that
+    bundle's catalog.
+
+    The completeness check above measures each catalog against the .po's `#:`
+    references, which make-json routes by. A .po merged by adding only the new
+    entries keeps an OLD entry's references as they were, so a string an
+    existing screen already used and a new screen now uses too is routed only
+    to the old screen: the .po and the catalog agree with each other, the check
+    above is green, and the new screen shows it in English. That shipped twice
+    (two strings on one screen, then seven). The .pot is regenerated from the sources, so
+    it is the reference set to measure against.
+
+    Compared per bundle, not per file: a missing reference to another file of a
+    bundle that already carries the string changes nothing on screen.
+    """
+    pot_path = LANGUAGES / f"{DOMAIN}.pot"
+    if not pot_path.exists():
+        return [f"{pot_path.name} not found — the routing check needs the committed .pot"]
+
+    want_by_bundle, _ = po_msgids_by_bundle(pot_path, entries)
+    problems: list[str] = []
+    for entry in entries:
+        path = LANGUAGES / canonical_react_filename(entry, locale)
+        if not path.exists():
+            continue  # already reported as absent by verify_react_catalogs()
+        data = json.loads(path.read_text(encoding="utf-8"))
+        have = set(data.get("locale_data", {}).get("messages", {}))
+        absent = want_by_bundle[entry] - have
+        if absent:
+            sample = ", ".join(repr(m) for m in sorted(absent)[:7])
+            problems.append(
+                f"{entry} -> {path.name} ({len(absent)} msgid(s) the .pot routes "
+                f"to this screen are not in its catalog: {sample}). Their "
+                f"{po_path.name} entries lack the src-react `#:` reference the "
+                f".pot has: copy those reference lines into each .po, then "
+                f"regenerate.")
+    return problems
+
+
 def verify_all(entries: list[str], slugs: list[str], locale: str,
                po_path: Path) -> tuple[list[str], str, int, int]:
-    """React (step 5) + blocks (step 6) + stray files, as one verdict."""
+    """React (step 5) + .pot routing (5b) + blocks (step 6) + stray files, as one verdict."""
     problems, po_date, react_pairs = verify_react_catalogs(entries, locale, po_path)
+    problems += verify_pot_routing(entries, locale, po_path)
     block_problems, block_pairs = verify_block_catalogs(slugs, locale, po_path)
     problems += block_problems
     problems += [f"{name} (stray: not the catalog of any React bundle or block "
@@ -530,8 +571,10 @@ def main() -> int:
         print("[i18n] Mode      : VERIFY ONLY — generating nothing")
         # Declare the blind spots rather than letting a green line imply more
         # than it checked (the failure this whole gate exists to prevent).
-        print("       Not checked here: whether the .po itself is up to date with")
-        print("       the sources (that is make-pot's job), whether a block's")
+        print("       Checked against the committed .pot: every React string it")
+        print("       routes to a screen is in that screen's catalog. Not checked")
+        print("       here: whether the .pot itself is up to date with the sources")
+        print("       (that is make-pot's job), whether a block's")
         print("       block.json strings translate (PHP-side, via the .mo), and")
         print(f"       locales other than {locale}.")
         print("       Also NOT checked: translation QUALITY. Freshness is date")
