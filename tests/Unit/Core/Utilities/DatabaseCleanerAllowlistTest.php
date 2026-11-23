@@ -118,6 +118,9 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		'_mhmrentiva_commission_pending_policy',
 		'_mhmrentiva_iban_change_status',
 		'_mhmrentiva_pending_iban',
+		// Pro marks the payout request opened for what was left when a vendor
+		// account was cancelled.
+		'_mhmrentiva_payout_closing',
 		// Pro's messages thread model (DB 1.0.8) writes these on its
 		// mhmrentiva_message posts. legacy_status is a transient migration
 		// snapshot, swept at the end of the 1.0.8 migration, but it is on disk
