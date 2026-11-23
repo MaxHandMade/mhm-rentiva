@@ -646,6 +646,7 @@ final class DatabaseCleaner {
 			'_mhmrentiva_vendor_slug',
 			'_mhmrentiva_vendor_slug_history',
 			'_mhmrentiva_vendor_status',
+			'_mhmrentiva_vendor_warnings',
 			'_mhmrentiva_waiting_notified',
 			'_mhmrentiva_waiting_since',
 			'mhmrentiva_addon_description',

@@ -170,6 +170,7 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		'_mhmrentiva_vendor_status',
 		'_mhmrentiva_vendor_tax_number',
 		'_mhmrentiva_vendor_tax_office',
+		'_mhmrentiva_vendor_warnings',
 		'_mhm_bypass_reason',
 		'_mhm_cooling_policy_version',
 		'_mhm_ip_address',
