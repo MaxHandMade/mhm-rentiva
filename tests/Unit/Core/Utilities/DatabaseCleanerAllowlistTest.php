@@ -174,6 +174,10 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		'_mhmrentiva_vendor_tax_number',
 		'_mhmrentiva_vendor_tax_office',
 		'_mhmrentiva_vendor_warnings',
+		// Pro's ban of a vendor account: the account's ban record and the mark
+		// on the listings the cancellation took down.
+		'_mhmrentiva_vendor_ban_id',
+		'_mhmrentiva_vehicle_unpublished_by_vendor_revoke',
 		'_mhm_bypass_reason',
 		'_mhm_cooling_policy_version',
 		'_mhm_ip_address',
