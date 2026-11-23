@@ -164,6 +164,20 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		$this->assertMatchesRegularExpression('/\.rvs-vd__actions \.rvs-btn \{[^}]*width: 44px;/', $phone);
 	}
 
+	public function test_few_photos_keep_the_two_row_gallery(): void
+	{
+		$css = (string) file_get_contents(MHMRENTIVA_PLUGIN_DIR . 'assets/css/rvs/rvs-vehicle.css'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- test reads a shipped asset.
+		$desk = substr($css, 0, (int) strpos($css, '@media (max-width: 768px)'));
+
+		// Four photos: the large one spans two columns, so the fourth has to
+		// take the lower right half; left to auto-placement it opened a third
+		// row as tall as its image.
+		$this->assertMatchesRegularExpression('/\.rvs-vd__gallery--4 \.rvs-vd__photo:nth-child\(4\) \{[^}]*grid-column: 3 \/ 5;[^}]*grid-row: 2;/', $desk);
+		$this->assertMatchesRegularExpression('/\.rvs-vd__gallery--3 \.rvs-vd__photo:nth-child\(3\) \{[^}]*grid-column: 3 \/ 5;/', $desk);
+		$this->assertMatchesRegularExpression('/\.rvs-vd__gallery--2 \.rvs-vd__photo:nth-child\(2\) \{[^}]*grid-row: 1 \/ 3;/', $desk);
+		$this->assertDoesNotMatchRegularExpression('/\.rvs-vd__gallery--\d \.rvs-vd__strip[^{]*\{[^}]*grid-template-rows/', $desk);
+	}
+
 	public function test_ids_unique_with_two_instances(): void
 	{
 		// The nested rating form keeps its own per-vehicle ids until surface 6
