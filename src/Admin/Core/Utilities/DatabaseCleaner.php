@@ -364,6 +364,7 @@ final class DatabaseCleaner {
 			'_mhmrentiva_payment_status',
 			'_mhmrentiva_payment_type',
 			'_mhmrentiva_payout_amount',
+			'_mhmrentiva_payout_closing',
 			'_mhmrentiva_payout_external_ref',
 			'_mhmrentiva_payout_maker_id',
 			'_mhmrentiva_payout_rejection_reason',
