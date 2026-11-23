@@ -207,7 +207,7 @@
             const $label = $(input).closest('label');
             const originalText = $label.text();
             $label.addClass('is-loading');
-            $label.contents().filter(function () { return this.nodeType === 3; }).first().replaceWith(this.config.i18n.uploading + ' ');
+            $label.contents().filter(function () { return this.nodeType === 3; }).first().replaceWith(document.createTextNode(this.config.i18n.uploading + ' '));
 
             $.ajax({
                 url: this.config.ajaxUrl,
@@ -230,7 +230,7 @@
                 },
                 complete: () => {
                     $label.removeClass('is-loading');
-                    $label.contents().filter(function () { return this.nodeType === 3; }).first().replaceWith(originalText + ' ');
+                    $label.contents().filter(function () { return this.nodeType === 3; }).first().replaceWith(document.createTextNode(originalText + ' '));
                     $(input).val('');
                 }
             });

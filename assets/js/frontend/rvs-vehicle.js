@@ -287,6 +287,18 @@
 		}
 	}
 
+	// Only http(s) addresses reach the viewer's src; relative ones resolve against the page.
+	function safeImageUrl( value ) {
+		const raw = String( value || '' );
+		let href = '';
+		try {
+			href = new URL( raw, window.location.href ).href;
+		} catch ( e ) {
+			return '';
+		}
+		return /^https?:\/\//i.test( href ) ? href : '';
+	}
+
 	function showImage( $root, index ) {
 		const state = stateOf( $root );
 		const images = galleryImages( $root );
@@ -296,7 +308,7 @@
 		state.gallery = ( index + images.length ) % images.length;
 		const image = images[ state.gallery ];
 		const $viewer = $root.find( '[data-rvs-gallery-viewer]' );
-		$viewer.find( '[data-rvs-gallery-img]' ).attr( { src: image.src, alt: image.alt || '' } );
+		$viewer.find( '[data-rvs-gallery-img]' ).attr( { src: safeImageUrl( image.src ), alt: String( image.alt || '' ) } );
 		$viewer.find( '[data-rvs-gallery-count]' ).text( ( state.gallery + 1 ) + ' / ' + images.length );
 	}
 

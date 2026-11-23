@@ -286,19 +286,30 @@ describe( 'rvs vehicle page', () => {
 		const img = viewer.querySelector( '[data-rvs-gallery-img]' );
 		expect( viewer.hidden ).toBe( false );
 		expect( viewer.getAttribute( 'role' ) ).toBe( 'dialog' );
-		expect( img.getAttribute( 'src' ) ).toBe( '/b.jpg' );
+		expect( img.getAttribute( 'src' ) ).toBe( 'http://localhost/b.jpg' );
 		expect( viewer.querySelector( '[data-rvs-gallery-count]' ).textContent ).toBe( '2 / 3' );
 
 		viewer.querySelector( '[data-rvs-gallery-step="1"]' ).click();
-		expect( img.getAttribute( 'src' ) ).toBe( '/c.jpg' );
+		expect( img.getAttribute( 'src' ) ).toBe( 'http://localhost/c.jpg' );
 		document.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'ArrowRight', bubbles: true } ) );
-		expect( img.getAttribute( 'src' ) ).toBe( '/a.jpg' );
+		expect( img.getAttribute( 'src' ) ).toBe( 'http://localhost/a.jpg' );
 		document.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'ArrowLeft', bubbles: true } ) );
-		expect( img.getAttribute( 'src' ) ).toBe( '/c.jpg' );
+		expect( img.getAttribute( 'src' ) ).toBe( 'http://localhost/c.jpg' );
 
 		document.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Escape', bubbles: true } ) );
 		expect( viewer.hidden ).toBe( true );
 		expect( document.activeElement ).toBe( opener );
+	} );
+
+	test( 'the gallery viewer only takes http(s) image addresses', async () => {
+		await boot( page( 'vd1' ).replace( '"src":"/b.jpg"', '"src":"javascript:alert(1)"' ).replace( '"src":"/c.jpg"', '"src":"https://cdn.example.com/c.jpg"' ) );
+		document.getElementById( 'vd1-p1' ).click();
+
+		const img = document.querySelector( '[data-rvs-gallery-img]' );
+		expect( img.getAttribute( 'src' ) ).toBe( '' );
+
+		document.querySelector( '[data-rvs-gallery-step="1"]' ).click();
+		expect( img.getAttribute( 'src' ) ).toBe( 'https://cdn.example.com/c.jpg' );
 	} );
 
 	test( 'the phone strip counter follows the scrolled photo', async () => {
