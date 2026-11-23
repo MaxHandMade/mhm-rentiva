@@ -199,8 +199,8 @@ final class WooCommerceIntegration {
 	 * `woocommerce_account_menu_items` callback (priority 21): "My bookings (2)"
 	 * with the upcoming bookings, "My favorites (5)" with the saved vehicles.
 	 * Plain text -- WooCommerce prints the label with esc_html().
-	 * Nothing is added for 0. Items are matched by their (translated) slug;
-	 * every other item, the add-on's included, is left alone.
+	 * Nothing is added for 0. Items are matched by their (translated) slug. An
+	 * extension counts its own items through `mhmrentiva_account_menu_counts`.
 	 *
 	 * Only on the front-end My Account page. WooCommerce also reads the menu
 	 * items for the Appearance > Menus metabox and the Customizer, which save
@@ -227,6 +227,18 @@ final class WooCommerceIntegration {
 				return is_array( $favorites ) ? count( $favorites ) : 0;
 			},
 		);
+
+		/**
+		 * Count the menu items an extension adds.
+		 *
+		 * @param array<string, int> $counts  Menu slug => count; 0 shows none.
+		 * @param int                $user_id Who the menu is drawn for.
+		 */
+		foreach ( (array) apply_filters( 'mhmrentiva_account_menu_counts', array(), $user_id ) as $slug => $number ) {
+			if ( ! isset( $counters[ $slug ] ) && is_int( $number ) ) {
+				$counters[ $slug ] = static fn(): int => $number;
+			}
+		}
 
 		foreach ( $counters as $slug => $counter ) {
 			if ( ! isset( $items[ $slug ] ) || ! is_string( $items[ $slug ] ) ) {
