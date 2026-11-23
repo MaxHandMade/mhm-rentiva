@@ -290,14 +290,13 @@
 	// Only http(s) addresses reach the viewer's src; relative ones resolve against the page.
 	function safeImageUrl( value ) {
 		const raw = String( value || '' );
+		let href = '';
 		try {
-			const url = new URL( raw, window.location.href );
-			return 'http:' === url.protocol || 'https:' === url.protocol
-				? raw
-				: '';
+			href = new URL( raw, window.location.href ).href;
 		} catch ( e ) {
 			return '';
 		}
+		return /^https?:\/\//i.test( href ) ? href : '';
 	}
 
 	function showImage( $root, index ) {
