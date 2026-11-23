@@ -20,9 +20,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  *           do not know. Only the page shell and navigation layer loads, so the
  *           page keeps one layout while WooCommerce styles its own content.
  *   legacy  Endpoints an extension contributes through
- *           `mhmrentiva_account_endpoints` (the add-on's messages and vendor
- *           screens). Their templates still use the old account stylesheets,
- *           so those load on top of the navigation layer.
+ *           `mhmrentiva_account_endpoints`. Their templates still use the old
+ *           account stylesheets, so those load on top of the navigation layer --
+ *           except the ones the extension says are drawn on the `rvs-` layer
+ *           (`mhmrentiva_account_rvs_screens`).
  *
  * @since 6.4.0
  */
@@ -58,6 +59,10 @@ final class AccountSurface {
 			return self::RVS;
 		}
 
+		if ( in_array( sanitize_title( $endpoint_key ), self::extension_rvs_screens(), true ) ) {
+			return self::RVS;
+		}
+
 		if ( in_array( sanitize_title( $endpoint_key ), self::extension_endpoints(), true ) ) {
 			return self::LEGACY;
 		}
@@ -67,9 +72,9 @@ final class AccountSurface {
 
 	/**
 	 * Asset class of an account shortcode, by tag. Lite's own account
-	 * shortcodes are the redesigned screens; every other tag that reuses the
-	 * account base class (the add-on's messages and vendor bookings) keeps the
-	 * old stylesheets.
+	 * shortcodes are the redesigned screens; another tag that reuses the account
+	 * base class keeps the old stylesheets unless its extension names it in
+	 * `mhmrentiva_account_rvs_screens`.
 	 */
 	public static function classify_shortcode( string $tag ): string {
 		foreach ( WooCommerceIntegration::get_rentiva_endpoints_map() as $key => $config ) {
@@ -78,7 +83,7 @@ final class AccountSurface {
 			}
 		}
 
-		return self::LEGACY;
+		return in_array( sanitize_title( $tag ), self::extension_rvs_screens(), true ) ? self::RVS : self::LEGACY;
 	}
 
 	/**
@@ -126,6 +131,21 @@ final class AccountSurface {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Extension screens drawn on the `rvs-` account layer.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function extension_rvs_screens(): array {
+		/**
+		 * Name the account screens an extension draws on the `rvs-` layer.
+		 *
+		 * @param array<int, string> $screens Endpoint slugs and shortcode tags.
+		 */
+		$screens = (array) apply_filters( 'mhmrentiva_account_rvs_screens', array() );
+		return array_values( array_map( 'sanitize_title', array_filter( $screens, static fn( $screen ): bool => is_string( $screen ) && '' !== $screen ) ) );
 	}
 
 	/**

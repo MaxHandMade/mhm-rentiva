@@ -87,6 +87,25 @@ final class AccountSurfaceAssetsTest extends WP_UnitTestCase
 		$this->assertSame(AccountSurface::WC, AccountSurface::classify('orders'));
 	}
 
+	/** Only the screens the extension names; its others keep the old stylesheets. */
+	public function test_an_extension_names_its_rvs_screens(): void
+	{
+		$endpoints = static fn(array $slugs): array => array_merge($slugs, array( 'Mesajlar', 'bayi-ol' ));
+		$screens   = static fn(array $names): array => array_merge($names, array( 'mesajlar', 'rentiva_messages', 5, '' ));
+		add_filter('mhmrentiva_account_endpoints', $endpoints);
+		add_filter('mhmrentiva_account_rvs_screens', $screens);
+		try {
+			$this->assertSame(AccountSurface::RVS, AccountSurface::classify('mesajlar'));
+			$this->assertSame(AccountSurface::RVS, AccountSurface::classify_shortcode('rentiva_messages'));
+			$this->assertSame(AccountSurface::LEGACY, AccountSurface::classify('bayi-ol'));
+			$this->assertSame(AccountSurface::LEGACY, AccountSurface::classify_shortcode('rentiva_vendor_bookings'));
+			$this->assertSame(AccountSurface::WC, AccountSurface::classify('orders'));
+		} finally {
+			remove_filter('mhmrentiva_account_endpoints', $endpoints);
+			remove_filter('mhmrentiva_account_rvs_screens', $screens);
+		}
+	}
+
 	public function test_account_shortcodes_classify_by_tag(): void
 	{
 		$this->assertSame(AccountSurface::RVS, AccountSurface::classify_shortcode('rentiva_my_bookings'));

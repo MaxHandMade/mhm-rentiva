@@ -102,6 +102,29 @@ final class AccountNavCountsTest extends WP_UnitTestCase
 		);
 	}
 
+	/** An extension counts the items it adds; ours stay ours, and 0 shows nothing. */
+	public function test_an_extension_counts_its_own_items(): void
+	{
+		$this->fixture();
+		$asked = array();
+		$own   = WooCommerceIntegration::get_endpoint_slug('favorites');
+		$count = static function (array $counts, int $user_id) use (&$asked, $own): array {
+			$asked[] = $user_id;
+			return $counts + array( 'messages' => 3, 'empty' => 0, 'text' => '7', 'absent' => 4, $own => 99 );
+		};
+		add_filter('mhmrentiva_account_menu_counts', $count, 10, 2);
+		$items = WooCommerceIntegration::add_menu_counts(
+			array( 'messages' => 'Messages', 'empty' => 'Empty', 'text' => 'Text', $own => 'My favorites' )
+		);
+		$this->assertSame(array( 'messages' => 'Messages (3)', 'empty' => 'Empty', 'text' => 'Text', $own => 'My favorites (5)' ), $items);
+		$this->assertSame(array( $this->user ), $asked);
+
+		set_current_screen('nav-menus');
+		$this->assertSame(array( 'messages' => 'Messages' ), WooCommerceIntegration::add_menu_counts(array( 'messages' => 'Messages' )));
+		$this->assertCount(1, $asked, 'Not asked where the menu is not counted.');
+		remove_filter('mhmrentiva_account_menu_counts', $count, 10);
+	}
+
 	/**
 	 * wp-admin (Appearance > Menus metabox, which saves the label into a menu
 	 * item): no counts.
