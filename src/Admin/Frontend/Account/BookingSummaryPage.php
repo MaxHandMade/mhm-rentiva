@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace MHMRentiva\Admin\Frontend\Account;
 
 use MHMRentiva\Admin\Booking\Core\Status;
-use MHMRentiva\Admin\Core\LocationContext;
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsBreakdown;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsStatus;
@@ -187,7 +186,7 @@ final class BookingSummaryPage {
 	{
 		$vehicle_id = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
 		$vehicle    = $vehicle_id > 0 ? get_post($vehicle_id) : null;
-		$location   = $vehicle_id > 0 ? LocationContext::for_vehicle($vehicle_id) : null;
+		$places     = BookingPlaces::for_booking($booking_id);
 		$planned    = BookingTimeline::planned($booking_id);
 		$breakdown  = RvsBreakdown::from_booking($booking_id);
 
@@ -208,7 +207,9 @@ final class BookingSummaryPage {
 			'vehicle'      => $vehicle instanceof \WP_Post ? $vehicle->post_title : __('Unknown Vehicle', 'mhm-rentiva'),
 			'pickup'       => BookingTimeline::moment_text($planned['pickup']),
 			'return'       => BookingTimeline::moment_text($planned['return']),
-			'location'     => null !== $location ? (string) $location->name : '',
+			'transfer'     => $places['transfer'],
+			// A transfer prints its route, a rental the vehicle's one place.
+			'location'     => $places['transfer'] ? BookingPlaces::route_text($places) : (string) ( $places['pickup'] ?? '' ),
 			'breakdown'    => $breakdown,
 			'deposit_paid' => RvsBreakdown::money_received($booking_id),
 			'paid_rows'    => self::paid_rows($booking_id, $breakdown),

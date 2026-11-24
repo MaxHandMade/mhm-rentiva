@@ -6,7 +6,6 @@ namespace MHMRentiva\Admin\Frontend\Account;
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
-use MHMRentiva\Admin\Core\LocationContext;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsStatus;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper;
 
@@ -124,7 +123,7 @@ final class AccountDashboardView {
 	 * received (paid amount or a paid order), payment type, remaining amount.
 	 * `summary_url` opens the printable booking summary (BookingSummaryPage).
 	 *
-	 * @return array{number:string, status:array{modifier:string,label:string}, in_progress:bool, kicker:string, vehicle:string, image:string, pickup:string, return:string, location:?string, payment:array{label:string,amount_html:?string,note:?string}, details_url:string, summary_url:string, free_cancel:?string}
+	 * @return array{number:string, status:array{modifier:string,label:string}, in_progress:bool, kicker:string, vehicle:string, image:string, pickup:string, return:string, transfer:bool, from:?string, to:?string, location:?string, payment:array{label:string,amount_html:?string,note:?string}, details_url:string, summary_url:string, free_cancel:?string}
 	 */
 	public static function next_card(int $booking_id): array
 	{
@@ -138,9 +137,8 @@ final class AccountDashboardView {
 			$image = VehicleDataHelper::get_placeholder_image_url();
 		}
 
-		// The vehicle's pickup point today: no location is stored on the booking (m17).
-		$location      = $vehicle_id > 0 ? LocationContext::for_vehicle($vehicle_id) : null;
-		$location_name = null !== $location && '' !== trim( (string) ( $location->name ?? '' )) ? trim( (string) $location->name) : null;
+		// Where the trip starts and ends: the vehicle's point for a rental, origin and destination for a transfer.
+		$places = BookingPlaces::for_booking($booking_id);
 
 		$in_progress = Status::IN_PROGRESS === $status;
 		$kicker      = $in_progress
@@ -164,7 +162,11 @@ final class AccountDashboardView {
 			'image'       => (string) $image,
 			'pickup'      => self::pickup_text($booking_id),
 			'return'      => self::return_text($booking_id),
-			'location'    => $location_name,
+			'transfer'    => $places['transfer'],
+			'from'        => $places['pickup'],
+			'to'          => $places['return'],
+			// Older template copies print this one place under both rows.
+			'location'    => $places['transfer'] ? null : $places['pickup'],
 			'payment'     => self::payment($booking_id, $status),
 			'details_url' => AccountController::get_booking_view_url($booking_id),
 			'summary_url' => BookingSummaryPage::url($booking_id),
