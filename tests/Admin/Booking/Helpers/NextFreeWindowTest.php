@@ -269,6 +269,33 @@ final class NextFreeWindowTest extends WP_UnitTestCase
 	{
 		$this->pin_zone($zone);
 
+		$this->within_one_local_day(fn () => $this->assert_horizon_from_today());
+	}
+
+	/**
+	 * Runs $body again when the site's local date changed while it ran.
+	 *
+	 * The class reads "today" from time(), and so does the test's
+	 * day_from_today(). A body that starts at 23:59:59 local time can compute
+	 * its days before midnight and have the class compute the horizon after it,
+	 * one day further out. Only a run that crossed midnight is retried, and only
+	 * once: a body that fails within one local day still fails.
+	 */
+	private function within_one_local_day(callable $body): void
+	{
+		$day = self::day_from_today(0);
+		try {
+			$body();
+		} catch (\PHPUnit\Framework\AssertionFailedError $failure) {
+			if (self::day_from_today(0) === $day) {
+				throw $failure;
+			}
+			$body();
+		}
+	}
+
+	private function assert_horizon_from_today(): void
+	{
 		// Booked from day 200 to day 366: from the start, 365 days would reach past it;
 		// from today, the last pickup day is 365 and its window is still booked.
 		$far = $this->vehicle();
