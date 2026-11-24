@@ -147,6 +147,21 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		'_mhmrentiva_vendor_scrub',
 		'_mhmrentiva_waiting_notified',
 		'_mhmrentiva_waiting_since',
+		// Pro's transfer flight-delay handling: flight number, the waiting terms
+		// frozen on the booking, the revised landing with its audit trail, and the
+		// overlap markers.
+		'_mhmrentiva_flight_number',
+		'_mhmrentiva_free_wait_min',
+		'_mhmrentiva_wait_fee',
+		'_mhmrentiva_wait_fee_currency',
+		'_mhmrentiva_planned_pickup_ts',
+		'_mhmrentiva_planned_dropoff_ts',
+		'_mhmrentiva_revised_landing_ts',
+		'_mhmrentiva_revision_note',
+		'_mhmrentiva_revision_by',
+		'_mhmrentiva_revision_at',
+		'_mhmrentiva_overlap_notified',
+		'_mhmrentiva_overlap_started',
 		// Slice 3 Task 12 bound Lite's last active reader of this key
 		// (EmailTemplates, RefundNotifications, BookingColumns) to PaymentState.
 		// Pro's BackgroundProcessor.php and Export.php still read it directly, so
