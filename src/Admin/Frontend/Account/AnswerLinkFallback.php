@@ -80,16 +80,27 @@ final class AnswerLinkFallback {
 	}
 
 	/**
-	 * The response headers of the fallback page, besides the status line.
+	 * Every response header of the fallback page, besides the status line.
 	 *
 	 * @return array<int, string>
 	 */
 	public static function headers(): array
 	{
-		return array(
-			'Referrer-Policy: ' . self::REFERRER_POLICY,
-			'Content-Type: text/html; charset=' . get_bloginfo('charset'),
-		);
+		$lines = array();
+
+		// The no-cache set core sends; Last-Modified is dropped as core does for
+		// a page that is not a feed.
+		foreach (wp_get_nocache_headers() as $name => $value) {
+			if ('Last-Modified' === $name && '' === (string) $value) {
+				continue;
+			}
+			$lines[] = $name . ': ' . $value;
+		}
+
+		$lines[] = 'Referrer-Policy: ' . self::REFERRER_POLICY;
+		$lines[] = 'Content-Type: text/html; charset=' . get_bloginfo('charset');
+
+		return $lines;
 	}
 
 	/**
@@ -98,7 +109,6 @@ final class AnswerLinkFallback {
 	public static function send_headers(): void
 	{
 		status_header(self::STATUS);
-		nocache_headers();
 
 		if (headers_sent()) {
 			return;
