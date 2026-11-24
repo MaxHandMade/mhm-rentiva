@@ -28,7 +28,7 @@ final class AnswerLinkFallback {
 
 	public static function register(): void
 	{
-		add_filter('query_vars', array( self::class, 'register_query_var' ));
+		add_filter('query_vars', array( self::class, 'register_query_vars' ));
 		add_action('template_redirect', array( self::class, 'maybe_render' ), 99);
 	}
 
@@ -38,7 +38,7 @@ final class AnswerLinkFallback {
 	 * @param array<int, string> $vars Public query vars.
 	 * @return array<int, string>
 	 */
-	public static function register_query_var(array $vars): array
+	public static function register_query_vars(array $vars): array
 	{
 		$vars[] = self::QUERY_VAR;
 

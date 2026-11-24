@@ -90,6 +90,7 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
                 SearchResults::class,
                 \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::class,
                 \MHMRentiva\Admin\Frontend\Account\AccountController::class,
+                \MHMRentiva\Admin\Frontend\Account\AnswerLinkFallback::class,
                 \MHMRentiva\Admin\Utilities\ListTable\LogColumns::class,
                 \MHMRentiva\Admin\Booking\ListTable\BookingColumns::class,
                 \MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns::class,
@@ -101,7 +102,7 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
         $ours = $this->add_anonymous_contributions($ours);
 
         $this->assertSame(
-            7,
+            8,
             $this->count_query_var_registrations_in_source(),
             'src/ registers a number of query_vars callbacks this test does not account for.'
         );
