@@ -162,6 +162,21 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		'_mhmrentiva_revision_at',
 		'_mhmrentiva_overlap_notified',
 		'_mhmrentiva_overlap_started',
+		// Pro's vehicle change approval: one round per assignment, its state, the
+		// previous and original vehicle, who and when, the answer key digest and the
+		// reminder markers.
+		'_mhmrentiva_swap_round',
+		'_mhmrentiva_swap_state',
+		'_mhmrentiva_swap_old_vehicle',
+		'_mhmrentiva_swap_class',
+		'_mhmrentiva_swap_by',
+		'_mhmrentiva_swap_at',
+		'_mhmrentiva_swap_answered_at',
+		'_mhmrentiva_swap_key',
+		'_mhmrentiva_swap_mail_failed',
+		'_mhmrentiva_swap_from',
+		'_mhmrentiva_swap_original_vehicle',
+		'_mhmrentiva_swap_called',
 		// Slice 3 Task 12 bound Lite's last active reader of this key
 		// (EmailTemplates, RefundNotifications, BookingColumns) to PaymentState.
 		// Pro's BackgroundProcessor.php and Export.php still read it directly, so

@@ -192,6 +192,9 @@ final class AccountController {
 		// Printable booking summary
 		BookingSummaryPage::register();
 
+		// Sign-in-free answer links nobody answers
+		AnswerLinkFallback::register();
+
 		// Remaining payment AJAX handler
 		\MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::register();
 	}

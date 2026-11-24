@@ -82,6 +82,15 @@ $mhmrentiva_bd_to       = (string) ( $mhmrentiva_bd_vehicle['return_place'] ?? (
 		</div>
 	</header>
 
+<?php
+/**
+ * Fires above the vehicle section of the booking detail. A listener prints one
+ * complete notice block (its own wrapper and markup), or nothing.
+ *
+ * @param int $booking_id Booking post ID.
+ */
+do_action( 'mhmrentiva_booking_detail_notice', $mhmrentiva_bd_id );
+?>
 	<section class="rvs-account-detail__vehicle" aria-labelledby="<?php echo esc_attr($mhmrentiva_bd_uid . '-car'); ?>">
 		<div class="rvs-account-detail__media">
 			<img src="<?php echo esc_url( (string) ( $mhmrentiva_bd_vehicle['image'] ?? '' )); ?>" alt="" loading="lazy">
