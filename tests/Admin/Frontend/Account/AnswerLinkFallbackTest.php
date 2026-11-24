@@ -19,6 +19,7 @@ final class AnswerLinkFallbackTest extends WP_UnitTestCase
 	{
 		remove_all_filters( 'mhmrentiva_answer_page_handled' );
 		remove_all_filters( 'status_header' );
+		remove_all_filters( 'nocache_headers' );
 		set_query_var( AnswerLinkFallback::QUERY_VAR, '' );
 		parent::tearDown();
 	}
@@ -56,10 +57,22 @@ final class AnswerLinkFallbackTest extends WP_UnitTestCase
 			2
 		);
 
+		$nocache = 0;
+		add_filter(
+			'nocache_headers',
+			static function ( $headers ) use ( &$nocache ) {
+				++$nocache;
+
+				return $headers;
+			}
+		);
+
 		AnswerLinkFallback::send_headers();
 
 		$this->assertSame( array( 410 ), $codes );
-		$this->assertContains( 'Referrer-Policy: no-referrer', AnswerLinkFallback::headers() );
+		$this->assertSame( 1, $nocache, 'The page must be sent with the no-cache headers.' );
+		$this->assertContains( 'Referrer-Policy: ' . AnswerLinkFallback::REFERRER_POLICY, AnswerLinkFallback::headers() );
+		$this->assertSame( 'no-referrer', AnswerLinkFallback::REFERRER_POLICY );
 	}
 
 	public function test_nothing_when_a_listener_handled_the_request(): void

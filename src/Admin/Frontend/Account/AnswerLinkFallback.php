@@ -26,6 +26,11 @@ final class AnswerLinkFallback {
 	 */
 	public const STATUS = 410;
 
+	/**
+	 * Referrer-Policy of the fallback page: the answer key never leaves in a Referer.
+	 */
+	public const REFERRER_POLICY = 'no-referrer';
+
 	public static function register(): void
 	{
 		add_filter('query_vars', array( self::class, 'register_query_vars' ));
@@ -82,7 +87,7 @@ final class AnswerLinkFallback {
 	public static function headers(): array
 	{
 		return array(
-			'Referrer-Policy: no-referrer',
+			'Referrer-Policy: ' . self::REFERRER_POLICY,
 			'Content-Type: text/html; charset=' . get_bloginfo('charset'),
 		);
 	}
