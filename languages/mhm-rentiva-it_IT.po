@@ -3,7 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.4.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-11-24T16:02:54+00:00\n"
+"POT-Creation-Date: 2026-11-24T18:36:41+00:00
+"
 "PO-Revision-Date: 2026-11-21 01:21+0000\n"
 "Last-Translator: machine translation (Claude), pending native review\n"
 "Language-Team: Italian (Italy)\n"
@@ -112,7 +113,7 @@ msgstr "Sconosciuto"
 msgid "Could not calculate"
 msgstr "Impossibile calcolare"
 
-#: src/Admin/About/SystemInfo.php:223 src/Admin/Core/AssetManager.php:1642 src/Admin/Frontend/Account/AccountController.php:290 src/Admin/Frontend/Shortcodes/SearchResults.php:597 src/Admin/Settings/Groups/FrontendSettings.php:345
+#: src/Admin/About/SystemInfo.php:223 src/Admin/Core/AssetManager.php:1642 src/Admin/Frontend/Account/AccountController.php:293 src/Admin/Frontend/Shortcodes/SearchResults.php:597 src/Admin/Settings/Groups/FrontendSettings.php:345
 msgid "Error"
 msgstr "Errore"
 
@@ -464,11 +465,11 @@ msgstr "Vuoi davvero disabilitare i servizi aggiuntivi selezionati?"
 msgid "Are you sure you want to delete selected additional services? This action cannot be undone."
 msgstr "Vuoi davvero eliminare i servizi aggiuntivi selezionati? Questa azione non può essere annullata."
 
-#: src/Admin/Addons/AddonListTable.php:82 src/Admin/Addons/AddonManager.php:281 src/Admin/Booking/Meta/BookingDepositMetaBox.php:123 src/Admin/Core/AssetManager.php:1213 src/Admin/Core/AssetManager.php:1669 src/Admin/Emails/Core/EmailTemplates.php:566 src/Admin/Frontend/Account/AccountController.php:286 src/Admin/Frontend/Account/AccountController.php:341 src/Admin/Frontend/Shortcodes/BookingForm.php:350
+#: src/Admin/Addons/AddonListTable.php:82 src/Admin/Addons/AddonManager.php:281 src/Admin/Booking/Meta/BookingDepositMetaBox.php:123 src/Admin/Core/AssetManager.php:1213 src/Admin/Core/AssetManager.php:1669 src/Admin/Emails/Core/EmailTemplates.php:566 src/Admin/Frontend/Account/AccountController.php:289 src/Admin/Frontend/Account/AccountController.php:344 src/Admin/Frontend/Shortcodes/BookingForm.php:350
 msgid "Processing..."
 msgstr "Elaborazione in corso..."
 
-#: src/Admin/Addons/AddonListTable.php:83 src/Admin/Addons/AddonManager.php:282 src/Admin/Addons/AddonScreen.php:112 src/Admin/Core/AssetManager.php:1345 src/Admin/Core/AssetManager.php:1391 src/Admin/Emails/Core/EmailTemplates.php:567 src/Admin/Frontend/Account/AccountController.php:319
+#: src/Admin/Addons/AddonListTable.php:83 src/Admin/Addons/AddonManager.php:282 src/Admin/Addons/AddonScreen.php:112 src/Admin/Core/AssetManager.php:1345 src/Admin/Core/AssetManager.php:1391 src/Admin/Emails/Core/EmailTemplates.php:567 src/Admin/Frontend/Account/AccountController.php:322
 msgid "An error occurred. Please try again."
 msgstr "Si è verificato un errore. Prova di nuovo."
 
@@ -480,7 +481,7 @@ msgstr "Valore del prezzo non valido!"
 msgid "Error updating price"
 msgstr "Errore durante l'aggiornamento del prezzo"
 
-#: src/Admin/Addons/AddonListTable.php:88 src/Admin/Addons/AddonManager.php:287 src/Admin/Frontend/Account/AccountController.php:291
+#: src/Admin/Addons/AddonListTable.php:88 src/Admin/Addons/AddonManager.php:287 src/Admin/Frontend/Account/AccountController.php:294
 msgid "Unknown error"
 msgstr "Errore sconosciuto"
 
@@ -529,7 +530,7 @@ msgstr "Tipo di prezzo"
 msgid "\"%s\" additional service is required."
 msgstr "Il servizio aggiuntivo \"%s\" è obbligatorio."
 
-#: src/Admin/Addons/AddonManager.php:707 src/Admin/Addons/AddonManager.php:869 src/Admin/Addons/AddonManager.php:904 src/Admin/Addons/AddonScreen.php:159 src/Admin/Addons/AddonScreen.php:191 src/Admin/Addons/AddonScreen.php:235 src/Admin/Addons/AddonScreen.php:272 src/Admin/Addons/AddonScreen.php:332 src/Admin/Addons/AddonScreen.php:372 src/Admin/Addons/AddonScreen.php:474 src/Admin/Addons/AddonScreen.php:512 src/Admin/Booking/Actions/BookingActionGuard.php:76 src/Admin/Booking/Meta/BookingMeta.php:1772 src/Admin/Booking/Meta/BookingMeta.php:1830 src/Admin/Booking/Meta/BookingMeta.php:1953 src/Admin/Booking/Meta/BookingPortalMetaBox.php:156 src/Admin/Booking/Meta/ManualBookingMetaBox.php:771 src/Admin/Booking/Meta/ManualBookingMetaBox.php:879 src/Admin/Core/SecurityHelper.php:140 src/Admin/Emails/Ajax/EmailAjaxHandler.php:36 src/Admin/Emails/Ajax/EmailAjaxHandler.php:133 src/Admin/Emails/Core/EmailTemplates.php:182 src/Admin/Emails/Settings/EmailTemplateTestAction.php:34 src/Admin/Emails/Settings/EmailTestAction.php:31 src/Admin/Frontend/Account/AccountController.php:751 src/Admin/Frontend/Account/AccountController.php:920 src/Admin/Frontend/Account/AccountController.php:1062 src/Admin/Frontend/Account/AccountController.php:1123 src/Admin/Frontend/Account/AccountController.php:1241 src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:125 src/Admin/Frontend/Shortcodes/BookingForm.php:1140 src/Admin/Frontend/Shortcodes/BookingForm.php:1524 src/Admin/Frontend/Shortcodes/BookingForm.php:1882 src/Admin/Frontend/Shortcodes/ContactForm.php:489 src/Admin/Frontend/Shortcodes/Testimonials.php:734 src/Admin/Frontend/Shortcodes/VehicleDetails.php:82 src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:45
+#: src/Admin/Addons/AddonManager.php:707 src/Admin/Addons/AddonManager.php:869 src/Admin/Addons/AddonManager.php:904 src/Admin/Addons/AddonScreen.php:159 src/Admin/Addons/AddonScreen.php:191 src/Admin/Addons/AddonScreen.php:235 src/Admin/Addons/AddonScreen.php:272 src/Admin/Addons/AddonScreen.php:332 src/Admin/Addons/AddonScreen.php:372 src/Admin/Addons/AddonScreen.php:474 src/Admin/Addons/AddonScreen.php:512 src/Admin/Booking/Actions/BookingActionGuard.php:76 src/Admin/Booking/Meta/BookingMeta.php:1772 src/Admin/Booking/Meta/BookingMeta.php:1830 src/Admin/Booking/Meta/BookingMeta.php:1953 src/Admin/Booking/Meta/BookingPortalMetaBox.php:156 src/Admin/Booking/Meta/ManualBookingMetaBox.php:771 src/Admin/Booking/Meta/ManualBookingMetaBox.php:879 src/Admin/Core/SecurityHelper.php:140 src/Admin/Emails/Ajax/EmailAjaxHandler.php:36 src/Admin/Emails/Ajax/EmailAjaxHandler.php:133 src/Admin/Emails/Core/EmailTemplates.php:182 src/Admin/Emails/Settings/EmailTemplateTestAction.php:34 src/Admin/Emails/Settings/EmailTestAction.php:31 src/Admin/Frontend/Account/AccountController.php:754 src/Admin/Frontend/Account/AccountController.php:923 src/Admin/Frontend/Account/AccountController.php:1065 src/Admin/Frontend/Account/AccountController.php:1126 src/Admin/Frontend/Account/AccountController.php:1244 src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:125 src/Admin/Frontend/Shortcodes/BookingForm.php:1140 src/Admin/Frontend/Shortcodes/BookingForm.php:1524 src/Admin/Frontend/Shortcodes/BookingForm.php:1882 src/Admin/Frontend/Shortcodes/ContactForm.php:489 src/Admin/Frontend/Shortcodes/Testimonials.php:734 src/Admin/Frontend/Shortcodes/VehicleDetails.php:82 src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:45
 msgid "Security check failed."
 msgstr "Controllo di sicurezza fallito."
 
@@ -825,7 +826,7 @@ msgstr "Modifica"
 msgid "Delete %s"
 msgstr "Elimina %s"
 
-#: src/Admin/Booking/Actions/BookingActionGuard.php:82 src/Admin/Booking/Helpers/CancellationHandler.php:105 src/Admin/Frontend/Account/AccountController.php:757 src/Admin/Frontend/Account/AccountController.php:1069 src/Admin/Frontend/Account/AccountController.php:1300 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5199 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5258
+#: src/Admin/Booking/Actions/BookingActionGuard.php:82 src/Admin/Booking/Helpers/CancellationHandler.php:105 src/Admin/Frontend/Account/AccountController.php:760 src/Admin/Frontend/Account/AccountController.php:1072 src/Admin/Frontend/Account/AccountController.php:1303 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5199 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5258
 msgid "Invalid booking ID."
 msgstr "ID prenotazione non valido."
 
@@ -1143,7 +1144,7 @@ msgstr "Prenotazione annullata"
 msgid "Hello %s,"
 msgstr "Ciao %s,"
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:682 src/Admin/Frontend/Account/AccountController.php:320
+#: src/Admin/Booking/Helpers/CancellationHandler.php:682 src/Admin/Frontend/Account/AccountController.php:323
 msgid "Your booking has been cancelled successfully."
 msgstr "La tua prenotazione è stata annullata correttamente."
 
@@ -1353,7 +1354,7 @@ msgstr "Importo dell'acconto"
 msgid "Remaining Amount"
 msgstr "Importo residuo"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:282 templates/account/booking-summary.php:88 templates/partials/rvs/account-booking-detail.php:124
+#: src/Admin/Booking/ListTable/BookingColumns.php:282 templates/account/booking-summary.php:88 templates/partials/rvs/account-booking-detail.php:133
 msgid "Payment"
 msgstr "Pagamento"
 
@@ -1369,11 +1370,11 @@ msgstr "Tipo di prenotazione"
 msgid "bookings on this day"
 msgstr "prenotazioni in questo giorno"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:385 src/Admin/Frontend/Account/BookingTimeline.php:103 src/Admin/Vehicle/ListTable/VehicleColumns.php:710 templates/account/booking-summary.php:69 templates/admin/partials/booking-popup.php:85 templates/partials/rvs/account-booking-detail.php:93 templates/partials/rvs/account-next-rental.php:43 templates/partials/vehicle-details/booking-card.php:93 templates/shortcodes/unified-search.php:87
+#: src/Admin/Booking/ListTable/BookingColumns.php:385 src/Admin/Frontend/Account/BookingTimeline.php:103 src/Admin/Vehicle/ListTable/VehicleColumns.php:710 templates/account/booking-summary.php:69 templates/admin/partials/booking-popup.php:85 templates/partials/rvs/account-booking-detail.php:102 templates/partials/rvs/account-next-rental.php:43 templates/partials/vehicle-details/booking-card.php:93 templates/shortcodes/unified-search.php:87
 msgid "Pickup"
 msgstr "Ritiro"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:386 src/Admin/Frontend/Account/BookingTimeline.php:105 src/Admin/Vehicle/ListTable/VehicleColumns.php:711 templates/account/booking-summary.php:75 templates/admin/partials/booking-popup.php:90 templates/partials/rvs/account-booking-detail.php:102 templates/partials/rvs/account-next-rental.php:49
+#: src/Admin/Booking/ListTable/BookingColumns.php:386 src/Admin/Frontend/Account/BookingTimeline.php:105 src/Admin/Vehicle/ListTable/VehicleColumns.php:711 templates/account/booking-summary.php:75 templates/admin/partials/booking-popup.php:90 templates/partials/rvs/account-booking-detail.php:111 templates/partials/rvs/account-next-rental.php:49
 msgid "Return"
 msgstr "Riconsegna"
 
@@ -2828,7 +2829,7 @@ msgstr "Vuoi davvero rimuovere questa dotazione?"
 msgid "Enter value"
 msgstr "Inserisci un valore"
 
-#: src/Admin/Core/AssetManager.php:1097 src/Admin/Core/AssetManager.php:1473 src/Admin/Settings/Core/SettingsHelper.php:236 src/Admin/Vehicle/Settings/VehicleSettings.php:631 src/Admin/Vehicle/Settings/VehicleSettings.php:683 templates/account/payment-history.php:181 templates/partials/rvs/account-booking-detail.php:167 src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:58 src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:57
+#: src/Admin/Core/AssetManager.php:1097 src/Admin/Core/AssetManager.php:1473 src/Admin/Settings/Core/SettingsHelper.php:236 src/Admin/Vehicle/Settings/VehicleSettings.php:631 src/Admin/Vehicle/Settings/VehicleSettings.php:683 templates/account/payment-history.php:181 templates/partials/rvs/account-booking-detail.php:176 src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:58 src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:57
 msgid "Remove"
 msgstr "Rimuovi"
 
@@ -2900,7 +2901,7 @@ msgstr "In manutenzione"
 msgid "Yes"
 msgstr "Sì"
 
-#: src/Admin/Core/AssetManager.php:1206 src/Admin/Core/AssetManager.php:1641 src/Admin/Emails/Core/EmailTemplates.php:575 src/Admin/Frontend/Account/AccountController.php:452 src/Admin/Frontend/Account/AccountRenderer.php:502 src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:94 src/Admin/Frontend/Shortcodes/BookingForm.php:346 src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:644 src/Admin/Frontend/Shortcodes/SearchResults.php:579 src/Admin/Frontend/Shortcodes/Testimonials.php:147 src/Admin/Frontend/Shortcodes/VehicleDetails.php:326 src/Admin/Frontend/Shortcodes/VehiclesGrid.php:430 src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:98 src/Admin/Vehicle/Templates/vehicle-gallery.php:96
+#: src/Admin/Core/AssetManager.php:1206 src/Admin/Core/AssetManager.php:1641 src/Admin/Emails/Core/EmailTemplates.php:575 src/Admin/Frontend/Account/AccountController.php:455 src/Admin/Frontend/Account/AccountRenderer.php:502 src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:94 src/Admin/Frontend/Shortcodes/BookingForm.php:346 src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:644 src/Admin/Frontend/Shortcodes/SearchResults.php:579 src/Admin/Frontend/Shortcodes/Testimonials.php:147 src/Admin/Frontend/Shortcodes/VehicleDetails.php:326 src/Admin/Frontend/Shortcodes/VehiclesGrid.php:430 src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:98 src/Admin/Vehicle/Templates/vehicle-gallery.php:96
 msgid "Loading..."
 msgstr "Caricamento..."
 
@@ -2908,7 +2909,7 @@ msgstr "Caricamento..."
 msgid "Operation successful"
 msgstr "Operazione completata"
 
-#: src/Admin/Core/AssetManager.php:1209 src/Admin/Core/AssetManager.php:1674 src/Admin/Frontend/Account/AccountController.php:455
+#: src/Admin/Core/AssetManager.php:1209 src/Admin/Core/AssetManager.php:1674 src/Admin/Frontend/Account/AccountController.php:458
 msgid "Are you sure?"
 msgstr "Sei sicuro?"
 
@@ -4143,193 +4144,193 @@ msgstr "Applica"
 msgid "Select a city..."
 msgstr "Seleziona una città..."
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1088
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1103
 msgid "Cleanup cancelled: the backup table could not be created or filled. Nothing was deleted."
 msgstr "Pulizia annullata: non è stato possibile creare o popolare la tabella di backup. Non è stato eliminato nulla."
 
 #. translators: 1: current table-prefix length in characters. 2: maximum supported length in characters.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1271
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1286
 #, php-format
 msgid "This site's table prefix (%1$d characters) is too long for the invalid-meta cleanup to name a backup table within MySQL's 64-character identifier limit (maximum supported: %2$d characters). The cleanup was not run."
 msgstr "Il prefisso delle tabelle di questo sito (%1$d caratteri) è troppo lungo perché la pulizia dei meta non validi possa assegnare un nome alla tabella di backup entro il limite di 64 caratteri degli identificatori MySQL (massimo supportato: %2$d caratteri). La pulizia non è stata eseguita."
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1790
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1805
 msgid "Database Cleanup Report"
 msgstr "Report pulizia database"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1795 templates/shortcodes/search-results.php:189
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1810 templates/shortcodes/search-results.php:189
 msgid "Category"
 msgstr "Categoria"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1796
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1811
 msgid "Count"
 msgstr "Conteggio"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1797
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1812
 msgid "Size"
 msgstr "Dimensione"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1798 src/Admin/Utilities/ListTable/LogColumns.php:75 templates/partials/rvs/account-bookings.php:59
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1813 src/Admin/Utilities/ListTable/LogColumns.php:75 templates/partials/rvs/account-bookings.php:59
 msgid "Action"
 msgstr "Azione"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1803
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1818
 msgid "Orphaned Post Meta"
 msgstr "Post meta orfani"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1809 src/Admin/Core/Utilities/DatabaseCleaner.php:1824 src/Admin/Core/Utilities/DatabaseCleaner.php:1854 src/Admin/Core/Utilities/DatabaseCleaner.php:1881
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1824 src/Admin/Core/Utilities/DatabaseCleaner.php:1839 src/Admin/Core/Utilities/DatabaseCleaner.php:1869 src/Admin/Core/Utilities/DatabaseCleaner.php:1896
 msgid "Cleanup Recommended"
 msgstr "Pulizia consigliata"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1812 src/Admin/Core/Utilities/DatabaseCleaner.php:1827 src/Admin/Core/Utilities/DatabaseCleaner.php:1857 src/Admin/Core/Utilities/DatabaseCleaner.php:1884
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1827 src/Admin/Core/Utilities/DatabaseCleaner.php:1842 src/Admin/Core/Utilities/DatabaseCleaner.php:1872 src/Admin/Core/Utilities/DatabaseCleaner.php:1899
 msgid "Clean"
 msgstr "Pulisci"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1818
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1833
 msgid "Expired Transients"
 msgstr "Transient scaduti"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1833
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1848
 msgid "Autoload Options"
 msgstr "Opzioni autoload"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1839
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1854
 msgid "Optimization Recommended"
 msgstr "Ottimizzazione consigliata"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1842
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1857
 msgid "Optimized"
 msgstr "Ottimizzato"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1848
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1863
 msgid "Invalid Meta Keys"
 msgstr "Chiavi meta non valide"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1861
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1876
 msgid "All Valid"
 msgstr "Tutto valido"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1867
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1882
 msgid "Log Records (>30 days)"
 msgstr "Record di log (>30 giorni)"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1891
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1906
 msgid "Custom Tables"
 msgstr "Tabelle personalizzate"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1895 src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:82
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1910 src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:82
 msgid "Table"
 msgstr "Tabella"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1896
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1911
 msgid "Exists"
 msgstr "Esiste"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1897
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1912
 msgid "Rows"
 msgstr "Righe"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1898
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1913
 msgid "Size (MB)"
 msgstr "Dimensione (MB)"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1911
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1926
 msgid "Repair/Create"
 msgstr "Ripara/Crea"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1939
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1954
 msgid "Analyze Database"
 msgstr "Analizza database"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1944
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1959
 msgid "Clean Orphaned Meta"
 msgstr "Pulisci meta orfani"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1949
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1964
 msgid "Clean Expired Transients"
 msgstr "Pulisci transient scaduti"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1954 src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:125
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1969 src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:125
 msgid "Optimize Autoload"
 msgstr "Ottimizza autoload"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1959
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1974
 msgid "Optimize Tables"
 msgstr "Ottimizza tabelle"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1964 src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:134
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1979 src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:134
 msgid "Purge Old Logs"
 msgstr "Svuota log vecchi"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2127
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2142
 msgid "Backup table not found"
 msgstr "Tabella di backup non trovata"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2145
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2160
 msgid "This backup holds discarded meta from two different tables and cannot be restored in place. Export it and reapply the rows you need."
 msgstr "Questo backup contiene meta scartati da due tabelle diverse e non può essere ripristinato direttamente. Esportalo e riapplica le righe che ti servono."
 
 #. translators: 1: %d; 2: %s.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2191
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2206
 #, php-format
 msgid "Restored %1$d records to %2$s"
 msgstr "%1$d record ripristinati in %2$s"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2209
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2224
 msgid "Not a backup table"
 msgstr "Non è una tabella di backup"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2218 src/Admin/Core/Utilities/DatabaseCleaner.php:2631
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2233 src/Admin/Core/Utilities/DatabaseCleaner.php:2646
 msgid "Backup deleted successfully"
 msgstr "Backup eliminato correttamente"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2218 src/Admin/Utilities/Database/DatabaseCleanupPage.php:450 src/Admin/Utilities/Database/DatabaseCleanupPage.php:597
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2233 src/Admin/Utilities/Database/DatabaseCleanupPage.php:450 src/Admin/Utilities/Database/DatabaseCleanupPage.php:597
 msgid "Failed to delete backup"
 msgstr "Impossibile eliminare il backup"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2235
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2250
 msgid "Failed to initialize filesystem."
 msgstr "Impossibile inizializzare il filesystem."
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2276
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2291
 msgid "No tables found to backup"
 msgstr "Nessuna tabella trovata per il backup"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2326
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2341
 msgid "Failed to write backup file"
 msgstr "Impossibile scrivere il file di backup"
 
 #. translators: 1: %d; 2: %d.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2377
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2392
 #, php-format
 msgid "Full backup created successfully: %1$d tables, %2$d rows"
 msgstr "Backup completo creato correttamente: %1$d tabelle, %2$d righe"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2601 src/Admin/Utilities/Database/DatabaseCleanupPage.php:531
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2616 src/Admin/Utilities/Database/DatabaseCleanupPage.php:531
 msgid "Invalid backup file path"
 msgstr "Percorso del file di backup non valido"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2632
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2647
 msgid "Backup deletion completed with some warnings"
 msgstr "Eliminazione del backup completata con alcuni avvisi"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2686
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2701
 msgid "Filesystem initialization failed"
 msgstr "Inizializzazione del filesystem non riuscita"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2696
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2711
 msgid "Backup directory does not exist"
 msgstr "La directory di backup non esiste"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2703
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2718
 msgid ".htaccess file missing - directory is not protected from web access"
 msgstr "File .htaccess mancante - la directory non è protetta dall'accesso web"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2707
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2722
 msgid ".htaccess file exists but does not deny access properly"
 msgstr "Il file .htaccess esiste ma non nega correttamente l'accesso"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2714
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2729
 msgid "index.php file missing - directory listing is possible"
 msgstr "File index.php mancante - è possibile elencare il contenuto della directory"
 
@@ -4546,7 +4547,7 @@ msgstr "Inserisci un orario valido."
 msgid "Password must be at least {length} characters."
 msgstr "La password deve contenere almeno {length} caratteri."
 
-#: src/Admin/Core/Utilities/UXHelper.php:131 src/Admin/Frontend/Account/AccountController.php:464
+#: src/Admin/Core/Utilities/UXHelper.php:131 src/Admin/Frontend/Account/AccountController.php:467
 msgid "Passwords do not match."
 msgstr "Le password non corrispondono."
 
@@ -4882,7 +4883,7 @@ msgstr "Informazioni del cliente aggiornate correttamente."
 msgid "← Back to customer details"
 msgstr "← Torna ai dettagli del cliente"
 
-#: src/Admin/Customers/CustomersPage.php:545 templates/account/payment-history.php:178 templates/partials/rvs/account-booking-detail.php:164 templates/partials/rvs/account-bookings.php:120 templates/partials/rvs/account-bookings.php:122 templates/shortcodes/search-results.php:253 src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:51
+#: src/Admin/Customers/CustomersPage.php:545 templates/account/payment-history.php:178 templates/partials/rvs/account-booking-detail.php:173 templates/partials/rvs/account-bookings.php:120 templates/partials/rvs/account-bookings.php:122 templates/shortcodes/search-results.php:253 src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:51
 msgid "View"
 msgstr "Visualizza"
 
@@ -5371,191 +5372,191 @@ msgstr "N/A"
 msgid "%1$s – %2$s"
 msgstr "%1$s – %2$s"
 
-#: src/Admin/Frontend/Account/AccountController.php:283
+#: src/Admin/Frontend/Account/AccountController.php:286
 msgid "A request to export your personal data will be created. We will send you a confirmation e-mail."
 msgstr "Verrà creata una richiesta di esportazione dei tuoi dati personali. Ti invieremo un'email di conferma."
 
-#: src/Admin/Frontend/Account/AccountController.php:284
+#: src/Admin/Frontend/Account/AccountController.php:287
 msgid "Your data has been downloaded."
 msgstr "I tuoi dati sono stati scaricati."
 
-#: src/Admin/Frontend/Account/AccountController.php:285
+#: src/Admin/Frontend/Account/AccountController.php:288
 msgid "Are you sure you want to withdraw your consent? This will disable data processing for your account."
 msgstr "Vuoi davvero revocare il tuo consenso? Questo disabiliterà il trattamento dei dati per il tuo account."
 
-#: src/Admin/Frontend/Account/AccountController.php:287
+#: src/Admin/Frontend/Account/AccountController.php:290
 msgid "Consent withdrawn successfully!"
 msgstr "Consenso revocato con successo!"
 
-#: src/Admin/Frontend/Account/AccountController.php:288
+#: src/Admin/Frontend/Account/AccountController.php:291
 msgid "An error occurred while withdrawing consent"
 msgstr "Si è verificato un errore durante la revoca del consenso"
 
-#: src/Admin/Frontend/Account/AccountController.php:289
+#: src/Admin/Frontend/Account/AccountController.php:292
 msgid "A request to erase your personal data will be created. We will send you a confirmation e-mail."
 msgstr "Verrà creata una richiesta di cancellazione dei tuoi dati personali. Ti invieremo un'email di conferma."
 
-#: src/Admin/Frontend/Account/AccountController.php:318
+#: src/Admin/Frontend/Account/AccountController.php:321
 msgid "Cancelling..."
 msgstr "Annullamento in corso..."
 
-#: src/Admin/Frontend/Account/AccountController.php:342 src/Admin/Frontend/Account/AccountController.php:453 src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:602
+#: src/Admin/Frontend/Account/AccountController.php:345 src/Admin/Frontend/Account/AccountController.php:456 src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:602
 msgid "An error occurred."
 msgstr "Si è verificato un errore."
 
-#: src/Admin/Frontend/Account/AccountController.php:343 templates/partials/rvs/account-booking-detail.php:150
+#: src/Admin/Frontend/Account/AccountController.php:346 templates/partials/rvs/account-booking-detail.php:159
 msgid "Pay Remaining Amount"
 msgstr "Paga importo residuo"
 
-#: src/Admin/Frontend/Account/AccountController.php:454
+#: src/Admin/Frontend/Account/AccountController.php:457
 msgid "Success!"
 msgstr "Congratulazioni!"
 
-#: src/Admin/Frontend/Account/AccountController.php:456 src/Admin/Vehicle/Meta/VehicleGallery.php:138
+#: src/Admin/Frontend/Account/AccountController.php:459 src/Admin/Vehicle/Meta/VehicleGallery.php:138
 msgid "Uploading..."
 msgstr "Caricamento in corso..."
 
-#: src/Admin/Frontend/Account/AccountController.php:457 src/Admin/Frontend/Account/AccountController.php:851
+#: src/Admin/Frontend/Account/AccountController.php:460 src/Admin/Frontend/Account/AccountController.php:854
 msgid "Receipt uploaded successfully."
 msgstr "Ricevuta caricata con successo."
 
-#: src/Admin/Frontend/Account/AccountController.php:458
+#: src/Admin/Frontend/Account/AccountController.php:461
 msgid "Receipt upload failed."
 msgstr "Caricamento della ricevuta non riuscito."
 
-#: src/Admin/Frontend/Account/AccountController.php:459
+#: src/Admin/Frontend/Account/AccountController.php:462
 msgid "Are you sure you want to remove this receipt?"
 msgstr "Vuoi davvero rimuovere questa ricevuta?"
 
-#: src/Admin/Frontend/Account/AccountController.php:460
+#: src/Admin/Frontend/Account/AccountController.php:463
 msgid "Account details saved successfully."
 msgstr "Dettagli dell'account salvati con successo."
 
-#: src/Admin/Frontend/Account/AccountController.php:461
+#: src/Admin/Frontend/Account/AccountController.php:464
 msgid "Vehicle removed from favorites."
 msgstr "Veicolo rimosso dai preferiti."
 
-#: src/Admin/Frontend/Account/AccountController.php:462
+#: src/Admin/Frontend/Account/AccountController.php:465
 msgid "Vehicle added to favorites."
 msgstr "Veicolo aggiunto ai preferiti."
 
-#: src/Admin/Frontend/Account/AccountController.php:463
+#: src/Admin/Frontend/Account/AccountController.php:466
 msgid "All favorites cleared."
 msgstr "Tutti i preferiti sono stati rimossi."
 
-#: src/Admin/Frontend/Account/AccountController.php:465
+#: src/Admin/Frontend/Account/AccountController.php:468
 msgid "Are you sure you want to cancel changes?"
 msgstr "Vuoi davvero annullare le modifiche?"
 
-#: src/Admin/Frontend/Account/AccountController.php:466
+#: src/Admin/Frontend/Account/AccountController.php:469
 msgid "No favorite vehicles yet."
 msgstr "Ancora nessun veicolo preferito."
 
-#: src/Admin/Frontend/Account/AccountController.php:467
+#: src/Admin/Frontend/Account/AccountController.php:470
 msgid "You can add vehicles to favorites using the heart icon."
 msgstr "Puoi aggiungere veicoli ai preferiti con l'icona a forma di cuore."
 
-#: src/Admin/Frontend/Account/AccountController.php:468 templates/account/account-details.php:186 templates/admin/settings-page.php:76
+#: src/Admin/Frontend/Account/AccountController.php:471 templates/account/account-details.php:186 templates/admin/settings-page.php:76
 msgid "Save Changes"
 msgstr "Salva le modifiche"
 
-#: src/Admin/Frontend/Account/AccountController.php:469
+#: src/Admin/Frontend/Account/AccountController.php:472
 msgid "vehicle in your favorites"
 msgstr "veicolo nei tuoi preferiti"
 
-#: src/Admin/Frontend/Account/AccountController.php:470
+#: src/Admin/Frontend/Account/AccountController.php:473
 msgid "vehicles in your favorites"
 msgstr "veicoli nei tuoi preferiti"
 
-#: src/Admin/Frontend/Account/AccountController.php:696 src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:261 src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:319 src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:406
+#: src/Admin/Frontend/Account/AccountController.php:699 src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:261 src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:319 src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:406
 msgid "Security error."
 msgstr "Errore di sicurezza."
 
-#: src/Admin/Frontend/Account/AccountController.php:700
+#: src/Admin/Frontend/Account/AccountController.php:703
 msgid "You must be logged in"
 msgstr "Devi aver effettuato l'accesso"
 
-#: src/Admin/Frontend/Account/AccountController.php:708
+#: src/Admin/Frontend/Account/AccountController.php:711
 msgid "All favorites cleared"
 msgstr "Tutti i preferiti sono stati rimossi"
 
-#: src/Admin/Frontend/Account/AccountController.php:746 src/Admin/Frontend/Account/AccountController.php:1057 src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:50
+#: src/Admin/Frontend/Account/AccountController.php:749 src/Admin/Frontend/Account/AccountController.php:1060 src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:50
 msgid "You must be logged in."
 msgstr "Devi aver effettuato l'accesso."
 
-#: src/Admin/Frontend/Account/AccountController.php:766
+#: src/Admin/Frontend/Account/AccountController.php:769
 msgid "You are not allowed to upload for this booking."
 msgstr "Non hai i permessi per caricare file per questa prenotazione."
 
-#: src/Admin/Frontend/Account/AccountController.php:773 src/Admin/Frontend/Account/AccountController.php:1083
+#: src/Admin/Frontend/Account/AccountController.php:776 src/Admin/Frontend/Account/AccountController.php:1086
 msgid "A receipt cannot be uploaded for this booking."
 msgstr "Non è possibile caricare una ricevuta per questa prenotazione."
 
-#: src/Admin/Frontend/Account/AccountController.php:777
+#: src/Admin/Frontend/Account/AccountController.php:780
 msgid "No file uploaded."
 msgstr "Nessun file caricato."
 
-#: src/Admin/Frontend/Account/AccountController.php:885
+#: src/Admin/Frontend/Account/AccountController.php:888
 msgid "The receipt file for this booking is not available. Your booking is not affected. Contact us if you need a copy."
 msgstr "Il file della ricevuta per questa prenotazione non è disponibile. La tua prenotazione non è interessata. Contattaci se ti serve una copia."
 
-#: src/Admin/Frontend/Account/AccountController.php:924
+#: src/Admin/Frontend/Account/AccountController.php:927
 msgid "You are not allowed to view this receipt."
 msgstr "Non hai i permessi per visualizzare questa ricevuta."
 
-#: src/Admin/Frontend/Account/AccountController.php:936
+#: src/Admin/Frontend/Account/AccountController.php:939
 msgid "Receipt not found"
 msgstr "Ricevuta non trovata"
 
-#: src/Admin/Frontend/Account/AccountController.php:1076
+#: src/Admin/Frontend/Account/AccountController.php:1079
 msgid "You are not allowed to remove receipt for this booking."
 msgstr "Non hai i permessi per rimuovere la ricevuta di questa prenotazione."
 
-#: src/Admin/Frontend/Account/AccountController.php:1088
+#: src/Admin/Frontend/Account/AccountController.php:1091
 msgid "No receipt found to remove."
 msgstr "Nessuna ricevuta da rimuovere."
 
-#: src/Admin/Frontend/Account/AccountController.php:1101
+#: src/Admin/Frontend/Account/AccountController.php:1104
 msgid "Receipt removed successfully."
 msgstr "Ricevuta rimossa correttamente."
 
-#: src/Admin/Frontend/Account/AccountController.php:1103
+#: src/Admin/Frontend/Account/AccountController.php:1106
 msgid "Failed to remove receipt file."
 msgstr "Impossibile rimuovere il file della ricevuta."
 
-#: src/Admin/Frontend/Account/AccountController.php:1128
+#: src/Admin/Frontend/Account/AccountController.php:1131
 msgid "Please login."
 msgstr "Accedi."
 
-#: src/Admin/Frontend/Account/AccountController.php:1134 templates/account/account-details.php:37
+#: src/Admin/Frontend/Account/AccountController.php:1137 templates/account/account-details.php:37
 msgid "Profile editing is currently disabled."
 msgstr "La modifica del profilo è attualmente disabilitata."
 
-#: src/Admin/Frontend/Account/AccountController.php:1181
+#: src/Admin/Frontend/Account/AccountController.php:1184
 msgid "An error occurred while updating your account."
 msgstr "Si è verificato un errore durante l'aggiornamento del tuo account."
 
-#: src/Admin/Frontend/Account/AccountController.php:1190
+#: src/Admin/Frontend/Account/AccountController.php:1193
 msgid "Account updated successfully."
 msgstr "Account aggiornato correttamente."
 
-#: src/Admin/Frontend/Account/AccountController.php:1208 src/Admin/Frontend/Account/AccountController.php:1221
+#: src/Admin/Frontend/Account/AccountController.php:1211 src/Admin/Frontend/Account/AccountController.php:1224
 msgid "This endpoint is deprecated. Please refresh your page."
 msgstr "Questo endpoint è deprecato. Ricarica la pagina."
 
-#: src/Admin/Frontend/Account/AccountController.php:1278
+#: src/Admin/Frontend/Account/AccountController.php:1281
 msgid "You must be logged in to cancel a booking."
 msgstr "Devi aver effettuato l'accesso per annullare una prenotazione."
 
-#: src/Admin/Frontend/Account/AccountController.php:1289
+#: src/Admin/Frontend/Account/AccountController.php:1292
 msgid "Security verification failed. Please refresh and try again."
 msgstr "Verifica di sicurezza non riuscita. Ricarica la pagina e riprova."
 
-#: src/Admin/Frontend/Account/AccountController.php:1341
+#: src/Admin/Frontend/Account/AccountController.php:1344
 msgid "Booking cancelled, but the refund could not be completed automatically. We will contact you separately about your refund."
 msgstr "Prenotazione annullata, ma non è stato possibile completare automaticamente il rimborso. Ti contatteremo separatamente in merito al rimborso."
 
-#: src/Admin/Frontend/Account/AccountController.php:1357
+#: src/Admin/Frontend/Account/AccountController.php:1360
 msgid "Booking cancelled successfully. A confirmation email has been sent."
 msgstr "Prenotazione annullata correttamente. È stata inviata un'email di conferma."
 
@@ -5697,6 +5698,10 @@ msgstr "Dettagli account"
 msgid "Logout"
 msgstr "Logout"
 
+#: src/Admin/Frontend/Account/AnswerLinkFallback.php:68
+msgid "This link is no longer valid."
+msgstr "Questo link non è più valido."
+
 #: src/Admin/Frontend/Account/BookingSummaryPage.php:159 src/Admin/Frontend/Account/BookingSummaryPage.php:165
 msgctxt "payment box label"
 msgid "Paid"
@@ -5721,7 +5726,7 @@ msgstr "Prenotazione ricevuta"
 msgid "Refunded · %s"
 msgstr "Rimborsato · %s"
 
-#: src/Admin/Frontend/Account/BookingTimeline.php:105 templates/account/booking-summary.php:75 templates/partials/rvs/account-booking-detail.php:102 templates/partials/rvs/account-next-rental.php:49
+#: src/Admin/Frontend/Account/BookingTimeline.php:105 templates/account/booking-summary.php:75 templates/partials/rvs/account-booking-detail.php:111 templates/partials/rvs/account-next-rental.php:49
 msgid "Arrival"
 msgstr "Arrivo"
 
@@ -13434,12 +13439,12 @@ msgid "View Vehicles"
 msgstr "Visualizza i veicoli"
 
 #. translators: %s: status of the uploaded bank receipt (Submitted, Approved, Rejected).
-#: templates/account/payment-history.php:174 templates/partials/rvs/account-booking-detail.php:161
+#: templates/account/payment-history.php:174 templates/partials/rvs/account-booking-detail.php:170
 #, php-format
 msgid "Bank receipt: %s"
 msgstr "Ricevuta bancaria: %s"
 
-#: templates/account/payment-history.php:185 templates/partials/rvs/account-booking-detail.php:171
+#: templates/account/payment-history.php:185 templates/partials/rvs/account-booking-detail.php:180
 msgid "Upload bank receipt"
 msgstr "Carica la ricevuta bancaria"
 
@@ -13843,23 +13848,23 @@ msgstr "Siamo felici di averti con noi."
 msgid "Pickup: %s"
 msgstr "Ritiro: %s"
 
-#: templates/partials/rvs/account-booking-detail.php:143
+#: templates/partials/rvs/account-booking-detail.php:152
 msgid "Your deposit was paid outside our website, so we will contact you directly to collect the remaining balance."
 msgstr "Il tuo acconto è stato pagato al di fuori del nostro sito web, quindi ti contatteremo direttamente per riscuotere il saldo residuo."
 
-#: templates/partials/rvs/account-booking-detail.php:181
+#: templates/partials/rvs/account-booking-detail.php:190
 msgid "Progress"
 msgstr "Avanzamento"
 
-#: templates/partials/rvs/account-booking-detail.php:189
+#: templates/partials/rvs/account-booking-detail.php:198
 msgid "(upcoming)"
 msgstr "(in arrivo)"
 
-#: templates/partials/rvs/account-booking-detail.php:204
+#: templates/partials/rvs/account-booking-detail.php:213
 msgid "Cancellation"
 msgstr "Cancellazione"
 
-#: templates/partials/rvs/account-booking-detail.php:220 templates/partials/rvs/account-cancel-dialog.php:67
+#: templates/partials/rvs/account-booking-detail.php:229 templates/partials/rvs/account-cancel-dialog.php:67
 msgid "Cancel booking"
 msgstr "Annulla prenotazione"
 
