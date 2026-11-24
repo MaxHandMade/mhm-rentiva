@@ -178,6 +178,10 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		// on the listings the cancellation took down.
 		'_mhmrentiva_vendor_ban_id',
 		'_mhmrentiva_vehicle_unpublished_by_vendor_revoke',
+		// Pro's child seat add-on: comes pre-ticked on a transfer with
+		// children, and its own note for the customer.
+		'_mhmrentiva_addon_child_seat',
+		'_mhmrentiva_addon_child_seat_note',
 		'_mhm_bypass_reason',
 		'_mhm_cooling_policy_version',
 		'_mhm_ip_address',
