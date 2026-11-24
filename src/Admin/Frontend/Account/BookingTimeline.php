@@ -101,7 +101,9 @@ final class BookingTimeline {
 
 		$planned = self::planned($booking_id);
 		$steps[] = self::step('pickup', __('Pickup', 'mhm-rentiva'), null, $planned['pickup'], in_array($status, array( Status::IN_PROGRESS, Status::COMPLETED ), true));
-		$steps[] = self::step('return', __('Return', 'mhm-rentiva'), null, $planned['return'], Status::COMPLETED === $status);
+		// A transfer ends where the customer gets out: no vehicle comes back.
+		$end_label = BookingMeta::is_transfer_booking($booking_id) ? __('Arrival', 'mhm-rentiva') : __('Return', 'mhm-rentiva');
+		$steps[]   = self::step('return', $end_label, null, $planned['return'], Status::COMPLETED === $status);
 
 		if (Status::COMPLETED === $status) {
 			$steps[] = self::step('completed', __('Completed', 'mhm-rentiva'), null, $changes[ Status::COMPLETED ] ?? null, true);

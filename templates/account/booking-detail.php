@@ -22,7 +22,7 @@ if (! defined('ABSPATH')) {
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Booking\Meta\BookingMeta;
 use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
-use MHMRentiva\Admin\Core\LocationContext;
+use MHMRentiva\Admin\Frontend\Account\BookingPlaces;
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Frontend\Account\AccountController;
 use MHMRentiva\Admin\Frontend\Account\AccountPaymentSummary;
@@ -53,9 +53,9 @@ $vehicle_image = $vehicle_id ? get_the_post_thumbnail_url($vehicle_id, 'medium_l
 if (! $vehicle_image) {
 	$vehicle_image = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_placeholder_image_url();
 }
-// The vehicle's pickup point today: no location is stored on the booking (m17).
-$location = $vehicle_id ? LocationContext::for_vehicle($vehicle_id) : null;
-$planned  = BookingTimeline::planned($booking_id);
+// Where the trip starts and ends: the vehicle's point for a rental, origin and destination for a transfer.
+$places  = BookingPlaces::for_booking($booking_id);
+$planned = BookingTimeline::planned($booking_id);
 
 // Money.
 $payment_state    = PaymentState::forBooking($booking_id);
@@ -146,11 +146,15 @@ $view = array(
 	'status'       => RvsStatus::for($booking_status),
 	'payment_line' => $payment_line,
 	'vehicle'      => array(
-		'name'     => $vehicle ? $vehicle->post_title : __('Unknown Vehicle', 'mhm-rentiva'),
-		'image'    => (string) $vehicle_image,
-		'pickup'   => BookingTimeline::moment_text($planned['pickup']),
-		'return'   => BookingTimeline::moment_text($planned['return']),
-		'location' => $location ? (string) $location->name : '',
+		'name'         => $vehicle ? $vehicle->post_title : __('Unknown Vehicle', 'mhm-rentiva'),
+		'image'        => (string) $vehicle_image,
+		'pickup'       => BookingTimeline::moment_text($planned['pickup']),
+		'return'       => BookingTimeline::moment_text($planned['return']),
+		'transfer'     => $places['transfer'],
+		'pickup_place' => (string) ( $places['pickup'] ?? '' ),
+		'return_place' => (string) ( $places['return'] ?? '' ),
+		// Older template copies print this one place under both rows.
+		'location'     => $places['transfer'] ? '' : (string) ( $places['pickup'] ?? '' ),
 	),
 	'steps'        => $steps,
 	'cancel'       => CancellationView::for_booking($booking_id, get_current_user_id()),

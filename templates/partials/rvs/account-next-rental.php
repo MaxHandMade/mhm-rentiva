@@ -3,7 +3,7 @@
  * The next-rental card of the account dashboard: image beside the content on desktop, image on top
  * on phones. Buttons: Details (primary) and the secondary "Booking summary".
  *
- * @var array{number:string, status:array{modifier:string,label:string}, in_progress:bool, kicker:string, vehicle:string, image:string, pickup:string, return:string, location:?string, payment:array{label:string,amount_html:?string,note:?string}, details_url:string, summary_url:string, free_cancel:?string} $card AccountDashboardView::next_card().
+ * @var array{number:string, status:array{modifier:string,label:string}, in_progress:bool, kicker:string, vehicle:string, image:string, pickup:string, return:string, transfer?:bool, from?:?string, to?:?string, location:?string, payment:array{label:string,amount_html:?string,note:?string}, details_url:string, summary_url:string, free_cancel:?string} $card AccountDashboardView::next_card().
  */
 
 declare(strict_types=1);
@@ -20,9 +20,11 @@ if (array() === $mhmrentiva_nr_card) {
 	return;
 }
 
-$mhmrentiva_nr_uid     = wp_unique_id('rvs-acc-');
-$mhmrentiva_nr_payment = (array) $mhmrentiva_nr_card['payment'];
-$mhmrentiva_nr_where   = $mhmrentiva_nr_card['location'];
+$mhmrentiva_nr_uid      = wp_unique_id('rvs-acc-');
+$mhmrentiva_nr_payment  = (array) $mhmrentiva_nr_card['payment'];
+$mhmrentiva_nr_transfer = ! empty($mhmrentiva_nr_card['transfer']);
+$mhmrentiva_nr_from     = array_key_exists('from', $mhmrentiva_nr_card) ? $mhmrentiva_nr_card['from'] : $mhmrentiva_nr_card['location'];
+$mhmrentiva_nr_to       = array_key_exists('to', $mhmrentiva_nr_card) ? $mhmrentiva_nr_card['to'] : $mhmrentiva_nr_card['location'];
 ?>
 <section class="rvs-account-next" aria-labelledby="<?php echo esc_attr($mhmrentiva_nr_uid . '-title'); ?>" data-testid="account-next-rental">
 	<div class="rvs-account-next__card">
@@ -39,13 +41,13 @@ $mhmrentiva_nr_where   = $mhmrentiva_nr_card['location'];
 			<?php if ('' !== $mhmrentiva_nr_card['pickup']) : ?>
 				<div>
 					<dt><?php esc_html_e('Pickup', 'mhm-rentiva'); ?></dt>
-					<dd><strong><?php echo esc_html( (string) $mhmrentiva_nr_card['pickup']); ?></strong><?php echo null !== $mhmrentiva_nr_where ? '<span>' . esc_html( (string) $mhmrentiva_nr_where) . '</span>' : ''; ?></dd>
+					<dd><strong><?php echo esc_html( (string) $mhmrentiva_nr_card['pickup']); ?></strong><?php echo null !== $mhmrentiva_nr_from ? '<span>' . esc_html( (string) $mhmrentiva_nr_from) . '</span>' : ''; ?></dd>
 				</div>
 			<?php endif; ?>
 			<?php if ('' !== $mhmrentiva_nr_card['return']) : ?>
 				<div>
-					<dt><?php esc_html_e('Return', 'mhm-rentiva'); ?></dt>
-					<dd><strong><?php echo esc_html( (string) $mhmrentiva_nr_card['return']); ?></strong><?php echo null !== $mhmrentiva_nr_where ? '<span>' . esc_html( (string) $mhmrentiva_nr_where) . '</span>' : ''; ?></dd>
+					<dt><?php echo $mhmrentiva_nr_transfer ? esc_html__('Arrival', 'mhm-rentiva') : esc_html__('Return', 'mhm-rentiva'); ?></dt>
+					<dd><strong><?php echo esc_html( (string) $mhmrentiva_nr_card['return']); ?></strong><?php echo null !== $mhmrentiva_nr_to ? '<span>' . esc_html( (string) $mhmrentiva_nr_to) . '</span>' : ''; ?></dd>
 				</div>
 			<?php endif; ?>
 			<div>

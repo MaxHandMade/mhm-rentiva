@@ -72,13 +72,13 @@ $mhmrentiva_sum_head = sprintf(__('Booking #%s', 'mhm-rentiva'), $mhmrentiva_sum
 			<?php endif; ?>
 			<?php if ('' !== (string) ( $mhmrentiva_sum['return'] ?? '' )) : ?>
 				<div>
-					<dt><?php esc_html_e('Return', 'mhm-rentiva'); ?></dt>
+					<dt><?php echo empty($mhmrentiva_sum['transfer']) ? esc_html__('Return', 'mhm-rentiva') : esc_html__('Arrival', 'mhm-rentiva'); ?></dt>
 					<dd><?php echo esc_html( (string) $mhmrentiva_sum['return']); ?></dd>
 				</div>
 			<?php endif; ?>
 			<?php if ('' !== (string) ( $mhmrentiva_sum['location'] ?? '' )) : ?>
 				<div>
-					<dt><?php esc_html_e('Location', 'mhm-rentiva'); ?></dt>
+					<dt><?php echo empty($mhmrentiva_sum['transfer']) ? esc_html__('Location', 'mhm-rentiva') : esc_html__('Route', 'mhm-rentiva'); ?></dt>
 					<dd><?php echo esc_html( (string) $mhmrentiva_sum['location']); ?></dd>
 				</div>
 			<?php endif; ?>

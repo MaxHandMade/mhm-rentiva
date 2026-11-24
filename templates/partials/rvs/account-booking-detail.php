@@ -47,6 +47,10 @@ $mhmrentiva_bd_cancel  = (array) ( $cancel ?? array() );
 $mhmrentiva_bd_receipt = (array) ( $receipt ?? array() );
 $mhmrentiva_bd_kses    = PriceDisplay::allowed_html();
 $mhmrentiva_bd_state   = (string) ( $mhmrentiva_bd_cancel['state'] ?? 'none' );
+// A transfer names its origin and destination; a rental its one place under both rows.
+$mhmrentiva_bd_transfer = ! empty($mhmrentiva_bd_vehicle['transfer']);
+$mhmrentiva_bd_from     = (string) ( $mhmrentiva_bd_vehicle['pickup_place'] ?? ( $mhmrentiva_bd_vehicle['location'] ?? '' ) );
+$mhmrentiva_bd_to       = (string) ( $mhmrentiva_bd_vehicle['return_place'] ?? ( $mhmrentiva_bd_vehicle['location'] ?? '' ) );
 ?>
 <div class="rvs-account-detail-frame">
 <div class="rvs-account-detail" data-booking-id="<?php echo esc_attr( (string) $mhmrentiva_bd_id); ?>">
@@ -89,17 +93,17 @@ $mhmrentiva_bd_state   = (string) ( $mhmrentiva_bd_cancel['state'] ?? 'none' );
 					<dt><?php esc_html_e('Pickup', 'mhm-rentiva'); ?></dt>
 					<dd>
 						<strong><?php echo esc_html( (string) ( $mhmrentiva_bd_vehicle['pickup'] ?? '' )); ?></strong>
-						<?php if ('' !== (string) ( $mhmrentiva_bd_vehicle['location'] ?? '' )) : ?>
-							<span><?php echo esc_html( (string) $mhmrentiva_bd_vehicle['location']); ?></span>
+						<?php if ('' !== $mhmrentiva_bd_from) : ?>
+							<span><?php echo esc_html($mhmrentiva_bd_from); ?></span>
 						<?php endif; ?>
 					</dd>
 				</div>
 				<div>
-					<dt><?php esc_html_e('Return', 'mhm-rentiva'); ?></dt>
+					<dt><?php echo $mhmrentiva_bd_transfer ? esc_html__('Arrival', 'mhm-rentiva') : esc_html__('Return', 'mhm-rentiva'); ?></dt>
 					<dd>
 						<strong><?php echo esc_html( (string) ( $mhmrentiva_bd_vehicle['return'] ?? '' )); ?></strong>
-						<?php if ('' !== (string) ( $mhmrentiva_bd_vehicle['location'] ?? '' )) : ?>
-							<span><?php echo esc_html( (string) $mhmrentiva_bd_vehicle['location']); ?></span>
+						<?php if ('' !== $mhmrentiva_bd_to) : ?>
+							<span><?php echo esc_html($mhmrentiva_bd_to); ?></span>
 						<?php endif; ?>
 					</dd>
 				</div>

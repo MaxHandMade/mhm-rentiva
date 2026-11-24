@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.4.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-11-22T15:59:54+00:00\n"
+"POT-Creation-Date: 2026-11-24T16:02:54+00:00\n"
 "PO-Revision-Date: 2026-11-21 00:47+0000\n"
 "Last-Translator: machine translation (Claude), pending native review\n"
 "Language-Team: French (France)\n"
@@ -825,7 +825,7 @@ msgstr "Modifier"
 msgid "Delete %s"
 msgstr "Supprimer %s"
 
-#: src/Admin/Booking/Actions/BookingActionGuard.php:82 src/Admin/Booking/Helpers/CancellationHandler.php:105 src/Admin/Frontend/Account/AccountController.php:757 src/Admin/Frontend/Account/AccountController.php:1069 src/Admin/Frontend/Account/AccountController.php:1300 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5196 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5255
+#: src/Admin/Booking/Actions/BookingActionGuard.php:82 src/Admin/Booking/Helpers/CancellationHandler.php:105 src/Admin/Frontend/Account/AccountController.php:757 src/Admin/Frontend/Account/AccountController.php:1069 src/Admin/Frontend/Account/AccountController.php:1300 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5199 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5258
 msgid "Invalid booking ID."
 msgstr "ID de réservation invalide."
 
@@ -1035,7 +1035,7 @@ msgstr "Confirmée"
 msgid "In Progress"
 msgstr "En cours"
 
-#: src/Admin/Booking/Core/Status.php:127 src/Admin/Booking/ListTable/BookingColumns.php:1269 src/Admin/Booking/Meta/BookingEditMetaBox.php:319 src/Admin/Booking/Meta/BookingMeta.php:1662 src/Admin/Core/AssetManager.php:1232 src/Admin/Emails/Notifications/BookingNotifications.php:267 src/Admin/Frontend/Account/AccountRenderer.php:934 src/Admin/Frontend/Account/BookingTimeline.php:107 src/Admin/Frontend/Widgets/Base/ParityLabels.php:340 src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:82 src/Admin/Setup/SetupWizard.php:213 src/Frontend/PreviewSamples.php:190 templates/emails/booking-created-admin.html.php:65 templates/emails/booking-created-customer.html.php:91 templates/emails/refund-customer.html.php:33 assets/blocks/my-bookings/index.js:41 assets/blocks/payment-history/index.js:39 src-react/admin/dashboard/components/RecentBookings.jsx:13
+#: src/Admin/Booking/Core/Status.php:127 src/Admin/Booking/ListTable/BookingColumns.php:1269 src/Admin/Booking/Meta/BookingEditMetaBox.php:319 src/Admin/Booking/Meta/BookingMeta.php:1662 src/Admin/Core/AssetManager.php:1232 src/Admin/Emails/Notifications/BookingNotifications.php:267 src/Admin/Frontend/Account/AccountRenderer.php:934 src/Admin/Frontend/Account/BookingTimeline.php:109 src/Admin/Frontend/Widgets/Base/ParityLabels.php:340 src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:82 src/Admin/Setup/SetupWizard.php:213 src/Frontend/PreviewSamples.php:190 templates/emails/booking-created-admin.html.php:65 templates/emails/booking-created-customer.html.php:91 templates/emails/refund-customer.html.php:33 assets/blocks/my-bookings/index.js:41 assets/blocks/payment-history/index.js:39 src-react/admin/dashboard/components/RecentBookings.jsx:13
 msgid "Completed"
 msgstr "Terminée"
 
@@ -1329,11 +1329,11 @@ msgstr "Approuver"
 msgid "Customer"
 msgstr "Client"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:276 src/Admin/Booking/ListTable/BookingColumns.php:1764 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:753
+#: src/Admin/Booking/ListTable/BookingColumns.php:276 src/Admin/Booking/ListTable/BookingColumns.php:1764 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:756
 msgid "Booking ID"
 msgstr "ID de réservation"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:277 src/Admin/Booking/Meta/BookingEditMetaBox.php:231 src/Admin/Booking/Meta/ManualBookingMetaBox.php:235 src/Admin/Frontend/Shortcodes/ContactForm.php:914 src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:290 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:726 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:780 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1214 src/Admin/Privacy/BookingExporter.php:101 src/Admin/Vehicle/ListTable/VehicleColumns.php:211 src/Admin/Vehicle/PostType/Vehicle.php:26 templates/account/booking-summary.php:64 templates/admin/partials/booking-popup.php:77 src-react/admin/dashboard/components/RecentBookings.jsx:61
+#: src/Admin/Booking/ListTable/BookingColumns.php:277 src/Admin/Booking/Meta/BookingEditMetaBox.php:231 src/Admin/Booking/Meta/ManualBookingMetaBox.php:235 src/Admin/Frontend/Shortcodes/ContactForm.php:914 src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:290 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:726 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:783 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1217 src/Admin/Privacy/BookingExporter.php:101 src/Admin/Vehicle/ListTable/VehicleColumns.php:211 src/Admin/Vehicle/PostType/Vehicle.php:26 templates/account/booking-summary.php:64 templates/admin/partials/booking-popup.php:77 src-react/admin/dashboard/components/RecentBookings.jsx:61
 msgid "Vehicle"
 msgstr "Véhicule"
 
@@ -1349,11 +1349,11 @@ msgstr "Total"
 msgid "Deposit Amount"
 msgstr "Montant de l’acompte"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:281 src/Admin/Booking/Meta/BookingDepositMetaBox.php:255 src/Admin/Frontend/Shortcodes/BookingForm.php:343 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:771 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:842 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1241
+#: src/Admin/Booking/ListTable/BookingColumns.php:281 src/Admin/Booking/Meta/BookingDepositMetaBox.php:255 src/Admin/Frontend/Shortcodes/BookingForm.php:343 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:774 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:845 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1244
 msgid "Remaining Amount"
 msgstr "Solde restant"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:282 templates/account/booking-summary.php:88 templates/partials/rvs/account-booking-detail.php:111
+#: src/Admin/Booking/ListTable/BookingColumns.php:282 templates/account/booking-summary.php:88 templates/partials/rvs/account-booking-detail.php:124
 msgid "Payment"
 msgstr "Paiement"
 
@@ -1369,11 +1369,11 @@ msgstr "Type de réservation"
 msgid "bookings on this day"
 msgstr "réservations ce jour-là"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:385 src/Admin/Frontend/Account/BookingTimeline.php:103 src/Admin/Vehicle/ListTable/VehicleColumns.php:710 templates/account/booking-summary.php:69 templates/admin/partials/booking-popup.php:85 templates/partials/rvs/account-booking-detail.php:89 templates/partials/rvs/account-next-rental.php:41 templates/partials/vehicle-details/booking-card.php:93 templates/shortcodes/unified-search.php:87
+#: src/Admin/Booking/ListTable/BookingColumns.php:385 src/Admin/Frontend/Account/BookingTimeline.php:103 src/Admin/Vehicle/ListTable/VehicleColumns.php:710 templates/account/booking-summary.php:69 templates/admin/partials/booking-popup.php:85 templates/partials/rvs/account-booking-detail.php:93 templates/partials/rvs/account-next-rental.php:43 templates/partials/vehicle-details/booking-card.php:93 templates/shortcodes/unified-search.php:87
 msgid "Pickup"
 msgstr "Prise en charge"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:386 src/Admin/Frontend/Account/BookingTimeline.php:104 src/Admin/Vehicle/ListTable/VehicleColumns.php:711 templates/account/booking-summary.php:75 templates/admin/partials/booking-popup.php:90 templates/partials/rvs/account-booking-detail.php:98 templates/partials/rvs/account-next-rental.php:47
+#: src/Admin/Booking/ListTable/BookingColumns.php:386 src/Admin/Frontend/Account/BookingTimeline.php:105 src/Admin/Vehicle/ListTable/VehicleColumns.php:711 templates/account/booking-summary.php:75 templates/admin/partials/booking-popup.php:90 templates/partials/rvs/account-booking-detail.php:102 templates/partials/rvs/account-next-rental.php:49
 msgid "Return"
 msgstr "Restitution"
 
@@ -1579,7 +1579,7 @@ msgstr "Lien copié dans le presse-papier !"
 msgid "This booking was created with the old system. Deposit system information is not available."
 msgstr "Cette réservation a été créée avec l’ancien système. Les informations du système d’acompte ne sont pas disponibles."
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:218 src/Admin/Booking/Meta/ManualBookingMetaBox.php:705 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:762 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:833 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1235
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:218 src/Admin/Booking/Meta/ManualBookingMetaBox.php:705 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:765 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:836 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1238
 msgid "Payment Type"
 msgstr "Type de paiement"
 
@@ -1587,7 +1587,7 @@ msgstr "Type de paiement"
 msgid "Deposit"
 msgstr "Acompte"
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:223 src/Admin/Booking/Meta/BookingDepositMetaBox.php:547 src/Admin/Booking/Meta/ManualBookingMetaBox.php:707 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:759 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:830 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1234 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4103 src/Admin/Vehicle/Deposit/DepositCalculator.php:240 src/Admin/Vehicle/Deposit/DepositCalculator.php:276 src/Admin/Vehicle/Meta/VehicleMeta.php:414
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:223 src/Admin/Booking/Meta/BookingDepositMetaBox.php:547 src/Admin/Booking/Meta/ManualBookingMetaBox.php:707 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:762 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:833 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1237 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4106 src/Admin/Vehicle/Deposit/DepositCalculator.php:240 src/Admin/Vehicle/Deposit/DepositCalculator.php:276 src/Admin/Vehicle/Meta/VehicleMeta.php:414
 msgid "Full Payment"
 msgstr "Paiement intégral"
 
@@ -1878,7 +1878,7 @@ msgstr "Ajoutez des notes particulières ou des demandes du client pour cette r�
 
 #. translators: %s: vehicle title.
 #. translators: %s: vehicle title
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:664 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3060
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:664 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3063
 #, php-format
 msgid "Booking - %s"
 msgstr "Réservation - %s"
@@ -2041,7 +2041,7 @@ msgstr "Votre justificatif de paiement a été rejeté"
 msgid "Booking"
 msgstr "Réservation"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:384 src/Admin/Core/AssetManager.php:1535 src/Admin/Frontend/Shortcodes/ComparisonView.php:250 src/Admin/Vehicle/Settings/VehicleSettings.php:447 templates/partials/rvs/account-next-rental.php:64
+#: src/Admin/Booking/Meta/BookingMeta.php:384 src/Admin/Core/AssetManager.php:1535 src/Admin/Frontend/Shortcodes/ComparisonView.php:250 src/Admin/Vehicle/Settings/VehicleSettings.php:447 templates/partials/rvs/account-next-rental.php:66
 msgid "Details"
 msgstr "Détails"
 
@@ -2363,7 +2363,7 @@ msgstr "Pourquoi aucun remboursement n’est-il dû ?"
 msgid "No refund is due"
 msgstr "Aucun remboursement n’est dû"
 
-#: src/Admin/Booking/Meta/BookingStatusBox.php:63 templates/account/booking-summary.php:35 templates/account/booking-summary.php:51 templates/partials/rvs/account-booking-detail.php:75 templates/partials/rvs/account-next-rental.php:66 templates/partials/rvs/journey-summary.php:73 templates/partials/vehicle-details/booking-card.php:148 templates/shortcodes/booking-form.php:213
+#: src/Admin/Booking/Meta/BookingStatusBox.php:63 templates/account/booking-summary.php:35 templates/account/booking-summary.php:51 templates/partials/rvs/account-booking-detail.php:79 templates/partials/rvs/account-next-rental.php:68 templates/partials/rvs/journey-summary.php:73 templates/partials/vehicle-details/booking-card.php:158 templates/shortcodes/booking-form.php:213
 msgid "Booking summary"
 msgstr "Récapitulatif de la réservation"
 
@@ -2425,7 +2425,7 @@ msgstr "Véhicule sélectionné"
 msgid "Vehicle Total"
 msgstr "Total véhicule"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:239 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4553
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:239 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4556
 msgid "Add-ons"
 msgstr "Services supplémentaires"
 
@@ -2828,7 +2828,7 @@ msgstr "Confirmez-vous vouloir retirer cet équipement ?"
 msgid "Enter value"
 msgstr "Saisissez une valeur"
 
-#: src/Admin/Core/AssetManager.php:1097 src/Admin/Core/AssetManager.php:1473 src/Admin/Settings/Core/SettingsHelper.php:236 src/Admin/Vehicle/Settings/VehicleSettings.php:631 src/Admin/Vehicle/Settings/VehicleSettings.php:683 templates/account/payment-history.php:181 templates/partials/rvs/account-booking-detail.php:154 src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:58 src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:57
+#: src/Admin/Core/AssetManager.php:1097 src/Admin/Core/AssetManager.php:1473 src/Admin/Settings/Core/SettingsHelper.php:236 src/Admin/Vehicle/Settings/VehicleSettings.php:631 src/Admin/Vehicle/Settings/VehicleSettings.php:683 templates/account/payment-history.php:181 templates/partials/rvs/account-booking-detail.php:167 src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:58 src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:57
 msgid "Remove"
 msgstr "Retirer"
 
@@ -3449,7 +3449,7 @@ msgstr "Filtrer"
 msgid "Reset"
 msgstr "Réinitialiser"
 
-#: src/Admin/Core/AssetManager.php:1658 src/Admin/Core/Assets/DatepickerAssets.php:422 src/Admin/Frontend/Shortcodes/BookingForm.php:2018 src/Blocks/BlockRegistry.php:254 templates/admin/partials/booking-popup.php:40 templates/partials/vehicle-details/booking-card.php:170 templates/partials/vehicle-details/gallery.php:59 templates/shortcodes/availability-calendar.php:89 src-react/admin/customers/components/CustomerPanel.jsx:78 src-react/admin/shortcode-pages/components/DebugPanel.jsx:18
+#: src/Admin/Core/AssetManager.php:1658 src/Admin/Core/Assets/DatepickerAssets.php:422 src/Admin/Frontend/Shortcodes/BookingForm.php:2018 src/Blocks/BlockRegistry.php:254 templates/admin/partials/booking-popup.php:40 templates/partials/vehicle-details/booking-card.php:180 templates/partials/vehicle-details/gallery.php:59 templates/shortcodes/availability-calendar.php:89 src-react/admin/customers/components/CustomerPanel.jsx:78 src-react/admin/shortcode-pages/components/DebugPanel.jsx:18
 msgid "Close"
 msgstr "Fermer"
 
@@ -4143,193 +4143,193 @@ msgstr "Appliquer"
 msgid "Select a city..."
 msgstr "Sélectionnez une ville..."
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1051
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1088
 msgid "Cleanup cancelled: the backup table could not be created or filled. Nothing was deleted."
 msgstr "Nettoyage annulé : la table de sauvegarde n’a pas pu être créée ou remplie. Rien n’a été supprimé."
 
 #. translators: 1: current table-prefix length in characters. 2: maximum supported length in characters.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1234
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1271
 #, php-format
 msgid "This site's table prefix (%1$d characters) is too long for the invalid-meta cleanup to name a backup table within MySQL's 64-character identifier limit (maximum supported: %2$d characters). The cleanup was not run."
 msgstr "Le préfixe de table de ce site (%1$d caractères) est trop long pour que le nettoyage des métadonnées invalides puisse nommer une table de sauvegarde dans la limite de 64 caractères des identifiants MySQL (maximum pris en charge : %2$d caractères). Le nettoyage n’a pas été exécuté."
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1753
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1790
 msgid "Database Cleanup Report"
 msgstr "Rapport de nettoyage de la base de données"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1758 templates/shortcodes/search-results.php:189
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1795 templates/shortcodes/search-results.php:189
 msgid "Category"
 msgstr "Catégorie"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1759
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1796
 msgid "Count"
 msgstr "Nombre"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1760
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1797
 msgid "Size"
 msgstr "Taille"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1761 src/Admin/Utilities/ListTable/LogColumns.php:75 templates/partials/rvs/account-bookings.php:59
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1798 src/Admin/Utilities/ListTable/LogColumns.php:75 templates/partials/rvs/account-bookings.php:59
 msgid "Action"
 msgstr "Action"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1766
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1803
 msgid "Orphaned Post Meta"
 msgstr "Métadonnées de publication orphelines"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1772 src/Admin/Core/Utilities/DatabaseCleaner.php:1787 src/Admin/Core/Utilities/DatabaseCleaner.php:1817 src/Admin/Core/Utilities/DatabaseCleaner.php:1844
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1809 src/Admin/Core/Utilities/DatabaseCleaner.php:1824 src/Admin/Core/Utilities/DatabaseCleaner.php:1854 src/Admin/Core/Utilities/DatabaseCleaner.php:1881
 msgid "Cleanup Recommended"
 msgstr "Nettoyage recommandé"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1775 src/Admin/Core/Utilities/DatabaseCleaner.php:1790 src/Admin/Core/Utilities/DatabaseCleaner.php:1820 src/Admin/Core/Utilities/DatabaseCleaner.php:1847
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1812 src/Admin/Core/Utilities/DatabaseCleaner.php:1827 src/Admin/Core/Utilities/DatabaseCleaner.php:1857 src/Admin/Core/Utilities/DatabaseCleaner.php:1884
 msgid "Clean"
 msgstr "Nettoyer"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1781
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1818
 msgid "Expired Transients"
 msgstr "Transients expirés"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1796
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1833
 msgid "Autoload Options"
 msgstr "Options en chargement automatique"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1802
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1839
 msgid "Optimization Recommended"
 msgstr "Optimisation recommandée"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1805
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1842
 msgid "Optimized"
 msgstr "Optimisé"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1811
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1848
 msgid "Invalid Meta Keys"
 msgstr "Clés de métadonnées invalides"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1824
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1861
 msgid "All Valid"
 msgstr "Tout est valide"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1830
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1867
 msgid "Log Records (>30 days)"
 msgstr "Entrées du journal (>30 jours)"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1854
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1891
 msgid "Custom Tables"
 msgstr "Tables personnalisées"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1858 src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:82
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1895 src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:82
 msgid "Table"
 msgstr "Table"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1859
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1896
 msgid "Exists"
 msgstr "Existe"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1860
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1897
 msgid "Rows"
 msgstr "Lignes"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1861
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1898
 msgid "Size (MB)"
 msgstr "Taille (Mo)"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1874
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1911
 msgid "Repair/Create"
 msgstr "Réparer/Créer"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1902
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1939
 msgid "Analyze Database"
 msgstr "Analyser la base de données"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1907
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1944
 msgid "Clean Orphaned Meta"
 msgstr "Nettoyer les métadonnées orphelines"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1912
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1949
 msgid "Clean Expired Transients"
 msgstr "Nettoyer les transients expirés"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1917 src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:125
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1954 src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:125
 msgid "Optimize Autoload"
 msgstr "Optimiser le chargement automatique"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1922
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1959
 msgid "Optimize Tables"
 msgstr "Optimiser les tables"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1927 src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:134
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1964 src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:134
 msgid "Purge Old Logs"
 msgstr "Purger les anciens journaux"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2090
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2127
 msgid "Backup table not found"
 msgstr "Table de sauvegarde introuvable"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2108
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2145
 msgid "This backup holds discarded meta from two different tables and cannot be restored in place. Export it and reapply the rows you need."
 msgstr "Cette sauvegarde contient des métadonnées supprimées provenant de deux tables différentes et ne peut pas être restaurée sur place. Exportez-la et réappliquez les lignes dont vous avez besoin."
 
 #. translators: 1: %d; 2: %s.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2154
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2191
 #, php-format
 msgid "Restored %1$d records to %2$s"
 msgstr "%1$d enregistrements restaurés dans %2$s"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2172
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2209
 msgid "Not a backup table"
 msgstr "Ce n’est pas une table de sauvegarde"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2181 src/Admin/Core/Utilities/DatabaseCleaner.php:2594
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2218 src/Admin/Core/Utilities/DatabaseCleaner.php:2631
 msgid "Backup deleted successfully"
 msgstr "La sauvegarde a bien été supprimée"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2181 src/Admin/Utilities/Database/DatabaseCleanupPage.php:450 src/Admin/Utilities/Database/DatabaseCleanupPage.php:597
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2218 src/Admin/Utilities/Database/DatabaseCleanupPage.php:450 src/Admin/Utilities/Database/DatabaseCleanupPage.php:597
 msgid "Failed to delete backup"
 msgstr "Échec de la suppression de la sauvegarde"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2198
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2235
 msgid "Failed to initialize filesystem."
 msgstr "Échec de l’initialisation du système de fichiers."
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2239
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2276
 msgid "No tables found to backup"
 msgstr "Aucune table à sauvegarder"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2289
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2326
 msgid "Failed to write backup file"
 msgstr "Échec de l’écriture du fichier de sauvegarde"
 
 #. translators: 1: %d; 2: %d.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2340
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2377
 #, php-format
 msgid "Full backup created successfully: %1$d tables, %2$d rows"
 msgstr "La sauvegarde complète a bien été créée : %1$d tables, %2$d lignes"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2564 src/Admin/Utilities/Database/DatabaseCleanupPage.php:531
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2601 src/Admin/Utilities/Database/DatabaseCleanupPage.php:531
 msgid "Invalid backup file path"
 msgstr "Chemin du fichier de sauvegarde invalide"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2595
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2632
 msgid "Backup deletion completed with some warnings"
 msgstr "Suppression de la sauvegarde terminée avec quelques avertissements"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2649
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2686
 msgid "Filesystem initialization failed"
 msgstr "Échec de l’initialisation du système de fichiers"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2659
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2696
 msgid "Backup directory does not exist"
 msgstr "Le répertoire de sauvegarde n’existe pas"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2666
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2703
 msgid ".htaccess file missing - directory is not protected from web access"
 msgstr "Fichier .htaccess manquant - le répertoire n’est pas protégé contre l’accès web"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2670
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2707
 msgid ".htaccess file exists but does not deny access properly"
 msgstr "Le fichier .htaccess existe mais ne bloque pas correctement l’accès"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2677
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2714
 msgid "index.php file missing - directory listing is possible"
 msgstr "Fichier index.php manquant - le listage du répertoire est possible"
 
@@ -4882,7 +4882,7 @@ msgstr "Les informations du client ont bien été mises à jour."
 msgid "← Back to customer details"
 msgstr "← Retour aux détails du client"
 
-#: src/Admin/Customers/CustomersPage.php:545 templates/account/payment-history.php:178 templates/partials/rvs/account-booking-detail.php:151 templates/partials/rvs/account-bookings.php:120 templates/partials/rvs/account-bookings.php:122 templates/shortcodes/search-results.php:253 src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:51
+#: src/Admin/Customers/CustomersPage.php:545 templates/account/payment-history.php:178 templates/partials/rvs/account-booking-detail.php:164 templates/partials/rvs/account-bookings.php:120 templates/partials/rvs/account-bookings.php:122 templates/shortcodes/search-results.php:253 src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:51
 msgid "View"
 msgstr "Voir"
 
@@ -5028,18 +5028,18 @@ msgstr "Modèle bien enregistré !"
 msgid "Template reset to default!"
 msgstr "Modèle réinitialisé par défaut !"
 
-#: src/Admin/Emails/Core/Mailer.php:475
+#: src/Admin/Emails/Core/Mailer.php:486
 msgid "valued customer"
 msgstr "cher client"
 
 #. translators: 1: a date, 2: a time of day (e.g. "November 20, 2026, 9:30 am").
-#: src/Admin/Emails/Core/Mailer.php:576
+#: src/Admin/Emails/Core/Mailer.php:587
 #, php-format
 msgctxt "e-mail date and time"
 msgid "%1$s, %2$s"
 msgstr "%1$s à %2$s"
 
-#: src/Admin/Emails/Core/Mailer.php:614 src/Admin/Frontend/Shortcodes/ReviewsView.php:140
+#: src/Admin/Emails/Core/Mailer.php:625 src/Admin/Frontend/Shortcodes/ReviewsView.php:140
 msgid "Anonymous"
 msgstr "Anonyme"
 
@@ -5359,7 +5359,7 @@ msgstr "E-mail de remboursement client"
 msgid "Admin Refund Email"
 msgstr "E-mail de remboursement à l’administration"
 
-#: src/Admin/Frontend/Account/AccountBookingsView.php:82 src/Admin/Frontend/Account/AccountDashboardView.php:163 src/Admin/Frontend/Account/AccountRenderer.php:970 src/Layout/CLI/LayoutImportCommand.php:409
+#: src/Admin/Frontend/Account/AccountBookingsView.php:82 src/Admin/Frontend/Account/AccountDashboardView.php:161 src/Admin/Frontend/Account/AccountRenderer.php:970 src/Layout/CLI/LayoutImportCommand.php:409
 msgid "N/A"
 msgstr "ND"
 
@@ -5403,7 +5403,7 @@ msgstr "Annulation…"
 msgid "An error occurred."
 msgstr "Une erreur s’est produite."
 
-#: src/Admin/Frontend/Account/AccountController.php:343 templates/partials/rvs/account-booking-detail.php:137
+#: src/Admin/Frontend/Account/AccountController.php:343 templates/partials/rvs/account-booking-detail.php:150
 msgid "Pay Remaining Amount"
 msgstr "Payer le solde restant"
 
@@ -5559,26 +5559,26 @@ msgstr "Réservation annulée, mais le remboursement n’a pas pu être effectu�
 msgid "Booking cancelled successfully. A confirmation email has been sent."
 msgstr "La réservation a bien été annulée. Un e-mail de confirmation a été envoyé."
 
-#: src/Admin/Frontend/Account/AccountDashboardView.php:79
+#: src/Admin/Frontend/Account/AccountDashboardView.php:78
 msgid "You have no upcoming rentals."
 msgstr "Vous n’avez aucune location à venir."
 
-#: src/Admin/Frontend/Account/AccountDashboardView.php:84
+#: src/Admin/Frontend/Account/AccountDashboardView.php:83
 msgid "Your rental is in progress."
 msgstr "Votre location est en cours."
 
 #. translators: %s: return date and time.
-#: src/Admin/Frontend/Account/AccountDashboardView.php:88
+#: src/Admin/Frontend/Account/AccountDashboardView.php:87
 #, php-format
 msgid "Your rental is in progress. Return: %s"
 msgstr "Votre location est en cours. Restitution : %s"
 
-#: src/Admin/Frontend/Account/AccountDashboardView.php:93
+#: src/Admin/Frontend/Account/AccountDashboardView.php:92
 msgid "Your next rental starts today."
 msgstr "Votre prochaine location commence aujourd’hui."
 
 #. translators: %s: number of days until the next rental starts.
-#: src/Admin/Frontend/Account/AccountDashboardView.php:98
+#: src/Admin/Frontend/Account/AccountDashboardView.php:97
 #, php-format
 msgid "Your next rental starts in %s day."
 msgid_plural "Your next rental starts in %s days."
@@ -5586,42 +5586,42 @@ msgstr[0] "Votre prochaine location commence dans %s jour."
 msgstr[1] "Votre prochaine location commence dans %s jours."
 
 #. translators: %s: booking number.
-#: src/Admin/Frontend/Account/AccountDashboardView.php:148
+#: src/Admin/Frontend/Account/AccountDashboardView.php:146
 #, php-format
 msgid "In progress · %s"
 msgstr "En cours · %s"
 
 #. translators: %s: booking number.
-#: src/Admin/Frontend/Account/AccountDashboardView.php:150
+#: src/Admin/Frontend/Account/AccountDashboardView.php:148
 #, php-format
 msgid "Upcoming · %s"
 msgstr "À venir · %s"
 
 #. translators: %s: cancellation deadline (date and time).
-#: src/Admin/Frontend/Account/AccountDashboardView.php:155
+#: src/Admin/Frontend/Account/AccountDashboardView.php:153
 #, php-format
 msgid "Free cancellation until %s"
 msgstr "Annulation gratuite jusqu’au %s"
 
 #. translators: %s: refunded amount.
-#: src/Admin/Frontend/Account/AccountDashboardView.php:247 templates/account/booking-detail.php:78
+#: src/Admin/Frontend/Account/AccountDashboardView.php:254 templates/account/booking-detail.php:78
 #, php-format
 msgid "%s refunded"
 msgstr "%s remboursé"
 
-#: src/Admin/Frontend/Account/AccountDashboardView.php:253 templates/partials/rvs/breakdown.php:63 templates/partials/rvs/checkout-bank-transfer.php:41
+#: src/Admin/Frontend/Account/AccountDashboardView.php:260 templates/partials/rvs/breakdown.php:63 templates/partials/rvs/checkout-bank-transfer.php:41
 msgid "Due at pickup"
 msgstr "À régler à la prise en charge"
 
-#: src/Admin/Frontend/Account/AccountDashboardView.php:255 src/Admin/Payment/WooCommerce/RentalMoneyLabels.php:224 templates/account/booking-detail.php:82
+#: src/Admin/Frontend/Account/AccountDashboardView.php:262 src/Admin/Payment/WooCommerce/RentalMoneyLabels.php:224 templates/account/booking-detail.php:82
 msgid "Deposit paid"
 msgstr "Acompte payé"
 
-#: src/Admin/Frontend/Account/AccountDashboardView.php:259 templates/account/booking-detail.php:87
+#: src/Admin/Frontend/Account/AccountDashboardView.php:266 templates/account/booking-detail.php:87
 msgid "Paid in full"
 msgstr "Payé intégralement"
 
-#: src/Admin/Frontend/Account/AccountDashboardView.php:266 templates/account/booking-detail.php:93
+#: src/Admin/Frontend/Account/AccountDashboardView.php:273 templates/account/booking-detail.php:93
 msgid "Awaiting payment"
 msgstr "En attente de paiement"
 
@@ -5665,7 +5665,7 @@ msgstr "Elle a peut-être été supprimée, ou le lien est incorrect. Vos autres
 msgid "Back to my account"
 msgstr "Retour à mon compte"
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:716 src/Admin/Frontend/Account/WooCommerceIntegration.php:486
+#: src/Admin/Frontend/Account/AccountRenderer.php:716 src/Admin/Frontend/Account/WooCommerceIntegration.php:498
 msgid "You do not have permission to view this booking."
 msgstr "Vous n’avez pas le droit de voir cette réservation."
 
@@ -5697,17 +5697,17 @@ msgstr "Détails du compte"
 msgid "Logout"
 msgstr "Déconnexion"
 
-#: src/Admin/Frontend/Account/BookingSummaryPage.php:160 src/Admin/Frontend/Account/BookingSummaryPage.php:166
+#: src/Admin/Frontend/Account/BookingSummaryPage.php:159 src/Admin/Frontend/Account/BookingSummaryPage.php:165
 msgctxt "payment box label"
 msgid "Paid"
 msgstr "Payé"
 
-#: src/Admin/Frontend/Account/BookingSummaryPage.php:173
+#: src/Admin/Frontend/Account/BookingSummaryPage.php:172
 msgctxt "payment box label"
 msgid "Refunded"
 msgstr "Remboursé"
 
-#: src/Admin/Frontend/Account/BookingSummaryPage.php:208 templates/account/booking-detail.php:149
+#: src/Admin/Frontend/Account/BookingSummaryPage.php:207 templates/account/booking-detail.php:149
 msgid "Unknown Vehicle"
 msgstr "Véhicule inconnu"
 
@@ -5721,20 +5721,24 @@ msgstr "Réservation reçue"
 msgid "Refunded · %s"
 msgstr "Remboursé · %s"
 
+#: src/Admin/Frontend/Account/BookingTimeline.php:105 templates/account/booking-summary.php:75 templates/partials/rvs/account-booking-detail.php:102 templates/partials/rvs/account-next-rental.php:49
+msgid "Arrival"
+msgstr "Arrivée"
+
 #. translators: %s: amount paid.
-#: src/Admin/Frontend/Account/BookingTimeline.php:196
+#: src/Admin/Frontend/Account/BookingTimeline.php:225
 #, php-format
 msgid "Balance paid · %s"
 msgstr "Solde payé · %s"
 
 #. translators: %s: amount paid.
-#: src/Admin/Frontend/Account/BookingTimeline.php:200 src/Admin/Frontend/Account/BookingTimeline.php:220
+#: src/Admin/Frontend/Account/BookingTimeline.php:229 src/Admin/Frontend/Account/BookingTimeline.php:249
 #, php-format
 msgid "Deposit paid · %s"
 msgstr "Acompte payé · %s"
 
 #. translators: %s: amount paid.
-#: src/Admin/Frontend/Account/BookingTimeline.php:204 src/Admin/Frontend/Account/BookingTimeline.php:222
+#: src/Admin/Frontend/Account/BookingTimeline.php:233 src/Admin/Frontend/Account/BookingTimeline.php:251
 #, php-format
 msgid "Payment received · %s"
 msgstr "Paiement reçu · %s"
@@ -5781,7 +5785,7 @@ msgstr "Annulation gratuite jusqu’au %1$s. Ce que vous avez payé (%2$s) vous 
 msgid "You are within the free cancellation period. %s will be refunded."
 msgstr "Vous êtes dans la période d’annulation gratuite. %s sera remboursé."
 
-#: src/Admin/Frontend/Account/EndpointHelperTrait.php:38 templates/partials/rvs/account-booking-detail.php:55 templates/partials/rvs/account-bookings.php:63 templates/partials/rvs/journey-summary.php:76
+#: src/Admin/Frontend/Account/EndpointHelperTrait.php:38 templates/partials/rvs/account-booking-detail.php:59 templates/partials/rvs/account-bookings.php:63 templates/partials/rvs/journey-summary.php:76
 msgid "My bookings"
 msgstr "Mes réservations"
 
@@ -5789,7 +5793,7 @@ msgstr "Mes réservations"
 msgid "My favorites"
 msgstr "Mes favoris"
 
-#: src/Admin/Frontend/Account/EndpointHelperTrait.php:53 templates/partials/rvs/account-booking-detail.php:59
+#: src/Admin/Frontend/Account/EndpointHelperTrait.php:53 templates/partials/rvs/account-booking-detail.php:63
 msgid "Booking details"
 msgstr "Détails de la réservation"
 
@@ -5814,7 +5818,7 @@ msgid "view-rentiva-booking"
 msgstr "voir-reservation-rentiva"
 
 #. translators: 1: menu label, 2: count
-#: src/Admin/Frontend/Account/WooCommerceIntegration.php:241
+#: src/Admin/Frontend/Account/WooCommerceIntegration.php:253
 #, php-format
 msgid "%1$s (%2$s)"
 msgstr "%1$s (%2$s)"
@@ -5971,7 +5975,7 @@ msgstr "Veuillez sélectionner l’heure de prise en charge."
 msgid "Alternative Vehicles"
 msgstr "Véhicules alternatifs"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:336 src/Admin/Frontend/Shortcodes/SearchResults.php:590 templates/partials/vehicle-card.php:280 templates/partials/vehicle-details/alternatives.php:59 templates/partials/vehicle-details/booking-card.php:87 templates/partials/vehicle-details/booking-card.php:159 templates/shortcodes/booking-form.php:89
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:336 src/Admin/Frontend/Shortcodes/SearchResults.php:590 templates/partials/vehicle-card.php:280 templates/partials/vehicle-details/alternatives.php:59 templates/partials/vehicle-details/booking-card.php:87 templates/partials/vehicle-details/booking-card.php:169 templates/shortcodes/booking-form.php:89
 msgid "/day"
 msgstr "/jour"
 
@@ -8530,279 +8534,279 @@ msgstr "Réservation de location de véhicule"
 msgid "%s rental"
 msgstr "Location %s"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:743 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:807 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1223
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:743 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:810 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1226
 msgid "Pickup Date & Time"
 msgstr "Date et heure de prise en charge"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:748 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:814 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1226
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:750 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:817 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1229
 msgid "Return Date & Time"
 msgstr "Date et heure de restitution"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:759 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:830 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1233 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4083 src/Admin/Vehicle/Deposit/DepositCalculator.php:275
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:762 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:833 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1236 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4086 src/Admin/Vehicle/Deposit/DepositCalculator.php:275
 msgid "Deposit Payment"
 msgstr "Paiement de l’acompte"
 
 #. translators: %d: the WooCommerce order id with no items.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1304
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1307
 #, php-format
 msgid "No items found in order #%d"
 msgstr "Aucun article trouvé dans la commande n°%d"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1358
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1361
 msgid "Your booking could not be created and no payment was taken. Please try again."
 msgstr "Votre réservation n’a pas pu être créée et aucun paiement n’a été prélevé. Veuillez réessayer."
 
 #. translators: %s: why the booking was refused, as the customer read it.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1454 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2622
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1457 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2625
 #, php-format
 msgid "Booking refused, no payment taken: %s"
 msgstr "Réservation refusée, aucun paiement prélevé : %s"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1636
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1639
 msgid "The amount on this payment link is no longer current. Please ask us for a new payment link."
 msgstr "Le montant de ce lien de paiement n’est plus à jour. Veuillez nous demander un nouveau lien de paiement."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1855
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1858
 msgid "This booking was cancelled and can no longer be paid. Please make a new booking."
 msgstr "Cette réservation a été annulée et ne peut plus être payée. Veuillez effectuer une nouvelle réservation."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1864
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1867
 msgid "The availability of this booking could not be checked, so no payment was taken. Please try again in a moment."
 msgstr "La disponibilité de cette réservation n’a pas pu être vérifiée, aucun paiement n’a donc été prélevé. Veuillez réessayer dans un instant."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1872
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1875
 msgid "The booking could not be updated, so nothing was changed. Please try again in a moment."
 msgstr "La réservation n’a pas pu être mise à jour, rien n’a donc été modifié. Veuillez réessayer dans un instant."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2253
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2256
 msgid "The dates were still free when the order was paid again; the booking holds them again."
 msgstr "Les dates étaient encore libres lorsque la commande a de nouveau été payée ; la réservation les bloque de nouveau."
 
 #. translators: %d: booking id.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2310
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2313
 #, php-format
 msgid "Booking #%d was revived for a payment that was then refused, and could not be put back; it stays pending until its payment deadline."
 msgstr "La réservation n°%d a été réactivée pour un paiement ensuite refusé et n’a pas pu être rétablie ; elle reste en attente jusqu’à sa date limite de paiement."
 
 #. translators: %d: booking id.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2447
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2450
 #, php-format
 msgid "Payment recorded on the order, but booking #%d could not be read back afterwards: its payment status and status are not known. Check the booking before anything else."
 msgstr "Paiement enregistré sur la commande, mais la réservation n°%d n’a pas pu être relue ensuite : son état de paiement et son état sont inconnus. Vérifiez la réservation avant toute chose."
 
 #. translators: 1: booking id, 2: the booking's payment status as stored, 3: the booking status.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2454
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2457
 #, php-format
 msgid "Payment recorded on the order, but booking #%1$d is not marked paid: its payment status is \"%2$s\" and its status %3$s. Check the booking."
 msgstr "Paiement enregistré sur la commande, mais la réservation n°%1$d n’est pas marquée comme payée : son état de paiement est « %2$s » et son état %3$s. Vérifiez la réservation."
 
 #. translators: 1: booking id, 2: the booking status.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2463
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2466
 #, php-format
 msgid "Payment recorded and booking #%1$d is marked paid, but its status is %2$s, so it no longer holds its dates. Reconcile it: give the booking its dates back, or refund the payment."
 msgstr "Paiement enregistré et réservation n°%1$d marquée comme payée, mais son état est %2$s : elle ne bloque donc plus ses dates. Régularisez-la : rendez ses dates à la réservation ou remboursez le paiement."
 
 #. translators: 1: booking id, 2: the booking status it should have moved to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2471
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2474
 #, php-format
 msgid "Payment recorded and booking #%1$d marked paid, but it could not be moved to %2$s. Check the booking."
 msgstr "Paiement enregistré et réservation n°%1$d marquée comme payée, mais elle n’a pas pu passer à l’état %2$s. Vérifiez la réservation."
 
 #. translators: 1: booking id, 2: the booking status now, 3: the booking status it should have moved to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2479
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2482
 #, php-format
 msgid "Payment recorded and booking #%1$d marked paid, but it is %2$s instead of %3$s. Check the booking."
 msgstr "Paiement enregistré et réservation n°%1$d marquée comme payée, mais elle est à l’état %2$s au lieu de %3$s. Vérifiez la réservation."
 
 #. translators: 1: booking id, 2: why, as the customer would have read it.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2650
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2653
 #, php-format
 msgid "Order on hold, but booking #%1$d was not confirmed: it no longer holds its dates (%2$s). Do not accept the payment for it, or move the booking first."
 msgstr "Commande en attente, mais la réservation n°%1$d n’a pas été confirmée : elle ne bloque plus ses dates (%2$s). N’acceptez pas le paiement correspondant, ou déplacez d’abord la réservation."
 
 #. translators: 1: booking id, 2: why, as the customer would have read it.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2656
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2659
 #, php-format
 msgid "Payment recorded, but booking #%1$d was not confirmed: it no longer holds its dates (%2$s). Refund the payment in WooCommerce, or move the booking."
 msgstr "Paiement enregistré, mais la réservation n°%1$d n’a pas été confirmée : elle ne bloque plus ses dates (%2$s). Remboursez le paiement dans WooCommerce ou déplacez la réservation."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2701 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2811 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2839
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2704 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2814 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2842
 msgid "Cash on delivery is not available for a booking. Please choose another payment method."
 msgstr "Le paiement à la livraison n’est pas disponible pour une réservation. Veuillez choisir un autre moyen de paiement."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2703
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2706
 msgid "Payment method refused: cash on delivery is not available for a booking. No booking was made and no payment was taken."
 msgstr "Moyen de paiement refusé : le paiement à la livraison n’est pas disponible pour une réservation. Aucune réservation n’a été effectuée et aucun paiement n’a été prélevé."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2727
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2730
 msgid "Rentiva booking created from the block checkout. The customer could not change the payment type there."
 msgstr "Réservation Rentiva créée depuis le bloc de validation de commande. Le client ou la cliente n’a pas pu y modifier le type de paiement."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2892
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2895
 msgid "Cash on delivery is not offered for rentals, and no other payment method is set up yet. Please contact us to complete your booking."
 msgstr "Le paiement à la livraison n’est pas proposé pour les locations et aucun autre moyen de paiement n’est encore configuré. Veuillez nous contacter pour finaliser votre réservation."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2941 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4735
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2944 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4738
 msgid "Invalid booking dates. Please try again."
 msgstr "Dates de réservation invalides. Veuillez réessayer."
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2964
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2967
 #, php-format
 msgid "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates (%2$s - %3$s). The vehicle may have been booked by another customer. Please select different dates or another vehicle."
 msgstr "Désolé, le véhicule « %1$s » n’est plus disponible pour les dates sélectionnées (%2$s - %3$s). Il a peut-être été réservé par un autre client. Veuillez sélectionner d’autres dates ou un autre véhicule."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3044
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3047
 msgid "Booking cancelled: Vehicle is not available for rental."
 msgstr "Réservation annulée : le véhicule n’est pas disponible à la location."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3216
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3219
 msgid "Booking created from WooCommerce order"
 msgstr "Réservation créée à partir de la commande WooCommerce"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3247
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3250
 msgid "Booking cancelled: Vehicle already booked for selected dates."
 msgstr "Réservation annulée : véhicule déjà réservé pour les dates sélectionnées."
 
 #. translators: 1: the WooCommerce order id that was cancelled, 2: the booking id it belongs to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3435
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3438
 #, php-format
 msgid "Remaining-payment order #%1$d was cancelled on booking #%2$d after it had been paid. The money is still on that order: refund it, or restore the order."
 msgstr "La commande de solde n°%1$d a été annulée sur la réservation n°%2$d après avoir été payée. L’argent se trouve toujours sur cette commande : remboursez-le ou restaurez la commande."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3454
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3457
 msgid "The booking was kept: a remaining-payment order that fails or is cancelled does not cancel its booking. Send the customer a new payment link if one is needed."
 msgstr "La réservation a été conservée : l’échec ou l’annulation d’une commande de solde n’annule pas sa réservation. Envoyez au client un nouveau lien de paiement si nécessaire."
 
 #. translators: 1: the WooCommerce order id that was cancelled/failed, 2: the booking id it belongs to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3491
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3494
 #, php-format
 msgid "Order #%1$d was cancelled/failed on booking #%2$d while a sibling order still holds paid money, but the notification e-mail could not be sent -- no one has been told a new payment link may be needed."
 msgstr "La commande n°%1$d a été annulée/a échoué sur la réservation n°%2$d alors qu’une commande associée détient encore un montant payé, mais l’e-mail de notification n’a pas pu être envoyé -- personne n’a été averti qu’un nouveau lien de paiement pourrait être nécessaire."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3519
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3522
 msgid "The payment failed. The booking waits for payment: the customer can pay again on this order. If no payment comes in time, the booking is cancelled automatically."
 msgstr "Le paiement a échoué. La réservation attend le paiement : le client peut payer à nouveau sur cette commande. Si aucun paiement n’arrive à temps, la réservation est annulée automatiquement."
 
 #. translators: %d: the WooCommerce order id.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3645
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3648
 #, php-format
 msgid "The remaining amount of a booking could not be read when its payment (order #%d) arrived; the balance was left unchanged and will be settled on the next status change."
 msgstr "Le solde restant d’une réservation n’a pas pu être lu à l’arrivée de son paiement (commande n°%d) ; le solde n’a pas été modifié et sera réglé au prochain changement d’état."
 
 #. translators: %d: the WooCommerce order id.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3708
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3711
 #, php-format
 msgid "The remaining amount of a booking could not be cleared when its payment (order #%d) arrived; it will be retried on the next status change."
 msgstr "Le solde restant d’une réservation n’a pas pu être remis à zéro à l’arrivée de son paiement (commande n°%d) ; une nouvelle tentative aura lieu au prochain changement d’état."
 
 #. translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3769
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3772
 #, php-format
 msgid "A payment arrived on this booking through order #%1$d, which is no longer its payment link (it collected %2$s; the remaining amount is %3$s). The remaining amount was left unchanged: check it and correct it by hand."
 msgstr "Un paiement est arrivé sur cette réservation via la commande n°%1$d, qui n’est plus son lien de paiement (elle a encaissé %2$s ; le solde restant est de %3$s). Le solde restant n’a pas été modifié : vérifiez-le et corrigez-le manuellement."
 
 #. translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3778
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3781
 #, php-format
 msgid "A payment arrived on this booking for an amount that is no longer current (order #%1$d collected %2$s; the remaining amount is %3$s). The remaining amount was left unchanged: check it and correct it by hand."
 msgstr "Un paiement est arrivé sur cette réservation pour un montant qui n’est plus à jour (la commande n°%1$d a encaissé %2$s ; le solde restant est de %3$s). Le solde restant n’a pas été modifié : vérifiez-le et corrigez-le manuellement."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3845
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3848
 msgid "Booking completed — rental period ended."
 msgstr "Réservation terminée — période de location achevée."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3872
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3875
 msgid "The booking was cancelled, so its order is cancelled too."
 msgstr "La réservation a été annulée, sa commande est donc également annulée."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4071
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4074
 msgid "Payment Options"
 msgstr "Options de paiement"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4085
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4088
 msgid "Pay deposit for booking, pay remaining amount at vehicle delivery"
 msgstr "Payer un acompte pour la réservation, régler le solde restant à la remise du véhicule"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4087
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4090
 msgid "Remaining:"
 msgstr "Solde restant :"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4104
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4107
 msgid "Pay full amount now"
 msgstr "Payer le montant total maintenant"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4209 src/Admin/Settings/APIKeysPage.php:81 src/Admin/Utilities/Cron/CronMonitorPage.php:29 src/Admin/Utilities/Cron/CronMonitorPage.php:52 src/Admin/Utilities/Cron/CronMonitorPage.php:87 src/Admin/Utilities/Database/DatabaseCleanupPage.php:77 src/Admin/Utilities/Database/DatabaseCleanupPage.php:101 src/Admin/Utilities/Database/DatabaseCleanupPage.php:138 src/Admin/Utilities/Database/DatabaseCleanupPage.php:165 src/Admin/Utilities/Database/DatabaseCleanupPage.php:193 src/Admin/Utilities/Database/DatabaseCleanupPage.php:260 src/Admin/Utilities/Database/DatabaseCleanupPage.php:302 src/Admin/Utilities/Database/DatabaseCleanupPage.php:355 src/Admin/Utilities/Database/DatabaseCleanupPage.php:394 src/Admin/Utilities/Database/DatabaseCleanupPage.php:428 src/Admin/Utilities/Database/DatabaseCleanupPage.php:460 src/Admin/Utilities/Database/DatabaseCleanupPage.php:491 src/Admin/Utilities/Database/DatabaseCleanupPage.php:514 src/Admin/Utilities/Database/DatabaseCleanupPage.php:575 src/Admin/Utilities/Database/DatabaseCleanupPage.php:607 src/Admin/Utilities/Database/DatabaseCleanupPage.php:639
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4212 src/Admin/Settings/APIKeysPage.php:81 src/Admin/Utilities/Cron/CronMonitorPage.php:29 src/Admin/Utilities/Cron/CronMonitorPage.php:52 src/Admin/Utilities/Cron/CronMonitorPage.php:87 src/Admin/Utilities/Database/DatabaseCleanupPage.php:77 src/Admin/Utilities/Database/DatabaseCleanupPage.php:101 src/Admin/Utilities/Database/DatabaseCleanupPage.php:138 src/Admin/Utilities/Database/DatabaseCleanupPage.php:165 src/Admin/Utilities/Database/DatabaseCleanupPage.php:193 src/Admin/Utilities/Database/DatabaseCleanupPage.php:260 src/Admin/Utilities/Database/DatabaseCleanupPage.php:302 src/Admin/Utilities/Database/DatabaseCleanupPage.php:355 src/Admin/Utilities/Database/DatabaseCleanupPage.php:394 src/Admin/Utilities/Database/DatabaseCleanupPage.php:428 src/Admin/Utilities/Database/DatabaseCleanupPage.php:460 src/Admin/Utilities/Database/DatabaseCleanupPage.php:491 src/Admin/Utilities/Database/DatabaseCleanupPage.php:514 src/Admin/Utilities/Database/DatabaseCleanupPage.php:575 src/Admin/Utilities/Database/DatabaseCleanupPage.php:607 src/Admin/Utilities/Database/DatabaseCleanupPage.php:639
 msgid "Invalid security nonce."
 msgstr "Nonce de sécurité invalide."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4218
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4221
 msgid "Cart not available"
 msgstr "Panier non disponible"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4324
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4327
 msgid "Booking not found in cart"
 msgstr "Réservation introuvable dans le panier"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4340
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4343
 msgid "Payment type updated"
 msgstr "Type de paiement mis à jour"
 
 #. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4560
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4563
 #, php-format
 msgid "Sorry, the vehicle \"%s\" is not available for rental. Please select another vehicle."
 msgstr "Désolé, le véhicule « %s » n’est pas disponible à la location. Veuillez sélectionner un autre véhicule."
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4634
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4637
 #, php-format
 msgid "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates (%2$s - %3$s). Please select different dates or another vehicle."
 msgstr "Désolé, le véhicule « %1$s » n’est plus disponible pour les dates sélectionnées (%2$s - %3$s). Veuillez sélectionner d’autres dates ou un autre véhicule."
 
 #. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4687 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4793
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4690 src/Admin/Payment/WooCommerce/WooCommerceBridge.php:4796
 #, php-format
 msgid "Sorry, booking for vehicle \"%s\" has been cancelled. Please select another vehicle."
 msgstr "Désolé, la réservation du véhicule « %s » a été annulée. Veuillez sélectionner un autre véhicule."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5151 src/Admin/Setup/SetupWizard.php:997
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5154 src/Admin/Setup/SetupWizard.php:997
 msgid "WooCommerce"
 msgstr "WooCommerce"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5207
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5210
 msgid "Payment already processed by WooCommerce."
 msgstr "Paiement déjà traité par WooCommerce."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5225
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5228
 msgid "Redirecting to checkout..."
 msgstr "Redirection vers la validation de commande..."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5232
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5235
 msgid "Failed to add booking to cart."
 msgstr "Impossible d’ajouter la réservation au panier."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5248
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5251
 msgid "WooCommerce is not installed or activated."
 msgstr "WooCommerce n’est pas installé ou activé."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5263
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5266
 msgid "Invalid payment amount."
 msgstr "Montant de paiement invalide."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5358
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5361
 msgid "City"
 msgstr "Ville"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5359
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5362
 msgid "District / Neighborhood"
 msgstr "Quartier / Arrondissement"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5496
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5499
 msgid "Return to Cart"
 msgstr "Retour au panier"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5529
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:5532
 msgid "(incl. tax)"
 msgstr "(TTC)"
 
@@ -11898,16 +11902,16 @@ msgstr "À propos"
 msgid "Failed to remove retired database index %s."
 msgstr "Impossible de supprimer l’ancien index de base de données %s."
 
-#: src/Admin/Utilities/Uninstall/Uninstaller.php:474
+#: src/Admin/Utilities/Uninstall/Uninstaller.php:480
 msgid "All plugin data has been removed successfully"
 msgstr "Toutes les données de l’extension ont bien été supprimées"
 
-#: src/Admin/Utilities/Uninstall/Uninstaller.php:475
+#: src/Admin/Utilities/Uninstall/Uninstaller.php:481
 msgid "Uninstall completed with some errors"
 msgstr "Désinstallation terminée avec des erreurs"
 
 #. translators: %s: Database table name.
-#: src/Admin/Utilities/Uninstall/Uninstaller.php:508
+#: src/Admin/Utilities/Uninstall/Uninstaller.php:514
 #, php-format
 msgid "Failed to remove database table %s."
 msgstr "Impossible de supprimer la table de base de données %s."
@@ -13332,7 +13336,7 @@ msgid "Deposit paid, %s due at pickup"
 msgstr "Acompte payé, %s à régler à la prise en charge"
 
 #. translators: %s: booking number shown to the customer (the order number when there is one).
-#: templates/account/booking-summary.php:27 templates/partials/rvs/account-booking-detail.php:63
+#: templates/account/booking-summary.php:27 templates/partials/rvs/account-booking-detail.php:67
 #, php-format
 msgid "Booking #%s"
 msgstr "Réservation n° %s"
@@ -13340,6 +13344,10 @@ msgstr "Réservation n° %s"
 #: templates/account/booking-summary.php:47
 msgid "Print or save as PDF"
 msgstr "Imprimer ou enregistrer en PDF"
+
+#: templates/account/booking-summary.php:81
+msgid "Route"
+msgstr "Itinéraire"
 
 #. translators: %s: date the booking was created.
 #: templates/account/booking-summary.php:110
@@ -13426,12 +13434,12 @@ msgid "View Vehicles"
 msgstr "Voir les véhicules"
 
 #. translators: %s: status of the uploaded bank receipt (Submitted, Approved, Rejected).
-#: templates/account/payment-history.php:174 templates/partials/rvs/account-booking-detail.php:148
+#: templates/account/payment-history.php:174 templates/partials/rvs/account-booking-detail.php:161
 #, php-format
 msgid "Bank receipt: %s"
 msgstr "Reçu bancaire : %s"
 
-#: templates/account/payment-history.php:185 templates/partials/rvs/account-booking-detail.php:158
+#: templates/account/payment-history.php:185 templates/partials/rvs/account-booking-detail.php:171
 msgid "Upload bank receipt"
 msgstr "Téléverser le reçu bancaire"
 
@@ -13835,23 +13843,23 @@ msgstr "Nous sommes ravis de vous compter parmi nous."
 msgid "Pickup: %s"
 msgstr "Prise en charge : %s"
 
-#: templates/partials/rvs/account-booking-detail.php:130
+#: templates/partials/rvs/account-booking-detail.php:143
 msgid "Your deposit was paid outside our website, so we will contact you directly to collect the remaining balance."
 msgstr "Votre acompte a été payé en dehors de notre site, nous vous contacterons donc directement pour encaisser le solde restant."
 
-#: templates/partials/rvs/account-booking-detail.php:168
+#: templates/partials/rvs/account-booking-detail.php:181
 msgid "Progress"
 msgstr "Progression"
 
-#: templates/partials/rvs/account-booking-detail.php:176
+#: templates/partials/rvs/account-booking-detail.php:189
 msgid "(upcoming)"
 msgstr "(à venir)"
 
-#: templates/partials/rvs/account-booking-detail.php:191
+#: templates/partials/rvs/account-booking-detail.php:204
 msgid "Cancellation"
 msgstr "Annulation"
 
-#: templates/partials/rvs/account-booking-detail.php:207 templates/partials/rvs/account-cancel-dialog.php:67
+#: templates/partials/rvs/account-booking-detail.php:220 templates/partials/rvs/account-cancel-dialog.php:67
 msgid "Cancel booking"
 msgstr "Annuler la réservation"
 
@@ -13936,7 +13944,7 @@ msgstr "Dites-nous en plus"
 msgid "Keep booking"
 msgstr "Conserver la réservation"
 
-#: templates/partials/rvs/breakdown.php:33 templates/partials/vehicle-details/booking-card.php:169
+#: templates/partials/rvs/breakdown.php:33 templates/partials/vehicle-details/booking-card.php:179
 msgid "Price breakdown"
 msgstr "Détail du prix"
 
@@ -14135,7 +14143,7 @@ msgstr "Restitution"
 msgid "Return time follows the pickup time"
 msgstr "L’heure de restitution suit l’heure de prise en charge"
 
-#: templates/partials/vehicle-details/booking-card.php:153
+#: templates/partials/vehicle-details/booking-card.php:163
 msgid "breakdown"
 msgstr "détail"
 
