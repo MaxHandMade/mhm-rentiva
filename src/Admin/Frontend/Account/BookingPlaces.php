@@ -20,8 +20,7 @@ if (! defined('ABSPATH')) {
  * come through the same `mhmrentiva_location_by_id` filter the booking
  * e-mails use. An end nobody can name is null.
  */
-final class BookingPlaces
-{
+final class BookingPlaces {
 	/**
 	 * @return array{transfer: bool, pickup: ?string, return: ?string}
 	 */
