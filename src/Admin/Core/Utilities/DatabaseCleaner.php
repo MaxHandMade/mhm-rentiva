@@ -240,6 +240,8 @@ final class DatabaseCleaner {
 	private static function static_meta_keys(): array {
 		return array(
 			'_mhmrentiva_additional_services_price',
+			'_mhmrentiva_addon_child_seat',
+			'_mhmrentiva_addon_child_seat_note',
 			'_mhmrentiva_addon_details',
 			'_mhmrentiva_addon_pricing_type',
 			'_mhmrentiva_addon_quantities',
