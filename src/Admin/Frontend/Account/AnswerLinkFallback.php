@@ -75,6 +75,36 @@ final class AnswerLinkFallback {
 	}
 
 	/**
+	 * The response headers of the fallback page, besides the status line.
+	 *
+	 * @return array<int, string>
+	 */
+	public static function headers(): array
+	{
+		return array(
+			'Referrer-Policy: no-referrer',
+			'Content-Type: text/html; charset=' . get_bloginfo('charset'),
+		);
+	}
+
+	/**
+	 * Send the status line and headers of the fallback page.
+	 */
+	public static function send_headers(): void
+	{
+		status_header(self::STATUS);
+		nocache_headers();
+
+		if (headers_sent()) {
+			return;
+		}
+
+		foreach (self::headers() as $line) {
+			header($line);
+		}
+	}
+
+	/**
 	 * `template_redirect`: print the page and stop, the theme never loads.
 	 */
 	public static function maybe_render(): void
@@ -84,10 +114,7 @@ final class AnswerLinkFallback {
 			return;
 		}
 
-		status_header(self::STATUS);
-		nocache_headers();
-		header('Referrer-Policy: no-referrer');
-		header('Content-Type: text/html; charset=' . get_bloginfo('charset'));
+		self::send_headers();
 
 		echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built from escaped parts in render().
 		exit;
