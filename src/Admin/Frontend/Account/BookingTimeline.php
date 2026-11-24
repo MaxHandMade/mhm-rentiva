@@ -156,25 +156,24 @@ final class BookingTimeline {
 	 *
 	 * @param ?int $end_ts     The booking's own end instant, null when unknown.
 	 * @param int  $booking_id Booking post ID.
-	 * @return ?int The instant to print, null for none.
+	 * @return ?int The instant to print; the booking's own end (null when
+	 *              unknown) unless a subscriber returned another instant.
 	 */
 	public static function shown_end(?int $end_ts, int $booking_id): ?int
 	{
 		/**
 		 * Filters the end instant printed to the customer for a booking (My
 		 * Account, the printable summary, the booking e-mails). The calendar
-		 * and availability keep the booking's own end.
+		 * and availability keep the booking's own end. A subscriber may
+		 * replace the end, not hide it: anything but a positive integer keeps
+		 * the booking's own end.
 		 *
 		 * @param ?int $end_ts     The booking's own end instant, null when unknown.
 		 * @param int  $booking_id Booking post ID.
 		 */
 		$shown = apply_filters('mhmrentiva_booking_shown_end', $end_ts, $booking_id);
 
-		if (null === $shown) {
-			return null;
-		}
-
-		return is_int($shown) && $shown > 0 ? $shown : null;
+		return is_int($shown) && $shown > 0 ? $shown : $end_ts;
 	}
 
 	/**

@@ -93,12 +93,30 @@ final class BookingShownEndFilterTest extends WP_UnitTestCase
 		$this->assertSame( array( array( SiteTime::instant( '2026-11-23', '17:00' ), $booking_id ) ), $received );
 	}
 
-	public function test_timeline_ignores_a_non_instant_from_a_subscriber(): void
+	/**
+	 * A subscriber replaces the end; it cannot hide it. A non-instant or a
+	 * null answer keeps the stored end in every customer view alike.
+	 *
+	 * @dataProvider not_an_instant
+	 */
+	public function test_a_non_instant_keeps_the_stored_end_everywhere( $answer ): void
 	{
 		$booking_id = $this->booking();
-		add_filter( self::FILTER, static fn () => 'tomorrow' );
+		$end        = (int) SiteTime::instant( '2026-11-23', '17:00' );
+		add_filter( self::FILTER, static fn () => $answer );
 
-		$this->assertNull( BookingTimeline::planned( $booking_id )['return'] );
+		$this->assertSame( $end, BookingTimeline::planned( $booking_id )['return'] );
+		$this->assertSame( BookingTimeline::moment_text( $end ), AccountDashboardView::return_text( $booking_id ) );
+	}
+
+	public static function not_an_instant(): array
+	{
+		return array(
+			'null'     => array( null ),
+			'string'   => array( 'tomorrow' ),
+			'zero'     => array( 0 ),
+			'negative' => array( -5 ),
+		);
 	}
 
 	public function test_dashboard_return_text_unchanged_without_subscribers(): void
