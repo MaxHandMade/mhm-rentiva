@@ -103,6 +103,15 @@ $mhmrentiva_bd_state   = (string) ( $mhmrentiva_bd_cancel['state'] ?? 'none' );
 						<?php endif; ?>
 					</dd>
 				</div>
+<?php
+/**
+ * Fires after the pickup and return rows of the booking detail, inside the
+ * rows list. A listener prints complete rows: <div><dt>..</dt><dd>..</dd></div>.
+ *
+ * @param int $booking_id Booking post ID.
+ */
+do_action( 'mhmrentiva_booking_detail_rows', $mhmrentiva_bd_id );
+?>
 			</dl>
 		</div>
 	</section>
