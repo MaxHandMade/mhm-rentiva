@@ -145,8 +145,36 @@ final class BookingTimeline {
 
 		return array(
 			'pickup' => AccountBookingsView::is_day($pickup_day) ? SiteTime::instant($pickup_day, $pickup_time) : null,
-			'return' => '' !== $return_day ? SiteTime::instant($return_day, $return_time) : null,
+			'return' => self::shown_end('' !== $return_day ? SiteTime::instant($return_day, $return_time) : null, $booking_id),
 		);
+	}
+
+	/**
+	 * The end instant a customer is shown for a booking. Usually the end the
+	 * booking keeps; an add-on may hold the vehicle past the moment the trip
+	 * itself ends and print that moment instead.
+	 *
+	 * @param ?int $end_ts     The booking's own end instant, null when unknown.
+	 * @param int  $booking_id Booking post ID.
+	 * @return ?int The instant to print, null for none.
+	 */
+	public static function shown_end(?int $end_ts, int $booking_id): ?int
+	{
+		/**
+		 * Filters the end instant printed to the customer for a booking (My
+		 * Account, the printable summary, the booking e-mails). The calendar
+		 * and availability keep the booking's own end.
+		 *
+		 * @param ?int $end_ts     The booking's own end instant, null when unknown.
+		 * @param int  $booking_id Booking post ID.
+		 */
+		$shown = apply_filters('mhmrentiva_booking_shown_end', $end_ts, $booking_id);
+
+		if (null === $shown) {
+			return null;
+		}
+
+		return is_int($shown) && $shown > 0 ? $shown : null;
 	}
 
 	/**

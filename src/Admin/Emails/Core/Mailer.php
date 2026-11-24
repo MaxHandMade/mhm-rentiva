@@ -429,6 +429,17 @@ final class Mailer {
 
 		$pickup_time_raw = self::first_meta( $booking_id, array( '_mhmrentiva_start_time', '_mhmrentiva_pickup_time', '_mhmrentiva_booking_pickup_time' ) );
 		$return_time_raw = self::first_meta( $booking_id, array( '_mhmrentiva_end_time', '_mhmrentiva_dropoff_time', '_mhmrentiva_booking_dropoff_time' ) );
+		$return_date_raw = (string) ( $date_info['return_date'] ?? '' );
+
+		// The end the customer is shown, when an add-on prints another moment
+		// than the one the booking keeps: the return values come from it.
+		$stored_end_raw = (string) get_post_meta( $booking_id, '_mhmrentiva_end_ts', true );
+		$stored_end     = 1 === preg_match( '/^[1-9]\d*$/', $stored_end_raw ) ? (int) $stored_end_raw : null;
+		$shown_end      = \MHMRentiva\Admin\Frontend\Account\BookingTimeline::shown_end( $stored_end, (int) $booking_id );
+		if ( null !== $shown_end && $shown_end !== $stored_end ) {
+			$return_date_raw = wp_date( 'Y-m-d', $shown_end, wp_timezone() );
+			$return_time_raw = wp_date( 'H:i', $shown_end, wp_timezone() );
+		}
 
 		return array(
 			'booking'  => array(
@@ -446,9 +457,9 @@ final class Mailer {
 				// Printed in the site's date format, in the site language;
 				// the stored value stays under *_raw for anything that compares.
 				'pickup_date'      => self::display_date( (string) ( $date_info['pickup_date'] ?? '' ) ),
-				'return_date'      => self::display_date( (string) ( $date_info['return_date'] ?? '' ) ),
+				'return_date'      => self::display_date( $return_date_raw ),
 				'pickup_date_raw'  => (string) ( $date_info['pickup_date'] ?? '' ),
-				'return_date_raw'  => (string) ( $date_info['return_date'] ?? '' ),
+				'return_date_raw'  => $return_date_raw,
 				// The times in the site's time format, and a date-and-time value
 				// that prints the date alone when no time is stored (11-08).
 				'pickup_time'      => self::display_time( $pickup_time_raw ),
@@ -456,7 +467,7 @@ final class Mailer {
 				'pickup_time_raw'  => $pickup_time_raw,
 				'return_time_raw'  => $return_time_raw,
 				'pickup_datetime'  => self::display_datetime( (string) ( $date_info['pickup_date'] ?? '' ), $pickup_time_raw ),
-				'return_datetime'  => self::display_datetime( (string) ( $date_info['return_date'] ?? '' ), $return_time_raw ),
+				'return_datetime'  => self::display_datetime( $return_date_raw, $return_time_raw ),
 				'rental_days'      => $date_info['rental_days'] ?? 0,
 				'payment_type'     => $payment_type,
 				'payment_method'   => $payment_method,

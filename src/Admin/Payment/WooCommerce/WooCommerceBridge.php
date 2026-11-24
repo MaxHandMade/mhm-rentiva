@@ -744,10 +744,13 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				'value' => $pickup_display,
 			);
 
-			$item_data[] = array(
-				'key'   => esc_html__('Return Date & Time', 'mhm-rentiva'),
-				'value' => $dropoff_display,
-			);
+			// A transfer has no return: its drop-off is the estimated arrival.
+			if (! \MHMRentiva\Admin\Booking\Meta\BookingMeta::is_transfer_booking( (int) $booking_id)) {
+				$item_data[] = array(
+					'key'   => esc_html__('Return Date & Time', 'mhm-rentiva'),
+					'value' => $dropoff_display,
+				);
+			}
 
 			$item_data[] = array(
 				'key'   => esc_html__('Booking ID', 'mhm-rentiva'),

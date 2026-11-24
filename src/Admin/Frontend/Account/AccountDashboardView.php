@@ -179,8 +179,13 @@ final class AccountDashboardView {
 	public static function return_text(int $booking_id): string
 	{
 		$end_ts = (string) get_post_meta($booking_id, AccountBookingsQuery::END_TS_KEY, true);
-		if (1 === preg_match('/^[1-9]\d*$/', $end_ts)) {
-			return BookingTimeline::moment_text( (int) $end_ts);
+		$stored = 1 === preg_match('/^[1-9]\d*$/', $end_ts) ? (int) $end_ts : null;
+		$shown  = BookingTimeline::shown_end($stored, $booking_id);
+		if (null !== $shown && $shown !== $stored) {
+			return BookingTimeline::moment_text($shown);
+		}
+		if (null !== $stored) {
+			return BookingTimeline::moment_text($stored);
 		}
 
 		return self::day_time_text(
