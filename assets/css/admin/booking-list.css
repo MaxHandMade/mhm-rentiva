@@ -406,7 +406,7 @@
 .mhm-booking-list .wp-list-table {
 	background: #fff;
 	border: 1px solid #e6e7eb;
-	border-radius: 12px;
+	border-radius: 4px;
 	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 	overflow: hidden;
 	border-spacing: 0;
@@ -569,7 +569,6 @@
 .mhm-booking-list .page-title-action {
 	background: #2271b1;
 	border: 1px solid #2271b1;
-	border-radius: 8px;
 	color: #fff;
 	font-weight: 600;
 	padding: 5px 14px;
@@ -586,7 +585,7 @@
 .mhm-booking-list select.postform,
 .mhm-booking-list .tablenav input[type="text"] {
 	border: 1px solid #dcdde1;
-	border-radius: 8px;
+	border-radius: 4px;
 	background-color: #fff;
 	padding: 6px 12px;
 	font-size: 13px;
@@ -596,7 +595,6 @@
 .mhm-booking-list .tablenav .button,
 .mhm-booking-list #search-submit {
 	border: 1px solid #dcdde1;
-	border-radius: 8px;
 	background: #fff;
 	color: #2c3338;
 }
@@ -652,21 +650,9 @@
 
 .mhm-booking-list .rv-bkl-toolbar__btn {
 	display: inline-block;
-	font-size: 13px;
-	font-weight: 500;
-	padding: 7px 14px;
-	border: 1px solid #dcdde1;
-	border-radius: 8px;
-	background: #fff;
-	color: #2c3338;
 	text-decoration: none;
-	line-height: 1.4;
 }
 
-.mhm-booking-list .rv-bkl-toolbar__btn:hover {
-	border-color: #b6bcc3;
-	color: #1d2327;
-}
 
 /* ── Filter-row-to-content gap, standardised across both faces ──
    Same defect and same fix as vehicle-list.css's identical rule — see
@@ -745,6 +731,6 @@ body.mhm-booking-list.mhm-view-calendar .tablenav.bottom {
 .mhm-booking-list .calendar-container {
 	background: #fff;
 	border: 1px solid #e6e7eb;
-	border-radius: 12px;
+	border-radius: 4px;
 	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }

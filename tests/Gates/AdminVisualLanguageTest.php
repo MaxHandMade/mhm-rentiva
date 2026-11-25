@@ -38,7 +38,7 @@ final class AdminVisualLanguageTest extends TestCase {
 	/** The shared admin header lives here; only its title weight is checked. */
 	public const TITLE_ONLY = array( 'assets/css/core/core.css' );
 
-	private const PLAIN_CORNER = '/^(0|0px|2px|3px|4px|50%|inherit|var\(\s*--mhmui-radius\s*\)|var\(\s*--mhm-radius-(sm|base|none)\s*\))(\s*!important)?$/i';
+	private const PLAIN_CORNER = '/^((0|0px|2px|3px|4px)(\s+(0|0px|2px|3px|4px)){0,3}|50%|inherit|var\(\s*--mhmui-radius\s*\)|var\(\s*--mhm-radius-(sm|base|none)\s*\))(\s*!important)?$/i';
 
 	private const ROUND_CORNER = '/^(999px|9999px|50%|var\(\s*--mhm-radius-full\s*\))(\s*!important)?$/i';
 

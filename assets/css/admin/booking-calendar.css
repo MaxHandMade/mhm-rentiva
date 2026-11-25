@@ -18,7 +18,7 @@
 	margin-top: var(--mhm-space-5);
 	padding: var(--mhm-space-4);
 	background: var(--mhm-bg-secondary);
-	border-radius: var(--mhm-radius-lg);
+	border-radius: 4px;
 	border: 1px solid var(--mhm-border-primary);
 }
 
@@ -84,7 +84,7 @@
 	max-width: 560px;
 	width: calc(100vw - 40px);
 	max-height: 90vh;
-	border-radius: 12px;
+	border-radius: 4px;
 	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 4px 16px rgba(0, 0, 0, 0.12);
 	overflow: hidden;
 	display: flex;
@@ -255,7 +255,7 @@
 	justify-content: space-between;
 	background: linear-gradient(135deg, var(--mhm-primary) 0%, #1a56db 100%);
 	padding: 16px 20px;
-	border-radius: 12px 12px 0 0;
+	border-radius: 4px 4px 0 0;
 	color: #fff;
 }
 
@@ -293,7 +293,7 @@
 .mhm-popup-modal .mhm-popup-close {
 	background: rgba(255, 255, 255, 0.15);
 	border: 1px solid rgba(255, 255, 255, 0.3);
-	border-radius: 6px;
+	border-radius: 4px;
 	color: #fff;
 	cursor: pointer;
 	padding: 4px;
@@ -343,7 +343,7 @@
 
 .mhm-popup-booking-card {
 	border: 1px solid var(--mhm-border-primary);
-	border-radius: 8px;
+	border-radius: 4px;
 	padding: 12px;
 	margin-bottom: 10px;
 }
