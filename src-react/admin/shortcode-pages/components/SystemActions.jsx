@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 
 export default function SystemActions( { onClearCache, onDebug, onReset, debugLoading, query, onQueryChange } ) {
 	return (
-		<div className="rv-scp-toolbar">
+		<div className="rv-scp-toolbar mhmui-toolbar">
 			<button type="button" className="button rv-scp-btn" onClick={ onClearCache }>
 				{ __( 'Clear Cache', 'mhm-rentiva' ) }
 			</button>
