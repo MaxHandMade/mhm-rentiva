@@ -27,6 +27,57 @@ use MHMRentiva\Admin\Payment\Core\Money;
 final class AccountRenderer {
 
 	/**
+	 * The markup an add-on may print in the booking detail notice: post content
+	 * plus the small answer form (form, hidden fields, submit buttons).
+	 *
+	 * @return array<string, array<string, bool>>
+	 */
+	public static function notice_allowed_html(): array
+	{
+		$allowed = wp_kses_allowed_html('post');
+
+		$allowed['form']   = array(
+			'method' => true,
+			'action' => true,
+			'class'  => true,
+		);
+		$allowed['input']  = array(
+			'type'  => true,
+			'name'  => true,
+			'value' => true,
+		);
+		$allowed['button'] = array(
+			'type'     => true,
+			'name'     => true,
+			'value'    => true,
+			'class'    => true,
+			'disabled' => true,
+		);
+
+		$allowed['section'] = array_merge(
+			(array) ( $allowed['section'] ?? array() ),
+			array(
+				'class'           => true,
+				'aria-labelledby' => true,
+				'aria-live'       => true,
+				'role'            => true,
+			)
+		);
+		foreach ( array( 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ) as $heading ) {
+			$allowed[ $heading ] = array_merge( (array) ( $allowed[ $heading ] ?? array() ), array( 'id' => true ) );
+		}
+
+		/**
+		 * The HTML a listener of `mhmrentiva_booking_detail_notice` may print.
+		 *
+		 * @param array<string, array<string, bool>> $allowed Tags and attributes, in wp_kses() form.
+		 */
+		$filtered = apply_filters('mhmrentiva_booking_detail_notice_allowed_html', $allowed);
+
+		return is_array($filtered) ? $filtered : $allowed;
+	}
+
+	/**
 	 * The normalized payment statuses (get_user_payments()); the payment history
 	 * `status` filter takes one of them, anything else is no filter.
 	 */

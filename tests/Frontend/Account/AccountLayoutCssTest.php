@@ -102,4 +102,30 @@ final class AccountLayoutCssTest extends WP_UnitTestCase
 		$this->assertNotFalse($at, "No rule for $selector.");
 		return substr($css, (int) $at, (int) strpos($css, '}', (int) $at) - (int) $at);
 	}
+
+	/**
+	 * An add-on's notice sits in its own row under the header, in every layout
+	 * that has one; the plain layouts stay as they were.
+	 */
+	public function test_the_notice_has_its_own_row_under_the_header_in_every_layout(): void
+	{
+		$css = $this->css();
+
+		$this->assertMatchesRegularExpression('/\.rvs-account-detail__notice\s*\{[^}]*grid-area:\s*notice;/', $css);
+
+		preg_match_all('/\.rvs-account-detail--has-notice\s*\{[^}]*?grid-template-areas:([^;]+);/', $css, $variants);
+		$this->assertCount(3, $variants[1], 'Single column, two columns and wide.');
+		foreach ($variants[1] as $areas) {
+			$rows = array_values(array_filter(array_map('trim', explode('"', $areas)), static fn(string $row): bool => '' !== $row));
+			$this->assertStringStartsWith('head', $rows[0]);
+			$this->assertStringStartsWith('notice', $rows[1], 'The row directly under the header.');
+		}
+
+		// The plain layouts have no notice row, so an empty row never adds a gap.
+		preg_match_all('/\.rvs-account-detail\s*\{[^}]*?grid-template-areas:([^;]+);/', $css, $plain);
+		$this->assertNotEmpty($plain[1]);
+		foreach ($plain[1] as $areas) {
+			$this->assertStringNotContainsString('notice', $areas);
+		}
+	}
 }

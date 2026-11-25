@@ -1,0 +1,144 @@
+<?php
+declare(strict_types=1);
+
+namespace MHMRentiva\Admin\Frontend\Account;
+
+if (! defined('ABSPATH')) {
+	exit;
+}
+
+/**
+ * The page behind a sign-in-free answer link when nothing answers it.
+ *
+ * An add-on that sends such links answers them itself and says so through the
+ * `mhmrentiva_answer_page_handled` filter. When the link reaches a site where
+ * nothing does (the add-on is switched off, the licence lapsed), the visitor
+ * gets one plain sentence and an HTTP 410 instead of the site's front page.
+ */
+final class AnswerLinkFallback {
+	/**
+	 * The public query var that carries the answer key.
+	 */
+	public const QUERY_VAR = 'mhmrentiva_answer';
+
+	/**
+	 * HTTP status of the fallback page: the link is gone for good.
+	 */
+	public const STATUS = 410;
+
+	/**
+	 * Referrer-Policy of the fallback page: the answer key never leaves in a Referer.
+	 */
+	public const REFERRER_POLICY = 'no-referrer';
+
+	public static function register(): void
+	{
+		add_filter('query_vars', array( self::class, 'register_query_vars' ));
+		add_action('template_redirect', array( self::class, 'maybe_render' ), 99);
+	}
+
+	/**
+	 * `query_vars` filter callback.
+	 *
+	 * @param array<int, string> $vars Public query vars.
+	 * @return array<int, string>
+	 */
+	public static function register_query_vars(array $vars): array
+	{
+		$vars[] = self::QUERY_VAR;
+
+		return array_values(array_unique($vars));
+	}
+
+	/**
+	 * Whether this request is an answer link that nothing has answered.
+	 */
+	public static function applies(): bool
+	{
+		$raw = get_query_var(self::QUERY_VAR, '');
+		if (! is_string($raw) || '' === $raw) {
+			return false;
+		}
+
+		/**
+		 * Whether an add-on has answered this sign-in-free answer link.
+		 *
+		 * @param bool $handled True when the request was answered.
+		 */
+		return ! (bool) apply_filters('mhmrentiva_answer_page_handled', false);
+	}
+
+	/**
+	 * Print the document, every dynamic part escaped where it is printed.
+	 */
+	public static function print_page(): void
+	{
+		$message = __('This link is no longer valid.', 'mhm-rentiva');
+		?>
+<!DOCTYPE html>
+<html lang="<?php echo esc_attr(get_bloginfo('language')); ?>"<?php echo is_rtl() ? ' dir="rtl"' : ''; ?>>
+<head>
+<meta charset="<?php echo esc_attr(get_bloginfo('charset')); ?>">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title><?php echo esc_html($message); ?></title>
+</head>
+<body style="font-family:sans-serif;max-width:32rem;margin:4rem auto;padding:0 1rem"><p><?php echo esc_html($message); ?></p></body>
+</html>
+		<?php
+	}
+
+	/**
+	 * Every response header of the fallback page, besides the status line.
+	 *
+	 * @return array<int, string>
+	 */
+	public static function headers(): array
+	{
+		$lines = array();
+
+		// The no-cache set core sends; Last-Modified is dropped as core does for
+		// a page that is not a feed.
+		foreach (wp_get_nocache_headers() as $name => $value) {
+			if ('Last-Modified' === $name && '' === (string) $value) {
+				continue;
+			}
+			$lines[] = $name . ': ' . $value;
+		}
+
+		$lines[] = 'Referrer-Policy: ' . self::REFERRER_POLICY;
+		$lines[] = 'Content-Type: text/html; charset=' . get_bloginfo('charset');
+
+		return $lines;
+	}
+
+	/**
+	 * Send the status line and headers of the fallback page.
+	 */
+	public static function send_headers(): void
+	{
+		status_header(self::STATUS);
+
+		if (headers_sent()) {
+			return;
+		}
+
+		foreach (self::headers() as $line) {
+			header($line);
+		}
+	}
+
+	/**
+	 * `template_redirect`: print the page and stop, the theme never loads.
+	 */
+	public static function maybe_render(): void
+	{
+		if (! self::applies()) {
+			return;
+		}
+
+		self::send_headers();
+		self::print_page();
+		exit;
+	}
+}
