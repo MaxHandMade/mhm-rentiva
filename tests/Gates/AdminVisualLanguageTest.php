@@ -35,6 +35,9 @@ final class AdminVisualLanguageTest extends TestCase {
 		'src-react/shared/admin.css',
 	);
 
+	/** The shared admin header lives here; only its title weight is checked. */
+	public const TITLE_ONLY = array( 'assets/css/core/core.css' );
+
 	private const PLAIN_CORNER = '/^(0|0px|2px|3px|4px|50%|inherit|var\(\s*--mhmui-radius\s*\)|var\(\s*--mhm-radius-(sm|base|none)\s*\))(\s*!important)?$/i';
 
 	private const ROUND_CORNER = '/^(999px|9999px|50%|var\(\s*--mhm-radius-full\s*\))(\s*!important)?$/i';
@@ -49,10 +52,10 @@ final class AdminVisualLanguageTest extends TestCase {
 	/**
 	 * @return list<array{file: string, selector: string, body: string}>
 	 */
-	private static function rules(): array {
+	private static function rules( array $files = self::SCOPE ): array {
 		$root  = dirname( __DIR__, 2 ) . '/';
 		$rules = array();
-		foreach ( self::SCOPE as $file ) {
+		foreach ( $files as $file ) {
 			$css = (string) file_get_contents( $root . $file );
 			$css = (string) preg_replace( '#/\*.*?\*/#s', '', $css );
 			preg_match_all( '/([^{}]+)\{([^{}]*)\}/', $css, $m, PREG_SET_ORDER );
@@ -118,7 +121,7 @@ final class AdminVisualLanguageTest extends TestCase {
 
 	public function test_page_title_weight(): void {
 		$bad = array();
-		foreach ( self::rules() as $r ) {
+		foreach ( self::rules( array_merge( self::SCOPE, self::TITLE_ONLY ) ) as $r ) {
 			if ( 1 !== preg_match( '/(^|[\s,>])h1\b|page-title(?!-action)|header__title|wp-heading-inline/i', $r['selector'] ) ) {
 				continue;
 			}
