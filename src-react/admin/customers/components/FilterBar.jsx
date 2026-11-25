@@ -12,10 +12,10 @@ export default function FilterBar( { search, selectedIds, nonce, adminUrl, addCu
 
 	return (
 		<div className="rv-cust-actions">
-			<a href={ addCustomerUrl } className="rv-cust-btn is-primary">
+			<a href={ addCustomerUrl } className="button button-primary rv-cust-btn is-primary">
 				{ __( 'Add Customer', 'mhm-rentiva' ) }
 			</a>
-			<button type="button" className="rv-cust-btn" onClick={ handleExport }>
+			<button type="button" className="button rv-cust-btn" onClick={ handleExport }>
 				{ __( 'Export CSV', 'mhm-rentiva' ) }
 			</button>
 			<form ref={ formRef } method="POST" action={ `${ adminUrl }admin-post.php` } style={ { display: 'none' } }>

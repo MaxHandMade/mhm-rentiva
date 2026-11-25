@@ -20,41 +20,9 @@
 	margin-bottom: 16px;
 }
 
-#mhm-shortcode-pages-root .rv-scp-btn {
-	display: inline-block;
-	font-size: 13px;
-	font-weight: 500;
-	padding: 8px 14px;
-	background: #fff;
-	border: 1px solid #dcdde1;
-	border-radius: 8px;
-	color: #2c3338;
-	cursor: pointer;
-	text-decoration: none;
-	text-align: center;
-	line-height: 1.4;
-}
-
-#mhm-shortcode-pages-root .rv-scp-btn:hover {
-	border-color: #b6bcc3;
-	color: #1d2327;
-}
-
 #mhm-shortcode-pages-root .rv-scp-btn:disabled {
 	opacity: 0.6;
 	cursor: default;
-}
-
-#mhm-shortcode-pages-root .rv-scp-btn.is-primary {
-	background: #2271b1;
-	border-color: #2271b1;
-	color: #fff;
-	font-weight: 600;
-}
-
-#mhm-shortcode-pages-root .rv-scp-btn.is-primary:hover {
-	background: #135e96;
-	border-color: #135e96;
 }
 
 #mhm-shortcode-pages-root .rv-scp-btn.is-danger {
@@ -77,7 +45,7 @@
 	font-size: 13px;
 	padding: 8px 12px;
 	border: 1px solid #dcdde1;
-	border-radius: 8px;
+	border-radius: 4px;
 	background: #fff;
 	box-shadow: none;
 	line-height: 1.4;
@@ -89,7 +57,7 @@
 #mhm-shortcode-pages-root .rv-scp-card {
 	background: #fff;
 	border: 1px solid #e6e7eb;
-	border-radius: 14px;
+	border-radius: 4px;
 	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 	overflow-x: auto;
 	-webkit-overflow-scrolling: touch;
@@ -149,7 +117,7 @@
 	background: #f0f2f5;
 	color: #2271b1;
 	padding: 2px 8px;
-	border-radius: 6px;
+	border-radius: 4px;
 }
 
 #mhm-shortcode-pages-root .rv-scp-label {
@@ -199,9 +167,6 @@
 }
 
 #mhm-shortcode-pages-root .rv-scp-actions .rv-scp-btn {
-	font-size: 12px;
-	padding: 4px 10px;
-	border-radius: 6px;
 	margin-left: 4px;
 }
 
@@ -228,7 +193,7 @@
 
 #mhm-shortcode-pages-root .mhm-modal {
 	background: #fff;
-	border-radius: 14px;
+	border-radius: 4px;
 	box-shadow: 0 8px 30px rgba(16, 24, 40, 0.18);
 	padding: 22px 24px;
 	max-width: 420px;
@@ -254,7 +219,7 @@
 #mhm-shortcode-pages-root .mhm-sc-debug-panel {
 	background: #fff;
 	border: 1px solid #e6e7eb;
-	border-radius: 14px;
+	border-radius: 4px;
 	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 	padding: 18px 20px;
 	margin-top: 16px;
@@ -295,7 +260,7 @@
 	text-transform: uppercase;
 	letter-spacing: 0.03em;
 	padding: 1px 6px;
-	border-radius: 5px;
+	border-radius: 4px;
 	background: #eef2f7;
 	color: #41505f;
 }

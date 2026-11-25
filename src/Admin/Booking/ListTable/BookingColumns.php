@@ -717,7 +717,7 @@ final class BookingColumns {
 			if ( empty( $action['label'] ) || empty( $action['url'] ) ) {
 				continue;
 			}
-			$class = 'rv-bkl-toolbar__btn' . ( empty( $action['class'] ) ? '' : ' ' . $action['class'] );
+			$class = 'button rv-bkl-toolbar__btn' . ( empty( $action['class'] ) ? '' : ' ' . $action['class'] );
 			printf(
 				'<a class="%s" href="%s">%s</a>',
 				esc_attr( $class ),

@@ -31,7 +31,7 @@
 	display: inline-flex;
 	flex-wrap: wrap;
 	background: #eceef1;
-	border-radius: 10px;
+	border-radius: 4px;
 	padding: 4px;
 	margin-top: 12px;
 }
@@ -40,7 +40,7 @@
 	font-size: 13px;
 	font-weight: 600;
 	padding: 8px 16px;
-	border-radius: 7px;
+	border-radius: inherit;
 	color: var(--rv-abt-text-light);
 	text-decoration: none;
 	line-height: 1.4;
@@ -73,7 +73,7 @@
 #mhm-about-root .rv-abt-card {
 	background: #fff;
 	border: 1px solid var(--rv-abt-border);
-	border-radius: 14px;
+	border-radius: 4px;
 	box-shadow: var(--rv-abt-shadow);
 	padding: 20px;
 }
@@ -165,31 +165,6 @@
 
 /* ── Buttons + link rows ─────────────────────────────────────────────── */
 
-#mhm-about-root .rv-abt-btn {
-	display: inline-block;
-	font-size: 13px;
-	font-weight: 500;
-	padding: 8px 14px;
-	background: #fff;
-	border: 1px solid #dcdde1;
-	border-radius: 8px;
-	color: #2c3338;
-	cursor: pointer;
-	text-decoration: none;
-	text-align: center;
-	line-height: 1.4;
-}
-
-#mhm-about-root .rv-abt-btn:hover {
-	border-color: #b6bcc3;
-	color: #1d2327;
-}
-
-#mhm-about-root .rv-abt-btn--small {
-	padding: 5px 10px;
-	font-size: 12px;
-}
-
 #mhm-about-root .rv-abt-links {
 	display: flex;
 	flex-direction: column;
@@ -201,7 +176,7 @@
 	font-size: 13px;
 	padding: 9px 12px;
 	border: 1px solid #dcdde1;
-	border-radius: 8px;
+	border-radius: 4px;
 	color: #2c3338;
 	text-decoration: none;
 	line-height: 1.4;
@@ -404,7 +379,7 @@
 	line-height: 1.5;
 	padding: 12px;
 	border: 1px solid #dcdde1;
-	border-radius: 8px;
+	border-radius: 4px;
 	background: #fafbfc;
 	color: #1d2327;
 	resize: vertical;

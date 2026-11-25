@@ -968,7 +968,7 @@ final class VehicleColumns {
 
 		$edit_link = get_edit_post_link($post);
 		if ($edit_link) {
-			echo '<a class="rv-vhl-card__edit" href="' . esc_url($edit_link) . '">' . esc_html__('Edit', 'mhm-rentiva') . '</a>';
+			echo '<a class="button button-small rv-vhl-card__edit" href="' . esc_url($edit_link) . '">' . esc_html__('Edit', 'mhm-rentiva') . '</a>';
 		}
 		echo '</div>'; // .rv-vhl-card__footer
 

@@ -36,7 +36,7 @@ export default function ShortcodeRow( { shortcode, pending, onCreate, onDelete }
 				{ ! pending && status === 'missing' && (
 					<button
 						type="button"
-						className="rv-scp-btn is-primary"
+						className="button button-primary rv-scp-btn is-primary"
 						onClick={ () => onCreate( slug ) }
 					>
 						{ __( 'Create Page', 'mhm-rentiva' ) }
@@ -44,15 +44,15 @@ export default function ShortcodeRow( { shortcode, pending, onCreate, onDelete }
 				) }
 				{ ! pending && status === 'active' && (
 					<>
-						<a className="rv-scp-btn" href={ editUrl } target="_blank" rel="noreferrer">
+						<a className="button rv-scp-btn" href={ editUrl } target="_blank" rel="noreferrer">
 							{ __( 'Edit', 'mhm-rentiva' ) }
 						</a>
-						<a className="rv-scp-btn is-view" href={ pageUrl } target="_blank" rel="noreferrer">
+						<a className="button rv-scp-btn is-view" href={ pageUrl } target="_blank" rel="noreferrer">
 							{ __( 'View', 'mhm-rentiva' ) }
 						</a>
 						<button
 							type="button"
-							className="rv-scp-btn is-danger"
+							className="button rv-scp-btn is-danger"
 							onClick={ () => onDelete( slug ) }
 						>
 							{ __( 'Remove', 'mhm-rentiva' ) }

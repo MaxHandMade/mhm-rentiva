@@ -427,14 +427,14 @@
 				render();
 			}
 
-			var selectAll = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__btn--ghost rv-vs__btn--sm', text: T.selectAll } );
+			var selectAll = h( 'button', { type: 'button', class: 'button button-small', text: T.selectAll } );
 			selectAll.addEventListener( 'click', function () { setGroupEnabled( true ); } );
-			var selectNone = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__btn--ghost rv-vs__btn--sm', text: T.selectNone } );
+			var selectNone = h( 'button', { type: 'button', class: 'button button-small', text: T.selectNone } );
 			selectNone.addEventListener( 'click', function () { setGroupEnabled( false ); } );
 
 			// Edit Names opens a per-group modal (one input per field); renames persist immediately
 			// AND update state, so the Tab-2 live preview reflects a rename without a reload.
-			var editNames = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__btn--ghost rv-vs__btn--sm', text: T.editNames } );
+			var editNames = h( 'button', { type: 'button', class: 'button button-small', text: T.editNames } );
 			editNames.addEventListener( 'click', function () {
 				state.renameGroup = type;
 				render();
@@ -533,7 +533,7 @@
 				}
 			}
 
-			var addBtn = h( 'button', { type: 'button', class: 'rv-vs__btn', text: T.add } );
+			var addBtn = h( 'button', { type: 'button', class: 'button button-primary', text: T.add } );
 			addBtn.addEventListener( 'click', function () {
 				var label = ( addForm.label || '' ).trim();
 				if ( ! label ) {
@@ -812,7 +812,7 @@
 				h( 'span', { class: 'rv-vs__toolbar-label', text: T.template } )
 			] );
 			[ [ 'minimal', T.presetMinimal ], [ 'standart', T.presetStandard ], [ 'detayli', T.presetDetailed ] ].forEach( function ( p ) {
-				var b = h( 'button', { type: 'button', class: 'rv-vs__chipbtn', text: p[ 1 ] } );
+				var b = h( 'button', { type: 'button', class: 'button button-small', text: p[ 1 ] } );
 				b.addEventListener( 'click', function () { applyPreset( p[ 0 ] ); } );
 				bar.appendChild( b );
 			} );
@@ -821,7 +821,7 @@
 				var on = state.filter === c[ 0 ];
 				var b = h( 'button', {
 					type: 'button',
-					class: 'rv-vs__chipbtn' + ( on ? ' rv-vs__chipbtn--on' : '' ),
+					class: 'button button-small' + ( on ? ' button-primary' : '' ),
 					text: c[ 1 ]
 				} );
 				// Filtering only changes what is VISIBLE; it never mutates state.
@@ -885,10 +885,10 @@
 				render();
 			}
 
-			var cancel = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__btn--ghost', text: T.cancel } );
+			var cancel = h( 'button', { type: 'button', class: 'button', text: T.cancel } );
 			cancel.addEventListener( 'click', close );
 
-			var confirm = h( 'button', { type: 'button', class: 'rv-vs__btn', text: T.save } );
+			var confirm = h( 'button', { type: 'button', class: 'button button-primary', text: T.save } );
 			confirm.addEventListener( 'click', function () {
 				var labels = {};
 				items.forEach( function ( f ) {
@@ -938,7 +938,7 @@
 
 		function renderSaveButton() {
 			var label = state.saving ? T.saving : ( state.dirty ? T.save + ' *' : T.save );
-			var btn = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__save', text: label } );
+			var btn = h( 'button', { type: 'button', class: 'button button-primary rv-vs__save', text: label } );
 			btn.disabled = state.saving;
 			if ( state.dirty && ! state.saving ) {
 				btn.title = T.dirtyTitle;

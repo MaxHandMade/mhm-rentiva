@@ -23,8 +23,9 @@
 }
 
 .rv-vs__title {
-	font-size: 24px;
-	font-weight: 700;
+	font-size: 23px;
+	font-weight: 400;
+	line-height: 1.3;
 	margin: 0;
 	padding: 0;
 }
@@ -38,7 +39,7 @@
 .rv-vs__tabs {
 	display: inline-flex;
 	background: #eceef1;
-	border-radius: 10px;
+	border-radius: 4px;
 	padding: 4px;
 	margin-top: 16px;
 }
@@ -48,7 +49,6 @@
 	font-weight: 600;
 	padding: 8px 18px;
 	border: none;
-	border-radius: 7px;
 	cursor: pointer;
 	background: transparent;
 	color: #646970;
@@ -68,7 +68,7 @@
 	margin-top: 14px;
 	background: #fff;
 	border: 1px solid #e6e7eb;
-	border-radius: 12px;
+	border-radius: 4px;
 	padding: 14px 16px;
 	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
@@ -84,7 +84,7 @@
 .rv-vs__card {
 	background: #fff;
 	border: 1px solid #e6e7eb;
-	border-radius: 14px;
+	border-radius: 4px;
 	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 	padding: 18px 20px;
 }
@@ -120,7 +120,7 @@
 	gap: 10px;
 	padding: 9px 11px;
 	border: 1px solid #eceef1;
-	border-radius: 9px;
+	border-radius: 4px;
 	background: #fff;
 }
 
@@ -142,7 +142,7 @@
 	font-size: 10px;
 	font-weight: 700;
 	padding: 1px 6px;
-	border-radius: 5px;
+	border-radius: 999px;
 	white-space: nowrap;
 }
 
@@ -195,30 +195,14 @@
 	color: #d63638;
 }
 
-/* ---- Buttons & inputs ---- */
-.rv-vs__btn {
-	font-size: 13px;
-	font-weight: 600;
-	padding: 9px 16px;
-	border-radius: 8px;
-	cursor: pointer;
-	border: 1px solid #2271b1;
-	background: #2271b1;
-	color: #fff;
-}
-
-.rv-vs__btn--ghost {
-	border: 1px solid #dcdde1;
-	background: #fff;
-	color: #50575e;
-}
+/* ---- Inputs (buttons use WordPress's .button classes) ---- */
 
 .rv-vs__input,
 .rv-vs__select {
 	font-size: 13px;
 	padding: 9px 11px;
 	border: 1px solid #dcdde1;
-	border-radius: 8px;
+	border-radius: 4px;
 	background: #fff;
 }
 
@@ -227,25 +211,13 @@
 	min-width: 180px;
 }
 
-.rv-vs__btn--sm {
-	font-size: 12px;
-	font-weight: 500;
-	padding: 4px 10px;
-	border-radius: 7px;
-}
 
 /* Save sits at the far right of the header, per the mockup */
-.rv-vs__save {
+/* WordPress's .button resets margin; the scope keeps Save at the far right. */
+.rv-vs .rv-vs__save {
 	margin-left: auto;
-	font-size: 14px;
-	padding: 10px 20px;
-	border-radius: 9px;
 }
 
-.rv-vs__save:disabled {
-	opacity: 0.65;
-	cursor: default;
-}
 
 /* Per-group bulk actions */
 .rv-vs__card-actions {
@@ -263,7 +235,7 @@
 .rv-vs__notice {
 	margin-top: 12px;
 	padding: 9px 12px;
-	border-radius: 8px;
+	border-radius: 4px;
 	font-size: 13px;
 	border: 1px solid transparent;
 }
@@ -294,7 +266,7 @@
 
 .rv-vs__modal {
 	background: #fff;
-	border-radius: 14px;
+	border-radius: 4px;
 	box-shadow: 0 10px 40px rgba(16, 24, 40, 0.25);
 	padding: 20px 22px;
 	width: 480px;
@@ -357,22 +329,6 @@
 	font-weight: 600;
 }
 
-.rv-vs__chipbtn {
-	font-size: 13px;
-	padding: 6px 14px;
-	border: 1px solid #dcdde1;
-	background: #fff;
-	border-radius: 999px;
-	cursor: pointer;
-	color: #50575e;
-	font-weight: 500;
-}
-
-.rv-vs__chipbtn--on {
-	border-color: #2271b1;
-	background: #2271b1;
-	color: #fff;
-}
 
 .rv-vs__divider {
 	width: 1px;
@@ -403,7 +359,7 @@
 .rv-vs__matrix {
 	background: #fff;
 	border: 1px solid #e6e7eb;
-	border-radius: 14px;
+	border-radius: 4px;
 	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 	overflow: hidden;
 }
@@ -453,7 +409,7 @@
 
 .rv-vs__mrow.ui-sortable-helper {
 	box-shadow: 0 6px 20px rgba(16, 24, 40, 0.14);
-	border-radius: 9px;
+	border-radius: 4px;
 }
 
 .rv-vs__mrow-main {
@@ -470,7 +426,7 @@
 .rv-vs__toggle {
 	width: 66px;
 	padding: 6px 0;
-	border-radius: 8px;
+	border-radius: 4px;
 	cursor: pointer;
 	font-size: 12px;
 	font-weight: 600;
@@ -516,7 +472,7 @@
 .rv-vs__pcard {
 	background: #fff;
 	border: 1px solid #e6e7eb;
-	border-radius: 14px;
+	border-radius: 4px;
 	overflow: hidden;
 	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
@@ -573,7 +529,7 @@
 .rv-vs__chip {
 	font-size: 12px;
 	padding: 3px 10px;
-	border-radius: 7px;
+	border-radius: 999px;
 	background: #eef2f7;
 	color: #50575e;
 }
@@ -604,7 +560,7 @@
 	flex-direction: column;
 	padding: 8px 10px;
 	background: #f7f9fc;
-	border-radius: 8px;
+	border-radius: 4px;
 }
 
 .rv-vs__pgrid-label {

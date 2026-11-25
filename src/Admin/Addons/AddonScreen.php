@@ -752,17 +752,17 @@ final class AddonScreen {
 		echo '<span class="rv-addon-bulk-actions">';
 
 		printf(
-			'<button type="button" class="button rv-addon-bulk-action" data-bulk="enable" disabled>%s</button>',
+			'<button type="button" class="button button-small rv-addon-bulk-action" data-bulk="enable" disabled>%s</button>',
 			esc_html__( 'Activate', 'mhm-rentiva' )
 		);
 
 		printf(
-			'<button type="button" class="button rv-addon-bulk-action" data-bulk="disable" disabled>%s</button>',
+			'<button type="button" class="button button-small rv-addon-bulk-action" data-bulk="disable" disabled>%s</button>',
 			esc_html__( 'Deactivate', 'mhm-rentiva' )
 		);
 
 		printf(
-			'<button type="button" class="button rv-addon-bulk-action rv-addon-bulk-delete" data-bulk="delete" disabled>%s</button>',
+			'<button type="button" class="button button-small rv-addon-bulk-action rv-addon-bulk-delete" data-bulk="delete" disabled>%s</button>',
 			esc_html__( 'Delete', 'mhm-rentiva' )
 		);
 

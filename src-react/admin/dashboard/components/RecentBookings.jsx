@@ -93,7 +93,7 @@ export default function RecentBookings( { initial, metrics, currency, adminUrl }
 			{ totalPages > 1 && (
 				<div className="mhm-pagination">
 					<button
-						className="mhm-pagination__btn"
+						className="button button-small mhm-pagination__btn"
 						disabled={ page <= 1 || loading }
 						onClick={ () => setPage( ( p ) => p - 1 ) }
 					>
@@ -101,7 +101,7 @@ export default function RecentBookings( { initial, metrics, currency, adminUrl }
 					</button>
 					<span className="mhm-pagination__info">{ page } / { totalPages }</span>
 					<button
-						className="mhm-pagination__btn"
+						className="button button-small mhm-pagination__btn"
 						disabled={ page >= totalPages || loading }
 						onClick={ () => setPage( ( p ) => p + 1 ) }
 					>
