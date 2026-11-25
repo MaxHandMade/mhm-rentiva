@@ -128,4 +128,40 @@ final class BookingDetailNoticeHookTest extends WP_UnitTestCase
 
 		$this->assertMatchesRegularExpression( '#<!--NOTICE-->\s*</div>\s*<section class="rvs-account-detail__vehicle"#', $html );
 	}
+
+	public function test_the_answer_block_survives_the_notice_allowlist(): void
+	{
+		$block = '<section class="mhm-swap mhm-swap--pending" aria-live="polite"><p class="mhm-swap__eyebrow">Booking #7</p>'
+			. '<h2 id="t1" class="mhm-swap__title">Title</h2><div class="mhm-swap__cars"><div class="mhm-swap__car"><p class="mhm-swap__name">Car</p></div></div>'
+			. '<p class="mhm-swap__notice" role="alert">Oops</p><p>Price<br>Unchanged</p>'
+			. '<form method="post" class="mhm-swap__form"><input type="hidden" name="_wpnonce" value="abc123">'
+			. '<input type="hidden" name="key" value="k"><button type="submit" name="choice" value="accept" class="mhm-swap__button">I approve</button></form>'
+			. '<script>alert(1)</script></section>';
+
+		$out = wp_kses( $block, AccountRenderer::notice_allowed_html() );
+
+		$this->assertStringContainsString( '<section class="mhm-swap mhm-swap--pending" aria-live="polite">', $out );
+		$this->assertStringContainsString( '<form method="post" class="mhm-swap__form">', $out );
+		$this->assertStringContainsString( '<input type="hidden" name="_wpnonce" value="abc123"', $out );
+		$this->assertStringContainsString( '<input type="hidden" name="key" value="k"', $out );
+		$this->assertStringContainsString( '<button type="submit" name="choice" value="accept" class="mhm-swap__button">I approve</button>', $out );
+		$this->assertStringContainsString( '<h2 id="t1" class="mhm-swap__title">', $out );
+		$this->assertStringContainsString( 'role="alert"', $out );
+		$this->assertStringNotContainsString( '<script', $out );
+	}
+
+	public function test_the_allowlist_can_be_extended_by_an_add_on(): void
+	{
+		add_filter(
+			'mhmrentiva_booking_detail_notice_allowed_html',
+			static function ( array $allowed ): array {
+				$allowed['select'] = array( 'name' => true );
+
+				return $allowed;
+			}
+		);
+
+		$this->assertArrayHasKey( 'select', AccountRenderer::notice_allowed_html() );
+		remove_all_filters( 'mhmrentiva_booking_detail_notice_allowed_html' );
+	}
 }

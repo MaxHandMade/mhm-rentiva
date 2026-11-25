@@ -51,14 +51,13 @@ final class AnswerLinkFallback {
 	}
 
 	/**
-	 * The document for this request, or null when the request is not an answer
-	 * link or an add-on has handled it.
+	 * Whether this request is an answer link that nothing has answered.
 	 */
-	public static function render(): ?string
+	public static function applies(): bool
 	{
 		$raw = get_query_var(self::QUERY_VAR, '');
 		if (! is_string($raw) || '' === $raw) {
-			return null;
+			return false;
 		}
 
 		/**
@@ -66,17 +65,27 @@ final class AnswerLinkFallback {
 		 *
 		 * @param bool $handled True when the request was answered.
 		 */
-		if ( (bool) apply_filters('mhmrentiva_answer_page_handled', false) ) {
-			return null;
-		}
+		return ! (bool) apply_filters('mhmrentiva_answer_page_handled', false);
+	}
 
-		$message = esc_html__('This link is no longer valid.', 'mhm-rentiva');
-
-		return '<!DOCTYPE html><html ' . get_language_attributes() . '><head><meta charset="' . esc_attr(get_bloginfo('charset')) . '">'
-			. '<meta name="viewport" content="width=device-width, initial-scale=1">'
-			. '<meta name="robots" content="noindex, nofollow">'
-			. '<title>' . $message . '</title></head>'
-			. '<body style="font-family:sans-serif;max-width:32rem;margin:4rem auto;padding:0 1rem"><p>' . $message . '</p></body></html>';
+	/**
+	 * Print the document, every dynamic part escaped where it is printed.
+	 */
+	public static function print_page(): void
+	{
+		$message = __('This link is no longer valid.', 'mhm-rentiva');
+		?>
+<!DOCTYPE html>
+<html lang="<?php echo esc_attr(get_bloginfo('language')); ?>"<?php echo is_rtl() ? ' dir="rtl"' : ''; ?>>
+<head>
+<meta charset="<?php echo esc_attr(get_bloginfo('charset')); ?>">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title><?php echo esc_html($message); ?></title>
+</head>
+<body style="font-family:sans-serif;max-width:32rem;margin:4rem auto;padding:0 1rem"><p><?php echo esc_html($message); ?></p></body>
+</html>
+		<?php
 	}
 
 	/**
@@ -124,14 +133,12 @@ final class AnswerLinkFallback {
 	 */
 	public static function maybe_render(): void
 	{
-		$html = self::render();
-		if (null === $html) {
+		if (! self::applies()) {
 			return;
 		}
 
 		self::send_headers();
-
-		echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built from escaped parts in render().
+		self::print_page();
 		exit;
 	}
 }

@@ -35,6 +35,7 @@ declare(strict_types=1);
 
 use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
 use MHMRentiva\Admin\Core\Utilities\Templates;
+use MHMRentiva\Admin\Frontend\Account\AccountRenderer;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -96,7 +97,7 @@ $mhmrentiva_bd_to       = (string) ( $mhmrentiva_bd_vehicle['return_place'] ?? (
 
 <?php if ('' !== $mhmrentiva_bd_notice) : ?>
 	<div class="rvs-account-detail__notice">
-		<?php echo $mhmrentiva_bd_notice; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- A listener prints one complete, already escaped block. ?>
+		<?php echo wp_kses($mhmrentiva_bd_notice, AccountRenderer::notice_allowed_html()); ?>
 	</div>
 <?php endif; ?>
 	<section class="rvs-account-detail__vehicle" aria-labelledby="<?php echo esc_attr($mhmrentiva_bd_uid . '-car'); ?>">

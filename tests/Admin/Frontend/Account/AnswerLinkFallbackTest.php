@@ -36,10 +36,16 @@ final class AnswerLinkFallbackTest extends WP_UnitTestCase
 	{
 		set_query_var( AnswerLinkFallback::QUERY_VAR, 'x' );
 
-		$html = AnswerLinkFallback::render();
+		$this->assertTrue( AnswerLinkFallback::applies() );
 
-		$this->assertIsString( $html );
-		$this->assertStringContainsString( 'This link is no longer valid.', $html );
+		ob_start();
+		AnswerLinkFallback::print_page();
+		$html = (string) ob_get_clean();
+
+		$this->assertStringStartsWith( '<!DOCTYPE html>', $html );
+		$this->assertStringContainsString( '<meta name="robots" content="noindex, nofollow">', $html );
+		$this->assertStringContainsString( '<p>This link is no longer valid.</p>', $html );
+		$this->assertStringContainsString( '<title>This link is no longer valid.</title>', $html );
 	}
 
 	public function test_the_response_is_sent_as_410_without_referrer_and_uncached(): void
@@ -71,11 +77,11 @@ final class AnswerLinkFallbackTest extends WP_UnitTestCase
 		set_query_var( AnswerLinkFallback::QUERY_VAR, 'x' );
 		add_filter( 'mhmrentiva_answer_page_handled', '__return_true' );
 
-		$this->assertNull( AnswerLinkFallback::render() );
+		$this->assertFalse( AnswerLinkFallback::applies() );
 	}
 
 	public function test_nothing_without_the_query_var(): void
 	{
-		$this->assertNull( AnswerLinkFallback::render() );
+		$this->assertFalse( AnswerLinkFallback::applies() );
 	}
 }
