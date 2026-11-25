@@ -239,6 +239,45 @@
 	}
 }
 
+/* A notice from an add-on takes its own row right under the header, in every layout. */
+.rvs-shell .rvs-account-detail__notice {
+	grid-area: notice;
+	min-width: 0;
+}
+
+.rvs-shell .rvs-account-detail--has-notice {
+	grid-template-areas:
+		"head"
+		"notice"
+		"vehicle"
+		"payment"
+		"timeline"
+		"cancel";
+}
+
+@container rvs-detail (min-width: 660px) {
+	.rvs-shell .rvs-account-detail--has-notice {
+		grid-template-rows: auto auto auto auto 1fr;
+		grid-template-areas:
+			"head     head"
+			"notice   notice"
+			"vehicle  vehicle"
+			"timeline payment"
+			"cancel   payment";
+	}
+}
+
+@container rvs-detail (min-width: 1000px) {
+	.rvs-shell .rvs-account-detail--has-notice {
+		grid-template-areas:
+			"head     head"
+			"notice   notice"
+			"vehicle  payment"
+			"timeline payment"
+			"cancel   payment";
+	}
+}
+
 .rvs-shell .rvs-account-detail__head { grid-area: head; }
 .rvs-shell .rvs-account-detail__vehicle { grid-area: vehicle; }
 .rvs-shell .rvs-account-detail__payment { grid-area: payment; }

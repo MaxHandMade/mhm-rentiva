@@ -47,13 +47,25 @@ $mhmrentiva_bd_cancel  = (array) ( $cancel ?? array() );
 $mhmrentiva_bd_receipt = (array) ( $receipt ?? array() );
 $mhmrentiva_bd_kses    = PriceDisplay::allowed_html();
 $mhmrentiva_bd_state   = (string) ( $mhmrentiva_bd_cancel['state'] ?? 'none' );
+// The output is collected first: the notice gets its own row under the header
+// only when something printed, so a page nobody adds to keeps its exact layout.
+ob_start();
+/**
+ * Fires above the vehicle section of the booking detail. A listener prints one
+ * complete notice block (its own wrapper and markup), or nothing.
+ *
+ * @param int $booking_id Booking post ID.
+ */
+do_action( 'mhmrentiva_booking_detail_notice', $mhmrentiva_bd_id );
+$mhmrentiva_bd_notice = trim( (string) ob_get_clean() );
+
 // A transfer names its origin and destination; a rental its one place under both rows.
 $mhmrentiva_bd_transfer = ! empty($mhmrentiva_bd_vehicle['transfer']);
 $mhmrentiva_bd_from     = (string) ( $mhmrentiva_bd_vehicle['pickup_place'] ?? ( $mhmrentiva_bd_vehicle['location'] ?? '' ) );
 $mhmrentiva_bd_to       = (string) ( $mhmrentiva_bd_vehicle['return_place'] ?? ( $mhmrentiva_bd_vehicle['location'] ?? '' ) );
 ?>
 <div class="rvs-account-detail-frame">
-<div class="rvs-account-detail" data-booking-id="<?php echo esc_attr( (string) $mhmrentiva_bd_id); ?>">
+<div class="rvs-account-detail<?php echo '' !== $mhmrentiva_bd_notice ? ' rvs-account-detail--has-notice' : ''; ?>" data-booking-id="<?php echo esc_attr( (string) $mhmrentiva_bd_id); ?>">
 	<header class="rvs-account-detail__head">
 		<?php if ('' !== (string) ( $back_url ?? '' )) : ?>
 			<a class="rvs-account-detail__back" href="<?php echo esc_url( (string) $back_url); ?>">&lsaquo; <?php esc_html_e('My bookings', 'mhm-rentiva'); ?></a>
@@ -82,15 +94,11 @@ $mhmrentiva_bd_to       = (string) ( $mhmrentiva_bd_vehicle['return_place'] ?? (
 		</div>
 	</header>
 
-<?php
-/**
- * Fires above the vehicle section of the booking detail. A listener prints one
- * complete notice block (its own wrapper and markup), or nothing.
- *
- * @param int $booking_id Booking post ID.
- */
-do_action( 'mhmrentiva_booking_detail_notice', $mhmrentiva_bd_id );
-?>
+<?php if ('' !== $mhmrentiva_bd_notice) : ?>
+	<div class="rvs-account-detail__notice">
+		<?php echo $mhmrentiva_bd_notice; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- A listener prints one complete, already escaped block. ?>
+	</div>
+<?php endif; ?>
 	<section class="rvs-account-detail__vehicle" aria-labelledby="<?php echo esc_attr($mhmrentiva_bd_uid . '-car'); ?>">
 		<div class="rvs-account-detail__media">
 			<img src="<?php echo esc_url( (string) ( $mhmrentiva_bd_vehicle['image'] ?? '' )); ?>" alt="" loading="lazy">

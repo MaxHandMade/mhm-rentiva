@@ -72,17 +72,46 @@ final class BookingDetailNoticeHookTest extends WP_UnitTestCase
 
 		$plain = $this->normalise( AccountRenderer::render_booking_detail( $booking_id, true ) );
 
+		$this->assertStringNotContainsString( 'rvs-account-detail__notice', $plain );
+		$this->assertStringNotContainsString( 'rvs-account-detail--has-notice', $plain );
+		$this->assertStringNotContainsString( 'mhmrentiva_booking_detail_notice', $plain );
+
+		// A listener that prints nothing leaves the page exactly as it was.
+		add_action( 'mhmrentiva_booking_detail_notice', static function (): void {} );
+		add_action(
+			'mhmrentiva_booking_detail_notice',
+			static function (): void {
+				echo "  
+ ";
+			}
+		);
+		$silent = $this->normalise( AccountRenderer::render_booking_detail( $booking_id, true ) );
+
+		$this->assertSame( $plain, $silent );
+	}
+
+	public function test_the_wrapper_and_the_row_modifier_appear_only_with_output(): void
+	{
+		$booking_id = $this->create_booking();
+
 		add_action(
 			'mhmrentiva_booking_detail_notice',
 			static function (): void {
 				echo '<!--NOTICE-->';
 			}
 		);
-		$with_notice = $this->normalise( AccountRenderer::render_booking_detail( $booking_id, true ) );
+		$html = AccountRenderer::render_booking_detail( $booking_id, true );
 
-		$this->assertStringContainsString( '<!--NOTICE-->', $with_notice );
-		$this->assertSame( $plain, $this->normalise( str_replace( '<!--NOTICE-->', '', $with_notice ) ) );
-		$this->assertStringNotContainsString( 'mhmrentiva_booking_detail_notice', $plain );
+		$this->assertStringContainsString( '<div class="rvs-account-detail__notice"', $html );
+		$this->assertStringContainsString( 'rvs-account-detail--has-notice', $html );
+		$this->assertMatchesRegularExpression( '#</header>\s*<div class="rvs-account-detail__notice">\s*<!--NOTICE-->\s*</div>\s*<section class="rvs-account-detail__vehicle"#', $html );
+
+		// Without the wrapper and the modifier the rest of the page is the plain page.
+		remove_all_actions( 'mhmrentiva_booking_detail_notice' );
+		$plain = $this->normalise( AccountRenderer::render_booking_detail( $booking_id, true ) );
+		$with  = (string) preg_replace( '#\s*<div class="rvs-account-detail__notice">\s*<!--NOTICE-->\s*</div>#', '', $html );
+		$with  = str_replace( ' rvs-account-detail--has-notice', '', $with );
+		$this->assertSame( $plain, $this->normalise( $with ) );
 	}
 
 	public function test_notice_prints_before_the_vehicle_section(): void
@@ -97,6 +126,6 @@ final class BookingDetailNoticeHookTest extends WP_UnitTestCase
 		);
 		$html = AccountRenderer::render_booking_detail( $booking_id, true );
 
-		$this->assertMatchesRegularExpression( '#<!--NOTICE-->\s*<section class="rvs-account-detail__vehicle"#', $html );
+		$this->assertMatchesRegularExpression( '#<!--NOTICE-->\s*</div>\s*<section class="rvs-account-detail__vehicle"#', $html );
 	}
 }
