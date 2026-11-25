@@ -172,8 +172,8 @@ final class AddCustomerPage {
 		echo '</div>';
 
 		echo '<div class="rv-cust-form__actions">';
-		echo '<button type="submit" name="submit" id="submit" class="rv-cust-btn is-primary">' . esc_html__( 'Add Customer', 'mhm-rentiva' ) . '</button>';
-		echo '<a href="' . esc_url( admin_url( 'admin.php?page=mhm-rentiva-customers' ) ) . '" class="rv-cust-btn">' . esc_html__( 'Cancel', 'mhm-rentiva' ) . '</a>';
+		echo '<button type="submit" name="submit" id="submit" class="button button-primary rv-cust-btn is-primary">' . esc_html__( 'Add Customer', 'mhm-rentiva' ) . '</button>';
+		echo '<a href="' . esc_url( admin_url( 'admin.php?page=mhm-rentiva-customers' ) ) . '" class="button rv-cust-btn">' . esc_html__( 'Cancel', 'mhm-rentiva' ) . '</a>';
 		echo '</div>';
 
 		echo '</form>';

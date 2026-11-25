@@ -119,6 +119,36 @@ final class AdminVisualLanguageTest extends TestCase {
 		$this->assertSame( array(), $bad, "Buttons leave corner and height to WordPress:\n" . implode( "\n", $bad ) );
 	}
 
+	/**
+	 * Buttons whose own shape rules were removed must carry WordPress's
+	 * button class wherever they are printed (PHP, JS, JSX), or they fall
+	 * back to bare links and browser buttons.
+	 */
+	public function test_markup_buttons_carry_the_core_class(): void {
+		$root  = dirname( __DIR__, 2 ) . '/';
+		$own   = '(rv-cust-btn|rv-scp-btn|rv-abt-btn|mhm-pagination__btn|rv-bkl-toolbar__btn|rv-vhl-card__edit|rv-addon-bulk-action(?![-\w])|rv-addon-create(?![-\w]))';
+		$bad   = array();
+		$files = array_merge(
+			glob( $root . 'src/Admin/{Customers,Booking/ListTable,Vehicle/ListTable,Addons,Frontend/Account}/*.php', GLOB_BRACE ) ?: array(),
+			glob( $root . 'assets/js/admin/*.js' ) ?: array(),
+			glob( $root . 'src-react/admin/*/components/*.jsx' ) ?: array()
+		);
+		foreach ( $files as $file ) {
+			$code = (string) file_get_contents( $file );
+			if ( ! preg_match_all( '/class(?:Name)?\s*=\s*[\\\\]?["\']([^"\']*)["\']|\$class\s*=\s*\'([^\']*)\'/', $code, $m, PREG_SET_ORDER ) ) {
+				continue;
+			}
+			foreach ( $m as $hit ) {
+				$classes = $hit[1] . ( $hit[2] ?? '' );
+				if ( 1 === preg_match( '/' . $own . '/', $classes ) && 1 !== preg_match( '/(^|\s)button(\s|$)/', $classes ) ) {
+					$bad[] = str_replace( $root, '', $file ) . ': ' . $classes;
+				}
+			}
+		}
+
+		$this->assertSame( array(), $bad, "These buttons lost their own shape and need WordPress's button class:\n" . implode( "\n", $bad ) );
+	}
+
 	public function test_page_title_weight(): void {
 		$bad = array();
 		foreach ( self::rules( array_merge( self::SCOPE, self::TITLE_ONLY ) ) as $r ) {

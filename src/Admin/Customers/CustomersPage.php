@@ -434,19 +434,19 @@ final class CustomersPage {
 			$base_url = admin_url( 'admin.php?page=mhm-rentiva-customers&action=view&customer_id=' . $customer_id );
 			echo '<div class="rv-cust-panel__paging">';
 			if ( $bookings_page > 1 ) {
-				echo '<a class="rv-cust-btn" href="' . esc_url( $base_url . '&bookings_page=' . ( $bookings_page - 1 ) ) . '">‹ ' . esc_html__( 'Previous', 'mhm-rentiva' ) . '</a>';
+				echo '<a class="button button-small rv-cust-btn" href="' . esc_url( $base_url . '&bookings_page=' . ( $bookings_page - 1 ) ) . '">‹ ' . esc_html__( 'Previous', 'mhm-rentiva' ) . '</a>';
 			}
 			/* translators: 1: current page, 2: total pages */
 			echo '<span class="rv-cust-panel__paging-info">' . esc_html( sprintf( __( '%1$d / %2$d', 'mhm-rentiva' ), $bookings_page, $total_pages ) ) . '</span>';
 			if ( $bookings_page < $total_pages ) {
-				echo '<a class="rv-cust-btn" href="' . esc_url( $base_url . '&bookings_page=' . ( $bookings_page + 1 ) ) . '">' . esc_html__( 'Next', 'mhm-rentiva' ) . ' ›</a>';
+				echo '<a class="button button-small rv-cust-btn" href="' . esc_url( $base_url . '&bookings_page=' . ( $bookings_page + 1 ) ) . '">' . esc_html__( 'Next', 'mhm-rentiva' ) . ' ›</a>';
 			}
 			echo '</div>';
 		}
 		echo '<div class="rv-cust-panel__actions">';
-		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers&action=edit&customer_id=' . $customer_id)) . '" class="rv-cust-btn is-primary">' . esc_html__('Edit', 'mhm-rentiva') . '</a>';
-		echo '<a href="' . esc_url(admin_url('edit.php?post_type=mhmrentiva_booking&mhmrentiva_customer_email=' . rawurlencode( (string) $detail['email'] ) . '&mhmrentiva_customer_id=' . $customer_id)) . '" class="rv-cust-btn">' . esc_html__('View Bookings', 'mhm-rentiva') . '</a>';
-		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers')) . '" class="rv-cust-btn">' . esc_html__('Go Back', 'mhm-rentiva') . '</a>';
+		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers&action=edit&customer_id=' . $customer_id)) . '" class="button button-primary rv-cust-btn is-primary">' . esc_html__('Edit', 'mhm-rentiva') . '</a>';
+		echo '<a href="' . esc_url(admin_url('edit.php?post_type=mhmrentiva_booking&mhmrentiva_customer_email=' . rawurlencode( (string) $detail['email'] ) . '&mhmrentiva_customer_id=' . $customer_id)) . '" class="button rv-cust-btn">' . esc_html__('View Bookings', 'mhm-rentiva') . '</a>';
+		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers')) . '" class="button rv-cust-btn">' . esc_html__('Go Back', 'mhm-rentiva') . '</a>';
 		echo '</div>';
 		echo '</div>';
 
@@ -576,8 +576,8 @@ final class CustomersPage {
 		echo '</div>';
 
 		echo '<div class="rv-cust-form__actions">';
-		echo '<button type="submit" name="submit" id="submit" class="rv-cust-btn is-primary">' . esc_html__('Update', 'mhm-rentiva') . '</button>';
-		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers&action=view&customer_id=' . $customer_id)) . '" class="rv-cust-btn">' . esc_html__('Cancel', 'mhm-rentiva') . '</a>';
+		echo '<button type="submit" name="submit" id="submit" class="button button-primary rv-cust-btn is-primary">' . esc_html__('Update', 'mhm-rentiva') . '</button>';
+		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers&action=view&customer_id=' . $customer_id)) . '" class="button rv-cust-btn">' . esc_html__('Cancel', 'mhm-rentiva') . '</a>';
 		echo '</div>';
 
 		echo '</form>';
