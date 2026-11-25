@@ -359,7 +359,8 @@ final class Templates {
 		// templates are built from boxes (div), styled button links and small
 		// print, which all need class and style. Scripts, event handlers and
 		// script URLs are still removed, and style values pass core's safe-CSS
-		// filter.
+		// filter. Filter callbacks return e-mail body markup: never add script
+		// tags or event-handler attributes.
 		$allowed = (array) apply_filters( 'mhmrentiva_email_layout_allowed_html', wp_kses_allowed_html( 'post' ) );
 		// Compute a darker gradient end-stop from the base color
 		$gradientEnd = $baseColor;
