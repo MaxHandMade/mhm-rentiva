@@ -150,10 +150,10 @@ export default function CustomerPanel( { panelId, row, adminUrl, onClose } ) {
 					) ) }
 
 					<div className="rv-cust-panel__actions">
-						<a href={ profileUrl } className="rv-cust-btn is-primary">
+						<a href={ profileUrl } className="button button-primary rv-cust-btn is-primary">
 							{ __( 'Open Profile', 'mhm-rentiva' ) }
 						</a>
-						<a href={ `mailto:${ row.email }` } className="rv-cust-btn">
+						<a href={ `mailto:${ row.email }` } className="button rv-cust-btn">
 							{ __( 'Send Email', 'mhm-rentiva' ) }
 						</a>
 					</div>

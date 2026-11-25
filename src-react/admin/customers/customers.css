@@ -40,38 +40,6 @@
 
 /* ── Buttons ───────────────────────────────────────────────────────── */
 
-:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-btn {
-	display: inline-block;
-	font-size: 13px;
-	font-weight: 500;
-	padding: 8px 16px;
-	background: #fff;
-	border: 1px solid #dcdde1;
-	border-radius: 8px;
-	color: #2c3338;
-	cursor: pointer;
-	text-decoration: none;
-	text-align: center;
-	line-height: 1.4;
-}
-
-:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-btn:hover {
-	border-color: #b6bcc3;
-	color: #1d2327;
-}
-
-:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-btn.is-primary {
-	background: #2271b1;
-	border-color: #2271b1;
-	color: #fff;
-	font-weight: 600;
-}
-
-:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-btn.is-primary:hover {
-	background: #135e96;
-	border-color: #135e96;
-}
-
 /* ── Two-column layout ─────────────────────────────────────────────── */
 
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-layout {
@@ -89,7 +57,7 @@
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-card {
 	background: #fff;
 	border: 1px solid #e6e7eb;
-	border-radius: 14px;
+	border-radius: 4px;
 	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 	overflow: hidden;
 }
@@ -115,7 +83,7 @@
 	font-size: 13px;
 	padding: 8px 12px;
 	border: 1px solid #dcdde1;
-	border-radius: 8px;
+	border-radius: 4px;
 	background: #fff;
 	box-shadow: none;
 	line-height: 1.4;
@@ -126,7 +94,7 @@
 	font-size: 13px;
 	padding: 8px 10px;
 	border: 1px solid #dcdde1;
-	border-radius: 8px;
+	border-radius: 4px;
 	background: #fff;
 	min-height: 0;
 	line-height: 1.4;
@@ -351,7 +319,7 @@
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__card {
 	background: #fff;
 	border: 1px solid #e6e7eb;
-	border-radius: 14px;
+	border-radius: 4px;
 	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 	overflow: hidden;
 }
@@ -359,7 +327,7 @@
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel.is-empty .rv-cust-panel__placeholder {
 	background: #fff;
 	border: 1px dashed #cfd3da;
-	border-radius: 14px;
+	border-radius: 4px;
 	padding: 40px 20px;
 	text-align: center;
 	color: #8a8f98;
@@ -526,11 +494,6 @@
 	margin-top: 12px;
 }
 
-:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__paging .rv-cust-btn {
-	padding: 5px 12px;
-	font-size: 12px;
-}
-
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__paging-info {
 	font-size: 12px;
 	color: #8a8f98;
@@ -591,7 +554,7 @@
 	font-size: 13px;
 	padding: 9px 11px;
 	border: 1px solid #dcdde1;
-	border-radius: 8px;
+	border-radius: 4px;
 	background: #fff;
 	box-shadow: none;
 	line-height: 1.4;
@@ -611,7 +574,7 @@
 	color: #b7791f;
 	background: #fdf3d7;
 	padding: 1px 6px;
-	border-radius: 5px;
+	border-radius: 4px;
 	text-transform: uppercase;
 	letter-spacing: 0.03em;
 }

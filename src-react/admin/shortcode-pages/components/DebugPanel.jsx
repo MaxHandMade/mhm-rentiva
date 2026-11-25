@@ -14,7 +14,7 @@ export default function DebugPanel( { data, onClose } ) {
 		<div className="mhm-widget mhm-sc-debug-panel">
 			<div className="mhm-sc-debug-header">
 				<h3>{ __( 'Debug Search Results', 'mhm-rentiva' ) }</h3>
-				<button className="rv-scp-btn" onClick={ onClose }>
+				<button className="button rv-scp-btn" onClick={ onClose }>
 					{ __( 'Close', 'mhm-rentiva' ) }
 				</button>
 			</div>

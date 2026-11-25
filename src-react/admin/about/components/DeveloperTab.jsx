@@ -79,10 +79,10 @@ function SystemReportCard( { report } ) {
 				aria-label={ __( 'System Report', 'mhm-rentiva' ) }
 			/>
 			<div className="rv-abt-report__actions">
-				<button type="button" className="rv-abt-btn" onClick={ handleCopy }>
+				<button type="button" className="button rv-abt-btn" onClick={ handleCopy }>
 					{ copied ? __( 'Copied!', 'mhm-rentiva' ) : __( 'Copy Report', 'mhm-rentiva' ) }
 				</button>
-				<button type="button" className="rv-abt-btn" onClick={ handleDownload }>
+				<button type="button" className="button rv-abt-btn" onClick={ handleDownload }>
 					{ __( 'Download', 'mhm-rentiva' ) }
 				</button>
 			</div>
@@ -159,7 +159,7 @@ export default function DeveloperTab( { data, report } ) {
 						<div key={ item.title } className="mhm-project-item">
 							<h4>{ item.title }</h4>
 							<p>{ item.desc }</p>
-							<a href={ data.company_website } target="_blank" rel="noreferrer" className="rv-abt-btn rv-abt-btn--small">
+							<a href={ data.company_website } target="_blank" rel="noreferrer" className="button button-small rv-abt-btn rv-abt-btn--small">
 								{ __( 'Learn More', 'mhm-rentiva' ) }
 							</a>
 						</div>
