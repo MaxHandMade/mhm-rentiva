@@ -68,7 +68,7 @@
 	text-align: center;
 	white-space: nowrap;
 	vertical-align: baseline;
-	border-radius: 0.375rem;
+	border-radius: 999px;
 	color: #fff;
 }
 
@@ -101,7 +101,7 @@
 	margin-bottom: 20px;
 	padding: 15px;
 	background: #f8f9fa;
-	border-radius: 8px;
+	border-radius: 4px;
 	border: 1px solid #dee2e6;
 }
 
@@ -136,7 +136,7 @@
 	padding: 15px;
 	background: #fff3cd;
 	border: 1px solid #ffeaa7;
-	border-radius: 8px;
+	border-radius: 4px;
 }
 
 .mhm-addon-list .bulk-actions .button {
@@ -147,7 +147,7 @@
 .mhm-addon-list .license-warning {
 	background: #fff3cd;
 	border: 1px solid #ffeaa7;
-	border-radius: 8px;
+	border-radius: 4px;
 	padding: 15px;
 	margin-bottom: 20px;
 	color: #856404;

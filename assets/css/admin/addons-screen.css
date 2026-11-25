@@ -23,13 +23,12 @@
 	--rv-addon-muted: #646970;
 	--rv-addon-faint: #8a8f98;
 	--rv-addon-accent: #2271b1;
-	--rv-addon-radius: 14px;
 	--rv-addon-shadow: 0 1px 2px rgba( 16, 24, 40, 0.04 );
 }
 
 #mhm-addons-root .rv-addon-title {
-	font-size: 24px;
-	font-weight: 700;
+	font-size: 23px;
+	font-weight: 400;
 	margin: 0 0 4px;
 	color: var( --rv-addon-text );
 }
@@ -62,7 +61,7 @@
 #mhm-addons-root .rv-addon-list-card {
 	background: var( --rv-addon-surface );
 	border: 1px solid var( --rv-addon-line );
-	border-radius: var( --rv-addon-radius );
+	border-radius: var( --mhmui-radius );
 	box-shadow: var( --rv-addon-shadow );
 	padding: 20px;
 }
@@ -108,7 +107,7 @@
 	font-size: 14px;
 	padding: 9px 11px;
 	border: 1px solid #dcdde1;
-	border-radius: 8px;
+	border-radius: 4px;
 	background: var( --rv-addon-surface );
 	color: var( --rv-addon-text );
 	box-sizing: border-box;
@@ -151,7 +150,6 @@
 }
 
 #mhm-addons-root .rv-addon-create {
-	border-radius: 8px;
 	font-weight: 600;
 }
 
@@ -220,12 +218,6 @@
 	gap: 6px;
 }
 
-#mhm-addons-root .rv-addon-bulk-action {
-	font-size: 12px;
-	height: auto;
-	padding: 3px 10px;
-	border-radius: 6px;
-}
 
 #mhm-addons-root .rv-addon-bulk-delete:not( [disabled] ) {
 	color: #b32d2e;
@@ -265,7 +257,7 @@
 	font-size: 13px;
 	padding: 2px 6px;
 	border: 1px solid var( --rv-addon-accent );
-	border-radius: 6px;
+	border-radius: 4px;
 	text-align: right;
 }
 
@@ -305,7 +297,7 @@
 	width: 38px;
 	height: 38px;
 	flex: none;
-	border-radius: 9px;
+	border-radius: 4px;
 	display: grid;
 	place-items: center;
 	font-weight: 700;
