@@ -355,46 +355,12 @@ final class Templates {
 
 		// Ensure some contrast logic if needed, but for now just use base color
 
-		// Basic sanitized inner HTML (allow common tags)
-		$allowed = array(
-			'a'      => array(
-				'href'   => array(),
-				'title'  => array(),
-				'target' => array(),
-				'rel'    => array(),
-			),
-			'b'      => array(),
-			'strong' => array(),
-			'em'     => array(),
-			'i'      => array(),
-			'u'      => array(),
-			'p'      => array( 'style' => array() ),
-			'br'     => array(),
-			'span'   => array( 'style' => array() ),
-			'ul'     => array(),
-			'ol'     => array(),
-			'li'     => array(),
-			'h1'     => array(),
-			'h2'     => array(),
-			'h3'     => array(),
-			'table'  => array(
-				'border'      => array(),
-				'cellpadding' => array(),
-				'cellspacing' => array(),
-				'width'       => array(),
-				'style'       => array(),
-			),
-			'tr'     => array(),
-			'td'     => array( 'style' => array() ),
-			'th'     => array( 'style' => array() ),
-			'img'    => array(
-				'src'    => array(),
-				'alt'    => array(),
-				'width'  => array(),
-				'height' => array(),
-				'style'  => array(),
-			),
-		);
+		// The template body is filtered with WordPress's post list: e-mail
+		// templates are built from boxes (div), styled button links and small
+		// print, which all need class and style. Scripts, event handlers and
+		// script URLs are still removed, and style values pass core's safe-CSS
+		// filter.
+		$allowed = (array) apply_filters( 'mhmrentiva_email_layout_allowed_html', wp_kses_allowed_html( 'post' ) );
 		// Compute a darker gradient end-stop from the base color
 		$gradientEnd = $baseColor;
 		$hexVal      = ltrim( $baseColor, '#' );
