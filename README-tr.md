@@ -250,7 +250,8 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 ### 🌍 Uluslararasılaştırma ve Yerelleştirme
 
 **Dil Desteği:**
-- **57 Locale**: WordPress locale formatında 57 dil/bölge için destek (`en_US`, `tr_TR`, `de_DE`, `ar` vb.)
+- **Paketli çeviriler**: Türkçe (`tr_TR`), Almanca (`de_DE`), İspanyolca (`es_ES`), Fransızca (`fr_FR`), İtalyanca (`it_IT`) ve Brezilya Portekizcesi (`pt_BR`) `languages/` içinde gelir, her dize çevrilidir. Kaynak dil İngilizcedir; başka bir dil `.po` dosyasıyla ya da translate.wordpress.org üzerinden eklenebilir.
+- **57 Locale**: `LanguageHelper` tarih, sayı ve yazı biçimi için 57 WordPress locale'ini tanır (`en_US`, `tr_TR`, `de_DE`, `ar` vb.) — bu biçim desteğidir, çeviri değil.
 - **Merkezi Yönetim**: `LanguageHelper` sınıfı ile birleşik locale yönetimi
 - **Otomatik Algılama**: WordPress `get_locale()` fonksiyonunu kullanır
 - **JavaScript Locale Dönüşümü**: WordPress locale formatını (`en_US`) JS/API formatına (`en-US`) dönüştürür

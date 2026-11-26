@@ -99,7 +99,7 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 - **Car Rental Companies**: Manage fleet, bookings, and customer relationships
 - **Motorcycle Rentals**: Track availability and process payments
 - **Multi-location Rentals**: Support for multiple locations and currencies
-- **Global Businesses**: Full internationalization with 60+ languages and 47 currencies
+- **Global Businesses**: Ships translated into 6 languages (Turkish, German, Spanish, French, Italian, Brazilian Portuguese), translation-ready for any other, with 47 currencies
 
 ---
 
@@ -244,7 +244,8 @@ Analytics live on the **Rentiva Dashboard** (`Rentiva > Dashboard`), a React adm
 ### 🌍 Internationalization & Localization
 
 **Language Support:**
-- **57 Locales**: Full support for 57 WordPress locales.
+- **Bundled translations**: Turkish (`tr_TR`), German (`de_DE`), Spanish (`es_ES`), French (`fr_FR`), Italian (`it_IT`) and Brazilian Portuguese (`pt_BR`) ship in `languages/`, every string translated. English is the source language; any other language can be added with a `.po` file or through translate.wordpress.org.
+- **57 Locales**: `LanguageHelper` recognises 57 WordPress locales for date, number and script formatting (this is formatting support, not translations).
 - **Centralized Management**: `LanguageHelper` class for unified language management.
 - **Automatic Detection**: Uses WordPress `get_locale()` to detect site language.
 - **JavaScript Localization**: Locale conversion for JS-based components (e.g., `en-US`).
