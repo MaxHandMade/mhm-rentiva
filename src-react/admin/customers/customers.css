@@ -513,7 +513,9 @@
 
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-detail-page {
 	max-width: 560px;
-	margin-top: 16px;
+	/* The PHP sub-pages sit in the ui-core shell: the header is spaced from
+	   this block by the shell rhythm (.rv-cust-scope.mhmui-section). */
+	margin-top: 0;
 }
 
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-detail-page .rv-cust-panel__head {

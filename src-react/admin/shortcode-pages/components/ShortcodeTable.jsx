@@ -3,7 +3,7 @@ import ShortcodeRow from './ShortcodeRow';
 
 export default function ShortcodeTable( { shortcodes, pendingSlugs, onCreate, onDelete } ) {
 	return (
-		<div className="rv-scp-card">
+		<div className="rv-scp-card mhmui-section">
 			{ shortcodes.length === 0 ? (
 				<div className="rv-scp-empty">{ __( 'No matches found.', 'mhm-rentiva' ) }</div>
 			) : (

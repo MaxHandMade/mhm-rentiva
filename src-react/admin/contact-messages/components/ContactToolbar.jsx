@@ -8,7 +8,7 @@ export default function ContactToolbar( { filters, total, onChange } ) {
 	useEffect( () => () => clearTimeout( timer.current ), [] );
 
 	return (
-		<div className="mhm-contact-messages__toolbar">
+		<div className="mhm-contact-messages__toolbar mhmui-section">
 			<div className="mhm-contact-messages__search">
 				<label className="screen-reader-text" htmlFor="mhm-contact-search">{ __( 'Search contact messages', 'mhm-rentiva' ) }</label>
 				<input

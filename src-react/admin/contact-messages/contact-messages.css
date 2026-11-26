@@ -1,10 +1,6 @@
-.mhm-contact-messages { display: flex; flex-direction: column; gap: 16px; container-type: inline-size; }
-/* This shell spaces its blocks with the flex gap above. ui-core's shell rhythm
-   (`.mhmui-admin-page > * + <member>`, 0,2,0) adds its own 12px to member blocks
-   -- since 0.24.0 the table card too -- and the two would add up (measured 28px
-   under the toolbar). The gap governs here; `[class]` keeps future members out
-   as well without copying the package's list. */
-.mhm-contact-messages.mhmui-admin-page > * + [class] { margin-block-start: 0; }
+.mhm-contact-messages { display: flex; flex-direction: column; container-type: inline-size; }
+/* Blocks are spaced by the ui-core shell rhythm: kit blocks are members, the
+   toolbar and the bulk bar carry .mhmui-section. No flex gap, or the two add up. */
 .mhm-contact-messages .mhmui-tabs-bar > a.mhm-contact-messages__trash-link { white-space: nowrap; text-decoration: none; }
 .mhm-contact-messages__trash-link--current { color: var( --mhmui-accent, #2271b1 ); font-weight: 600; box-shadow: inset 0 -2px 0 var( --mhmui-accent, #2271b1 ); }
 .mhm-contact-messages__toolbar,

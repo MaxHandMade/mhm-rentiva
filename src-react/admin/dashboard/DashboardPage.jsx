@@ -42,12 +42,12 @@ export default function DashboardPage() {
 			</div>
 
 			{ /* Stat cards */ }
-			<div className="mhm-dashboard__row mhm-dashboard__row--1">
+			<div className="mhm-dashboard__row mhm-dashboard__row--1 mhmui-section">
 				<StatsCards metrics={ metrics } deltas={ metricDeltas } currency={ currency } />
 			</div>
 
 			{ /* Two columns: left (chart + bookings) / right (actions + what is coming next + summaries) */ }
-			<div className="rv-dash-cols">
+			<div className="rv-dash-cols mhmui-section">
 				<div className="rv-dash-cols__left">
 					<RevenueChart revenueData={ revenueData } currency={ currency } />
 					<RecentBookings
@@ -67,7 +67,7 @@ export default function DashboardPage() {
 			</div>
 
 			{ /* Footer */ }
-			<div className="rv-dash-footer">
+			<div className="rv-dash-footer mhmui-section">
 				<span>{ __( 'MHM Rentiva', 'mhm-rentiva' ) }</span>
 				<span>{ __( 'Built with WordPress.', 'mhm-rentiva' ) }</span>
 			</div>

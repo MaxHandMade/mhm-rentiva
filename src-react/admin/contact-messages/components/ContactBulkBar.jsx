@@ -27,7 +27,7 @@ export default function ContactBulkBar( { count, inTrash, inSpam, busy, onAction
 	);
 
 	return (
-		<div role="region" aria-label={ __( 'Bulk actions', 'mhm-rentiva' ) } className="mhm-contact-messages__bulk">
+		<div role="region" aria-label={ __( 'Bulk actions', 'mhm-rentiva' ) } className="mhm-contact-messages__bulk mhmui-section">
 			<strong>
 				{ sprintf(
 					/* translators: %d: number of selected messages. */

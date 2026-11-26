@@ -17966,3 +17966,11 @@ msgstr ""
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr ""
+
+#: src/Admin/Customers/AddCustomerPage.php:143 src/Admin/Customers/CustomersPage.php:345
+msgid "All customers"
+msgstr ""
+
+#: src/Admin/Customers/CustomersPage.php:542
+msgid "Back to customer details"
+msgstr ""

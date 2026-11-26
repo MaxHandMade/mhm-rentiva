@@ -15732,3 +15732,11 @@ msgstr "Liste de véhicules"
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Afficher les véhicules dans une mise en page en liste."
+
+#: src/Admin/Customers/AddCustomerPage.php:143 src/Admin/Customers/CustomersPage.php:345
+msgid "All customers"
+msgstr "Tous les clients"
+
+#: src/Admin/Customers/CustomersPage.php:542
+msgid "Back to customer details"
+msgstr "Retour aux détails du client"

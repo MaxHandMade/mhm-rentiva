@@ -137,17 +137,19 @@ final class AddCustomerPage {
 			}
 		}
 
-		echo '<div class="wrap mhm-rentiva-wrap">';
-		echo '<h1>' . esc_html__( 'Add New Customer', 'mhm-rentiva' ) . '</h1>';
-		// Anchor for admin notices (core common.js and NoticePlacement).
-		echo '<hr class="wp-header-end">';
+		echo '<div class="wrap mhm-rentiva-wrap mhmui-admin mhmui-admin-page">';
+		CustomerSubpageHeader::render(
+			__( 'Add New Customer', 'mhm-rentiva' ),
+			__( 'All customers', 'mhm-rentiva' ),
+			CustomerSubpageHeader::list_url()
+		);
 
 		$posted_customer_name    = isset( $_POST['customer_name'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_name'] ) ) : '';
 		$posted_customer_email   = isset( $_POST['customer_email'] ) ? sanitize_email( wp_unslash( $_POST['customer_email'] ) ) : '';
 		$posted_customer_phone   = isset( $_POST['customer_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_phone'] ) ) : '';
 		$posted_customer_address = \MHMRentiva\Admin\Core\Security\VerifiedRequest::from( $_POST )->textarea( 'customer_address' );
 
-		echo '<div class="rv-cust-scope"><div class="rv-cust rv-cust-detail-page">';
+		echo '<div class="rv-cust-scope mhmui-section"><div class="rv-cust rv-cust-detail-page">';
 		echo '<form method="post" action="" class="rv-cust-panel__card rv-cust-form">';
 		wp_nonce_field( 'mhmrentiva_add_customer', 'mhmrentiva_add_customer_nonce' );
 
