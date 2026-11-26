@@ -6,6 +6,19 @@
 	var blockedNotes = {}; // date → note text
 	var fp           = null;
 
+	// This month and the next on a desktop screen when the box has room for
+	// two months (2 x 308px, see blocked-dates.css); one month otherwise.
+	function monthsThatFit() {
+		var body    = document.querySelector( '.blocked-dates-body' );
+		var desktop = !! ( window.matchMedia && window.matchMedia( '(min-width: 783px)' ).matches );
+		return desktop && !! body && body.clientWidth >= 616 ? 2 : 1;
+	}
+
+	function drawCalendar( options, months ) {
+		$( '.blocked-dates-calendar-col' ).toggleClass( 'is-two-months', 2 === months );
+		return flatpickr( '#mhmrentiva_blocked_dates_picker', options );
+	}
+
 	function init() {
 		var $hidden = $( '#mhmrentiva_blocked_dates_value' );
 		if ( ! $hidden.length ) {
@@ -25,20 +38,13 @@
 			blockedNotes = {};
 		}
 
-		// This month and the next on a desktop screen when the box has room for
-		// two months (2 x 308px, see blocked-dates.css); one month otherwise.
-		var body      = document.querySelector( '.blocked-dates-body' );
-		var desktop   = !! ( window.matchMedia && window.matchMedia( '(min-width: 783px)' ).matches );
-		var twoMonths = desktop && !! body && body.clientWidth >= 616;
-		if ( twoMonths ) {
-			$( '.blocked-dates-calendar-col' ).addClass( 'is-two-months' );
-		}
+		var months = monthsThatFit();
 
 		var fpOptions = {
 			mode: 'multiple',
 			dateFormat: 'Y-m-d',
 			inline: true,
-			showMonths: twoMonths ? 2 : 1,
+			showMonths: months,
 			defaultDate: blockedDates.slice(),
 			onChange: function ( selectedDates ) {
 				blockedDates = selectedDates.map( function ( d ) {
@@ -63,7 +69,26 @@
 			fpOptions.locale = window.mhmBlockedDatesL10n.flatpickrLocale;
 		}
 
-		fp = flatpickr( '#mhmrentiva_blocked_dates_picker', fpOptions );
+		fp = drawCalendar( fpOptions, months );
+
+		// A narrower window or a rotated phone may no longer fit two months (or
+		// a wider one now does): redraw with the selection kept.
+		var resizeTimer = null;
+		$( window ).on( 'resize.blockedDates orientationchange.blockedDates', function () {
+			clearTimeout( resizeTimer );
+			resizeTimer = setTimeout( function () {
+				var next = monthsThatFit();
+				if ( next === fpOptions.showMonths ) {
+					return;
+				}
+				fpOptions.showMonths  = next;
+				fpOptions.defaultDate = blockedDates.slice();
+				if ( fp && fp.destroy ) {
+					fp.destroy();
+				}
+				fp = drawCalendar( fpOptions, next );
+			}, 150 );
+		} );
 
 		renderChips();
 
