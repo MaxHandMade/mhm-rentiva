@@ -68,9 +68,17 @@ final class PaymentHistoryOrderScopesTest extends WP_UnitTestCase
 		}
 		if ($is_remaining) {
 			$order->update_meta_data('_mhmrentiva_is_remaining_payment', '1');
+			// Built the way get_or_create_remaining_order() builds one: stamped
+			// with what each booking owes, and recorded as each booking's link.
+			$order->update_meta_data('_mhmrentiva_remaining_due_minor', (string) \MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::debt_minor($total));
 		}
 		$order->calculate_totals();
 		$order->save();
+		if ($is_remaining) {
+			foreach ($booking_ids as $booking_id) {
+				update_post_meta($booking_id, '_mhmrentiva_remaining_order_id', (string) $order->get_id());
+			}
+		}
 		return $order;
 	}
 
@@ -123,18 +131,22 @@ final class PaymentHistoryOrderScopesTest extends WP_UnitTestCase
 	{
 		// #170: while the outer order loop handles A, A's status change
 		// runs another order that changes B; the outer loop then reaches B and
-		// changes it again. B must get one row (pending -> paid), not two.
-		$a      = $this->booking('paid', 70.0);
-		$b      = $this->booking('pending', 70.0);
+		// changes it again. B must get one row (unpaid -> partially_paid), not
+		// two. Both are deposit orders: the inner one puts B on hold
+		// (unpaid -> pending), the outer one then pays it (pending ->
+		// partially_paid). A remaining-payment order is built for one booking
+		// (get_or_create_remaining_order()), so it cannot be the outer one.
+		$a      = $this->booking('pending', 70.0);
+		$b      = $this->booking('unpaid', 70.0);
 		$inner  = $this->order(array( $b ), false, '30');
-		$outer  = $this->order(array( $a, $b ), true, '70');
+		$outer  = $this->order(array( $a, $b ), false, '30');
 		$nested = false;
 		add_action(
 			'mhmrentiva_booking_status_changed',
 			static function ($booking_id) use ($a, $inner, &$nested): void {
 				if ( (int) $booking_id === $a && ! $nested) {
 					$nested = true;
-					$inner->update_status('processing');
+					$inner->update_status('on-hold');
 				}
 			},
 			5
@@ -143,7 +155,7 @@ final class PaymentHistoryOrderScopesTest extends WP_UnitTestCase
 		$outer->update_status('processing');
 
 		$this->assertTrue($nested, 'The nested order ran inside the outer loop.');
-		$this->assertSame(array( array( 'pending', 'paid' ) ), $this->rows($b));
+		$this->assertSame(array( array( 'unpaid', 'partially_paid' ) ), $this->rows($b));
 	}
 
 	public function test_on_hold_from_unpaid_writes_one_row_and_from_pending_none(): void
