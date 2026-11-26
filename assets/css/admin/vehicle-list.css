@@ -193,14 +193,17 @@
 	width: 120px;
 }
 
-/* Öne Çıkan renders exactly one thing: a 15px "★" glyph. Its floor is
-   therefore its (now wrappable) header, whose widest word is "Çıkan" at
-   35.18px -- 44px of content + 10+10px padding renders at 64px, clearing
-   the glyph by 29px and the widest header word by 8.8px, with the header
-   on two clean lines ("Öne" / "Çıkan", verified per-character: no
-   mid-word break at any tested width). Content-box `width` again. */
+/* The Featured column renders exactly one thing: a 15px "★" glyph. Its
+   floor is therefore its (wrappable) header's widest word, measured in the
+   header font (600 14px system UI): tr "çıkarılmış" 59.5px, es "Destacado"
+   66.6px, pt "Destaque" 59.9px, it "evidenza" 56.0px, en "Featured" 55.9px.
+   70px of content + 10+10px padding renders at 90px and keeps each of those
+   on whole words ("Öne" / "çıkarılmış"); at the old 44px the Turkish
+   header broke mid-word over four lines. de "Hervorgehoben" (100.3px, one
+   word) does not fit; widening for it would take 30px more from the title
+   column. Content-box `width` again. */
 .mhm-vehicle-list .column-mhmrentiva_featured {
-	width: 44px;
+	width: 70px;
 }
 
 /* Tarih (WP core's own `date` column, no mhmrentiva_ prefix) carried
@@ -315,7 +318,12 @@
 	min-width: 0;
 }
 
+/* border-box: the free day's 1px border sits inside its 16x20 (8px tall in
+   the Kartlar strip) box, so it draws the same size as a booked day, which
+   has no border. In content-box the free day grew to 18x22 and its label
+   sat 1px lower than its neighbours'. */
 .mhm-vehicle-list .rv-vhl-day {
+	box-sizing: border-box;
 	width: 16px;
 	height: 20px;
 	border-radius: 3px;
