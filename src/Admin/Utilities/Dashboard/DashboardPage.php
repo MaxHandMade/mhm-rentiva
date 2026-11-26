@@ -214,14 +214,35 @@ final class DashboardPage {
 	}
 
 	/**
-	 * Render dashboard page — React mount point.
+	 * Render dashboard page — the page header, then the React mount point.
+	 *
+	 * PHP prints the header and the wp-header-end marker so admin notices are
+	 * placed under the title before the first paint (NoticePlacement), as on
+	 * every other Rentiva screen. A header drawn by React would come after the
+	 * notices were placed and leave them above the title.
 	 */
 	public function render(): void
 	{
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
+		echo '<div class="wrap mhm-rentiva-dashboard-wrap mhmui-admin">';
+		if ( function_exists( 'mhmuicore_page_header_html' ) ) {
+			echo wp_kses_post(
+				mhmuicore_page_header_html(
+					array(
+						'title' => __( 'Dashboard', 'mhm-rentiva' ),
+						'meta'  => __( 'MHM Rentiva · Overview', 'mhm-rentiva' ),
+						'level' => 1,
+					)
+				)
+			);
+		} else {
+			echo '<h1>' . esc_html__( 'Dashboard', 'mhm-rentiva' ) . '</h1>';
+		}
+		echo '<hr class="wp-header-end">';
 		echo '<div id="mhm-rentiva-dashboard"></div>';
+		echo '</div>';
 	}
 
 	// ajax_save_dashboard_order() and ajax_reset_dashboard_layout() were

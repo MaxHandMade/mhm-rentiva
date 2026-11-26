@@ -458,6 +458,7 @@ src/Admin/Customers/AddCustomerPage.php
 src/Admin/Customers/CustomerBadges.php
 src/Admin/Customers/CustomerContact.php
 src/Admin/Customers/CustomerIdentity.php
+src/Admin/Customers/CustomerSubpageHeader.php
 src/Admin/Customers/CustomersOptimizer.php
 src/Admin/Customers/CustomersPage.php
 src/Admin/Customers/Export/CustomerExporter.php
@@ -793,6 +794,7 @@ vendor/mhm/ui-core/src/Component/Surfaces/ElementorWidgetFactory.php
 vendor/mhm/ui-core/src/Component/Surfaces/LayoutAdapterSurface.php
 vendor/mhm/ui-core/src/Component/Surfaces/ShortcodeSurface.php
 vendor/mhm/ui-core/src/Kit/Icons.php
+vendor/mhm/ui-core/src/Kit/PageHeader.php
 vendor/mhm/ui-core/src/Kit/StatCard.php
 vendor/mhm/ui-core/src/Kit/StatsGrid.php
 vendor/mhm/ui-core/src/Kit/Tabs.php

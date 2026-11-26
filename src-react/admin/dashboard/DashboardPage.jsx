@@ -31,23 +31,15 @@ export default function DashboardPage() {
 	return (
 		<div className="mhm-dashboard rv-dashboard mhmui-admin mhmui-admin-page">
 
-			{ /* Header strip: title. The cards show all time plus this month;
-			   the disabled "Last 30 days" selector that promised otherwise is
-			   gone (manager-lens #3a, product decision 2026-11-17). */ }
-			<div className="rv-dash-header">
-				<div className="rv-dash-header__titles">
-					<h1 className="rv-dash-header__h1">{ __( 'Dashboard', 'mhm-rentiva' ) }</h1>
-					<span className="rv-dash-header__sub">{ __( 'MHM Rentiva · Overview', 'mhm-rentiva' ) }</span>
-				</div>
-			</div>
-
+			{ /* The page title is printed by PHP above this root
+			   (DashboardPage::render()), so admin notices sit under it. */ }
 			{ /* Stat cards */ }
-			<div className="mhm-dashboard__row mhm-dashboard__row--1">
+			<div className="mhm-dashboard__row mhm-dashboard__row--1 mhmui-section">
 				<StatsCards metrics={ metrics } deltas={ metricDeltas } currency={ currency } />
 			</div>
 
 			{ /* Two columns: left (chart + bookings) / right (actions + what is coming next + summaries) */ }
-			<div className="rv-dash-cols">
+			<div className="rv-dash-cols mhmui-section">
 				<div className="rv-dash-cols__left">
 					<RevenueChart revenueData={ revenueData } currency={ currency } />
 					<RecentBookings
@@ -67,7 +59,7 @@ export default function DashboardPage() {
 			</div>
 
 			{ /* Footer */ }
-			<div className="rv-dash-footer">
+			<div className="rv-dash-footer mhmui-section">
 				<span>{ __( 'MHM Rentiva', 'mhm-rentiva' ) }</span>
 				<span>{ __( 'Built with WordPress.', 'mhm-rentiva' ) }</span>
 			</div>

@@ -262,7 +262,7 @@ final class NoProFeatureAssetsTest extends TestCase
         $relative = 'src-react/admin/dashboard/dashboard.css';
         $source   = (string) file_get_contents($this->plugin_root() . $relative);
 
-        $this->assertStringContainsString('.rv-dash-header', $source, 'Positive control: the dashboard stylesheet was not read.');
+        $this->assertStringContainsString('.rv-dash-cols', $source, 'Positive control: the dashboard stylesheet was not read.');
         $this->assertStringNotContainsString(
             '.rv-dash-header__report',
             $source,

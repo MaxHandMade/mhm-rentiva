@@ -29,11 +29,11 @@ describe( 'dashboard says what its figures are', () => {
 		delete window.mhmRentivaDashboard;
 	} );
 
-	test( 'no date range selector in the header', () => {
+	test( 'no date range selector, and no title of its own (PHP prints it)', () => {
 		const { container } = render( <DashboardPage /> );
 
-		expect( container.querySelector( '.rv-dash-header' ) ).not.toBeNull();
-		expect( container.querySelector( '.rv-dash-header select' ) ).toBeNull();
+		expect( container.querySelector( 'select' ) ).toBeNull();
+		expect( container.querySelector( 'h1' ) ).toBeNull();
 		expect( container.textContent ).not.toContain( 'Last 30 days' );
 	} );
 

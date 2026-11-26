@@ -336,21 +336,17 @@ final class CustomersPage {
 			wp_die(esc_html__('Customer not found.', 'mhm-rentiva'));
 		}
 
-		$buttons = array(
-			array(
-				'text'  => esc_html__('Customers List', 'mhm-rentiva'),
-				'url'   => admin_url('admin.php?page=mhm-rentiva-customers'),
-				'class' => 'button',
-			),
-		);
-
 		list( $av_bg, $av_color ) = self::avatar_colors( $customer_id );
 		$status_label             = self::status_label( (string) ( $detail['status'] ?? '' ) );
 
-		echo '<div class="wrap mhm-customer-view-wrap">';
-		$this->render_admin_header(esc_html__('Customer Details', 'mhm-rentiva'), $buttons);
+		echo '<div class="wrap mhm-customer-view-wrap mhmui-admin mhmui-admin-page">';
+		CustomerSubpageHeader::render(
+			__('Customer Details', 'mhm-rentiva'),
+			__('All customers', 'mhm-rentiva'),
+			CustomerSubpageHeader::list_url()
+		);
 
-		echo '<div class="rv-cust-scope"><div class="rv-cust rv-cust-detail-page">';
+		echo '<div class="rv-cust-scope mhmui-section"><div class="rv-cust rv-cust-detail-page">';
 		echo '<div class="rv-cust-panel__card">';
 
 		// Header: avatar + name + registered/status.
@@ -540,18 +536,14 @@ final class CustomersPage {
 			}
 		}
 
-		$buttons = array(
-			array(
-				'text'  => esc_html__('View', 'mhm-rentiva'),
-				'url'   => admin_url('admin.php?page=mhm-rentiva-customers&action=view&customer_id=' . $customer_id),
-				'class' => 'button',
-			),
+		echo '<div class="wrap mhm-customer-edit-wrap mhmui-admin mhmui-admin-page">';
+		CustomerSubpageHeader::render(
+			__('Edit Customer', 'mhm-rentiva'),
+			__('Back to customer details', 'mhm-rentiva'),
+			admin_url('admin.php?page=mhm-rentiva-customers&action=view&customer_id=' . $customer_id)
 		);
 
-		echo '<div class="wrap mhm-customer-edit-wrap">';
-		$this->render_admin_header(esc_html__('Edit Customer', 'mhm-rentiva'), $buttons);
-
-		echo '<div class="rv-cust-scope"><div class="rv-cust rv-cust-detail-page">';
+		echo '<div class="rv-cust-scope mhmui-section"><div class="rv-cust rv-cust-detail-page">';
 		echo '<form method="post" action="" class="rv-cust-panel__card rv-cust-form">';
 		wp_nonce_field('mhmrentiva_edit_customer', 'mhmrentiva_edit_customer_nonce');
 

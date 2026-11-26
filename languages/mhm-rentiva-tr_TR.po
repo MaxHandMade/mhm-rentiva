@@ -19214,6 +19214,14 @@ msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste yerleşiminde görüntüleyin."
 
+#: src/Admin/Customers/AddCustomerPage.php:143 src/Admin/Customers/CustomersPage.php:345
+msgid "All customers"
+msgstr "Tüm müşteriler"
+
+#: src/Admin/Customers/CustomersPage.php:542
+msgid "Back to customer details"
+msgstr "Müşteri ayrıntılarına dön"
+
 #~ msgid "Booking cancelled by customer."
 #~ msgstr "Rezervasyon müşteri tarafından iptal edildi."
 
