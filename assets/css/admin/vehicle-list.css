@@ -193,14 +193,17 @@
 	width: 120px;
 }
 
-/* Öne Çıkan renders exactly one thing: a 15px "★" glyph. Its floor is
-   therefore its (now wrappable) header, whose widest word is "Çıkan" at
-   35.18px -- 44px of content + 10+10px padding renders at 64px, clearing
-   the glyph by 29px and the widest header word by 8.8px, with the header
-   on two clean lines ("Öne" / "Çıkan", verified per-character: no
-   mid-word break at any tested width). Content-box `width` again. */
+/* The Featured column renders exactly one thing: a 15px "★" glyph. Its
+   floor is therefore its (wrappable) header's widest word, measured in the
+   header font (600 14px system UI): tr "çıkarılmış" 59.5px, es "Destacado"
+   66.6px, pt "Destaque" 59.9px, it "evidenza" 56.0px, en "Featured" 55.9px.
+   70px of content + 10+10px padding renders at 90px and keeps each of those
+   on whole words ("Öne" / "çıkarılmış"); at the old 44px the Turkish
+   header broke mid-word over four lines. de "Hervorgehoben" (100.3px, one
+   word) does not fit; widening for it would take 30px more from the title
+   column. Content-box `width` again. */
 .mhm-vehicle-list .column-mhmrentiva_featured {
-	width: 44px;
+	width: 70px;
 }
 
 /* Tarih (WP core's own `date` column, no mhmrentiva_ prefix) carried
@@ -282,6 +285,22 @@
 	padding-left: 8px;
 }
 
+/* Available sits on the auto share like Konum/Özellikler/Fiyat, so on a wide
+   screen it spreads far past its one pill (176px at 1920 around a 46px
+   "Aktif") and pushes Lifecycle away from it. From 1700px up it is fixed at
+   the widest it needs in any shipped locale: the header (it "Disponibile"
+   71.5px) or the pill (it "In manutenzione" 111.6px, pill padding
+   included), measured in their own fonts -- 112px of content, 130px
+   rendered. 1700px is measured, not round: the auto share was 117px at
+   1599 and 135px at 1700, so the fixed width only ever narrows the column;
+   at 1600 it would have widened it from 117 to 130. At 1920 it gives 46px
+   back to the auto columns. */
+@media screen and (min-width: 1700px) {
+	.mhm-vehicle-list .column-mhmrentiva_available {
+		width: 112px;
+	}
+}
+
 .mhm-vehicle-list .rv-vhl-week {
 	display: flex;
 	gap: 4px;
@@ -315,7 +334,12 @@
 	min-width: 0;
 }
 
+/* border-box: the free day's 1px border sits inside its 16x20 (8px tall in
+   the Kartlar strip) box, so it draws the same size as a booked day, which
+   has no border. In content-box the free day grew to 18x22 and its label
+   sat 1px lower than its neighbours'. */
 .mhm-vehicle-list .rv-vhl-day {
+	box-sizing: border-box;
 	width: 16px;
 	height: 20px;
 	border-radius: 3px;

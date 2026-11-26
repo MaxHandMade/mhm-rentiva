@@ -9306,11 +9306,15 @@ msgstr "Fiyat belirtilmedi"
 
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:600
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:86
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:223
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:400
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:921
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1586
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:231
+msgid "Featured"
+msgstr "Öne çıkarılmış"
+
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:223
+msgctxt "vehicle list column header"
 msgid "Featured"
 msgstr "Öne çıkarılmış"
 
