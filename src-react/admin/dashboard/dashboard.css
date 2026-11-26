@@ -10,7 +10,11 @@
 	/* Blocks are spaced by the ui-core shell rhythm (.mhmui-section), not a gap. */
 	display: flex;
 	flex-direction: column;
-	padding: 12px 0;
+	/* A margin, not padding, above: it collapses with the last admin notice's
+	   own margin, so the first block sits the same distance under a notice as
+	   under the PHP page header. */
+	margin-top: 12px;
+	padding: 0 0 12px;
 	width: 100%;
 	/* Core's common.css sets `body { line-height: 1.4em }`, which children inherit as a
 	   fixed 18.2px; any larger text here would then overflow its own line. Unitless,
@@ -212,11 +216,6 @@
 	--rv-pos:     #0a6b1e;
 	--rv-neg:     #a02222;
 }
-
-/* Header strip */
-.rv-dash-header { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; padding: 8px 0 4px; }
-.rv-dash-header__h1 { font-size: 23px; font-weight: 400; line-height: 1.3; margin: 0; color: var( --rv-ink ); }
-.rv-dash-header__sub { display: block; margin-top: 2px; font-size: 13px; color: var( --rv-muted ); }
 
 /* Two-column layout */
 .rv-dash-cols { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
