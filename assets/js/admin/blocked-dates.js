@@ -25,10 +25,20 @@
 			blockedNotes = {};
 		}
 
+		// This month and the next on a desktop screen when the box has room for
+		// two months (2 x 308px, see blocked-dates.css); one month otherwise.
+		var body      = document.querySelector( '.blocked-dates-body' );
+		var desktop   = !! ( window.matchMedia && window.matchMedia( '(min-width: 783px)' ).matches );
+		var twoMonths = desktop && !! body && body.clientWidth >= 616;
+		if ( twoMonths ) {
+			$( '.blocked-dates-calendar-col' ).addClass( 'is-two-months' );
+		}
+
 		var fpOptions = {
 			mode: 'multiple',
 			dateFormat: 'Y-m-d',
 			inline: true,
+			showMonths: twoMonths ? 2 : 1,
 			defaultDate: blockedDates.slice(),
 			onChange: function ( selectedDates ) {
 				blockedDates = selectedDates.map( function ( d ) {

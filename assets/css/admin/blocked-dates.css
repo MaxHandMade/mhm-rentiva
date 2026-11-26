@@ -118,6 +118,19 @@ body.mhmui-admin .blocked-dates-body {
 	padding: 2px 4px 4px;
 }
 
+/* Two months side by side (desktop, wide box; set by the script): the
+   calendar and its day strip double, each month keeps 308px. */
+.blocked-dates-calendar-col.is-two-months {
+	width: 616px;
+}
+
+.blocked-dates-calendar-col.is-two-months .flatpickr-calendar,
+.blocked-dates-calendar-col.is-two-months .flatpickr-calendar.inline,
+.blocked-dates-calendar-col.is-two-months .flatpickr-days {
+	width: 616px !important;
+	max-width: 616px !important;
+}
+
 /* --- flatpickr, themed --- */
 .blocked-dates-calendar-col .flatpickr-months {
 	padding: 0 10px 8px;
