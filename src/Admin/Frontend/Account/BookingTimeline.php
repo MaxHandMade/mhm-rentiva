@@ -170,6 +170,12 @@ final class BookingTimeline {
 		 * replace the end, not hide it: anything but a positive integer keeps
 		 * the booking's own end.
 		 *
+		 * The booking detail and the e-mails pass `_mhmrentiva_end_ts`; the
+		 * timeline passes the return date and time it reads from the dropoff
+		 * meta. A subscriber that moves the end returns its own instant
+		 * rather than an offset of `$end_ts`, so every screen prints the same
+		 * moment.
+		 *
 		 * @param ?int $end_ts     The booking's own end instant, null when unknown.
 		 * @param int  $booking_id Booking post ID.
 		 */
