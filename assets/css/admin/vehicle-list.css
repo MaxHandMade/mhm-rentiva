@@ -285,6 +285,22 @@
 	padding-left: 8px;
 }
 
+/* Available sits on the auto share like Konum/Özellikler/Fiyat, so on a wide
+   screen it spreads far past its one pill (176px at 1920 around a 46px
+   "Aktif") and pushes Lifecycle away from it. From 1700px up it is fixed at
+   the widest it needs in any shipped locale: the header (it "Disponibile"
+   71.5px) or the pill (it "In manutenzione" 111.6px, pill padding
+   included), measured in their own fonts -- 112px of content, 130px
+   rendered. 1700px is measured, not round: the auto share was 117px at
+   1599 and 135px at 1700, so the fixed width only ever narrows the column;
+   at 1600 it would have widened it from 117 to 130. At 1920 it gives 46px
+   back to the auto columns. */
+@media screen and (min-width: 1700px) {
+	.mhm-vehicle-list .column-mhmrentiva_available {
+		width: 112px;
+	}
+}
+
 .mhm-vehicle-list .rv-vhl-week {
 	display: flex;
 	gap: 4px;

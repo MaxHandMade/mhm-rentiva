@@ -220,7 +220,9 @@ final class VehicleColumns {
 		$cols['mhmrentiva_week']      = __('This Week', 'mhm-rentiva');
 		$cols['mhmrentiva_available'] = __('Available', 'mhm-rentiva');
 		$cols['mhmrentiva_lifecycle'] = __('Lifecycle', 'mhm-rentiva');
-		$cols['mhmrentiva_featured']  = __('Featured', 'mhm-rentiva');
+		// Own context: a column header has to fit a narrow column, so a locale
+		// may use a shorter word here than for the Featured badge elsewhere.
+		$cols['mhmrentiva_featured'] = _x('Featured', 'vehicle list column header', 'mhm-rentiva');
 
 		if ($date !== null) {
 			$cols['date'] = $date;
