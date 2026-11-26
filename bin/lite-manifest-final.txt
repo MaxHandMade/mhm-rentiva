@@ -107,6 +107,7 @@ src/Admin/Customers/AddCustomerPage.php
 src/Admin/Customers/CustomerBadges.php
 src/Admin/Customers/CustomerContact.php
 src/Admin/Customers/CustomerIdentity.php
+src/Admin/Customers/CustomerSubpageHeader.php
 src/Admin/Customers/CustomersOptimizer.php
 src/Admin/Customers/CustomersPage.php
 src/Admin/Customers/Export/CustomerExporter.php
