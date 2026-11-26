@@ -3585,6 +3585,16 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
+	 * When this request started (Unix seconds): a date_paid older than this
+	 * was written by an earlier request. The current time outside a web or
+	 * CLI request that sets it.
+	 */
+	private static function request_started(): int
+	{
+		return isset($_SERVER['REQUEST_TIME']) ? (int) $_SERVER['REQUEST_TIME'] : time();
+	}
+
+	/**
 	 * A paid remaining-payment order settles the balance only when it was paid
 	 * against it.
 	 *
@@ -3597,18 +3607,24 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 *    nothing to do. This is the only proof that the order's payment reached
 	 *    the booking: a paid previous status is not, because the handler can
 	 *    leave early on a failed read and the next transition must retry.
-	 *  - An order from before the amount stamp: today's behaviour,
-	 *    the balance is cleared. Kept apart from the shared rule on purpose:
-	 *    comparing such an order by its total would turn a tax difference into
-	 *    a false alarm.
+	 *  - An order from before the amount stamp (built by 6.3 or earlier) goes
+	 *    through the same rule, judged by its total (amount_verdict()). It used
+	 *    to clear the balance on every paid transition, whatever it was paid
+	 *    against and whether or not it was still the link, so a debt added
+	 *    after its payment was written off when it moved on. A tax difference
+	 *    now flags it for a human instead: a false alarm is the safe failure.
 	 *  - Found not to fit already (`_mhmrentiva_remaining_mismatch`): decided
 	 *    once, by a human; a later transition neither clears a balance they
 	 *    corrected nor flags it again.
-	 *  - A previous paid status and nothing left to pay, without the applied
-	 *    mark: an order the old code already applied (processing before this
-	 *    release, completed after it). Nothing to do -- unless the order's own
-	 *    first settle could not read the balance (`_mhmrentiva_remaining_retry`):
-	 *    then it was never judged, and is judged now.
+	 *  - Paid earlier without any mark -- a previous paid status, or a
+	 *    date_paid (WooCommerce's) written by an earlier request: an order the
+	 *    old code already applied, or one this method never reached. Nothing
+	 *    left to pay → nothing to do. Something owed now → flagged for a human
+	 *    (`paid_before`), never cleared, even when the new debt equals what the
+	 *    order asked: the order brings no new money. Unless the retry mark
+	 *    (`_mhmrentiva_remaining_retry`) says its own first settle could not
+	 *    read the balance, or read back a clear that did not hold: then it was
+	 *    never judged, and is judged now.
 	 *  - Otherwise the shared rule, for the booking's link only: the order asks
 	 *    for exactly what is owed now → cleared and marked applied. Any other
 	 *    order, or any other amount → the balance is left as it is, the order is
@@ -3629,17 +3645,39 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
+		// Paid in an earlier request: the money it carries reached the booking
+		// before the applied mark existed. WooCommerce sets date_paid once, on
+		// the first paid status (WC_Order::set_status() ->
+		// maybe_set_date_paid()), in the request that handles it, so on a
+		// first payment it is never older than this request. An
+		// order moving on from a paid status was paid earlier too, however
+		// recently: every run of this method leaves a mark on the order it
+		// judges (applied, mismatch, retry or unverified), so one coming from a paid
+		// status with none was applied by the old code, or never reached
+		// here, and is flagged rather than cleared.
+		// Only the two statuses this method runs on: a filter that counts
+		// on-hold as paid must not turn a bank transfer's first payment
+		// (on-hold -> processing) into one paid earlier.
+		$was_paid     = in_array($old_status, array( 'processing', 'completed' ), true);
+		$paid_at      = $order->get_date_paid();
+		$paid_earlier = $was_paid
+			|| ( null !== $paid_at && $paid_at->getTimestamp() < self::request_started() )
+			// A clear this order wrote that could not be read back: it may
+			// have held, so the order is treated as applied until a human
+			// looks, in this request too.
+			|| '' !== (string) $order->get_meta('_mhmrentiva_remaining_unverified', true);
+
 		try {
 			$owed_major = self::read_booking_meta($booking_id, '_mhmrentiva_remaining_amount');
 			$link       = (int) self::read_booking_meta($booking_id, '_mhmrentiva_remaining_order_id');
 		} catch (\RuntimeException $e) {
 			// Remember that this payment was never judged, so the
 			// pre-upgrade exception below cannot take it for one the old
-			// code applied. Only on its first paid
-			// transition: from a paid status it was judged already, by the
-			// old code or by an earlier run of this one, and a read failing
-			// now must not take that exception away.
-			if (! in_array($old_status, wc_get_is_paid_statuses(), true)) {
+			// code applied. Only on its first payment: from a paid status,
+			// or paid in an earlier request, it was judged already, by the old
+			// code or by an earlier run of this one, and a read failing now
+			// must not take that exception away.
+			if (! $paid_earlier) {
 				$order->update_meta_data('_mhmrentiva_remaining_retry', '1');
 				$order->save_meta_data();
 			}
@@ -3658,20 +3696,20 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		}
 		$owed = RemainingPaymentHandler::debt_minor($owed_major);
 
-		if (! RemainingPaymentHandler::is_stamped($order)) {
-			if ($owed > 0) {
-				update_post_meta($booking_id, '_mhmrentiva_remaining_amount', 0);
-			}
-			return;
-		}
+		// An order whose own first settle failed to read (or whose write did
+		// not hold) was never judged, whatever it shows; it is judged now.
+		$never_judged = '' !== (string) $order->get_meta('_mhmrentiva_remaining_retry', true);
 
-		// The pre-upgrade exception: a stamped order the old code already
-		// applied on processing (no applied mark then) reaches completed with
-		// nothing owed. An order whose own first settle failed to read is not
-		// that order, and is judged.
+		// Paid earlier, with neither mark: coming back to a paid status -- on
+		// to completed, back from on-hold or cancelled -- it brings no new
+		// money, even when what is owed now happens to equal what it asked.
+		$paid_before = ! $never_judged && $paid_earlier;
+
+		// The pre-upgrade exception: an order the old code already applied
+		// (no applied mark then, stamped or not) comes back with nothing owed.
 		if ($owed <= 0
-			&& in_array($old_status, wc_get_is_paid_statuses(), true)
-			&& '' === (string) $order->get_meta('_mhmrentiva_remaining_retry', true)
+			&& ! $never_judged
+			&& ( $paid_before || $was_paid )
 		) {
 			return;
 		}
@@ -3681,7 +3719,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// late gateway return or a status set by hand does not pass
 		// claim_before_pay().
 		$is_link = $link === (int) $order->get_id();
-		if ($is_link && RemainingPaymentHandler::VERDICT_MATCH === RemainingPaymentHandler::amount_verdict($order, $owed)) {
+		if (! $paid_before && $is_link && RemainingPaymentHandler::VERDICT_MATCH === RemainingPaymentHandler::amount_verdict($order, $owed)) {
 			// The applied mark ends every later attempt, so it follows only a
 			// write that held. One that did not stays retryable: the next
 			// transition settles it (PR #195 review).
@@ -3693,27 +3731,36 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			// The helper compares strings; a balance is a number. A zero a
 			// sanitize filter stored as '0.00', or a write whose read-back
 			// failed, is still a cleared balance.
+			$not_held = false;
 			if (! $held) {
 				try {
-					$held = 0 === RemainingPaymentHandler::debt_minor(self::read_booking_meta($booking_id, '_mhmrentiva_remaining_amount'));
+					$held     = 0 === RemainingPaymentHandler::debt_minor(self::read_booking_meta($booking_id, '_mhmrentiva_remaining_amount'));
+					$not_held = ! $held;
 				} catch (\RuntimeException $e) {
 					$held = false;
 				}
 			}
 			// Judged now, on the link: the retry mark has done its job. A
-			// write that did not hold leaves a positive balance, which the
-			// next transition settles without it.
+			// write read back as not held leaves a positive balance and keeps
+			// the mark, so the next transition settles it even on a later day.
+			// One that could not be read back may have held, and a retry
+			// could then clear a debt added since: it is marked unverified,
+			// and a later transition flags a balance still owed for a human.
 			$order->delete_meta_data('_mhmrentiva_remaining_retry');
 			if (! $held) {
+				$order->update_meta_data($not_held ? '_mhmrentiva_remaining_retry' : '_mhmrentiva_remaining_unverified', '1');
 				$order->save_meta_data();
 				AdvancedLogger::error_linked(
-					/* translators: %d: the WooCommerce order id. */
-					sprintf(__('The remaining amount of a booking could not be cleared when its payment (order #%d) arrived; it will be retried on the next status change.', 'mhm-rentiva'), (int) $order->get_id()),
+					$not_held
+						/* translators: %d: the WooCommerce order id. */
+						? sprintf(__('The remaining amount of a booking could not be cleared when its payment (order #%d) arrived; it will be retried on the next status change.', 'mhm-rentiva'), (int) $order->get_id())
+						/* translators: %d: the WooCommerce order id. */
+						: sprintf(__('The remaining amount of a booking was cleared when its payment (order #%d) arrived, but the cleared balance could not be read back. Check the booking\'s remaining amount and correct it by hand if needed; the order will not clear it again.', 'mhm-rentiva'), (int) $order->get_id()),
 					$booking_id,
 					array(
 						'order_id' => (int) $order->get_id(),
 						'surface'  => 'wc_status_change',
-						'reason'   => 'remaining_write_failed',
+						'reason'   => $not_held ? 'remaining_write_failed' : 'remaining_write_unverified',
 					),
 					AdvancedLogger::CATEGORY_SYSTEM
 				);
@@ -3728,7 +3775,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			'order_id'      => (int) $order->get_id(),
 			'due_minor'     => $owed,
 			'stamped_minor' => (int) $order->get_meta('_mhmrentiva_remaining_due_minor', true),
-			'reason'        => $is_link ? 'amount' : 'not_link',
+			'reason'        => $paid_before ? 'paid_before' : ( $is_link ? 'amount' : 'not_link' ),
 			'at'            => time(),
 		);
 		update_post_meta($booking_id, '_mhmrentiva_payment_mismatch', $flag);
@@ -3770,6 +3817,16 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return sprintf(
 				/* translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount. */
 				__('A payment arrived on this booking through order #%1$d, which is no longer its payment link (it collected %2$s; the remaining amount is %3$s). The remaining amount was left unchanged: check it and correct it by hand.', 'mhm-rentiva'),
+				(int) ( $flag['order_id'] ?? 0 ),
+				$collected,
+				$due
+			);
+		}
+
+		if ('paid_before' === ( $flag['reason'] ?? '' )) {
+			return sprintf(
+				/* translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount. */
+				__('Order #%1$d was marked paid again, but its payment (%2$s) was taken before this status change and has most likely been counted on this booking already. The remaining amount of %3$s was left unchanged: check the booking\'s payments, then collect it with a new payment link or correct it by hand.', 'mhm-rentiva'),
 				(int) ( $flag['order_id'] ?? 0 ),
 				$collected,
 				$due

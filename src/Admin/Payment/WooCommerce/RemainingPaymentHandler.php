@@ -130,12 +130,6 @@ final class RemainingPaymentHandler {
 		return $asks === $owed_minor ? self::VERDICT_MATCH : self::VERDICT_MISMATCH;
 	}
 
-	/** Was the order stamped with the amount it was built for (PR-1 onwards)? */
-	public static function is_stamped(\WC_Order $order): bool
-	{
-		return is_numeric($order->get_meta('_mhmrentiva_remaining_due_minor', true));
-	}
-
 	/**
 	 * Create (or reuse an existing pending/on-hold) WC order for a booking's
 	 * remaining amount. Pure order logic — no AJAX/nonce/ownership concerns,

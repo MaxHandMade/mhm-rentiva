@@ -407,6 +407,7 @@ final class DatabaseCleaner {
 			'_mhmrentiva_remaining_mismatch',
 			'_mhmrentiva_remaining_order_id',
 			'_mhmrentiva_remaining_retry',
+			'_mhmrentiva_remaining_unverified',
 			'_mhmrentiva_removed_details',
 			'_mhmrentiva_rental_days',
 			'_mhmrentiva_report_at',

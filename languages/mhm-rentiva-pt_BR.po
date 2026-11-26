@@ -8709,6 +8709,12 @@ msgstr "Não foi possível ler o valor restante de uma reserva quando o pagament
 msgid "The remaining amount of a booking could not be cleared when its payment (order #%d) arrived; it will be retried on the next status change."
 msgstr "Não foi possível zerar o valor restante de uma reserva quando o pagamento (pedido #%d) chegou; uma nova tentativa será feita na próxima mudança de status."
 
+#. translators: %d: the WooCommerce order id.
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3758
+#, php-format
+msgid "The remaining amount of a booking was cleared when its payment (order #%d) arrived, but the cleared balance could not be read back. Check the booking's remaining amount and correct it by hand if needed; the order will not clear it again."
+msgstr "O valor restante de uma reserva foi zerado quando o pagamento (pedido #%d) chegou, mas não foi possível reler o saldo zerado. Verifique o valor restante da reserva e corrija-o manualmente, se necessário; o pedido não vai zerá-lo novamente."
+
 #. translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount.
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3772
 #, php-format
@@ -8720,6 +8726,12 @@ msgstr "Um pagamento chegou para esta reserva pelo pedido #%1$d, que não é mai
 #, php-format
 msgid "A payment arrived on this booking for an amount that is no longer current (order #%1$d collected %2$s; the remaining amount is %3$s). The remaining amount was left unchanged: check it and correct it by hand."
 msgstr "Um pagamento chegou para esta reserva com um valor que não está mais atualizado (o pedido #%1$d recebeu %2$s; o valor restante é %3$s). O valor restante não foi alterado: verifique-o e corrija-o manualmente."
+
+#. translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount.
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3812
+#, php-format
+msgid "Order #%1$d was marked paid again, but its payment (%2$s) was taken before this status change and has most likely been counted on this booking already. The remaining amount of %3$s was left unchanged: check the booking's payments, then collect it with a new payment link or correct it by hand."
+msgstr "O pedido #%1$d foi marcado como pago novamente, mas o pagamento dele (%2$s) foi recebido antes desta mudança de status e muito provavelmente já foi contabilizado nesta reserva. O valor restante de %3$s não foi alterado: verifique os pagamentos da reserva e depois receba-o com um novo link de pagamento ou corrija-o manualmente."
 
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3848
 msgid "Booking completed — rental period ended."

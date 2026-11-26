@@ -454,8 +454,11 @@ final class Mailer {
 				'payment_status'   => $payment_status,
 				'payment_gateway'  => $payment_gateway,
 				'total_price'      => $total_price,
-				// Printed in the site's date format, in the site language;
-				// the stored value stays under *_raw for anything that compares.
+				// Printed in the site's date format, in the site language; *_raw
+				// carries the same moment as Y-m-d / H:i for anything that
+				// compares. The return values are the end the customer is shown
+				// (mhmrentiva_booking_shown_end), which an add-on may move off
+				// the end the booking keeps (_mhmrentiva_end_ts).
 				'pickup_date'      => self::display_date( (string) ( $date_info['pickup_date'] ?? '' ) ),
 				'return_date'      => self::display_date( $return_date_raw ),
 				'pickup_date_raw'  => (string) ( $date_info['pickup_date'] ?? '' ),

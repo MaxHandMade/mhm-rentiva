@@ -84,6 +84,12 @@ final class DepositRemainingAmountTest extends WP_UnitTestCase
         $order->calculate_totals();
         $order->save();
 
+        if ($is_remaining_payment) {
+            // The booking's link, as get_or_create_remaining_order() records
+            // it: only the link settles the balance.
+            update_post_meta($this->booking_id, '_mhmrentiva_remaining_order_id', (string) $order->get_id());
+        }
+
         return $order;
     }
 

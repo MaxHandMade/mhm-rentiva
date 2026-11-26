@@ -469,18 +469,276 @@ final class RemainingOrderSafetyTest extends WP_UnitTestCase
 		$this->assertSame('not_link', (string) ( $flag['reason'] ?? '' ));
 	}
 
-	public function test_an_order_from_before_the_stamp_keeps_todays_behaviour(): void
+	public function test_an_order_from_before_the_stamp_paid_against_another_amount_does_not_zero_the_debt(): void
 	{
+		// An unstamped order is judged by its total: it asks 1000, the booking
+		// now owes 1340, so the payment is flagged for a human rather than
+		// writing off the 340.
 		$booking_id = $this->booking();
-		$order      = $this->link($booking_id);
-		$fresh      = wc_get_order($order->get_id());
-		$fresh->delete_meta_data('_mhmrentiva_remaining_due_minor');
-		$fresh->save();
+		$order      = $this->unstamped_link($booking_id);
 		update_post_meta($booking_id, '_mhmrentiva_remaining_amount', '1340');
 
 		$this->move($order, 'processing');
 
+		$this->assertEquals(1340.0, (float) $this->remaining($booking_id));
+		$this->assertIsArray($this->mismatch($booking_id));
+	}
+
+	public function test_an_order_from_before_the_stamp_that_is_no_longer_the_link_does_not_settle(): void
+	{
+		$booking_id = $this->booking();
+		$old        = $this->unstamped_link($booking_id);
+		update_post_meta($booking_id, '_mhmrentiva_remaining_amount', '1340');
+		$this->link($booking_id);
+		update_post_meta($booking_id, '_mhmrentiva_remaining_amount', '1000');
+
+		$this->move($old, 'processing'); // a late gateway return
+
+		$this->assertEquals(1000.0, (float) $this->remaining($booking_id));
+		$flag = $this->mismatch($booking_id);
+		$this->assertIsArray($flag);
+		$this->assertSame('not_link', (string) ( $flag['reason'] ?? '' ));
+	}
+
+	private function unstamped_link(int $booking_id): \WC_Order
+	{
+		$order = $this->link($booking_id);
+		$fresh = wc_get_order($order->get_id());
+		$fresh->delete_meta_data('_mhmrentiva_remaining_due_minor');
+		$fresh->save();
+		return $fresh;
+	}
+
+	public function test_an_order_from_before_the_stamp_clears_once_and_leaves_a_later_debt(): void
+	{
+		// The order's one payment clears the balance it was paid for. A debt
+		// added after that (an extra day, a damage charge) is not paid by the
+		// same order when it moves on to completed.
+		$booking_id = $this->booking();
+		$order      = $this->unstamped_link($booking_id);
+
+		$this->move($order, 'processing');
 		$this->assertEquals(0.0, (float) $this->remaining($booking_id));
-		$this->assertSame('', $this->mismatch($booking_id));
+		$this->assertNotSame('', (string) wc_get_order($order->get_id())->get_meta('_mhmrentiva_remaining_applied', true));
+
+		update_post_meta($booking_id, '_mhmrentiva_remaining_amount', '500');
+		$this->move($order, 'completed');
+
+		$this->assertEquals(500.0, (float) $this->remaining($booking_id));
+	}
+
+	/**
+	 * Paid before the upgrade: the old code cleared the balance and left no
+	 * applied mark. A debt added since is not paid by that order coming back
+	 * to a paid status -- on to completed, or back from on-hold or cancelled.
+	 *
+	 * @dataProvider return_paths
+	 */
+	public function test_an_order_from_before_the_stamp_the_old_code_applied_does_not_clear_a_later_debt(string $via): void
+	{
+		$booking_id = $this->booking();
+		$order      = $this->unstamped_link($booking_id);
+		$this->move($order, 'processing');
+		$fresh = wc_get_order($order->get_id());
+		$fresh->delete_meta_data('_mhmrentiva_remaining_applied'); // applied by the pre-upgrade code
+		$fresh->save();
+
+		update_post_meta($booking_id, '_mhmrentiva_remaining_amount', '500');
+		if ('' !== $via) {
+			$this->move($fresh, $via);
+		}
+		$this->move($fresh, '' !== $via ? 'processing' : 'completed');
+
+		$this->assertEquals(500.0, (float) $this->remaining($booking_id));
+		$this->assertIsArray($this->mismatch($booking_id), 'flagged for a human');
+	}
+
+	/**
+	 * The same, when the new debt happens to equal what the order asked: its
+	 * amount fits, but the money it carries was taken days ago, before the
+	 * applied mark existed. WooCommerce keeps that day in date_paid.
+	 *
+	 * @dataProvider return_paths
+	 */
+	public function test_an_order_paid_days_ago_without_the_applied_mark_does_not_clear_an_equal_new_debt(string $via): void
+	{
+		foreach (array( true, false ) as $stamped) {
+			$booking_id = $this->booking();
+			$order      = $stamped ? $this->link($booking_id) : $this->unstamped_link($booking_id);
+			$this->move($order, 'processing');
+			$fresh = wc_get_order($order->get_id());
+			$fresh->delete_meta_data('_mhmrentiva_remaining_applied'); // applied by the pre-upgrade code
+			$fresh->set_date_paid(time() - 3 * DAY_IN_SECONDS);
+			$fresh->save();
+
+			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', '1000'); // equal to the order's amount
+			if ('' !== $via) {
+				$this->move($fresh, $via);
+			}
+			$this->move($fresh, '' !== $via ? 'processing' : 'completed');
+
+			$label = $stamped ? 'stamped' : 'unstamped';
+			$this->assertEquals(1000.0, (float) $this->remaining($booking_id), $label);
+			$flag = $this->mismatch($booking_id);
+			$this->assertIsArray($flag, $label);
+		}
+	}
+
+	public function test_a_read_failure_on_an_order_paid_days_ago_does_not_open_it_again(): void
+	{
+		// The retry mark is for an order never judged. One paid on an earlier
+		// day, back from on-hold while the balance cannot be read, does not get
+		// it -- otherwise an equal new debt would be cleared on completed.
+		$booking_id = $this->booking();
+		$order      = $this->unstamped_link($booking_id);
+		$this->move($order, 'processing');
+		$fresh = wc_get_order($order->get_id());
+		$fresh->delete_meta_data('_mhmrentiva_remaining_applied'); // applied by the pre-upgrade code
+		$fresh->set_date_paid(time() - 3 * DAY_IN_SECONDS);
+		$fresh->save();
+
+		$this->move($fresh, 'on-hold');
+		add_post_meta($booking_id, '_mhmrentiva_remaining_amount', '999'); // two rows that disagree: unreadable
+		$this->move($fresh, 'processing');
+		$this->assertSame('', (string) wc_get_order($order->get_id())->get_meta('_mhmrentiva_remaining_retry', true));
+
+		delete_post_meta($booking_id, '_mhmrentiva_remaining_amount');
+		update_post_meta($booking_id, '_mhmrentiva_remaining_amount', '1000'); // equal to the order's amount
+		$this->move($fresh, 'completed');
+
+		$this->assertEquals(1000.0, (float) $this->remaining($booking_id));
+		$this->assertIsArray($this->mismatch($booking_id));
+	}
+
+	/**
+	 * @dataProvider return_paths
+	 */
+	public function test_a_clear_that_could_not_be_read_back_is_not_retried_against_a_later_debt(string $via): void
+	{
+		// The write held, but neither read-back could say so. A retry mark
+		// would let the next transition clear a debt added since, with no new
+		// money; without it, a balance still owed is flagged for a human.
+		$booking_id = $this->booking();
+		$order      = $this->link($booking_id);
+		$written    = false;
+		$break      = static function (string $query) use (&$written): string {
+			if (false !== strpos($query, '_mhmrentiva_remaining_amount')) {
+				if (0 === stripos(ltrim($query), 'UPDATE') || 0 === stripos(ltrim($query), 'INSERT')) {
+					$written = true;
+				} elseif ($written && 0 === stripos(ltrim($query), 'SELECT')) {
+					return 'SELECT * FROM mhmrentiva_no_such_table';
+				}
+			}
+			return $query;
+		};
+		add_filter('query', $break);
+		$this->move($order, 'processing');
+		remove_filter('query', $break);
+
+		$this->assertTrue($written, 'premise: the clear was written');
+		$this->assertEquals(0.0, (float) $this->remaining($booking_id), 'premise: and it held');
+		$fresh = wc_get_order($order->get_id());
+		$this->assertSame('', (string) $fresh->get_meta('_mhmrentiva_remaining_retry', true));
+		$this->assertSame('', (string) $fresh->get_meta('_mhmrentiva_remaining_applied', true));
+
+		// In the same request: the order's date_paid is not older than it.
+		update_post_meta($booking_id, '_mhmrentiva_remaining_amount', '1000'); // a new debt, equal to the order's amount
+		if ('' !== $via) {
+			$this->move($fresh, $via);
+		}
+		$this->move($fresh, '' !== $via ? 'processing' : 'completed');
+
+		$this->assertEquals(1000.0, (float) $this->remaining($booking_id));
+		$this->assertIsArray($this->mismatch($booking_id));
+	}
+
+	public function test_an_order_paid_days_ago_with_nothing_owed_is_left_alone(): void
+	{
+		$booking_id = $this->booking();
+		$order      = $this->unstamped_link($booking_id);
+		$this->move($order, 'processing');
+		$fresh = wc_get_order($order->get_id());
+		$fresh->delete_meta_data('_mhmrentiva_remaining_applied');
+		$fresh->set_date_paid(time() - 3 * DAY_IN_SECONDS);
+		$fresh->save();
+
+		$this->move($fresh, 'on-hold');
+		$this->move($fresh, 'processing');
+
+		$this->assertEquals(0.0, (float) $this->remaining($booking_id));
+		$this->assertSame('', $this->mismatch($booking_id), 'a settled booking is not flagged');
+	}
+
+	public function test_a_first_payment_whose_read_failed_days_ago_is_still_judged(): void
+	{
+		// The retry mark says the order was never judged: an old date_paid
+		// does not turn it into one the old code applied.
+		$booking_id = $this->booking();
+		$order      = $this->unstamped_link($booking_id);
+		add_post_meta($booking_id, '_mhmrentiva_remaining_amount', '999'); // unreadable
+		$this->move($order, 'processing');
+		$fresh = wc_get_order($order->get_id());
+		$fresh->set_date_paid(time() - 3 * DAY_IN_SECONDS);
+		$fresh->save();
+		delete_post_meta($booking_id, '_mhmrentiva_remaining_amount');
+		update_post_meta($booking_id, '_mhmrentiva_remaining_amount', '1000');
+
+		$this->move($fresh, 'completed');
+
+		$this->assertEquals(0.0, (float) $this->remaining($booking_id));
+	}
+
+	/** @return array<string, array{string}> */
+	public static function return_paths(): array
+	{
+		return array(
+			'on to completed'      => array( '' ),
+			'back from on-hold'    => array( 'on-hold' ),
+			'back from cancelled'  => array( 'cancelled' ),
+		);
+	}
+
+	public function test_an_order_from_before_the_stamp_whose_balance_write_did_not_hold_stays_retryable(): void
+	{
+		// The applied mark ends every later attempt, so on an unstamped order
+		// too it follows only a write that held.
+		$booking_id = $this->booking();
+		$order      = $this->unstamped_link($booking_id);
+		$refuse     = static function ($check, $object_id, $meta_key) use ($booking_id) {
+			return ( (int) $object_id === $booking_id && '_mhmrentiva_remaining_amount' === $meta_key ) ? false : $check;
+		};
+		add_filter('update_post_metadata', $refuse, 10, 3);
+		$this->move($order, 'processing');
+		remove_filter('update_post_metadata', $refuse, 10);
+
+		$this->assertEquals(1000.0, (float) $this->remaining($booking_id));
+		$this->assertSame('', (string) wc_get_order($order->get_id())->get_meta('_mhmrentiva_remaining_applied', true));
+
+		// The next transition may come days later: the order still says it
+		// was never judged.
+		$fresh = wc_get_order($order->get_id());
+		$fresh->set_date_paid(time() - 3 * DAY_IN_SECONDS);
+		$fresh->save();
+		$this->move($fresh, 'completed');
+
+		$this->assertEquals(0.0, (float) $this->remaining($booking_id), 'the next transition settles it');
+		$this->assertNotSame('', (string) wc_get_order($order->get_id())->get_meta('_mhmrentiva_remaining_applied', true));
+	}
+
+	public function test_an_order_from_before_the_stamp_whose_first_read_failed_still_clears_on_the_next_transition(): void
+	{
+		$booking_id = $this->booking();
+		$order      = $this->unstamped_link($booking_id);
+		add_post_meta($booking_id, '_mhmrentiva_remaining_amount', '999'); // two rows that disagree: unreadable
+		$this->move($order, 'processing');
+
+		delete_post_meta($booking_id, '_mhmrentiva_remaining_amount');
+		update_post_meta($booking_id, '_mhmrentiva_remaining_amount', '1000');
+		$this->move($order, 'completed');
+
+		$this->assertEquals(0.0, (float) $this->remaining($booking_id));
+		$fresh = wc_get_order($order->get_id());
+		$this->assertNotSame('', (string) $fresh->get_meta('_mhmrentiva_remaining_applied', true));
+		$this->assertSame('', (string) $fresh->get_meta('_mhmrentiva_remaining_retry', true));
 	}
 }
