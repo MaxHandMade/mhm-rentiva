@@ -11202,6 +11202,12 @@ msgstr ""
 "Bir rezervasyonun kalan tutarı, ödemesi (sipariş #%d) geldiğinde "
 "sıfırlanamadı; bir sonraki durum değişikliğinde yeniden denenecek."
 
+#. translators: %d: the WooCommerce order id.
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3758
+#, php-format
+msgid "The remaining amount of a booking was cleared when its payment (order #%d) arrived, but the cleared balance could not be read back. Check the booking's remaining amount and correct it by hand if needed; the order will not clear it again."
+msgstr "Bir rezervasyonun kalan tutarı, ödemesi (sipariş #%d) geldiğinde sıfırlandı ancak sıfırlanan bakiye geri okunamadı. Rezervasyonun kalan tutarını kontrol edin ve gerekirse elle düzeltin; sipariş bunu bir daha sıfırlamayacak."
+
 #. translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount.
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3772
 #, php-format
@@ -11225,6 +11231,12 @@ msgstr ""
 "Bu rezervasyona artık geçerli olmayan bir tutarda ödeme geldi (sipariş #%1$d "
 "%2$s tahsil etti; kalan tutar %3$s). Kalan tutar değiştirilmedi: lütfen "
 "kontrol edin ve elle düzeltin."
+
+#. translators: 1: the WooCommerce order id, 2: the amount the order collected, 3: the booking's current remaining amount.
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3812
+#, php-format
+msgid "Order #%1$d was marked paid again, but its payment (%2$s) was taken before this status change and has most likely been counted on this booking already. The remaining amount of %3$s was left unchanged: check the booking's payments, then collect it with a new payment link or correct it by hand."
+msgstr "Sipariş #%1$d yeniden ödenmiş olarak işaretlendi ancak ödemesi (%2$s) bu durum değişikliğinden önce alınmıştı ve büyük olasılıkla bu rezervasyonda zaten sayılmıştı. %3$s tutarındaki kalan tutar değiştirilmedi: rezervasyonun ödemelerini kontrol edin, ardından yeni bir ödeme bağlantısıyla tahsil edin ya da elle düzeltin."
 
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3848
 msgid "Booking completed — rental period ended."
