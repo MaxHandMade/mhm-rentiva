@@ -147,7 +147,9 @@
 
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th {
 	text-align: left;
-	padding: 11px 14px;
+	/* No vertical padding: the kit gives header cells their height (40px, 44px
+	   under 782px); padding here would add to it. */
+	padding: 0 14px;
 	border-bottom: 1px solid #eceef1;
 	font-weight: 600;
 	color: #646970;
@@ -163,6 +165,12 @@
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table td.is-check {
 	width: 34px;
 	padding: 8px 4px 8px 12px;
+}
+
+/* The header cell's height comes from the kit, like the other headers. */
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th.is-check {
+	padding-top: 0;
+	padding-bottom: 0;
 }
 
 /* A sortable header is the kit's button: the cell gives up its padding to
