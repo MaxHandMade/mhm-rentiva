@@ -115,4 +115,50 @@ final class CustomerExporterTest extends WP_UnitTestCase
         $this->assertStringNotContainsString( "\xC2\xA0", $spent, 'No non-breaking space may survive into the exported value.' );
         $this->assertNotSame( '', (string) $data[ $currency_index ], 'The Currency column must carry the site currency code.' );
     }
+
+    /**
+     * A customer picks their own display name, so a name can hide a formula
+     * behind a `;` (the list separator of a Turkish or German spreadsheet). The
+     * written rows must escape that part, and leave the numeric columns as
+     * plain numbers a spreadsheet can SUM(). Core turns a line break in a
+     * display name into a space; the line-break rule itself is in CsvCellTest.
+     */
+    public function test_written_rows_escape_a_formula_after_a_separator_and_keep_numbers_plain(): void
+    {
+        wp_set_current_user( $this->admin_id );
+
+        $uid = (int) $this->factory->user->create(
+            array(
+                'role'         => 'customer',
+                'display_name' => 'Ali;=HYPERLINK("x"),@SUM(A1)',
+            )
+        );
+
+        $rows   = CustomerExporter::written_rows( CustomerExporter::get_csv_rows( '', array( $uid ) ) );
+        $header = $rows[0];
+        $data   = $rows[1];
+
+        $this->assertSame( CustomerExporter::CSV_HEADER, $header, 'The header row is written unchanged.' );
+
+        $name = $data[ array_search( 'Name', $header, true ) ];
+        $this->assertSame( "Ali;'=HYPERLINK(\"x\"),'@SUM(A1)", $name );
+
+        $this->assertSame( '0', $data[ array_search( 'Bookings', $header, true ) ] );
+        $this->assertSame( '0.00', $data[ array_search( 'Total Spent', $header, true ) ] );
+    }
+
+    public function test_a_negative_total_stays_a_number(): void
+    {
+        $rows = CustomerExporter::written_rows(
+            array(
+                CustomerExporter::CSV_HEADER,
+                array( '-Ali', 'a@x.com', '+90 555', '2', '-12.50', 'TRY', '', '' ),
+            )
+        );
+
+        $this->assertSame(
+            array( "'-Ali", 'a@x.com', "'+90 555", '2', '-12.50', 'TRY', '', '' ),
+            $rows[1]
+        );
+    }
 }
