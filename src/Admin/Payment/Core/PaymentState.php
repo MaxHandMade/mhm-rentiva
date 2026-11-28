@@ -63,6 +63,7 @@ final class PaymentState {
 		private readonly int    $offline_paid,
 		private readonly int    $offline_refunded,
 		private readonly bool   $mixed_currency = false,
+		private readonly int    $wc_paid_tax = 0,
 	) {
 	}
 
@@ -78,6 +79,7 @@ final class PaymentState {
 		$order_ids = self::resolvePaidOrders($booking_id);
 
 		$paid       = 0;
+		$paid_tax   = 0;
 		$refunded   = 0;
 		$refundable = 0;
 		$currency   = '';
@@ -94,6 +96,12 @@ final class PaymentState {
 			$refunded += Money::toMinor($order->get_total_refunded());
 			// get_remaining_refund_amount() returns a MAJOR-unit string.
 			$refundable += Money::toMinor($order->get_remaining_refund_amount());
+
+			// Each order on the basis it was priced in, not today's setting: the
+			// store can switch between prices with and without tax after payment.
+			if (! $order->get_prices_include_tax()) {
+				$paid_tax += Money::toMinor($order->get_total_tax());
+			}
 
 			if ($currency === '') {
 				$currency = (string) $order->get_currency();
@@ -120,7 +128,8 @@ final class PaymentState {
 			$currency,
 			$offline_paid,
 			$offline_refunded,
-			$mixed
+			$mixed,
+			$paid_tax
 		);
 	}
 
@@ -246,6 +255,30 @@ final class PaymentState {
 		}
 
 		return $this->wc_paid + $this->offline_paid;
+	}
+
+	/**
+	 * Money that arrived, on the basis the booking's own amounts are on -- the
+	 * figure to set against its total, deposit or remaining amount.
+	 *
+	 * The booking's amounts are on the basis prices are entered in. With
+	 * prices entered without tax, a paid order's total carries the tax on top
+	 * (10 entered, 12 charged), so paid() set against a booking total leaves
+	 * the remaining amount short by that tax. Here an order priced without
+	 * tax counts without its tax -- read from the order itself, so a later
+	 * change of the store setting does not move what an earlier order counts
+	 * as. The offline channel is total less remaining already, on the
+	 * booking's basis.
+	 *
+	 * Zeroed when isMixedCurrency(), for the same reason as paid().
+	 */
+	public function paidOnPriceBasis(): int
+	{
+		if ($this->mixed_currency) {
+			return 0;
+		}
+
+		return $this->wc_paid - $this->wc_paid_tax + $this->offline_paid;
 	}
 
 	/**

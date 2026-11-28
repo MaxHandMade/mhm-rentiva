@@ -240,11 +240,13 @@ final class BookingEditPriceFloor {
 			return '';
 		}
 
+		// Collected on the total's own side of tax (paidOnPriceBasis()), so the
+		// floor compares like with like.
 		$state     = PaymentState::forBooking( $post_id );
 		$mixed     = $state->isMixedCurrency();
 		$foreign   = self::paid_in_a_foreign_currency( $state );
 		$shared    = self::shares_an_order( $post_id, $state );
-		$collected = $mixed || $foreign || $shared ? 0 : $state->paid();
+		$collected = $mixed || $foreign || $shared ? 0 : $state->paidOnPriceBasis();
 		$type      = (string) get_post_meta( $post_id, '_mhmrentiva_payment_type', true );
 
 		// The same mode recalculate_booking_costs() prices with, so an unchanged
