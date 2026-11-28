@@ -83,6 +83,24 @@ final class DepositSplitAddsUpTest extends WP_UnitTestCase
 		$this->assertSame(100.0, $none['remaining_amount']);
 	}
 
+	public function test_a_whole_unit_store_splits_at_its_own_precision(): void
+	{
+		$previous = get_option('woocommerce_price_num_decimals');
+		update_option('woocommerce_price_num_decimals', '0');
+
+		try {
+			$split = DepositCalculator::split_total(105.0, 10.0);
+		} finally {
+			update_option('woocommerce_price_num_decimals', $previous);
+		}
+
+		// 10.5 is not a price such a store can charge: the deposit is a whole
+		// unit and the remaining amount is the rest, still adding up to 105.
+		$this->assertSame(11.0, $split['deposit']);
+		$this->assertSame(94.0, $split['remaining']);
+		$this->assertSame(105.0, $split['total']);
+	}
+
 	private function cents(float $amount): int
 	{
 		return (int) round($amount * 100);

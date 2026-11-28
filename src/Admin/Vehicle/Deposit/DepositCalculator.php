@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Vehicle\Deposit;
 
+use MHMRentiva\Admin\Payment\Core\Money;
+
 if (! defined('ABSPATH')) {
 	exit;
 }
@@ -77,7 +79,7 @@ final class DepositCalculator {
 
 	/**
 	 * Split a total into the deposit paid now and the remaining amount paid
-	 * later, in cents, so the two always add up to the total.
+	 * later, in the store's minor units, so the two always add up to the total.
 	 *
 	 * Rounding each half on its own does not: 100.05 at 10% is 10.005 and
 	 * 90.045, which round to 10.01 and 90.05 -- one cent more than the booking
@@ -85,22 +87,22 @@ final class DepositCalculator {
 	 * rest of the total. Every surface that shows a deposit reads it from here,
 	 * so the figure a customer is shown is the figure checkout charges.
 	 *
-	 * @param float $total      The booking total, possibly with a fraction of a cent.
+	 * Money, not a fixed 100: a 0- or 3-decimal store charges at its own
+	 * precision, and the halves must add up there.
+	 *
+	 * @param float $total      The booking total, possibly with a fraction of a minor unit.
 	 * @param float $percentage The deposit rate, 0-100.
 	 * @return array{total: float, deposit: float, remaining: float}
 	 */
 	public static function split_total(float $total, float $percentage): array
 	{
-		$total_cents   = (int) round($total * 100);
-		$deposit_cents = $percentage > 0 ? (int) round($total_cents * $percentage / 100) : 0;
-		$deposit_cents = min($deposit_cents, $total_cents);
+		$total_minor   = max(0, Money::toMinor($total));
+		$deposit_minor = $percentage > 0 ? (int) round($total_minor * min($percentage, 100.0) / 100) : 0;
 
-		// 100.0, not 100: int / int is an int when it divides evenly (10000 / 100
-		// is int(100)), and these were always floats before.
 		return array(
-			'total'     => $total_cents / 100.0,
-			'deposit'   => $deposit_cents / 100.0,
-			'remaining' => max(0, $total_cents - $deposit_cents) / 100.0,
+			'total'     => (float) Money::toMajor($total_minor),
+			'deposit'   => (float) Money::toMajor($deposit_minor),
+			'remaining' => (float) Money::toMajor($total_minor - $deposit_minor),
 		);
 	}
 
