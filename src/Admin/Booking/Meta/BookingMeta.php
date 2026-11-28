@@ -1130,8 +1130,10 @@ final class BookingMeta extends AbstractMetaBox {
 		// products, leave this booking's own share unknown. BookingEditPriceFloor refuses a
 		// total change for both; the payment fields are left as they are below,
 		// since rebuilding them from a deposit would reopen money already paid.
+		// Collected is read on the total's own side of tax (paidOnPriceBasis()),
+		// not as the orders' totals.
 		$unknown   = BookingEditPriceFloor::collected_is_unknown($booking_id, $state);
-		$collected = $unknown ? 0 : $state->paid();
+		$collected = $unknown ? 0 : $state->paidOnPriceBasis();
 
 		// While money has been collected the total is computed in the
 		// calculator's full mode: its deposit mode rounds to two decimals, so a
