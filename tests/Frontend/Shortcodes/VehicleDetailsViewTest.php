@@ -125,6 +125,21 @@ final class VehicleDetailsViewTest extends WP_UnitTestCase
 		$this->assertSame('Deposit (10%)', $booking['breakdown']['deposit']['label']);
 	}
 
+	public function test_the_card_deposit_is_the_deposit_checkout_charges(): void
+	{
+		// A total with a fraction of a cent (a season or weekend multiplier
+		// gives these): the card rounded total x rate on its own, checkout
+		// rounds the total to cents first -- 10.00 on the card, 10.01 charged.
+		update_post_meta($this->vehicle_id, '_mhmrentiva_price_per_day', '100.046');
+		$window = array_merge(self::WINDOW, array( 'return_date' => '2027-07-13' ));
+
+		$card     = $this->view($window)['booking']['breakdown']['deposit'];
+		$checkout = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::calculate_booking_deposit($this->vehicle_id, 1, 'deposit', \MHMRentiva\Admin\Frontend\Shortcodes\Card\RvsCardView::required_addon_ids(), (int) strtotime('2027-07-12 10:00:00'));
+
+		$this->assertNotNull($card);
+		$this->assertSame($checkout['deposit_amount'], $card['amount']);
+	}
+
 	public function test_full_payment_condition_without_deposit(): void
 	{
 		$settings                                   = get_option('mhmrentiva_settings');

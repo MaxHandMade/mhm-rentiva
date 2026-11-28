@@ -72,6 +72,17 @@ final class DepositSplitAddsUpTest extends WP_UnitTestCase
 		$this->assertSame(90.04, (float) $split['remaining_amount']);
 	}
 
+	public function test_a_whole_total_still_returns_floats(): void
+	{
+		$card    = DepositCalculator::calculate_deposit('10%', 100.0, 1);
+		$none    = DepositCalculator::calculate_deposit('0', 100.0, 1);
+
+		$this->assertSame(10.0, $card['deposit_amount']);
+		$this->assertSame(90.0, $card['remaining_amount']);
+		$this->assertSame(100.0, $card['total_amount']);
+		$this->assertSame(100.0, $none['remaining_amount']);
+	}
+
 	private function cents(float $amount): int
 	{
 		return (int) round($amount * 100);
