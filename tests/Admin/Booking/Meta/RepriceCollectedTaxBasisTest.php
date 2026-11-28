@@ -116,6 +116,17 @@ final class RepriceCollectedTaxBasisTest extends WP_UnitTestCase
 		$this->assertSame(\MHMRentiva\Admin\Payment\Core\Money::toMinor(10), $state->paidOnPriceBasis());
 	}
 
+	public function test_an_order_keeps_the_basis_it_was_priced_in_after_the_setting_changes(): void
+	{
+		$this->sandbox_option('woocommerce_prices_include_tax', 'no');
+		$booking = $this->booking_with_a_paid_deposit();
+
+		// The store switches to prices with tax after the deposit was paid.
+		$this->sandbox_option('woocommerce_prices_include_tax', 'yes');
+
+		$this->assertSame(\MHMRentiva\Admin\Payment\Core\Money::toMinor(10), \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking)->paidOnPriceBasis());
+	}
+
 	public function test_prices_with_tax_owe_the_new_total_less_the_order_total(): void
 	{
 		$this->sandbox_option('woocommerce_prices_include_tax', 'yes');

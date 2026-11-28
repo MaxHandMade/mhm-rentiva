@@ -93,10 +93,15 @@ final class PaymentState {
 			}
 
 			$paid     += Money::toMinor($order->get_total());
-			$paid_tax += Money::toMinor($order->get_total_tax());
 			$refunded += Money::toMinor($order->get_total_refunded());
 			// get_remaining_refund_amount() returns a MAJOR-unit string.
 			$refundable += Money::toMinor($order->get_remaining_refund_amount());
+
+			// Each order on the basis it was priced in, not today's setting: the
+			// store can switch between prices with and without tax after payment.
+			if (! $order->get_prices_include_tax()) {
+				$paid_tax += Money::toMinor($order->get_total_tax());
+			}
 
 			if ($currency === '') {
 				$currency = (string) $order->get_currency();
@@ -259,9 +264,11 @@ final class PaymentState {
 	 * The booking's amounts are on the basis prices are entered in. With
 	 * prices entered without tax, a paid order's total carries the tax on top
 	 * (10 entered, 12 charged), so paid() set against a booking total leaves
-	 * the remaining amount short by that tax. Here the orders count without
-	 * their tax in such a store. The offline channel is total less remaining
-	 * already, on the booking's basis.
+	 * the remaining amount short by that tax. Here an order priced without
+	 * tax counts without its tax -- read from the order itself, so a later
+	 * change of the store setting does not move what an earlier order counts
+	 * as. The offline channel is total less remaining already, on the
+	 * booking's basis.
 	 *
 	 * Zeroed when isMixedCurrency(), for the same reason as paid().
 	 */
@@ -271,10 +278,7 @@ final class PaymentState {
 			return 0;
 		}
 
-		$includes_tax = ! function_exists('wc_prices_include_tax') || wc_prices_include_tax();
-		$wc_paid      = $includes_tax ? $this->wc_paid : $this->wc_paid - $this->wc_paid_tax;
-
-		return $wc_paid + $this->offline_paid;
+		return $this->wc_paid - $this->wc_paid_tax + $this->offline_paid;
 	}
 
 	/**
