@@ -55,6 +55,9 @@ export default function RecentBookings( { initial, metrics, currency, adminUrl }
 			) }
 
 			{ ! loading && ! error && !! items.length && (
+				// The kit's scroll box: on a phone the five columns are wider than the
+				// widget, and the admin page clips sideways overflow instead of scrolling.
+				<div className="mhmui-table-wrap">
 				<table className="rv-bookings-table">
 					<thead>
 						<tr>
@@ -88,6 +91,7 @@ export default function RecentBookings( { initial, metrics, currency, adminUrl }
 						) ) }
 					</tbody>
 				</table>
+				</div>
 			) }
 
 			{ totalPages > 1 && (

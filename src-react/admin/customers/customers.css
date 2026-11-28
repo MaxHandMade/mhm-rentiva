@@ -604,8 +604,15 @@
 /* ── Narrow screens: panel stacks under the table ──────────────────── */
 
 @media (max-width: 1100px) {
+	/* One line, stretched. A wrapping column gives every item its own flex
+	   line sized to its content, and flex-start keeps the item at that size:
+	   the table's own width (901px on a 390px phone) became the main column's
+	   and the page clipped it. On a single stretched line the column takes the
+	   screen width and the table scrolls inside its box. */
 	:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-layout {
 		flex-direction: column;
+		flex-wrap: nowrap;
+		align-items: stretch;
 	}
 
 	:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel {

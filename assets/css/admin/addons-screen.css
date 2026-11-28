@@ -422,6 +422,30 @@
 	gap: 12px;
 }
 
+/* On a phone the fixed-width parts of a row (handle, checkbox, avatar, price,
+   status, actions) are wider than the row, so the name shrank to 0 and ran
+   over the price while the actions fell outside the card. The row breaks in
+   two: who the service is on the first line (the name takes at least 60%,
+   which leaves no room for the price there), what it costs and what can be
+   done with it on the second. It sits after the base
+   identity/price/actions rules so it wins at equal specificity. */
+@media screen and ( max-width: 600px ) {
+	#mhm-addons-root .rv-addon-row {
+		flex-wrap: wrap;
+		column-gap: 12px;
+		row-gap: 8px;
+	}
+
+	#mhm-addons-root .rv-addon-identity {
+		flex: 1 1 60%;
+	}
+
+	#mhm-addons-root .rv-addon-price {
+		flex: 1 1 auto;
+		text-align: left;
+	}
+}
+
 /* Destructive, so it is quiet until aimed at rather than red by default --
    a list of three services with a red control on every row reads as a warning
    screen. */
