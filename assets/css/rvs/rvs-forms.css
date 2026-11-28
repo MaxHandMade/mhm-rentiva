@@ -66,14 +66,6 @@
 	cursor: default;
 }
 
-.rvs-shell .rvs-option--qty .rvs-option__body {
-	flex: 1 1 10rem;
-}
-
-.rvs-shell .rvs-option--qty .rvs-stepper {
-	margin-inline-start: auto;
-}
-
 .rvs-shell .rvs-option__body {
 	display: flex;
 	flex: 1;
@@ -167,6 +159,17 @@
 	font-weight: 600;
 	text-align: center;
 	font-variant-numeric: tabular-nums;
+}
+
+/* The quantity option's wrap (see .rvs-option--qty): the name keeps at least
+   10rem, and a stepper pushed to the second line sits at the end of it. After
+   the option and stepper rules, which are less specific. */
+.rvs-shell .rvs-option--qty .rvs-option__body {
+	flex: 1 1 10rem;
+}
+
+.rvs-shell .rvs-option--qty .rvs-stepper {
+	margin-inline-start: auto;
 }
 
 /* Journey steps: wide ------------------------------------------------------- */
