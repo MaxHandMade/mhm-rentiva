@@ -8,6 +8,7 @@ if (! defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Core\CurrencyHelper;
+use MHMRentiva\Admin\Core\Utilities\CsvCell;
 use MHMRentiva\Admin\Customers\CustomerIdentity;
 use MHMRentiva\Admin\Customers\CustomersOptimizer;
 
@@ -85,8 +86,7 @@ final class CustomerExporter {
 		// fclose() on it bought nothing except a WP_Filesystem warning.
 		$handle = fopen( 'php://output', 'w' );
 		if ( $handle ) {
-			foreach ( $rows as $row ) {
-				$row = array_map( array( self::class, 'guard_csv_cell' ), $row );
+			foreach ( self::written_rows( $rows ) as $row ) {
 				fputcsv( $handle, $row );
 			}
 		}
@@ -102,22 +102,32 @@ final class CustomerExporter {
 	}
 
 	/**
-	 * Neutralize CSV formula injection. A cell whose first character is one a
-	 * spreadsheet treats as a formula/command trigger (=, +, -, @, or a leading
-	 * tab/carriage return) is prefixed with a single quote, so Excel/Sheets
-	 * renders it as literal text instead of evaluating it. The quote itself is
-	 * not displayed by the spreadsheet.
+	 * The rows exactly as they are written to the file, formula-escaped.
 	 *
-	 * @param mixed $value Cell value.
-	 * @return string Guarded cell value.
+	 * A spreadsheet would run a cell that starts with `=`, `+`, `-` or `@` --
+	 * also after a `;` or a line break inside the value -- so every text cell
+	 * goes through CsvCell. `Bookings` and `Total Spent` are numbers this class
+	 * formats itself; they stay plain so a spreadsheet can still SUM() them, and
+	 * a refund's negative total is not turned into text. The header is the
+	 * fixed English row and is written as it is. Public for testability.
+	 *
+	 * @param array<int, array<int, string>> $rows Header plus data rows from get_csv_rows().
+	 * @return array<int, list<string>>
 	 */
-	private static function guard_csv_cell( $value ): string
+	public static function written_rows( array $rows ): array
 	{
-		$value = (string) $value;
-		if ( '' !== $value && in_array( $value[0], array( '=', '+', '-', '@', "\t", "\r" ), true ) ) {
-			return "'" . $value;
+		$numeric_keys = array(
+			array_search( 'Bookings', self::CSV_HEADER, true ),
+			array_search( 'Total Spent', self::CSV_HEADER, true ),
+		);
+
+		$out = array();
+		foreach ( $rows as $index => $row ) {
+			$out[] = ( 0 === $index && self::CSV_HEADER === $row )
+				? $row
+				: CsvCell::row( $row, $numeric_keys );
 		}
-		return $value;
+		return $out;
 	}
 
 	/**
