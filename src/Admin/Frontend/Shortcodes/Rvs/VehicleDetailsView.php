@@ -204,8 +204,10 @@ final class VehicleDetailsView {
 		$end    = $parsed[1] ?? 0;
 		$quote  = RentalPricing::quote($vehicle_id, $start, $end, RvsCardView::required_addon_ids());
 
-		$rate    = DepositCalculator::resolve_rate($vehicle_id);
-		$deposit = $rate > 0 ? round($quote->full_amount * $rate / 100, 2) : 0.0;
+		$rate = DepositCalculator::resolve_rate($vehicle_id);
+		// The split checkout charges, not a rounding of its own: on a total with a
+		// fraction of a cent the two differ by a cent.
+		$deposit = $rate > 0 ? DepositCalculator::split_total($quote->full_amount, $rate)['deposit'] : 0.0;
 
 		// The booking form's own rules first (past, same day, advance window,
 		// minimum / maximum days), so "Continue" never leads to a refusal.
