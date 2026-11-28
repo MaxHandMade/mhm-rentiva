@@ -61,25 +61,41 @@ final class DepositCalculator {
 			);
 		}
 
-		$deposit_type   = self::get_deposit_type($deposit_value);
-		$deposit_amount = 0;
-
-		if ($deposit_type === 'percentage') {
-			$percentage     = self::extract_percentage($deposit_value);
-			$total_amount   = $daily_price * $rental_days;
-			$deposit_amount = ( $total_amount * $percentage ) / 100;
-		}
-
-		$total_amount     = $daily_price * $rental_days;
-		$remaining_amount = max(0, $total_amount - $deposit_amount);
+		$deposit_type = self::get_deposit_type($deposit_value);
+		$percentage   = $deposit_type === 'percentage' ? self::extract_percentage($deposit_value) : 0.0;
+		$split        = self::split_total($daily_price * $rental_days, $percentage);
 
 		return array(
-			'deposit_amount'     => round($deposit_amount, 2),
+			'deposit_amount'     => $split['deposit'],
 			'deposit_type'       => $deposit_type,
-			'total_amount'       => round($total_amount, 2),
-			'remaining_amount'   => round($remaining_amount, 2),
+			'total_amount'       => $split['total'],
+			'remaining_amount'   => $split['remaining'],
 			'deposit_percentage' => $deposit_type === 'percentage' ? self::extract_percentage($deposit_value) : 0,
 			'daily_price'        => round($daily_price, 2),
+		);
+	}
+
+	/**
+	 * Split a total into the deposit paid now and the remaining amount paid
+	 * later, in cents, so the two always add up to the total.
+	 *
+	 * Rounding each half on its own does not: 100.05 at 10% is 10.005 and
+	 * 90.045, which round to 10.01 and 90.05 -- one cent more than the booking
+	 * costs. Here the deposit is rounded once and the remaining amount is the
+	 * rest of the total.
+	 *
+	 * @return array{total: float, deposit: float, remaining: float}
+	 */
+	private static function split_total(float $total, float $percentage): array
+	{
+		$total_cents   = (int) round($total * 100);
+		$deposit_cents = $percentage > 0 ? (int) round($total_cents * $percentage / 100) : 0;
+		$deposit_cents = min($deposit_cents, $total_cents);
+
+		return array(
+			'total'     => $total_cents / 100,
+			'deposit'   => $deposit_cents / 100,
+			'remaining' => max(0, $total_cents - $deposit_cents) / 100,
 		);
 	}
 
@@ -243,21 +259,20 @@ final class DepositCalculator {
 			);
 		}
 
-		$deposit_type     = self::TYPE_PERCENTAGE;
-		$deposit_amount   = ( $total_amount * $rate ) / 100;
-		$remaining_amount = max(0, $total_amount - $deposit_amount);
+		$deposit_type = self::TYPE_PERCENTAGE;
+		$split        = self::split_total($total_amount, $rate);
 
 		return array(
 			'success'          => true,
 			'payment_type'     => 'deposit',
-			'deposit_amount'   => round($deposit_amount, 2),
-			'total_amount'     => round($total_amount, 2), // Total amount (vehicle + addons)
-			'remaining_amount' => round($remaining_amount, 2), // Total amount minus deposit
+			'deposit_amount'   => $split['deposit'],
+			'total_amount'     => $split['total'], // Total amount (vehicle + addons)
+			'remaining_amount' => $split['remaining'], // Total amount minus deposit
 			'deposit_type'     => $deposit_type,
 			'deposit_percentage' => $rate,
-			'payment_display'  => $deposit_amount > 0 ?
+			'payment_display'  => $split['deposit'] > 0 ?
 				/* translators: %s: formatted deposit amount including the currency symbol. */
-				sprintf(__('Deposit: %s', 'mhm-rentiva'), \MHMRentiva\Admin\Core\CurrencyHelper::format_price($deposit_amount, 2)) :
+				sprintf(__('Deposit: %s', 'mhm-rentiva'), \MHMRentiva\Admin\Core\CurrencyHelper::format_price($split['deposit'], 2)) :
 				__('No Deposit', 'mhm-rentiva'),
 			'vehicle_total'    => round($vehicle_total, 2),
 			'addon_total'      => round($addon_total, 2),
