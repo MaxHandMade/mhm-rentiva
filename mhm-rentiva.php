@@ -224,7 +224,7 @@ if ( file_exists( $mhmrentiva_uicore_register_file ) ) {
 	// older one win. It cannot be read from the package -- registration happens before
 	// any bootstrap loads. bin/check-uicore-version.php locks the two together.
 	mhmuicore_register(
-		'0.27.3',
+		'0.27.5',
 		__DIR__ . '/vendor/mhm/ui-core/bootstrap.php'
 	);
 }
