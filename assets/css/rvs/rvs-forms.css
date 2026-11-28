@@ -55,10 +55,23 @@
 	accent-color: var(--rvs-accent-strong);
 }
 
-/* An option with a stepper sits on its centre line. */
+/* An option with a stepper sits on its centre line. Where the name, the price
+   and the stepper do not fit on one line (a phone, a narrow column), the
+   price and the stepper move to a second line instead of squeezing the name:
+   at 272px the name was left 40px, broke mid-word and ran into the price. */
 .rvs-shell .rvs-option--qty {
+	flex-wrap: wrap;
+	row-gap: var(--rvs-s2, 8px);
 	align-items: center;
 	cursor: default;
+}
+
+.rvs-shell .rvs-option--qty .rvs-option__body {
+	flex: 1 1 10rem;
+}
+
+.rvs-shell .rvs-option--qty .rvs-stepper {
+	margin-inline-start: auto;
 }
 
 .rvs-shell .rvs-option__body {
